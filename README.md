@@ -18,4 +18,4 @@ Maven Usage
 ## Contributing
 
 If you want to contribute to this project, then follow please
-these [instructions](https://github.com/enofex/taikan/blob/main/CONTRIBUTING.md).
+these [instructions](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md).
