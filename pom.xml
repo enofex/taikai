@@ -7,7 +7,7 @@
   </prerequisites>
 
   <modelVersion>4.0.0</modelVersion>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <groupId>com.enofex</groupId>
   <artifactId>taikai-parent</artifactId>
@@ -41,11 +41,6 @@
     <jreleaser-maven-plugin.version>1.11.0</jreleaser-maven-plugin.version>
   </properties>
 
-  <modules>
-    <module>taikai-core</module>
-    <module>taikai-spring</module>
-  </modules>
-
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -63,13 +58,13 @@
       <groupId>com.tngtech.archunit</groupId>
       <artifactId>archunit</artifactId>
       <version>${archunit.version}</version>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.tngtech.archunit</groupId>
       <artifactId>archunit-junit5-api</artifactId>
       <version>${archunit.version}</version>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
