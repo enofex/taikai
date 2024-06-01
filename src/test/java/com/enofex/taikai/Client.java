@@ -13,12 +13,17 @@ class Client {
         .spring(defaults())
         .spring(disable())
         .spring(spring -> spring.enable(
+            SpringRules.controllers().shouldHaveNameEndingController(),
+            SpringRules.controllers().shouldHaveNameEnding("regex"),
             SpringRules.controllers().shouldBeAnnotatedWithRestController(),
             SpringRules.controllers().shouldBeAnnotatedWithRestController("regex"),
             SpringRules.controllers().shouldBeAnnotatedWithController(),
             SpringRules.controllers().shouldBeAnnotatedWithController("regex"),
             SpringRules.controllers().shouldBePackagePrivate(),
-            SpringRules.controllers().shouldNotDependOnOtherController()
+            SpringRules.controllers().shouldNotDependOnOtherController(),
+
+            SpringRules.configurations().shouldHaveNameEndingConfiguration(),
+            SpringRules.configurations().shouldHaveNameEnding("regex")
         ))
 
         .build();

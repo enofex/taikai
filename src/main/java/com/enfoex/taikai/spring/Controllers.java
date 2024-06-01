@@ -14,6 +14,19 @@ public final class Controllers {
   Controllers() {
   }
 
+  public ArchRule shouldHaveNameEndingController() {
+    return shouldHaveNameEnding(DEFAULT_CONTROLLER_NAME_MATCHING);
+  }
+
+  public ArchRule shouldHaveNameEnding(String regex) {
+    return classes().that()
+        .areAnnotatedWith("org.springframework.web.bind.annotation.RestController")
+        .or()
+        .areAnnotatedWith("org.springframework.web.bind.annotation.Controller")
+        .should().haveNameMatching(regex)
+        .as("Controllers should have name ending " + regex);
+  }
+
   public ArchRule shouldBeAnnotatedWithRestController() {
     return shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING);
   }
