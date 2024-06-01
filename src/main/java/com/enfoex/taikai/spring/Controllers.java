@@ -9,16 +9,16 @@ import com.tngtech.archunit.lang.ArchRule;
 
 public final class Controllers {
 
-  private static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".*Controller";
+  public static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".*Controller";
 
   Controllers() {
   }
 
   public ArchRule shouldHaveNameEndingController() {
-    return shouldHaveNameEnding(DEFAULT_CONTROLLER_NAME_MATCHING);
+    return shouldHaveNameMatching(DEFAULT_CONTROLLER_NAME_MATCHING);
   }
 
-  public ArchRule shouldHaveNameEnding(String regex) {
+  public ArchRule shouldHaveNameMatching(String regex) {
     return classes().that()
         .areAnnotatedWith("org.springframework.web.bind.annotation.RestController")
         .or()

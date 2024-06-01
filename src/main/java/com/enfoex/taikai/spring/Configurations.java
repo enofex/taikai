@@ -6,16 +6,16 @@ import com.tngtech.archunit.lang.ArchRule;
 
 public final class Configurations {
 
-  private static final String DEFAULT_CONFIGURATION_NAME_MATCHING = ".*Configuration";
+  public static final String DEFAULT_CONFIGURATION_NAME_MATCHING = ".*Configuration";
 
   Configurations() {
   }
 
   public ArchRule shouldHaveNameEndingConfiguration() {
-    return shouldHaveNameEnding(DEFAULT_CONFIGURATION_NAME_MATCHING);
+    return shouldHaveNameMatching(DEFAULT_CONFIGURATION_NAME_MATCHING);
   }
 
-  public ArchRule shouldHaveNameEnding(String regex) {
+  public ArchRule shouldHaveNameMatching(String regex) {
     return classes().that()
         .areAnnotatedWith("org.springframework.context.annotation.Configuration")
         .should().haveNameMatching(regex)

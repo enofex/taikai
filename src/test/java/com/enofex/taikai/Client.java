@@ -2,9 +2,10 @@ package com.enofex.taikai;
 
 import static com.enfoex.taikai.Customizer.defaults;
 import static com.enfoex.taikai.Customizer.disable;
+import static com.enfoex.taikai.spring.SpringRules.configurations;
+import static com.enfoex.taikai.spring.SpringRules.controllers;
 
 import com.enfoex.taikai.Taikai;
-import com.enfoex.taikai.spring.SpringRules;
 
 class Client {
 
@@ -13,17 +14,17 @@ class Client {
         .spring(defaults())
         .spring(disable())
         .spring(spring -> spring.enable(
-            SpringRules.controllers().shouldHaveNameEndingController(),
-            SpringRules.controllers().shouldHaveNameEnding("regex"),
-            SpringRules.controllers().shouldBeAnnotatedWithRestController(),
-            SpringRules.controllers().shouldBeAnnotatedWithRestController("regex"),
-            SpringRules.controllers().shouldBeAnnotatedWithController(),
-            SpringRules.controllers().shouldBeAnnotatedWithController("regex"),
-            SpringRules.controllers().shouldBePackagePrivate(),
-            SpringRules.controllers().shouldNotDependOnOtherController(),
+            controllers().shouldHaveNameEndingController(),
+            controllers().shouldHaveNameMatching("regex"),
+            controllers().shouldBeAnnotatedWithRestController(),
+            controllers().shouldBeAnnotatedWithRestController("regex"),
+            controllers().shouldBeAnnotatedWithController(),
+            controllers().shouldBeAnnotatedWithController("regex"),
+            controllers().shouldBePackagePrivate(),
+            controllers().shouldNotDependOnOtherController(),
 
-            SpringRules.configurations().shouldHaveNameEndingConfiguration(),
-            SpringRules.configurations().shouldHaveNameEnding("regex")
+            configurations().shouldHaveNameEndingConfiguration(),
+            configurations().shouldHaveNameMatching("regex")
         ))
 
         .build();
