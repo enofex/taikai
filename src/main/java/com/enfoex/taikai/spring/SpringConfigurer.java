@@ -1,25 +1,29 @@
 package com.enfoex.taikai.spring;
 
 import com.enfoex.taikai.AbstractConfigurer;
+import com.enfoex.taikai.ConfigurerContext;
 import com.enfoex.taikai.Customizer;
-import com.enfoex.taikai.Configurers;
 import java.util.Objects;
 
 public final class SpringConfigurer extends AbstractConfigurer {
 
-  public SpringConfigurer(Configurers configurers) {
-    super(configurers);
+  public SpringConfigurer(ConfigurerContext configurerContext) {
+    super(configurerContext);
   }
 
   public SpringConfigurer controllers(Customizer<ControllersConfigurer> customizer) {
     Objects.requireNonNull(customizer);
-    customizer.customize(configurers().getOrApply(new ControllersConfigurer(configurers())));
+    customizer.customize(configurerContext()
+        .configurers()
+        .getOrApply(new ControllersConfigurer(configurerContext())));
     return this;
   }
 
   public SpringConfigurer configurations(Customizer<ConfigurationsConfigurer> customizer) {
     Objects.requireNonNull(customizer);
-    customizer.customize(configurers().getOrApply(new ConfigurationsConfigurer(configurers())));
+    customizer.customize(configurerContext()
+        .configurers()
+        .getOrApply(new ConfigurationsConfigurer(configurerContext())));
     return this;
   }
 

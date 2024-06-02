@@ -6,14 +6,14 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 import com.enfoex.taikai.AbstractConfigurer;
-import com.enfoex.taikai.Configurers;
+import com.enfoex.taikai.ConfigurerContext;
 
 public final class ControllersConfigurer extends AbstractConfigurer {
 
   private static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".*Controller";
 
-  public ControllersConfigurer(Configurers configurers) {
-    super(configurers);
+  public ControllersConfigurer(ConfigurerContext configurerContext) {
+    super(configurerContext);
   }
 
   public ControllersConfigurer shouldHaveNameEndingController() {

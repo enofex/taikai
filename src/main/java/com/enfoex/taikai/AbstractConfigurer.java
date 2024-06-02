@@ -7,17 +7,17 @@ import java.util.Objects;
 
 public abstract class AbstractConfigurer implements Configurer {
 
-  private final Configurers configurers;
+  private final ConfigurerContext configurerContext;
   private final Collection<ArchRule> rules;
 
-  protected AbstractConfigurer(Configurers configurers) {
-    Objects.requireNonNull(configurers);
-    this.configurers = configurers;
+  protected AbstractConfigurer(ConfigurerContext configurerContext) {
+    Objects.requireNonNull(configurerContext);
+    this.configurerContext = configurerContext;
     this.rules = new ArrayList<>();
   }
 
-  public Configurers configurers() {
-    return this.configurers;
+  public ConfigurerContext configurerContext() {
+    return this.configurerContext;
   }
 
   @Override
@@ -31,7 +31,7 @@ public abstract class AbstractConfigurer implements Configurer {
 
   public void disable(Class clazz) {
     if (clazz != null) {
-      Configurer configurer = configurers().get(clazz);
+      Configurer configurer = this.configurerContext.configurers().get(clazz);
 
       if (configurer != null) {
         configurer.disable();

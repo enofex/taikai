@@ -3,14 +3,14 @@ package com.enfoex.taikai.spring;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 import com.enfoex.taikai.AbstractConfigurer;
-import com.enfoex.taikai.Configurers;
+import com.enfoex.taikai.ConfigurerContext;
 
 public final class ConfigurationsConfigurer extends AbstractConfigurer {
 
   private static final String DEFAULT_CONFIGURATION_NAME_MATCHING = ".*Configuration";
 
-  public ConfigurationsConfigurer(Configurers configurers) {
-    super(configurers);
+  public ConfigurationsConfigurer(ConfigurerContext configurerContext) {
+    super(configurerContext);
   }
 
   public ConfigurationsConfigurer shouldHaveNameEndingConfiguration() {

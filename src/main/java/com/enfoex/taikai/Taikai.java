@@ -71,7 +71,8 @@ public final class Taikai {
 
     public Builder spring(Customizer<SpringConfigurer> customizer) {
       Objects.requireNonNull(customizer);
-      customizer.customize(this.configurers.getOrApply(new SpringConfigurer(this.configurers)));
+      customizer.customize(this.configurers.getOrApply(
+          new SpringConfigurer(new ConfigurerContext(this.configurers))));
       return this;
     }
 
