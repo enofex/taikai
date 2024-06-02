@@ -3,7 +3,6 @@ package com.enfoex.taikai.spring;
 import com.enfoex.taikai.AbstractConfigurer;
 import com.enfoex.taikai.ConfigurerContext;
 import com.enfoex.taikai.Customizer;
-import java.util.Objects;
 
 public final class SpringConfigurer extends AbstractConfigurer {
 
@@ -11,25 +10,31 @@ public final class SpringConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
-  public SpringConfigurer controllers(Customizer<ControllersConfigurer> customizer) {
-    Objects.requireNonNull(customizer);
-    customizer.customize(configurerContext()
-        .configurers()
-        .getOrApply(new ControllersConfigurer(configurerContext())));
+  public SpringConfigurer configurations(Customizer<ConfigurationsConfigurer> customizer) {
+    customizer(customizer, () -> new ConfigurationsConfigurer(configurerContext()));
     return this;
   }
 
-  public SpringConfigurer configurations(Customizer<ConfigurationsConfigurer> customizer) {
-    Objects.requireNonNull(customizer);
-    customizer.customize(configurerContext()
-        .configurers()
-        .getOrApply(new ConfigurationsConfigurer(configurerContext())));
+  public SpringConfigurer controllers(Customizer<ControllersConfigurer> customizer) {
+    customizer(customizer, () -> new ControllersConfigurer(configurerContext()));
+    return this;
+  }
+
+  public SpringConfigurer services(Customizer<ServicesConfigurer> customizer) {
+    customizer(customizer, () -> new ServicesConfigurer(configurerContext()));
+    return this;
+  }
+
+  public SpringConfigurer repositories(Customizer<RepositoriesConfigurer> customizer) {
+    customizer(customizer, () -> new RepositoriesConfigurer(configurerContext()));
     return this;
   }
 
   @Override
   public void disable() {
-    disable(ControllersConfigurer.class);
     disable(ConfigurationsConfigurer.class);
+    disable(ControllersConfigurer.class);
+    disable(ServicesConfigurer.class);
+    disable(RepositoriesConfigurer.class);
   }
 }

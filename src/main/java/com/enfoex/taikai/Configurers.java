@@ -3,11 +3,12 @@ package com.enfoex.taikai;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public final class Configurers implements Iterable<Configurer> {
 
-  private final LinkedHashMap<Class<? extends Configurer>, Configurer> configurers;
+  private final Map<Class<? extends Configurer>, Configurer> configurers;
 
   Configurers() {
     this.configurers = new LinkedHashMap<>();

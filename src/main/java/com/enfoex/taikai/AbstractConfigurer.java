@@ -4,6 +4,7 @@ import com.tngtech.archunit.lang.ArchRule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public abstract class AbstractConfigurer implements Configurer {
 
@@ -29,7 +30,7 @@ public abstract class AbstractConfigurer implements Configurer {
     return this.rules.add(rule);
   }
 
-  public void disable(Class clazz) {
+  public <T extends Configurer> void disable(Class<T> clazz) {
     if (clazz != null) {
       Configurer configurer = this.configurerContext.configurers().get(clazz);
 
@@ -37,5 +38,12 @@ public abstract class AbstractConfigurer implements Configurer {
         configurer.disable();
       }
     }
+  }
+
+  public <T extends Configurer> void customizer(Customizer<T> customizer, Supplier<T> supplier) {
+    Objects.requireNonNull(customizer);
+    customizer.customize(this.configurerContext
+        .configurers()
+        .getOrApply(supplier.get()));
   }
 }
