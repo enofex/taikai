@@ -7,21 +7,18 @@ class Client {
 
   public static void main(String[] args) {
     Taikai taikai = Taikai.builder()
-        .failOnEmpty(true)
-        .namespace("namespace")
+        .namespace("com.company.project")
+        .failOnEmpty(false)
         .spring(spring -> spring
             .configurations(configuration -> configuration
                 .shouldHaveNameEndingConfiguration()
-                .shouldHaveNameEndingConfiguration()
-                .shouldHaveNameEndingConfiguration()
-                .shouldHaveNameMatching("d"))
+                .shouldHaveNameMatching("Action"))
             .controllers(controllers -> controllers
                 .shouldBePackagePrivate())
-            .controllers(Configurer::disable))
-   //     .spring(Configurer::disable)
+            .services(Configurer::disable))
+        .logging(Configurer::disable)
         .build();
 
-    System.out.printf(taikai.toString());
     taikai.rules().forEach(System.out::println);
   }
 }

@@ -1,5 +1,6 @@
 package com.enfoex.taikai;
 
+import com.enfoex.taikai.logging.LoggingConfigurer;
 import com.enfoex.taikai.spring.SpringConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -73,6 +74,13 @@ public final class Taikai {
       Objects.requireNonNull(customizer);
       customizer.customize(this.configurers.getOrApply(
           new SpringConfigurer(new ConfigurerContext(this.configurers))));
+      return this;
+    }
+
+    public Builder logging(Customizer<LoggingConfigurer> customizer) {
+      Objects.requireNonNull(customizer);
+      customizer.customize(this.configurers.getOrApply(
+          new LoggingConfigurer(new ConfigurerContext(this.configurers))));
       return this;
     }
 
