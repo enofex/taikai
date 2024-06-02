@@ -1,7 +1,9 @@
 package com.enfoex.taikai;
 
+import com.enfoex.taikai.java.JavaConfigurer;
 import com.enfoex.taikai.logging.LoggingConfigurer;
 import com.enfoex.taikai.spring.SpringConfigurer;
+import com.enfoex.taikai.junit5.JUnit5Configurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
@@ -70,6 +72,13 @@ public final class Taikai {
       return this;
     }
 
+    public Builder java(Customizer<JavaConfigurer> customizer) {
+      Objects.requireNonNull(customizer);
+      customizer.customize(this.configurers.getOrApply(
+          new JavaConfigurer(new ConfigurerContext(this.configurers))));
+      return this;
+    }
+
     public Builder spring(Customizer<SpringConfigurer> customizer) {
       Objects.requireNonNull(customizer);
       customizer.customize(this.configurers.getOrApply(
@@ -81,6 +90,13 @@ public final class Taikai {
       Objects.requireNonNull(customizer);
       customizer.customize(this.configurers.getOrApply(
           new LoggingConfigurer(new ConfigurerContext(this.configurers))));
+      return this;
+    }
+
+    public Builder junit5(Customizer<JUnit5Configurer> customizer) {
+      Objects.requireNonNull(customizer);
+      customizer.customize(this.configurers.getOrApply(
+          new JUnit5Configurer(new ConfigurerContext(this.configurers))));
       return this;
     }
 
