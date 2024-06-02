@@ -1,4 +1,4 @@
-package com.enfoex.taikai.junit5;
+package com.enfoex.taikai.test;
 
 import com.enfoex.taikai.AbstractConfigurer;
 import com.enfoex.taikai.ConfigurerContext;

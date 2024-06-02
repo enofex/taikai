@@ -3,7 +3,7 @@ package com.enfoex.taikai;
 import com.enfoex.taikai.java.JavaConfigurer;
 import com.enfoex.taikai.logging.LoggingConfigurer;
 import com.enfoex.taikai.spring.SpringConfigurer;
-import com.enfoex.taikai.junit5.JUnit5Configurer;
+import com.enfoex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
@@ -93,10 +93,10 @@ public final class Taikai {
       return this;
     }
 
-    public Builder junit5(Customizer<JUnit5Configurer> customizer) {
+    public Builder test(Customizer<TestConfigurer> customizer) {
       Objects.requireNonNull(customizer);
       customizer.customize(this.configurers.getOrApply(
-          new JUnit5Configurer(new ConfigurerContext(this.configurers))));
+          new TestConfigurer(new ConfigurerContext(this.configurers))));
       return this;
     }
 

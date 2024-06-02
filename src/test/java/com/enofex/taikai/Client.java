@@ -17,7 +17,7 @@ class Client {
                 .shouldBePackagePrivate())
             .services(Configurer::disable))
         .logging(Configurer::disable)
-        .junit5(Configurer::disable)
+        .test(Configurer::disable)
         .java(Configurer::disable)
         .build();
 
