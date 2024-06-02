@@ -52,6 +52,10 @@ public final class Taikai {
     return new Builder();
   }
 
+  public void check() {
+    this.rules.forEach(rule -> rule.check(classes())); //TODO wrapper JavaClasses
+  }
+
   public static final class Builder {
 
     private final Configurers configurers;

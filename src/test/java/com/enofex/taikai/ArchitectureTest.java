@@ -2,13 +2,14 @@ package com.enofex.taikai;
 
 import com.enfoex.taikai.Configurer;
 import com.enfoex.taikai.Taikai;
+import org.junit.jupiter.api.Test;
 
-class Client {
+class ArchitectureTest {
 
-  public static void main(String[] args) {
+  @Test
+  void shouldFulfilConstrains() {
     Taikai taikai = Taikai.builder()
-        .namespace("com.company.project")
-        .failOnEmpty(false)
+        .namespace("com.enofex.taikai")
         .spring(spring -> spring
             .configurations(configuration -> configuration
                 .shouldHaveNameEndingConfiguration()
@@ -21,6 +22,6 @@ class Client {
         .java(Configurer::disable)
         .build();
 
-    taikai.rules().forEach(System.out::println);
+    taikai.check();
   }
 }
