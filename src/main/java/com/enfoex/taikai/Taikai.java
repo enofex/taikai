@@ -1,55 +1,82 @@
 package com.enfoex.taikai;
 
-import com.enfoex.taikai.spring.SpringCustomizer;
-import java.util.LinkedHashMap;
+import com.enfoex.taikai.spring.SpringConfigurer;
+import com.tngtech.archunit.ArchConfiguration;
+import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.lang.ArchRule;
+import java.util.Collection;
+import java.util.Objects;
 
 public final class Taikai {
 
-  private Taikai() {
+  private boolean failOnEmpty;
+  private String namespace;
+  private final Collection<ArchRule> rules;
+
+  private Taikai(Builder builder) {
+    this.failOnEmpty = builder.failOnEmpty;
+    this.namespace = builder.namespace;
+    this.rules = builder.configurers.all()
+        .stream()
+        .flatMap(configurer -> configurer.rules().stream())
+        .toList();
+
+    ArchConfiguration.get()
+        .setProperty("archRule.failOnEmptyShould", Boolean.valueOf(this.failOnEmpty).toString());
   }
 
-  public static TaikaiBuilder builder() {
-    return new TaikaiBuilder();
+  public boolean failOnEmpty() {
+    return this.failOnEmpty;
   }
 
-  public static final class TaikaiBuilder {
+  public String namespace() {
+    return this.namespace;
+  }
 
-    private final LinkedHashMap<Class<? extends Customizer<TaikaiBuilder>>, Customizer<TaikaiBuilder>> customizers;
+  public JavaClasses classes() {
+    return Namespace.classes(this.namespace);
+  }
 
-    TaikaiBuilder() {
-      this.customizers = new LinkedHashMap<>();
+  public JavaClasses testClasses() {
+    return Namespace.testClasses(this.namespace);
+  }
+
+  public Collection<ArchRule> rules() {
+    return this.rules;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static final class Builder {
+
+    private final Configurers configurers;
+    private boolean failOnEmpty;
+    private String namespace;
+
+    public Builder() {
+      this.configurers = new Configurers();
     }
 
-    public TaikaiBuilder spring(Customizer<SpringCustomizer> customizer) {
-      customizer.customize(this.getOrApply(new SpringCustomizer()));
+    public Builder failOnEmpty(boolean failOnEmpty) {
+      this.failOnEmpty = failOnEmpty;
       return this;
     }
 
-    private <C extends Customizer<TaikaiBuilder>> C getOrApply(C customizer) {
-      C existingCustomizer = (C) this.getCustomizer(customizer.getClass());
-      return existingCustomizer != null ? existingCustomizer : this.apply(customizer);
+    public Builder namespace(String namespace) {
+      this.namespace = namespace;
+      return this;
     }
 
-    private <C extends Customizer<TaikaiBuilder>> C apply(C customizer) {
-      this.addCustomizer(customizer);
-      return customizer;
-    }
-
-    private <C extends Customizer<TaikaiBuilder>> void addCustomizer(C customizer) {
-      Class clazz = customizer.getClass();
-      this.customizers.putIfAbsent(clazz, customizer);
-    }
-
-    private <C extends Customizer<TaikaiBuilder>> C getCustomizer(Class<C> clazz) {
-      return (C) this.customizers.get(clazz);
-    }
-
-    private <C extends Customizer<TaikaiBuilder>> C removeCustomizer(Class<C> clazz) {
-      return (C) this.customizers.remove(clazz);
+    public Builder spring(Customizer<SpringConfigurer> customizer) {
+      Objects.requireNonNull(customizer);
+      customizer.customize(this.configurers.getOrApply(new SpringConfigurer(this.configurers)));
+      return this;
     }
 
     public Taikai build() {
-      return new Taikai();
+      return new Taikai(this);
     }
   }
 }
