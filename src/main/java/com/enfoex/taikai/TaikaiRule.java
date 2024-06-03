@@ -33,20 +33,20 @@ public final class TaikaiRule {
 
   public void check(String globalNamespace) {
     if (this.configuration.javaClasses() != null) {
-      this.archRule.check(this.configuration.javaClasses());
+      this.archRule.check(configuration.javaClasses());
     } else {
-      String namespaceToCheck = this.configuration.namespace() != null
-          ? this.configuration.namespace() : globalNamespace;
+      String namespaceToCheck = configuration.namespace() != null
+          ? configuration.namespace()
+          : globalNamespace;
 
       if (namespaceToCheck == null) {
         throw new IllegalArgumentException(
             "No global namespace and no specific namespace provided.");
       }
 
-      this.archRule.check(
-          this.configuration.namespaceImport() == IMPORT.WITHOUT_TESTS
-              ? Namespace.withoutTests(namespaceToCheck)
-              : Namespace.withTests(namespaceToCheck));
+      this.archRule.check(configuration.namespaceImport() == IMPORT.WITHOUT_TESTS
+          ? Namespace.withoutTests(namespaceToCheck)
+          : Namespace.withTests(namespaceToCheck));
     }
   }
 
@@ -59,8 +59,8 @@ public final class TaikaiRule {
     private Configuration(String namespace, Namespace.IMPORT namespaceImport,
         JavaClasses javaClasses) {
       this.namespace = namespace;
-      this.namespaceImport = namespaceImport != null
-          ? namespaceImport : Namespace.IMPORT.WITHOUT_TESTS;
+      this.namespaceImport = Objects.requireNonNullElse(namespaceImport,
+          Namespace.IMPORT.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
     }
 
