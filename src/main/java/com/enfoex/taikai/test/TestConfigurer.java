@@ -11,8 +11,7 @@ public final class TestConfigurer extends AbstractConfigurer {
   }
 
   public TestConfigurer junit5(Customizer<JUnit5Configurer> customizer) {
-    customizer(customizer, () -> new JUnit5Configurer(configurerContext()));
-    return this;
+    return customizer(customizer, () -> new JUnit5Configurer(configurerContext()));
   }
 
   @Override

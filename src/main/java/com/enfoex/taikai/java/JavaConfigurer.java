@@ -11,8 +11,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer imports(Customizer<ImportsConfigurer> customizer) {
-    customizer(customizer, () -> new ImportsConfigurer(configurerContext()));
-    return this;
+    return customizer(customizer, () -> new ImportsConfigurer(configurerContext()));
   }
 
   @Override

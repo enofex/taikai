@@ -11,7 +11,7 @@ public abstract class AbstractConfigurer implements Configurer {
   private final Collection<TaikaiRule> rules;
 
   protected AbstractConfigurer(ConfigurerContext configurerContext) {
-    this.configurerContext =  Objects.requireNonNull(configurerContext);;
+    this.configurerContext =  Objects.requireNonNull(configurerContext);
     this.rules = new ArrayList<>();
   }
 
@@ -39,11 +39,13 @@ public abstract class AbstractConfigurer implements Configurer {
     }
   }
 
-  public <T extends Configurer> void customizer(Customizer<T> customizer, Supplier<T> supplier) {
+  public <T extends Configurer, C extends Configurer> C customizer(Customizer<T> customizer, Supplier<T> supplier) {
     Objects.requireNonNull(customizer);
     Objects.requireNonNull(supplier);
     customizer.customize(this.configurerContext
         .configurers()
         .getOrApply(supplier.get()));
+
+    return (C) this;
   }
 }

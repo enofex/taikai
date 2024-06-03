@@ -15,6 +15,8 @@ class ArchitectureTest {
                 .shouldHaveNameEndingConfiguration()
                 .shouldHaveNameMatching("Action"))
             .controllers(controllers -> controllers
+                .shouldBeAnnotatedWithRestController()
+                .shouldNotDependOnOtherController()
                 .shouldBePackagePrivate())
             .services(Configurer::disable))
         .logging(Configurer::disable)

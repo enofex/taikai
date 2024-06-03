@@ -11,23 +11,19 @@ public final class SpringConfigurer extends AbstractConfigurer {
   }
 
   public SpringConfigurer configurations(Customizer<ConfigurationsConfigurer> customizer) {
-    customizer(customizer, () -> new ConfigurationsConfigurer(configurerContext()));
-    return this;
+    return customizer(customizer, () -> new ConfigurationsConfigurer(configurerContext()));
   }
 
   public SpringConfigurer controllers(Customizer<ControllersConfigurer> customizer) {
-    customizer(customizer, () -> new ControllersConfigurer(configurerContext()));
-    return this;
+    return customizer(customizer, () -> new ControllersConfigurer(configurerContext()));
   }
 
   public SpringConfigurer services(Customizer<ServicesConfigurer> customizer) {
-    customizer(customizer, () -> new ServicesConfigurer(configurerContext()));
-    return this;
+    return customizer(customizer, () -> new ServicesConfigurer(configurerContext()));
   }
 
   public SpringConfigurer repositories(Customizer<RepositoriesConfigurer> customizer) {
-    customizer(customizer, () -> new RepositoriesConfigurer(configurerContext()));
-    return this;
+    return customizer(customizer, () -> new RepositoriesConfigurer(configurerContext()));
   }
 
   @Override
