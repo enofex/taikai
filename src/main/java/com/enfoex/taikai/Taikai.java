@@ -6,8 +6,10 @@ import com.enfoex.taikai.spring.SpringConfigurer;
 import com.enfoex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public final class Taikai {
 
@@ -18,10 +20,12 @@ public final class Taikai {
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
     this.namespace = builder.namespace;
-    this.rules = builder.configurers.all()
-        .stream()
-        .flatMap(configurer -> configurer.rules().stream())
-        .toList();
+    this.rules = Stream.concat(
+        builder.configurers.all()
+            .stream()
+            .flatMap(configurer -> configurer.rules().stream()),
+        builder.rules.stream()
+    ).toList();
 
     ArchConfiguration.get()
         .setProperty("archRule.failOnEmptyShould", Boolean.valueOf(this.failOnEmpty).toString());
@@ -58,11 +62,24 @@ public final class Taikai {
   public static final class Builder {
 
     private final Configurers configurers;
+    private final Collection<TaikaiRule> rules;
+
     private boolean failOnEmpty;
     private String namespace;
 
     public Builder() {
       this.configurers = new Configurers();
+      this.rules = new ArrayList<>();
+    }
+
+    public Builder addRule(TaikaiRule rule) {
+      this.rules.add(rule);
+      return this;
+    }
+
+    public Builder addRules(Collection<TaikaiRule> rules) {
+      this.rules.addAll(rules);
+      return this;
     }
 
     public Builder failOnEmpty(boolean failOnEmpty) {
