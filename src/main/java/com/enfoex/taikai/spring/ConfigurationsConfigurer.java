@@ -15,15 +15,13 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
   }
 
   public ConfigurationsConfigurer shouldHaveNameEndingConfiguration() {
-    shouldHaveNameMatching(DEFAULT_CONFIGURATION_NAME_MATCHING);
-    return this;
+    return shouldHaveNameMatching(DEFAULT_CONFIGURATION_NAME_MATCHING);
   }
 
   public ConfigurationsConfigurer shouldHaveNameMatching(String regex) {
-    addRule(TaikaiRule.of(classes().that()
+    return addRule(TaikaiRule.of(classes().that()
         .areAnnotatedWith("org.springframework.context.annotation.Configuration")
         .should().haveNameMatching(regex)
         .as("Configurations should have name ending " + regex)));
-    return this;
   }
 }

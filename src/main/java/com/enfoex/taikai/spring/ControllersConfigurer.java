@@ -18,32 +18,28 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldHaveNameEndingController() {
-    shouldHaveNameMatching(DEFAULT_CONTROLLER_NAME_MATCHING);
-    return this;
+    return shouldHaveNameMatching(DEFAULT_CONTROLLER_NAME_MATCHING);
   }
 
   public ControllersConfigurer shouldHaveNameMatching(String regex) {
-    addRule(TaikaiRule.of(classes().that()
+    return addRule(TaikaiRule.of(classes().that()
         .areAnnotatedWith("org.springframework.web.bind.annotation.RestController")
         .or()
         .areAnnotatedWith("org.springframework.web.bind.annotation.Controller")
         .should().haveNameMatching(regex)
         .as("Controllers should have name ending " + regex)));
-    return this;
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController() {
-    shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING);
-    return this;
+    return shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING);
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController(String regex) {
-    addRule(TaikaiRule.of(classes().that()
+    return addRule(TaikaiRule.of(classes().that()
         .haveNameMatching(regex)
         .should()
         .beAnnotatedWith("org.springframework.web.bind.annotation.RestController")
         .as("Controllers should be annotated with @RestController")));
-    return this;
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController() {
@@ -51,25 +47,23 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController(String regex) {
-    addRule(TaikaiRule.of(classes().that().haveNameMatching(regex)
+    return addRule(TaikaiRule.of(classes().that().haveNameMatching(regex)
         .should()
         .beAnnotatedWith("org.springframework.web.bind.annotation.Controller")
         .as("Controllers should be annotated with @Controller")));
-    return this;
   }
 
   public ControllersConfigurer shouldBePackagePrivate() {
-    addRule(TaikaiRule.of(classes().that()
+    return addRule(TaikaiRule.of(classes().that()
         .areAnnotatedWith("org.springframework.web.bind.annotation.RestController")
         .or()
         .areAnnotatedWith("org.springframework.web.bind.annotation.Controller")
         .should().bePackagePrivate()
         .as("Controllers should be package-private")));
-    return this;
   }
 
   public ControllersConfigurer shouldNotDependOnOtherController() {
-    addRule(TaikaiRule.of(classes().that()
+    return addRule(TaikaiRule.of(classes().that()
         .areAnnotatedWith("org.springframework.web.bind.annotation.RestController")
         .or()
         .areAnnotatedWith("org.springframework.web.bind.annotation.Controller")
@@ -77,6 +71,5 @@ public final class ControllersConfigurer extends AbstractConfigurer {
             annotatedWith("org.springframework.web.bind.annotation.RestController")
                 .or(annotatedWith("org.springframework.web.bind.annotation.Controller")))))
         .as("Controllers should not be depend on other Controller")));
-    return this;
   }
 }

@@ -25,8 +25,9 @@ public abstract class AbstractConfigurer implements Configurer {
     return this.rules;
   }
 
-  public boolean addRule(TaikaiRule rule) {
-    return this.rules.add(rule);
+  public <T> T addRule(TaikaiRule rule) {
+    this.rules.add(rule);
+    return (T) this;
   }
 
   public <T extends Configurer> void disable(Class<T> clazz) {
