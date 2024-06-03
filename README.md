@@ -1,4 +1,4 @@
-![maven workflow](https://github.com/enofex/taikai/actions/workflows/maven.yml/badge.svg) [![](https://img.shields.io/badge/Java%20Version-17-orange)](/pom.xml)
+![maven workflow](https://github.com/enofex/taikai/actions/workflows/maven.yml/badge.svg) [![](https://img.shields.io/badge/Java%20Version-21-orange)](/pom.xml)
 <img height="20" src="https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg">
 # Taikai
 
