@@ -11,8 +11,7 @@ public abstract class AbstractConfigurer implements Configurer {
   private final Collection<TaikaiRule> rules;
 
   protected AbstractConfigurer(ConfigurerContext configurerContext) {
-    Objects.requireNonNull(configurerContext);
-    this.configurerContext = configurerContext;
+    this.configurerContext =  Objects.requireNonNull(configurerContext);;
     this.rules = new ArrayList<>();
   }
 
