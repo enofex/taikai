@@ -41,6 +41,7 @@ public abstract class AbstractConfigurer implements Configurer {
 
   public <T extends Configurer> void customizer(Customizer<T> customizer, Supplier<T> supplier) {
     Objects.requireNonNull(customizer);
+    Objects.requireNonNull(supplier);
     customizer.customize(this.configurerContext
         .configurers()
         .getOrApply(supplier.get()));
