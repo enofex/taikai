@@ -6,7 +6,6 @@ import com.enfoex.taikai.spring.SpringConfigurer;
 import com.enfoex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;

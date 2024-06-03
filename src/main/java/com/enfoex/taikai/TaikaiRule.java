@@ -11,10 +11,12 @@ public final class TaikaiRule {
   private final Namespace.IMPORT namespaceImport;
   private final JavaClasses javaClasses;
 
-  private TaikaiRule(ArchRule archRule, String namespace, Namespace.IMPORT namespaceImport, JavaClasses javaClasses) {
+  private TaikaiRule(ArchRule archRule, String namespace, Namespace.IMPORT namespaceImport,
+      JavaClasses javaClasses) {
     this.archRule = archRule;
     this.namespace = namespace;
-    this.namespaceImport = namespaceImport != null ? namespaceImport : Namespace.IMPORT.WITHOUT_TESTS;
+    this.namespaceImport = namespaceImport != null
+        ? namespaceImport : Namespace.IMPORT.WITHOUT_TESTS;
     this.javaClasses = javaClasses;
   }
 
@@ -42,7 +44,8 @@ public final class TaikaiRule {
     return new TaikaiRule(archRule, namespace, Namespace.IMPORT.WITHOUT_TESTS, null);
   }
 
-  public static TaikaiRule of(ArchRule archRule, String namespace, Namespace.IMPORT namespaceImport) {
+  public static TaikaiRule of(ArchRule archRule, String namespace,
+      Namespace.IMPORT namespaceImport) {
     return new TaikaiRule(archRule, namespace, namespaceImport, null);
   }
 
@@ -57,7 +60,8 @@ public final class TaikaiRule {
       String namespaceToCheck = this.namespace != null ? this.namespace : globalNamespace;
 
       if (namespaceToCheck == null) {
-        throw new IllegalArgumentException("No global namespace and no specific namespace provided.");
+        throw new IllegalArgumentException(
+            "No global namespace and no specific namespace provided.");
       }
 
       this.archRule.check(
