@@ -1,8 +1,6 @@
 package com.enfoex.taikai;
 
-import com.tngtech.archunit.lang.ArchRule;
 import java.util.Collection;
-
 
 public interface Configurer {
 
@@ -10,5 +8,5 @@ public interface Configurer {
     rules().clear();
   }
 
-  Collection<ArchRule> rules();
+  Collection<TaikaiRule> rules();
 }

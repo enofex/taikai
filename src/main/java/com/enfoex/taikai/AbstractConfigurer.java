@@ -1,6 +1,5 @@
 package com.enfoex.taikai;
 
-import com.tngtech.archunit.lang.ArchRule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -9,7 +8,7 @@ import java.util.function.Supplier;
 public abstract class AbstractConfigurer implements Configurer {
 
   private final ConfigurerContext configurerContext;
-  private final Collection<ArchRule> rules;
+  private final Collection<TaikaiRule> rules;
 
   protected AbstractConfigurer(ConfigurerContext configurerContext) {
     Objects.requireNonNull(configurerContext);
@@ -22,11 +21,11 @@ public abstract class AbstractConfigurer implements Configurer {
   }
 
   @Override
-  public Collection<ArchRule> rules() {
+  public Collection<TaikaiRule> rules() {
     return this.rules;
   }
 
-  public boolean addRule(ArchRule rule) {
+  public boolean addRule(TaikaiRule rule) {
     return this.rules.add(rule);
   }
 

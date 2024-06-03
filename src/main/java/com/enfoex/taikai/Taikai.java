@@ -6,7 +6,6 @@ import com.enfoex.taikai.spring.SpringConfigurer;
 import com.enfoex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.lang.ArchRule;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -14,7 +13,7 @@ public final class Taikai {
 
   private final boolean failOnEmpty;
   private final String namespace;
-  private final Collection<ArchRule> rules;
+  private final Collection<TaikaiRule> rules;
 
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
@@ -37,14 +36,14 @@ public final class Taikai {
   }
 
   public JavaClasses classes() {
-    return Namespace.classes(this.namespace);
+    return Namespace.withoutTests(this.namespace);
   }
 
-  public JavaClasses testClasses() {
-    return Namespace.testClasses(this.namespace);
+  public JavaClasses classesWithTests() {
+    return Namespace.withTests(this.namespace);
   }
 
-  public Collection<ArchRule> rules() {
+  public Collection<TaikaiRule> rules() {
     return this.rules;
   }
 
@@ -53,7 +52,7 @@ public final class Taikai {
   }
 
   public void check() {
-    this.rules.forEach(rule -> rule.check(classes())); //TODO wrapper JavaClasses
+    this.rules.forEach(rule -> rule.check(this.namespace));
   }
 
   public static final class Builder {

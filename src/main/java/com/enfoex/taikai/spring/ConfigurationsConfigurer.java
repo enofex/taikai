@@ -4,6 +4,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 import com.enfoex.taikai.AbstractConfigurer;
 import com.enfoex.taikai.ConfigurerContext;
+import com.enfoex.taikai.TaikaiRule;
 
 public final class ConfigurationsConfigurer extends AbstractConfigurer {
 
@@ -19,10 +20,10 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
   }
 
   public ConfigurationsConfigurer shouldHaveNameMatching(String regex) {
-    addRule(classes().that()
+    addRule(TaikaiRule.of(classes().that()
         .areAnnotatedWith("org.springframework.context.annotation.Configuration")
         .should().haveNameMatching(regex)
-        .as("Configurations should have name ending " + regex));
+        .as("Configurations should have name ending " + regex)));
     return this;
   }
 }
