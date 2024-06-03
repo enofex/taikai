@@ -6,9 +6,11 @@ import com.enfoex.taikai.spring.SpringConfigurer;
 import com.enfoex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public final class Taikai {
@@ -93,30 +95,27 @@ public final class Taikai {
     }
 
     public Builder java(Customizer<JavaConfigurer> customizer) {
-      Objects.requireNonNull(customizer);
-      customizer.customize(this.configurers.getOrApply(
-          new JavaConfigurer(new ConfigurerContext(this.configurers))));
-      return this;
+      return configure(customizer, ctx -> new JavaConfigurer(ctx));
     }
 
     public Builder spring(Customizer<SpringConfigurer> customizer) {
-      Objects.requireNonNull(customizer);
-      customizer.customize(this.configurers.getOrApply(
-          new SpringConfigurer(new ConfigurerContext(this.configurers))));
-      return this;
+      return configure(customizer, ctx -> new SpringConfigurer(ctx));
     }
 
     public Builder logging(Customizer<LoggingConfigurer> customizer) {
-      Objects.requireNonNull(customizer);
-      customizer.customize(this.configurers.getOrApply(
-          new LoggingConfigurer(new ConfigurerContext(this.configurers))));
-      return this;
+      return configure(customizer, ctx -> new LoggingConfigurer(ctx));
     }
 
     public Builder test(Customizer<TestConfigurer> customizer) {
+      return configure(customizer, ctx -> new TestConfigurer(ctx));
+    }
+
+    private <T extends Configurer> Builder configure(Customizer<T> customizer,
+        Function<ConfigurerContext, T> supplier) {
       Objects.requireNonNull(customizer);
-      customizer.customize(this.configurers.getOrApply(
-          new TestConfigurer(new ConfigurerContext(this.configurers))));
+      customizer.customize(this.configurers.getOrApply(supplier.apply(
+          new ConfigurerContext(this.configurers)))
+      );
       return this;
     }
 
