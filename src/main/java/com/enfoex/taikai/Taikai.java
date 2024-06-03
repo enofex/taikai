@@ -12,8 +12,8 @@ import java.util.Objects;
 
 public final class Taikai {
 
-  private boolean failOnEmpty;
-  private String namespace;
+  private final boolean failOnEmpty;
+  private final String namespace;
   private final Collection<ArchRule> rules;
 
   private Taikai(Builder builder) {
