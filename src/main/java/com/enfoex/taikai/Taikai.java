@@ -53,12 +53,12 @@ public final class Taikai {
     return this.rules;
   }
 
-  public static Builder builder() {
-    return new Builder();
-  }
-
   public void check() {
     this.rules.forEach(rule -> rule.check(this.namespace));
+  }
+
+  public static Builder builder() {
+    return new Builder();
   }
 
   public static final class Builder {
