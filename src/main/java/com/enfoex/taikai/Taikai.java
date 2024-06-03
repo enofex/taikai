@@ -112,6 +112,7 @@ public final class Taikai {
     private <T extends Configurer> Builder configure(Customizer<T> customizer,
         Function<ConfigurerContext, T> supplier) {
       Objects.requireNonNull(customizer);
+      Objects.requireNonNull(supplier);
       customizer.customize(this.configurers.getOrApply(supplier.apply(
           new ConfigurerContext(this.configurers)))
       );

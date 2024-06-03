@@ -3,6 +3,7 @@ package com.enfoex.taikai;
 import com.enfoex.taikai.Namespace.IMPORT;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
+import java.util.Objects;
 
 public final class TaikaiRule {
 
@@ -13,7 +14,7 @@ public final class TaikaiRule {
 
   private TaikaiRule(ArchRule archRule, String namespace, Namespace.IMPORT namespaceImport,
       JavaClasses javaClasses) {
-    this.archRule = archRule;
+    this.archRule = Objects.requireNonNull(archRule);
     this.namespace = namespace;
     this.namespaceImport = namespaceImport != null
         ? namespaceImport : Namespace.IMPORT.WITHOUT_TESTS;
