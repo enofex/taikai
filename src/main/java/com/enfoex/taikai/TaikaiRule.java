@@ -52,7 +52,8 @@ public final class TaikaiRule {
   public void check(String namespace) {
     if (namespace != null && this.namespaceImport != null) {
       this.archRule.check(
-          this.namespaceImport == IMPORT.WITHOUT_TESTS ? Namespace.withoutTests(namespace)
+          this.namespaceImport == IMPORT.WITHOUT_TESTS
+              ? Namespace.withoutTests(namespace)
               : Namespace.withTests(namespace));
     } else if (this.javaClasses != null) {
       this.archRule.check(this.javaClasses);
