@@ -56,6 +56,9 @@ public final class TaikaiRule {
               : Namespace.withTests(namespace));
     } else if (this.javaClasses != null) {
       this.archUnit.check(this.javaClasses);
+    } else {
+      throw new IllegalArgumentException(
+          "No namespace and namespace type or no java classes provided");
     }
   }
 }
