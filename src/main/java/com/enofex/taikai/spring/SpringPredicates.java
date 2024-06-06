@@ -51,14 +51,24 @@ final class SpringPredicates {
         "annotated with %s".formatted(ANNOTATION_REPOSITORY));
   }
 
-  static DescribedPredicate<CanBeAnnotated> metaAnnotatedWithSpringBootApplication() {
-    return metaAnnotatedWith(ANNOTATION_SPRING_BOOT_APPLICATION,
+  static DescribedPredicate<CanBeAnnotated> annotatedWithSpringBootApplication() {
+    return annotatedWith(ANNOTATION_SPRING_BOOT_APPLICATION,
         "annotated with %s".formatted(ANNOTATION_SPRING_BOOT_APPLICATION));
   }
 
   static DescribedPredicate<CanBeAnnotated> metaAnnotatedAutowired() {
     return metaAnnotatedWith(ANNOTATION_AUTOWIRED,
         "annotated with %s".formatted(ANNOTATION_AUTOWIRED));
+  }
+
+  private static DescribedPredicate<CanBeAnnotated> annotatedWith(String annotation,
+      String description) {
+    return new DescribedPredicate<>(description) {
+      @Override
+      public boolean test(CanBeAnnotated canBeAnnotated) {
+        return canBeAnnotated.isMetaAnnotatedWith(annotation);
+      }
+    };
   }
 
   private static DescribedPredicate<CanBeAnnotated> metaAnnotatedWith(String annotation,
