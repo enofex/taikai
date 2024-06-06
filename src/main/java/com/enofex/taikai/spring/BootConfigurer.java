@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_SPRING_BOOT_APPLICATION;
-import static com.enofex.taikai.spring.SpringPredicates.metaAnnotatedWithSpringBootApplication;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedWithSpringBootApplication;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
@@ -25,7 +25,7 @@ public final class BootConfigurer extends AbstractConfigurer {
 
   public BootConfigurer springBootApplicationShouldBeIn(String location, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that(are(metaAnnotatedWithSpringBootApplication()))
+        .that(are(annotatedWithSpringBootApplication()))
         .should().resideInAPackage(location)
         .as("Classes annotated with %s should be located in %s".formatted(
             ANNOTATION_SPRING_BOOT_APPLICATION, location)), configuration));
