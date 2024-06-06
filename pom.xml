@@ -10,7 +10,7 @@
   <packaging>jar</packaging>
 
   <groupId>com.enofex</groupId>
-  <artifactId>taikai-parent</artifactId>
+  <artifactId>taikai</artifactId>
   <version>0.1.1-SNAPSHOT</version>
   <name>Taikai</name>
   <inceptionYear>2024</inceptionYear>
