@@ -54,7 +54,6 @@ void shouldFulfilConstrains() {
           .imports(imports -> imports
               .shouldHaveNoCycles()
               .shouldNotImport("..shaded..")
-              .shouldNotImport("..lombok..")
               .shouldNotImport("org.junit.."))
           .naming(naming -> naming
               .classesShouldNotMatch(".*Impl")
