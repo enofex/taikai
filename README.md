@@ -12,6 +12,7 @@ Maven Usage
   <groupId>com.enofex</groupId>
   <artifactId>taikai</artifactId>
   <version>${taikai.version}</version>
+  <scope>test</scope>
 </dependency>
 ```
 
