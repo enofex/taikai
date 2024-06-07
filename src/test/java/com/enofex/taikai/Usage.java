@@ -31,6 +31,9 @@ class Usage {
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
+            .noUsageOfDeprecatedAPIs()
+            .methodsShouldNotThrowGenericException()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
