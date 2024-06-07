@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_SERVICE;
-import static com.enofex.taikai.spring.SpringPredicates.metaAnnotatedWithService;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedWithService;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -33,7 +33,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
 
   public ServicesConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that(are(metaAnnotatedWithService()))
+        .that(are(annotatedWithService(true)))
         .should().haveNameMatching(regex)
         .as("Services should have name ending %s".formatted(regex)), configuration));
   }
@@ -54,7 +54,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().haveNameMatching(regex)
-            .should(be(metaAnnotatedWithService()))
+            .should(be(annotatedWithService(true)))
             .as("Services should be annotated with %s".formatted(ANNOTATION_SERVICE)),
         configuration));
   }

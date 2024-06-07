@@ -2,9 +2,9 @@ package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_REST_CONTROLLER;
-import static com.enofex.taikai.spring.SpringPredicates.metaAnnotatedWithController;
-import static com.enofex.taikai.spring.SpringPredicates.metaAnnotatedWithControllerOrRestController;
-import static com.enofex.taikai.spring.SpringPredicates.metaAnnotatedWithRestController;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedWithController;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedWithControllerOrRestController;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedWithRestController;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
@@ -38,7 +38,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
 
   public ControllersConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that(are(metaAnnotatedWithControllerOrRestController()))
+        .that(are(annotatedWithControllerOrRestController(true)))
         .should().haveNameMatching(regex)
         .as("Controllers should have name ending %s".formatted(regex)), configuration));
   }
@@ -58,8 +58,8 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   public ControllersConfigurer shouldBeAnnotatedWithRestController(String regex,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
-        .should(be(metaAnnotatedWithRestController()))
+            .that().haveNameMatching(regex)
+            .should(be(annotatedWithRestController(true)))
             .as("Controllers should be annotated with %s".formatted(ANNOTATION_REST_CONTROLLER)),
         configuration));
   }
@@ -79,8 +79,8 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   public ControllersConfigurer shouldBeAnnotatedWithController(String regex,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
-        .should(be(metaAnnotatedWithController()))
+            .that().haveNameMatching(regex)
+            .should(be(annotatedWithController(true)))
             .as("Controllers should be annotated with %s".formatted(ANNOTATION_CONTROLLER)),
         configuration));
   }
@@ -91,7 +91,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
 
   public ControllersConfigurer shouldBePackagePrivate(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that(are(metaAnnotatedWithControllerOrRestController()))
+        .that(are(annotatedWithControllerOrRestController(true)))
         .should().bePackagePrivate()
         .as("Controllers should be package-private"), configuration));
   }
@@ -102,8 +102,8 @@ public final class ControllersConfigurer extends AbstractConfigurer {
 
   public ControllersConfigurer shouldNotDependOnOtherControllers(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that(are(metaAnnotatedWithControllerOrRestController()))
-        .should(not(dependOnClassesThat(are(metaAnnotatedWithControllerOrRestController()))))
+        .that(are(annotatedWithControllerOrRestController(true)))
+        .should(not(dependOnClassesThat(are(annotatedWithControllerOrRestController(true)))))
         .as("Controllers should not be depend on other Controller"), configuration));
   }
 }

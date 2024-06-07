@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_AUTOWIRED;
-import static com.enofex.taikai.spring.SpringPredicates.metaAnnotatedAutowired;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedAutowired;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 
@@ -43,7 +43,7 @@ public final class SpringConfigurer extends AbstractConfigurer {
 
   public SpringConfigurer noAutowiredFields(Configuration configuration) {
     return addRule(TaikaiRule.of(noFields()
-        .should(be(metaAnnotatedAutowired()))
+        .should(be(annotatedAutowired(true)))
         .as("No fields should be annotated with %s, use constructor injection".formatted(
             ANNOTATION_AUTOWIRED)), configuration));
   }

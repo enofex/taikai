@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_REPOSITORY;
-import static com.enofex.taikai.spring.SpringPredicates.metaAnnotatedWithRepository;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedWithRepository;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -33,7 +33,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
 
   public RepositoriesConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that(are(metaAnnotatedWithRepository()))
+        .that(are(annotatedWithRepository(true)))
         .should().haveNameMatching(regex)
         .as("Repositories should have name ending %s".formatted(regex)), configuration));
   }
@@ -54,7 +54,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().haveNameMatching(regex)
-            .should(be(metaAnnotatedWithRepository()))
+            .should(be(annotatedWithRepository(true)))
             .as("Repositories should be annotated with %s".formatted(ANNOTATION_REPOSITORY)),
         configuration));
   }
