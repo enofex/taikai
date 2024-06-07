@@ -19,53 +19,43 @@ final class SpringPredicates {
   static DescribedPredicate<CanBeAnnotated> annotatedWithControllerOrRestController(
       boolean isMetaAnnotated) {
 
-    return annotatedWith(ANNOTATION_CONTROLLER, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_CONTROLLER))
-        .or(annotatedWith(ANNOTATION_REST_CONTROLLER, isMetaAnnotated,
-            "annotated with %s".formatted(ANNOTATION_REST_CONTROLLER)));
+    return annotatedWith(ANNOTATION_CONTROLLER, isMetaAnnotated)
+        .or(annotatedWith(ANNOTATION_REST_CONTROLLER, isMetaAnnotated));
   }
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithConfiguration(
       boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_CONFIGURATION, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_CONFIGURATION));
+    return annotatedWith(ANNOTATION_CONFIGURATION, isMetaAnnotated);
   }
 
-  static DescribedPredicate<CanBeAnnotated> annotatedWithRestController(
-      boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_REST_CONTROLLER, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_REST_CONTROLLER));
+  static DescribedPredicate<CanBeAnnotated> annotatedWithRestController(boolean isMetaAnnotated) {
+    return annotatedWith(ANNOTATION_REST_CONTROLLER, isMetaAnnotated);
   }
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithController(boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_CONTROLLER, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_CONTROLLER));
+    return annotatedWith(ANNOTATION_CONTROLLER, isMetaAnnotated);
   }
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithService(boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_SERVICE, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_SERVICE));
+    return annotatedWith(ANNOTATION_SERVICE, isMetaAnnotated);
   }
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithRepository(boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_REPOSITORY, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_REPOSITORY));
+    return annotatedWith(ANNOTATION_REPOSITORY, isMetaAnnotated);
   }
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithSpringBootApplication(
       boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_SPRING_BOOT_APPLICATION, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_SPRING_BOOT_APPLICATION));
+    return annotatedWith(ANNOTATION_SPRING_BOOT_APPLICATION, isMetaAnnotated);
   }
 
   static DescribedPredicate<CanBeAnnotated> annotatedAutowired(boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_AUTOWIRED, isMetaAnnotated,
-        "annotated with %s".formatted(ANNOTATION_AUTOWIRED));
+    return annotatedWith(ANNOTATION_AUTOWIRED, isMetaAnnotated);
   }
 
   private static DescribedPredicate<CanBeAnnotated> annotatedWith(String annotation,
-      boolean isMetaAnnotated, String description) {
-    return new DescribedPredicate<>(description) {
+      boolean isMetaAnnotated) {
+    return new DescribedPredicate<>("annotated with %s".formatted(annotation)) {
       @Override
       public boolean test(CanBeAnnotated canBeAnnotated) {
         return isMetaAnnotated ? canBeAnnotated.isMetaAnnotatedWith(annotation) :

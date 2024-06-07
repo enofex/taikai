@@ -2,7 +2,7 @@
 <img height="20" src="https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg">
 # Taikai
 
-Taikai is a wrapper around the awesome ArchUnit and provides a set of common rules for different technologies.
+Taikai is a powerful extension of the popular ArchUnit library, offering a comprehensive suite of predefined rules tailored for various technologies. It simplifies the process of enforcing architectural constraints and best practices in your codebase, ensuring consistency and quality across your projects.
 
 Maven Usage
 -------------------
@@ -16,7 +16,7 @@ Maven Usage
 </dependency>
 ```
 
-The `${taikai.version}` property should be defined as a property in your Maven project to specify the version. The library requires that the necessary dependencies are already declared.
+The `${taikai.version}` property should be defined as a property in your Maven project to specify the version. The library requires that the necessary dependencies in this case ArchUnit is already declared.
 
 JUnit 5 Example test
 -------------------
@@ -24,7 +24,7 @@ JUnit 5 Example test
 ```java
 @Test
 void shouldFulfilConstrains() {
-  Taikai taikai = Taikai.builder()
+  Taikai.builder()
       .namespace("com.enofex.taikai")
       .spring(spring -> spring
           .noAutowiredFields()
@@ -52,6 +52,9 @@ void shouldFulfilConstrains() {
               .classesShouldNotBeAnnotatedWithDisabled()
               .methodsShouldNotBeAnnotatedWithDisabled()))
       .java(java -> java
+          .noUsageOfDeprecatedAPIs()
+          .methodsShouldNotThrowGenericException()
+          .utilityClassesShouldBeFinalAndHavePrivateConstructor()
           .imports(imports -> imports
               .shouldHaveNoCycles()
               .shouldNotImport("..shaded..")
@@ -59,7 +62,8 @@ void shouldFulfilConstrains() {
           .naming(naming -> naming
               .classesShouldNotMatch(".*Impl")
               .interfacesShouldNotHavePrefixI()))
-      .build();
+      .build()
+      .check();
 }
 ```
 

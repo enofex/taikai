@@ -20,14 +20,11 @@ public final class Namespace {
     Objects.requireNonNull(namespace);
     Objects.requireNonNull(importOption);
 
-    switch (importOption) {
-      case WITH_TESTS:
-        return withTests(namespace);
-      case ONLY_TESTS:
-        return onlyTests(namespace);
-      default:
-        return withoutTests(namespace);
-    }
+    return switch (importOption) {
+      case WITH_TESTS -> withTests(namespace);
+      case ONLY_TESTS -> onlyTests(namespace);
+      default -> withoutTests(namespace);
+    };
   }
 
   public static JavaClasses withoutTests(String namespace) {

@@ -6,13 +6,16 @@ class ArchitectureTest {
 
   @Test
   void shouldFulfilConstrains() {
-    Taikai taikai = Taikai.builder()
+    Taikai.builder()
         .namespace("com.enofex.taikai")
         .test(test -> test
             .junit5(junit5 -> junit5
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
+            .noUsageOfDeprecatedAPIs()
+            .methodsShouldNotThrowGenericException()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
@@ -21,8 +24,7 @@ class ArchitectureTest {
             .naming(naming -> naming
                 .classesShouldNotMatch(".*Impl")
                 .interfacesShouldNotHavePrefixI()))
-        .build();
-
-    taikai.check();
+        .build()
+        .check();
   }
 }

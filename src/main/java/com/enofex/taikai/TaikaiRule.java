@@ -37,9 +37,7 @@ public final class TaikaiRule {
     } else {
       String namespace = this.configuration.namespace() != null
           ? this.configuration.namespace()
-          : globalNamespace != null
-              ? globalNamespace
-              : null;
+          : globalNamespace;
 
       if (namespace == null) {
         throw new TaikaiException("Namespace is not provided");
