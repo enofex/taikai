@@ -62,7 +62,7 @@ void shouldFulfilConstrains() {
           .naming(naming -> naming
               .classesShouldNotMatch(".*Impl")
               .interfacesShouldNotHavePrefixI()))
-      .addRule(TaikaiRule.of(...)) //add custom ArchUnit here
+      .addRule(TaikaiRule.of(...)) //add custom ArchUnit rule here
       .build()
       .check();
 }
