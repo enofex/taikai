@@ -42,6 +42,7 @@ class Usage {
                 .shouldNotImport("org.junit.."))
             .naming(naming -> naming
                 .classesShouldNotMatch(".*Impl")
+                .constantsShouldFollowConvention()
                 .interfacesShouldNotHavePrefixI()))
         .build();
 

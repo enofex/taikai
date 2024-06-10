@@ -24,7 +24,8 @@ class ArchitectureTest {
                 .shouldNotImport("org.junit.."))
             .naming(naming -> naming
                 .classesShouldNotMatch(".*Impl")
-                .interfacesShouldNotHavePrefixI()))
+                .interfacesShouldNotHavePrefixI()
+                .constantsShouldFollowConvention()))
         .build()
         .check();
   }
