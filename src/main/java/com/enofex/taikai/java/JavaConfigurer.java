@@ -1,6 +1,7 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
+import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
 import static com.enofex.taikai.java.UtilityClasses.beFinal;
 import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
@@ -54,6 +55,14 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer noUsageOfDeprecatedAPIs(Configuration configuration) {
     return addRule(TaikaiRule.of(classes().should(notUseDeprecatedAPIs()), configuration));
+  }
+
+  public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
+    return classesShouldImplementHashCodeAndEquals(null);
+  }
+
+  public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes().should(implementHashCodeAndEquals()), configuration));
   }
 
   @Override
