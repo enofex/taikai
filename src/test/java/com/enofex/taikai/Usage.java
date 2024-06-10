@@ -32,6 +32,7 @@ class Usage {
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
+            .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotThrowGenericException()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .imports(imports -> imports
