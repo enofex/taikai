@@ -24,6 +24,7 @@ JUnit 5 Example test
 ```java
 @Test
 void shouldFulfilConstrains() {
+  // Only some rule examples
   Taikai.builder()
       .namespace("com.enofex.taikai")
       .spring(spring -> spring
