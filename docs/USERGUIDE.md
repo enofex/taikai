@@ -84,6 +84,17 @@ Taikai.builder()
     .check();
 ```
 
+- **Fields Should Not Be Public**: Ensure that no fields in your Java classes are declared as `public`, except constants.
+
+```java
+Taikai.builder()
+    .namespace("com.enofex.taikai")
+    .java(java -> java
+        .fieldsShouldNotBePublic())
+    .build()
+    .check();
+```
+
 - **Imports Configuration**: Ensure that there are no cyclic dependencies in imports and disallow specific imports.
 
 ```java

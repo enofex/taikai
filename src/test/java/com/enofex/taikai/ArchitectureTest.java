@@ -17,6 +17,7 @@ class ArchitectureTest {
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotThrowGenericException()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .fieldsShouldNotBePublic()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")

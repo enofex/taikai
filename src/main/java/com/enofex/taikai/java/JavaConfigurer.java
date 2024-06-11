@@ -1,11 +1,13 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
+import static com.enofex.taikai.java.FieldsShouldNotBePublic.notBePublic;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
 import static com.enofex.taikai.java.UtilityClasses.beFinal;
 import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import com.enofex.taikai.TaikaiRule;
@@ -64,6 +66,14 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
     return addRule(TaikaiRule.of(classes().should(implementHashCodeAndEquals()), configuration));
+  }
+
+  public JavaConfigurer fieldsShouldNotBePublic() {
+    return fieldsShouldNotBePublic(null);
+  }
+
+  public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
+    return addRule(TaikaiRule.of(fields().should(notBePublic()), configuration));
   }
 
   @Override
