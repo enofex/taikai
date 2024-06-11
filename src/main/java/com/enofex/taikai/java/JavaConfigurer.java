@@ -46,7 +46,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   public JavaConfigurer methodsShouldNotThrowGenericException(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
         .should().notDeclareThrowableOfType(Exception.class)
-        .as("Methods should not throw generic Exception"), configuration));
+        .orShould().notDeclareThrowableOfType(RuntimeException.class)
+        .as("Methods should not throw generic Exception or RuntimeException"), configuration));
   }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs() {

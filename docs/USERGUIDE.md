@@ -62,7 +62,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Should Not Throw Generic Exception**: Ensure that methods do not throw generic exceptions and use specific exception types instead.
+- **Methods Should Not Throw Generic Exception**: Ensure that methods do not throw generic exceptions like `Exception` and `RuntimeException` and use specific exception types instead.
 
 ```java
 Taikai.builder()
