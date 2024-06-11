@@ -23,15 +23,13 @@ final class Deprecations {
                     item.getName()))));
 
         item.getMethodCallsFromSelf().stream()
-            .filter(method -> !method.getOwner().getName().equals(Object.class.getName()))
-            .filter(method -> !method.getOwner().getName().equals(Enum.class.getName()))
-            .filter(method -> method.getOwner().isAnnotatedWith(Deprecated.class) ||
-                method.getOwner().getRawReturnType().isAnnotatedWith(Deprecated.class) ||
-                method.getOwner().getParameterTypes().stream().anyMatch(Deprecations::isDeprecated)
-                || method.getOwner().getCallsFromSelf().stream()
-                .anyMatch(call -> call.getTarget().isAnnotatedWith(Deprecated.class)))
+            .filter(method -> !method.getTarget().getName().equals(Object.class.getName()))
+            .filter(method -> !method.getTarget().getName().equals(Enum.class.getName()))
+            .filter(method -> method.getTarget().isAnnotatedWith(Deprecated.class) ||
+                method.getTarget().getRawReturnType().isAnnotatedWith(Deprecated.class) ||
+                method.getTarget().getParameterTypes().stream().anyMatch(Deprecations::isDeprecated))
             .forEach(method -> events.add(SimpleConditionEvent.violated(method,
-                String.format("Method %s in class %s uses deprecated APIs", method.getName(),
+                String.format("Method %s used in class %s is deprecated", method.getName(),
                     item.getName()))));
 
         item.getConstructorCallsFromSelf().stream()
