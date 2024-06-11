@@ -196,6 +196,19 @@ Taikai.builder()
     .check();
 ```
 
+#### Adding Custom ArchUnit Rules
+
+In addition to the predefined rules provided by Taikai, you can also add custom ArchUnit rules to tailor the architecture testing to your specific project requirements. Here's how you can integrate custom rules into your Taikai configuration:
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
+    .build()
+    .check();
+```
+By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
+
 #### Examples
 
 Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
