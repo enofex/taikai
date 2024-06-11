@@ -21,7 +21,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 
 #### Test Configuration
 
-Test configuration involves specifying constraints related to testing frameworks and practices. Let's explore the rules defined in the provided source code:
+Test configuration involves specifying constraints related to testing frameworks and practices.
 
 - **JUnit 5 Configuration**: Ensure that JUnit 5 test classes and methods are not annotated with `@Disabled`.
 
@@ -38,9 +38,9 @@ Taikai.builder()
 
 #### Java Configuration
 
-Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns. Let's examine the rules defined in the provided source code:
+Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns.
 
-- **No Usage of Deprecated APIs**: Ensure that deprecated APIs are not used in the codebase.
+- **No Usage of Deprecated APIs**: Ensure that deprecated APIs annotated with `Deprecated` not used in the codebase.
 
 ```java
 Taikai.builder()
@@ -51,7 +51,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Implement `hashCode` and `equals`**: Ensure that classes override the `hashCode` and `equals` methods for proper object comparison.
+- **Classes Should Implement `hashCode` and `equals`**: Ensure that classes override the `hashCode` and `equals` methods.
 
 ```java
 Taikai.builder()
@@ -114,7 +114,7 @@ Taikai.builder()
 
 #### Spring Configuration
 
-Spring configuration involves defining constraints specific to Spring Framework usage. Let's incorporate the Spring-related rules defined in the provided source code:
+Spring configuration involves defining constraints specific to Spring Framework usage.
 
 - **No Autowired Fields Configuration**: Ensure that fields are not annotated with `@Autowired` and constructor injection is preferred.
 
@@ -127,7 +127,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Spring Boot Configuration**: Ensure that the main application class annotated with `@SpringBootApplication` is in the default package.
+- **Spring Boot Configuration**: Ensure that the main application class annotated with `@SpringBootApplication` is located in the default package.
 
 ```java
 Taikai.builder()
@@ -152,7 +152,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Controllers Configuration**: Ensure that controller classes end with "Controller"  or match a specific regex pattern, are annotated with `@RestController`, do not depend on other controllers, and are package-private.
+- **Controllers Configuration**: Ensure that controller classes end with "Controller" or match a specific regex pattern, are annotated with `@RestController`, do not depend on other controllers, and are package-private.
 
 ```java
 Taikai.builder()
