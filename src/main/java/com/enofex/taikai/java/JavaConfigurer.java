@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.FieldsShouldNotBePublic.notBePublic;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
+import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
 import static com.enofex.taikai.java.UtilityClasses.beFinal;
 import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
@@ -93,6 +94,14 @@ public final class JavaConfigurer extends AbstractConfigurer {
   public JavaConfigurer noUsageOf(Class clazz, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses().should().dependOnClassesThat().areAssignableTo(clazz),
         configuration));
+  }
+
+  public JavaConfigurer noUsageOfSystemOutOrErr() {
+    return noUsageOfSystemOutOrErr(null);
+  }
+
+  public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes().should(notUseSystemOutOrErr()), configuration));
   }
 
   @Override

@@ -145,6 +145,17 @@ Taikai.builder()
     .check();
 ```
 
+- **No Usage of System.out or System.err**: Enforce disallowing the use of System.out and System.err for logging, encouraging the use of proper logging frameworks instead.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .noUsageOfSystemOutOrErr())
+    .build()
+    .check();
+```
+
 ## Spring Configuration
 
 Spring configuration involves defining constraints specific to Spring Framework usage.

@@ -1,6 +1,5 @@
 package com.enofex.taikai;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -35,6 +34,7 @@ class Usage {
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
+            .noUsageOfSystemOutOrErr()
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotThrowGenericException()
