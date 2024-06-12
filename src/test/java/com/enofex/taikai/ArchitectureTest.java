@@ -1,5 +1,8 @@
 package com.enofex.taikai;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import org.junit.jupiter.api.Test;
 
 class ArchitectureTest {
@@ -18,6 +21,9 @@ class ArchitectureTest {
             .methodsShouldNotThrowGenericException()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .fieldsShouldNotBePublic()
+            .noUsageOf(Date.class)
+            .noUsageOf(Calendar.class)
+            .noUsageOf("java.text.SimpleDateFormat")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")

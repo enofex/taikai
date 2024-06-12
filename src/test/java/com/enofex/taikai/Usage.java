@@ -1,5 +1,9 @@
 package com.enofex.taikai;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 class Usage {
 
   public static void main(String[] args) {
@@ -35,6 +39,9 @@ class Usage {
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotThrowGenericException()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .noUsageOf(Date.class)
+            .noUsageOf(Calendar.class)
+            .noUsageOf("java.text.SimpleDateFormat")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")

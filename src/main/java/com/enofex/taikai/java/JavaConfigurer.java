@@ -9,6 +9,7 @@ import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
@@ -74,6 +75,24 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
     return addRule(TaikaiRule.of(fields().should(notBePublic()), configuration));
+  }
+
+  public JavaConfigurer noUsageOf(Class clazz) {
+    return noUsageOf(clazz, null);
+  }
+
+  public JavaConfigurer noUsageOf(String typeName) {
+    return noUsageOf(typeName, null);
+  }
+
+  public JavaConfigurer noUsageOf(String typeName, Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses()
+        .should().dependOnClassesThat().areAssignableTo(typeName), configuration));
+  }
+
+  public JavaConfigurer noUsageOf(Class clazz, Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses().should().dependOnClassesThat().areAssignableTo(clazz),
+        configuration));
   }
 
   @Override

@@ -123,6 +123,28 @@ Taikai.builder()
     .check();
 ```
 
+- **No Usage of Specific Classes**: Ensure that certain classes are not used in your codebase.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .noUsageOf("com.example.UnwantedClass"))
+    .build()
+    .check();
+```
+
+- **No Usage of Specific Classes by Class Reference**: Ensure that certain classes are not used in your codebase by directly referencing the class.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .noUsageOf(UnwantedClass.class))
+    .build()
+    .check();
+```
+
 #### Spring Configuration
 
 Spring configuration involves defining constraints specific to Spring Framework usage.
