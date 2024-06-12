@@ -6,7 +6,7 @@ Taikai is an automated architecture testing tool for Java projects designed to m
 ## 2. Getting Started
 To use Taikai, include it as a dependency in your Maven pom.xml:
 
-```javaxml
+```xml
 <dependency>
     <groupId>com.enofex</groupId>
     <artifactId>taikai</artifactId>
