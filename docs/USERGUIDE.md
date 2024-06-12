@@ -1,9 +1,9 @@
-## Taikai
+# Taikai
 
-### 1. Introduction
+## 1. Introduction
 Taikai is an automated architecture testing tool for Java projects designed to maintain clean and consistent architecture. It enforces predefined and custom architectural constraints, ensuring code quality, maintainability, and adherence to best practices.
 
-### 2. Getting Started
+## 2. Getting Started
 To use Taikai, include it as a dependency in your Maven pom.xml:
 
 ```javaxml
@@ -17,9 +17,9 @@ To use Taikai, include it as a dependency in your Maven pom.xml:
 
 Architecture rules are defined using Taikai's fluent API, allowing developers to specify constraints on classes, methods, imports, naming conventions, and more. Taikai provides pre-defined configurations for common architectural patterns and best practices.
 
-### 3. Usage
+## 3. Usage
 
-#### Test Configuration
+## Test Configuration
 
 Test configuration involves specifying constraints related to testing frameworks and practices.
 
@@ -36,7 +36,7 @@ Taikai.builder()
     .check();
 ```
 
-#### Java Configuration
+## Java Configuration
 
 Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns.
 
@@ -145,7 +145,7 @@ Taikai.builder()
     .check();
 ```
 
-#### Spring Configuration
+## Spring Configuration
 
 Spring configuration involves defining constraints specific to Spring Framework usage.
 
@@ -229,7 +229,7 @@ Taikai.builder()
     .check();
 ```
 
-#### Adding Custom ArchUnit Rules
+## Adding Custom ArchUnit Rules
 
 In addition to the predefined rules provided by Taikai, you can also add custom ArchUnit rules to tailor the architecture testing to your specific project requirements. Here's how you can integrate custom rules into your Taikai configuration:
 
@@ -242,7 +242,7 @@ Taikai.builder()
 ```
 By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
 
-#### Examples
+## Examples
 
 Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
 
