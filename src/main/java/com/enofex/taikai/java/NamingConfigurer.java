@@ -44,10 +44,10 @@ public final class NamingConfigurer extends AbstractConfigurer {
   private static ArchCondition<JavaClass> notBePrefixedWithI() {
     return new ArchCondition<>("not be prefixed with I.") {
       @Override
-      public void check(JavaClass clazz, ConditionEvents events) {
-        if (clazz.getSimpleName().startsWith("I") && Character.isUpperCase(
-            clazz.getSimpleName().charAt(1))) {
-          events.add(SimpleConditionEvent.violated(clazz, clazz.getSimpleName()));
+      public void check(JavaClass javaClass, ConditionEvents events) {
+        if (javaClass.getSimpleName().startsWith("I") && Character.isUpperCase(
+            javaClass.getSimpleName().charAt(1))) {
+          events.add(SimpleConditionEvent.violated(javaClass, javaClass.getSimpleName()));
         }
       }
     };

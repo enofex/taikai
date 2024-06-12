@@ -14,15 +14,15 @@ final class Deprecations {
   static ArchCondition<JavaClass> notUseDeprecatedAPIs() {
     return new ArchCondition<JavaClass>("not use deprecated APIs") {
       @Override
-      public void check(JavaClass item, ConditionEvents events) {
-        item.getFieldAccessesFromSelf().stream()
+      public void check(JavaClass javaClass, ConditionEvents events) {
+        javaClass.getFieldAccessesFromSelf().stream()
             .filter(access -> access.getTarget().isAnnotatedWith(Deprecated.class))
             .forEach(access -> events.add(SimpleConditionEvent.violated(access.getTarget(),
                 String.format("Field %s in class %s is deprecated and is being accessed by %s",
                     access.getTarget().getName(), access.getTarget().getOwner().getName(),
-                    item.getName()))));
+                    javaClass.getName()))));
 
-        item.getMethodCallsFromSelf().stream()
+        javaClass.getMethodCallsFromSelf().stream()
             .filter(method -> !method.getTarget().getName().equals(Object.class.getName()))
             .filter(method -> !method.getTarget().getName().equals(Enum.class.getName()))
             .filter(method -> method.getTarget().isAnnotatedWith(Deprecated.class) ||
@@ -30,21 +30,21 @@ final class Deprecations {
                 method.getTarget().getParameterTypes().stream().anyMatch(Deprecations::isDeprecated))
             .forEach(method -> events.add(SimpleConditionEvent.violated(method,
                 String.format("Method %s used in class %s is deprecated", method.getName(),
-                    item.getName()))));
+                    javaClass.getName()))));
 
-        item.getConstructorCallsFromSelf().stream()
+        javaClass.getConstructorCallsFromSelf().stream()
             .filter(constructor -> constructor.getTarget().isAnnotatedWith(Deprecated.class) ||
                 constructor.getTarget().getParameterTypes().stream()
                     .anyMatch(Deprecations::isDeprecated))
             .forEach(constructor -> events.add(SimpleConditionEvent.violated(constructor,
                 String.format("Constructor %s in class %s uses deprecated APIs",
-                    constructor.getTarget().getFullName(), item.getName()))));
+                    constructor.getTarget().getFullName(), javaClass.getName()))));
 
-        item.getDirectDependenciesFromSelf().stream()
+        javaClass.getDirectDependenciesFromSelf().stream()
             .filter(dependency -> dependency.getTargetClass().isAnnotatedWith(Deprecated.class))
             .forEach(dependency -> events.add(
                 SimpleConditionEvent.violated(dependency.getTargetClass(),
-                    String.format("Class %s depends on deprecated class %s", item.getName(),
+                    String.format("Class %s depends on deprecated class %s", javaClass.getName(),
                         dependency.getTargetClass().getName()))));
       }
     }.as("no usage of deprecated APIs");
