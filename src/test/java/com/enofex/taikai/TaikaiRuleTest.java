@@ -2,6 +2,7 @@ package com.enofex.taikai;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -31,7 +32,7 @@ class TaikaiRuleTest {
 
     assertNotNull(taikaiRule);
     assertEquals(archRule, taikaiRule.archRule());
-    assertEquals(configuration, taikaiRule.configuration());
+    assertSame(configuration, taikaiRule.configuration());
   }
 
   @Test

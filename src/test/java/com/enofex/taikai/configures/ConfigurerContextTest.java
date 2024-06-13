@@ -2,6 +2,7 @@ package com.enofex.taikai.configures;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ class ConfigurerContextTest {
   void shouldReturnConfigurers() {
     ConfigurerContext context = new ConfigurerContext(VALID_NAMESPACE, VALID_CONFIGURERS);
 
-    assertEquals(VALID_CONFIGURERS, context.configurers());
+    assertSame(VALID_CONFIGURERS, context.configurers());
   }
 
   @Test
