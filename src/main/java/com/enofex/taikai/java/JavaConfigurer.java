@@ -78,7 +78,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(fields().should(notBePublic()), configuration));
   }
 
-  public JavaConfigurer noUsageOf(Class clazz) {
+  public JavaConfigurer noUsageOf(Class<?> clazz) {
     return noUsageOf(clazz, null);
   }
 
@@ -91,7 +91,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .should().dependOnClassesThat().areAssignableTo(typeName), configuration));
   }
 
-  public JavaConfigurer noUsageOf(Class clazz, Configuration configuration) {
+  public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses().should().dependOnClassesThat().areAssignableTo(clazz),
         configuration));
   }
