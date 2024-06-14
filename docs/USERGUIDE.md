@@ -19,24 +19,40 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 
 ## 3. Usage
 
-## Test Configuration
+| Category    | Subcategory    | Method Name | Rule Description | Import Options          |
+|-------------|----------------|-------------|------------------|-------------------------|
+| **Java**    | General        | `classesShouldImplementHashCodeAndEquals` | Classes should implement `hashCode` and `equals` | Default (WITHOUT_TESTS) |
+|             | General        | `fieldsShouldNotBePublic` | Fields should not be `public` (except constants) | Default (WITHOUT_TESTS) |
+|             | General        | `methodsShouldNotThrowGenericException` | Methods should not throw generic exceptions (`Exception`, `RuntimeException`) | Default (WITHOUT_TESTS) |
+|             | General        | `noUsageOf` | Disallow usage of specific classes | Default (WITHOUT_TESTS) |
+|             | General        | `noUsageOf` | Disallow usage of specific classes by class reference | Default (WITHOUT_TESTS) |
+|             | General        | `noUsageOfDeprecatedAPIs` | No usage of deprecated APIs annotated with `Deprecated` | Default (WITHOUT_TESTS) |
+|             | General        | `noUsageOfSystemOutOrErr` | Disallow usage of `System.out` or `System.err` | Default (WITHOUT_TESTS) |
+|             | General        | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes should be `final` and have a private constructor | Default (WITHOUT_TESTS) |
+|             | Imports        | `shouldHaveNoCycles` | No cyclic dependencies in imports | Default (WITHOUT_TESTS) |
+|             | Imports        | `shouldNotImport` | Disallow specific imports (e.g., `..shaded..`) | Default (WITHOUT_TESTS) |
+|             | Naming         | `classesShouldNotMatch` | Classes should not match specific naming patterns (e.g., `.*Impl`) | Default (WITHOUT_TESTS) |
+|             | Naming         | `constantsShouldFollowConvention` | Constants should follow naming conventions | Default (WITHOUT_TESTS) |
+|             | Naming         | `interfacesShouldNotHavePrefixI` | Interfaces should not have the prefix `I` | Default (WITHOUT_TESTS) |
+| **Test**    | JUnit 5        | `jclassesShouldNotBeAnnotatedWithDisabled` | Ensure JUnit 5 classes are not annotated with `@Disabled` | Default (WITH_TESTS) |
+|             | JUnit 5        | `jmethodsShouldNotBeAnnotatedWithDisabled` | Ensure JUnit 5 methods are not annotated with `@Disabled` | Default (WITH_TESTS) |
+| **Spring**  | Boot           | `springBootApplicationShouldBeIn` | Ensure `@SpringBootApplication` is in the default package | Default (WITH_TESTS) |
+|             | Configurations | `namesShouldEndWithConfiguration` | Configuration classes should end with "Configuration" | Default (WITH_TESTS) |
+|             | Configurations | `namesShouldMatch` | Configuration classes should match a regex pattern | Default (WITH_TESTS) |
+|             | Controllers    | `namesShouldEndWithController` | Controllers should end with "Controller" | Default (WITH_TESTS) |
+|             | Controllers    | `namesShouldMatch` | Controllers should match a regex pattern | Default (WITH_TESTS) |
+|             | Controllers    | `shouldBeAnnotatedWithRestController` | Controllers should be annotated with `@RestController` | Default (WITH_TESTS) |
+|             | Controllers    | `shouldBePackagePrivate` | Controllers should be package-private | Default (WITH_TESTS) |
+|             | Controllers    | `shouldNotDependOnOtherControllers` | Controllers should not depend on other controllers | Default (WITH_TESTS) |
+|             | General        | `noAutowiredFields` | Fields should not be annotated with `@Autowired` (prefer constructor injection) | Default (WITH_TESTS) |
+|             | Repositories   | `namesShouldEndWithRepository` | Repositories should end with "Repository" | Default (WITH_TESTS) |
+|             | Repositories   | `namesShouldMatch` | Repositories should match a regex pattern | Default (WITH_TESTS) |
+|             | Repositories   | `shouldBeAnnotatedWithRepository` | Repositories should be annotated with `@Repository` | Default (WITH_TESTS) |
+|             | Services       | `namesShouldEndWithService` | Services should end with "Service" | Default (WITH_TESTS) |
+|             | Services       | `namesShouldMatch` | Services should match a regex pattern | Default (WITH_TESTS) |
+|             | Services       | `shouldBeAnnotatedWithService` | Services should be annotated with `@Service` | Default (WITH_TESTS) |
 
-Test configuration involves specifying constraints related to testing frameworks and practices.
-
-- **JUnit 5 Configuration**: Ensure that JUnit 5 test classes and methods are not annotated with `@Disabled`.
-
-```java
-Taikai.builder()
-    .namespace("com.company.yourproject")
-    .test(test -> test
-        .junit5(junit5 -> junit5
-            .classesShouldNotBeAnnotatedWithDisabled()
-            .methodsShouldNotBeAnnotatedWithDisabled()))
-    .build()
-    .check();
-```
-
-## Java Configuration
+### Java Configuration
 
 Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns.
 
@@ -156,7 +172,24 @@ Taikai.builder()
     .check();
 ```
 
-## Spring Configuration
+### Test Configuration
+
+Test configuration involves specifying constraints related to testing frameworks and practices.
+
+- **JUnit 5 Configuration**: Ensure that JUnit 5 test classes and methods are not annotated with `@Disabled`.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .test(test -> test
+        .junit5(junit5 -> junit5
+            .classesShouldNotBeAnnotatedWithDisabled()
+            .methodsShouldNotBeAnnotatedWithDisabled()))
+    .build()
+    .check();
+```
+
+### Spring Configuration
 
 Spring configuration involves defining constraints specific to Spring Framework usage.
 
@@ -240,7 +273,31 @@ Taikai.builder()
     .check();
 ```
 
-## Adding Custom ArchUnit Rules
+## 4. Customization
+
+### Custom Configuration for Import Rules
+
+For every rule, you have the flexibility to add a custom configuration. This allows you to specify the namespace and import options tailored to your needs.
+
+The `Configuration` class offers various static methods to create custom configurations:
+- `Configuration.of(String namespace)` to set a custom namespace.
+- `Configuration.of(Namespace.IMPORT namespaceImport)` to specify import options such as `WITHOUT_TESTS`, `WITH_TESTS`, or `ONLY_TESTS`.
+- `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` to set both namespace and import options.
+- `Configuration.of(JavaClasses javaClasses)` to directly provide a set of Java classes.
+
+If a `namespaceImport` is not explicitly provided, it defaults to `Namespace.IMPORT.WITHOUT_TESTS`:
+
+
+Here's an example of how you can use these methods to create a custom configuration:
+
+```java
+ImportsConfigurer configurer = new ImportsConfigurer();
+configurer.shouldNotImport("com.example.package", Configuration.of("com.example.namespace", Namespace.IMPORT.WITHOUT_TESTS));
+```
+
+In this example, the import rule is configured to apply to classes within the specified namespace, excluding test classes.
+
+### Adding Custom ArchUnit Rules
 
 In addition to the predefined rules provided by Taikai, you can also add custom ArchUnit rules to tailor the architecture testing to your specific project requirements. Here's how you can integrate custom rules into your Taikai configuration:
 
@@ -253,7 +310,7 @@ Taikai.builder()
 ```
 By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
 
-## Examples
+## 5. Examples
 
 Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
 
