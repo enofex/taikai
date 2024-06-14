@@ -102,7 +102,7 @@ class TaikaiTest {
   void shouldConfigureTestCustomizer() {
     Customizer<TestConfigurer> customizer = mock(Customizer.class);
 
-    Taikai taikai = Taikai.builder()
+    Taikai.builder()
         .namespace(VALID_NAMESPACE)
         .test(customizer)
         .build();
@@ -121,12 +121,11 @@ class TaikaiTest {
   void shouldCheckRules() {
     TaikaiRule mockRule = mock(TaikaiRule.class);
 
-    Taikai taikai = Taikai.builder()
+    Taikai.builder()
         .namespace(VALID_NAMESPACE)
         .addRule(mockRule)
-        .build();
-
-    taikai.check();
+        .build()
+        .check();
 
     verify(mockRule, times(1)).check(VALID_NAMESPACE);
   }

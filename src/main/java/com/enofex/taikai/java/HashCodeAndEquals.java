@@ -17,7 +17,7 @@ final class HashCodeAndEquals {
         boolean hasEquals = javaClass.getMethods().stream()
             .anyMatch(method -> "equals".equals(method.getName()) &&
                 method.getRawParameterTypes().size() == 1 &&
-                method.getRawParameterTypes().get(0).getName().equals(Object.class.getName()));
+                method.getRawParameterTypes().getFirst().getName().equals(Object.class.getName()));
 
         boolean hasHashCode = javaClass.getMethods().stream()
             .anyMatch(method -> "hashCode".equals(method.getName()) &&
