@@ -3,6 +3,8 @@ package com.enofex.taikai.java;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
@@ -29,6 +31,26 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(noClasses()
         .should().haveNameMatching(regex)
         .as("Classes should not have names matching %s".formatted(regex)), configuration));
+  }
+
+  public NamingConfigurer methodsShouldNotMatch(String regex) {
+    return methodsShouldNotMatch(regex, null);
+  }
+
+  public NamingConfigurer methodsShouldNotMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(noMethods()
+        .should().haveNameMatching(regex)
+        .as("Methods should not have names matching %s".formatted(regex)), configuration));
+  }
+
+  public NamingConfigurer fieldsShouldNotMatch(String regex) {
+    return fieldsShouldNotMatch(regex, null);
+  }
+
+  public NamingConfigurer fieldsShouldNotMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(noFields()
+        .should().haveNameMatching(regex)
+        .as("Fields should not have names matching %s".formatted(regex)), configuration));
   }
 
   public NamingConfigurer interfacesShouldNotHavePrefixI() {

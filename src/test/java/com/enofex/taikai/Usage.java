@@ -17,10 +17,10 @@ class Usage {
                 .namesShouldMatch("regex"))
             .controllers(controllers -> controllers
                 .shouldBeAnnotatedWithRestController()
-                .namesShouldEndWithController()
-                .namesShouldMatch("regex")
                 .shouldNotDependOnOtherControllers()
-                .shouldBePackagePrivate())
+                .shouldBePackagePrivate()
+                .namesShouldEndWithController()
+                .namesShouldMatch("regex"))
             .services(services -> services
                 .shouldBeAnnotatedWithService()
                 .namesShouldMatch("regex")
@@ -34,14 +34,14 @@ class Usage {
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
+            .noUsageOf(Date.class)
+            .noUsageOf(Calendar.class)
+            .noUsageOf("java.text.SimpleDateFormat")
             .noUsageOfSystemOutOrErr()
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotThrowGenericException()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
-            .noUsageOf(Date.class)
-            .noUsageOf(Calendar.class)
-            .noUsageOf("java.text.SimpleDateFormat")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
@@ -49,11 +49,12 @@ class Usage {
                 .shouldNotImport("org.junit.."))
             .naming(naming -> naming
                 .classesShouldNotMatch(".*Impl")
+                .methodsShouldNotMatch("foo")
+                .fieldsShouldNotMatch("bar")
                 .constantsShouldFollowConvention()
                 .interfacesShouldNotHavePrefixI()))
         .build();
 
     taikai.check();
   }
-
 }
