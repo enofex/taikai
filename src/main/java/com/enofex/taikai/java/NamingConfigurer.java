@@ -2,6 +2,7 @@ package com.enofex.taikai.java;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
@@ -15,6 +16,7 @@ import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import java.lang.annotation.Annotation;
 import java.util.regex.Pattern;
 
 public final class NamingConfigurer extends AbstractConfigurer {
@@ -28,9 +30,86 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer classesShouldNotMatch(String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(noClasses()
-        .should().haveNameMatching(regex)
+    return addRule(TaikaiRule.of(noClasses().should().haveNameMatching(regex)
         .as("Classes should not have names matching %s".formatted(regex)), configuration));
+  }
+
+  public NamingConfigurer classesAnnotatedWithShouldMatch(
+      Class<? extends Annotation> annotationType, String regex) {
+    return classesAnnotatedWithShouldMatch(annotationType, regex, null);
+  }
+
+  public NamingConfigurer classesAnnotatedWithShouldMatch(
+      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(
+        classes().that().areMetaAnnotatedWith(annotationType).should().haveNameMatching(regex)
+            .as("Classes annotated with %s should not have names matching %s".formatted(
+                annotationType.getName(), regex)), configuration));
+  }
+
+  public NamingConfigurer classesAnnotatedWithShouldMatch(
+      String annotationType, String regex) {
+    return classesAnnotatedWithShouldMatch(annotationType, regex, null);
+  }
+
+  public NamingConfigurer classesAnnotatedWithShouldMatch(
+      String annotationType, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(
+        classes().that().areMetaAnnotatedWith(annotationType).should().haveNameMatching(regex)
+            .as("Classes annotated with %s should not have names matching %s".formatted(
+                annotationType, regex)), configuration));
+  }
+
+  public NamingConfigurer methodsAnnotatedWithShouldMatch(
+      Class<? extends Annotation> annotationType, String regex) {
+    return methodsAnnotatedWithShouldMatch(annotationType, regex, null);
+  }
+
+  public NamingConfigurer methodsAnnotatedWithShouldMatch(
+      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(
+        methods().that().areMetaAnnotatedWith(annotationType).should().haveNameMatching(regex)
+            .as("Methods annotated with %s should not have names matching %s".formatted(
+                annotationType.getName(), regex)), configuration));
+  }
+
+  public NamingConfigurer methodsAnnotatedWithShouldMatch(
+      String annotationType, String regex) {
+    return methodsAnnotatedWithShouldMatch(annotationType, regex, null);
+  }
+
+  public NamingConfigurer methodsAnnotatedWithShouldMatch(
+      String annotationType, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(
+        methods().that().areMetaAnnotatedWith(annotationType).should().haveNameMatching(regex)
+            .as("Methods annotated with %s should not have names matching %s".formatted(
+                annotationType, regex)), configuration));
+  }
+
+  public NamingConfigurer fieldsAnnotatedWithShouldMatch(
+      Class<? extends Annotation> annotationType, String regex) {
+    return fieldsAnnotatedWithShouldMatch(annotationType, regex, null);
+  }
+
+  public NamingConfigurer fieldsAnnotatedWithShouldMatch(
+      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(
+        fields().that().areMetaAnnotatedWith(annotationType).should().haveNameMatching(regex)
+            .as("Fields annotated with %s should not have names matching %s".formatted(
+                annotationType.getName(), regex)), configuration));
+  }
+
+  public NamingConfigurer fieldsAnnotatedWithShouldMatch(
+      String annotationType, String regex) {
+    return fieldsAnnotatedWithShouldMatch(annotationType, regex, null);
+  }
+
+  public NamingConfigurer fieldsAnnotatedWithShouldMatch(
+      String annotationType, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(
+        fields().that().areMetaAnnotatedWith(annotationType).should().haveNameMatching(regex)
+            .as("Fields annotated with %s should not have names matching %s".formatted(
+                annotationType, regex)), configuration));
   }
 
   public NamingConfigurer methodsShouldNotMatch(String regex) {
@@ -38,8 +117,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer methodsShouldNotMatch(String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(noMethods()
-        .should().haveNameMatching(regex)
+    return addRule(TaikaiRule.of(noMethods().should().haveNameMatching(regex)
         .as("Methods should not have names matching %s".formatted(regex)), configuration));
   }
 
@@ -48,8 +126,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer fieldsShouldNotMatch(String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(noFields()
-        .should().haveNameMatching(regex)
+    return addRule(TaikaiRule.of(noFields().should().haveNameMatching(regex)
         .as("Fields should not have names matching %s".formatted(regex)), configuration));
   }
 
@@ -58,8 +135,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer interfacesShouldNotHavePrefixI(Configuration configuration) {
-    return addRule(TaikaiRule.of(classes().that().areInterfaces()
-        .should(notBePrefixedWithI())
+    return addRule(TaikaiRule.of(classes().that().areInterfaces().should(notBePrefixedWithI())
         .as("Interfaces should not be prefixed with I"), configuration));
   }
 
@@ -80,9 +156,9 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer constantsShouldFollowConvention(Configuration configuration) {
-    return addRule(TaikaiRule.of(fields().that().areFinal().and().areStatic()
-        .should(shouldFollowConstantNamingConvention())
-        .as("Constants should follow constant naming convention"), configuration));
+    return addRule(TaikaiRule.of(
+        fields().that().areFinal().and().areStatic().should(shouldFollowConstantNamingConvention())
+            .as("Constants should follow constant naming convention"), configuration));
   }
 
   private static ArchCondition<JavaField> shouldFollowConstantNamingConvention() {
@@ -92,11 +168,11 @@ public final class NamingConfigurer extends AbstractConfigurer {
 
       @Override
       public void check(JavaField field, ConditionEvents events) {
-        if (!field.getOwner().isEnum()
-            && !CONSTANT_NAME_PATTERN.matcher(field.getName()).matches()) {
+        if (!field.getOwner().isEnum() && !CONSTANT_NAME_PATTERN.matcher(field.getName())
+            .matches()) {
           String message = String.format(
-              "Constant %s in class %s does not follow the naming convention",
-              field.getName(), field.getOwner().getName());
+              "Constant %s in class %s does not follow the naming convention", field.getName(),
+              field.getOwner().getName());
           events.add(SimpleConditionEvent.violated(field, message));
         }
       }

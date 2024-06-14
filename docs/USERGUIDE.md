@@ -34,6 +34,9 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |             | Naming         | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)              | Default (WITHOUT_TESTS) |
 |             | Naming         | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                               | Default (WITHOUT_TESTS) |
 |             | Naming         | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                | Default (WITHOUT_TESTS) |
+|             | Naming         | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                    | Default (WITHOUT_TESTS) |
+|             | Naming         | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with should match specific naming patterns                    | Default (WITHOUT_TESTS) |
+|             | Naming         | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                     | Default (WITHOUT_TESTS) |
 |             | Naming         | `constantsShouldFollowConvention`                      | Constants should follow naming conventions                                      | Default (WITHOUT_TESTS) |
 |             | Naming         | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                       | Default (WITHOUT_TESTS) |
 | **Test**    | JUnit 5        | `jclassesShouldNotBeAnnotatedWithDisabled`             | Ensure JUnit 5 classes are not annotated with `@Disabled`                       | Default (WITH_TESTS) |
@@ -135,9 +138,12 @@ Taikai.builder()
     .java(java -> java
         .naming(naming -> naming
             .classesShouldNotMatch(".*Impl")
-            .methodsShouldNotMatch("blameThrower")
-            .fieldsShouldNotMatch("notGonnaGiveYouUp")
+            .methodsShouldNotMatch("coolMethod")
+            .fieldsShouldNotMatch("coolField")
             .constantsShouldFollowConvention()
+            .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")
+            .methodsAnnotatedWithShouldMatch(Annotation.class, "coolMethods")
+            .fieldsAnnotatedWithShouldMatch(Annotation.class, "coolField")
             .interfacesShouldNotHavePrefixI())))
     .build()
     .check();
