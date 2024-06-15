@@ -68,6 +68,7 @@ void shouldFulfilConstrains() {
       .check();
 }
 ```
+[Here](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java)  you can find how Taikai use it in the tests.
 
 ## User Guide
 
