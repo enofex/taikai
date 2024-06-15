@@ -1,8 +1,12 @@
 package com.enofex.taikai;
 
+import com.enofex.taikai.Namespace.IMPORT;
+import com.enofex.taikai.TaikaiRule.Configuration;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
 
 class ArchitectureTest {
 
@@ -23,7 +27,7 @@ class ArchitectureTest {
             .noUsageOfSystemOutOrErr()
             .noUsageOf(Date.class)
             .noUsageOf(Calendar.class)
-            .noUsageOf("java.text.SimpleDateFormat")
+            .noUsageOf(SimpleDateFormat.class)
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
@@ -31,6 +35,10 @@ class ArchitectureTest {
                 .shouldNotImport("org.junit.."))
             .naming(naming -> naming
                 .classesShouldNotMatch(".*Impl")
+                .methodsAnnotatedWithShouldMatch(Test.class, "should.*",
+                    Configuration.of(IMPORT.ONLY_TESTS))
+                .methodsAnnotatedWithShouldMatch(ParameterizedTest.class, "should.*",
+                    Configuration.of(IMPORT.ONLY_TESTS))
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConvention()))
         .build()
