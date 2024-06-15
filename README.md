@@ -2,7 +2,7 @@
 <img height="20" src="https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg">
 # Taikai
 
-Taikai is a powerful extension of the popular ArchUnit library, offering a comprehensive suite of predefined rules tailored for various technologies. It simplifies the process of enforcing architectural constraints and best practices in your codebase, ensuring consistency and quality across your projects.
+Taikai is an extension of the popular ArchUnit library, offering a comprehensive suite of predefined rules tailored for various technologies. It simplifies the process of enforcing architectural constraints and best practices in your codebase, ensuring consistency and quality across your projects.
 
 Maven Usage
 -------------------
