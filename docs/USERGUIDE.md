@@ -23,7 +23,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |------------|----------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|-------------------------|
 | **Java**   | General        | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals`                                                                      | Default (WITHOUT_TESTS) |
 |            | General        | `fieldsShouldNotBePublic`                              | Fields should not be `public` (except constants)                                                                      | Default (WITHOUT_TESTS) |
-|            | General        | `methodsShouldNotDeclareGenericExceptions`              | Methods should not declare generic exceptions (`Exception`, `RuntimeException`)                                       | Default (WITHOUT_TESTS) |
+|            | General        | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions (`Exception`, `RuntimeException`)                                       | Default (WITHOUT_TESTS) |
 |            | General        | `noUsageOf`                                            | Disallow usage of specific classes                                                                                    | Default (WITHOUT_TESTS) |
 |            | General        | `noUsageOf`                                            | Disallow usage of specific classes by class reference                                                                 | Default (WITHOUT_TESTS) |
 |            | General        | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `Deprecated`                                                               | Default (WITHOUT_TESTS) |
@@ -40,9 +40,10 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |            | Naming         | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                                           | Default (WITHOUT_TESTS) |
 |            | Naming         | `constantsShouldFollowConvention`                      | Constants should follow naming conventions                                                                            | Default (WITHOUT_TESTS) |
 |            | Naming         | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                             | Default (WITHOUT_TESTS) |
-| **Test**   | JUnit 5        | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                     | Default (ONLY_TESTS)    |
-|            | JUnit 5        | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                     | Default (ONLY_TESTS)    |
+| **Test**   | JUnit 5        | `classesShouldBePackagePrivate`                        | Ensure that classes whose names match a specific naming pattern are declared as package-private.                      | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                     | Default (ONLY_TESTS)    |
 |            | JUnit 5        | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                          | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                     | Default (ONLY_TESTS)    |
 |            | JUnit 5        | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.            | Default (ONLY_TESTS)    |
 |            | JUnit 5        | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern. | Default (ONLY_TESTS)    |
 |            | JUnit 5        | `methodsShouldNotDeclareExceptions`                    | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.         | Default (ONLY_TESTS)    |
@@ -251,7 +252,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Ensure Test Methods Do Not Declare Thrown Exceptions** Ensure that JUnit 5 test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.
+- **Ensure Test Methods Do Not Declare Thrown Exceptions**: Ensure that JUnit 5 test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.
 
 ```java
 Taikai.builder()
@@ -259,6 +260,18 @@ Taikai.builder()
     .test(test -> test
         .junit5(junit5 -> junit5
             .methodsShouldNotDeclareExceptions()))
+    .build()
+    .check();
+```
+
+- **Ensure Classes with Matching Names are Package-Private**:  Ensure that classes whose names match a specified regex pattern are declared as package-private.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .test(test -> test
+        .junit5(junit5 -> junit5
+            .classesShouldBePackagePrivate(".*Test"))
     .build()
     .check();
 ```

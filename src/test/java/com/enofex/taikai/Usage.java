@@ -3,13 +3,10 @@ package com.enofex.taikai;
 import java.util.Calendar;
 import java.util.Date;
 
-final class Usage {
-
-  private Usage() {
-  }
+class Usage {
 
   public static void main(String[] args) {
-    Taikai taikai = Taikai.builder()
+    Taikai.builder()
         .namespace("com.enofex.taikai")
         .spring(spring -> spring
             .noAutowiredFields()
@@ -38,8 +35,9 @@ final class Usage {
                 .methodsShouldMatch("should.*")
                 .methodsShouldBePackagePrivate()
                 .methodsShouldBeAnnotatedWithDisplayName()
-                .classesShouldNotBeAnnotatedWithDisabled()
-                .methodsShouldNotBeAnnotatedWithDisabled()))
+                .methodsShouldNotBeAnnotatedWithDisabled()
+                .classesShouldBePackagePrivate(".*Test")
+                .classesShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
             .noUsageOf(Date.class)
             .noUsageOf(Calendar.class)
@@ -61,8 +59,7 @@ final class Usage {
                 .fieldsShouldNotMatch("bar")
                 .constantsShouldFollowConvention()
                 .interfacesShouldNotHavePrefixI()))
-        .build();
-
-    taikai.check();
+        .build()
+        .check();
   }
 }
