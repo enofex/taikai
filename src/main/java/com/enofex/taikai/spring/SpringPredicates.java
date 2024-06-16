@@ -1,5 +1,7 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.AnnotationPredicates.annotatedWith;
+
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 
@@ -51,16 +53,5 @@ final class SpringPredicates {
 
   static DescribedPredicate<CanBeAnnotated> annotatedAutowired(boolean isMetaAnnotated) {
     return annotatedWith(ANNOTATION_AUTOWIRED, isMetaAnnotated);
-  }
-
-  private static DescribedPredicate<CanBeAnnotated> annotatedWith(String annotation,
-      boolean isMetaAnnotated) {
-    return new DescribedPredicate<>("annotated with %s".formatted(annotation)) {
-      @Override
-      public boolean test(CanBeAnnotated canBeAnnotated) {
-        return isMetaAnnotated ? canBeAnnotated.isMetaAnnotatedWith(annotation) :
-            canBeAnnotated.isAnnotatedWith(annotation);
-      }
-    };
   }
 }

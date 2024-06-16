@@ -1,5 +1,10 @@
 package com.enofex.taikai.test;
 
+import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_PARAMETRIZED_TEST;
+import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_TEST;
+import static com.enofex.taikai.test.JUnit5Predicates.annotatedWithTestOrParameterizedTest;
+import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
@@ -15,6 +20,19 @@ public final class JUnit5Configurer extends AbstractConfigurer {
 
   JUnit5Configurer(ConfigurerContext configurerContext) {
     super(configurerContext);
+  }
+
+  public JUnit5Configurer methodsShouldBePackagePrivate() {
+    return methodsShouldBePackagePrivate(Configuration.of(Namespace.IMPORT.WITH_TESTS));
+  }
+
+  public JUnit5Configurer methodsShouldBePackagePrivate(Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(are(annotatedWithTestOrParameterizedTest(true)))
+            .should().bePackagePrivate()
+            .as("Methods annotated with %s or %s should be package-private".formatted(ANNOTATION_TEST,
+                ANNOTATION_PARAMETRIZED_TEST)),
+        configuration));
   }
 
   public JUnit5Configurer methodsShouldNotBeAnnotatedWithDisabled() {
