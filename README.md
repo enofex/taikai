@@ -21,6 +21,8 @@ The `${taikai.version}` property should be defined as a property in your Maven p
 JUnit 5 Example test
 -------------------
 
+This example includes only some rules, along with an example of how to add a custom ArchUnit rule using `TaikaiRule.of()`.
+
 ```java
 @Test
 void shouldFulfilConstrains() {
@@ -68,11 +70,12 @@ void shouldFulfilConstrains() {
       .check();
 }
 ```
+
 [Here](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java)  you can find how Taikai use it in the tests.
 
 ## User Guide
 
-Please refer to the complete [documentation](https://github.com/enofex/taikai/blob/main/docs/USERGUIDE.md) for detailed information.
+Please refer to the complete [documentation](https://github.com/enofex/taikai/blob/main/docs/USERGUIDE.md) for detailed information and all rules.
 
 ## Contributing
 
