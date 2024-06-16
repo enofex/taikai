@@ -22,6 +22,19 @@ public final class JUnit5Configurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
+  public JUnit5Configurer methodsShouldMatch(String regex) {
+    return methodsShouldMatch(regex, null);
+  }
+
+  public JUnit5Configurer methodsShouldMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(are(annotatedWithTestOrParameterizedTest(true)))
+            .should().haveNameMatching(regex)
+            .as("Methods annotated with %s or %s should have names matching %s".formatted(
+                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST, regex)),
+        configuration));
+  }
+
   public JUnit5Configurer methodsShouldBeAnnotatedWithDisplayName() {
     return methodsShouldBeAnnotatedWithDisplayName(Configuration.of(Namespace.IMPORT.WITH_TESTS));
   }
