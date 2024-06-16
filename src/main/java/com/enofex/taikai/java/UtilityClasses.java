@@ -30,17 +30,6 @@ final class UtilityClasses {
     };
   }
 
-  static ArchCondition<JavaClass> beFinal() {
-    return new ArchCondition<>("be final") {
-      @Override
-      public void check(JavaClass javaClass, ConditionEvents events) {
-        boolean isFinal = javaClass.getModifiers().contains(JavaModifier.FINAL);
-        String message = String.format("Class %s is not final", javaClass.getName());
-        events.add(new SimpleConditionEvent(javaClass, isFinal, message));
-      }
-    };
-  }
-
   static ArchCondition<JavaClass> havePrivateConstructor() {
     return new ArchCondition<>("have a private constructor") {
       @Override

@@ -23,6 +23,7 @@ class ArchitectureTest {
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
+            .finalClassesShouldNotHaveProtectedMembers()
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotThrowGenericException()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()

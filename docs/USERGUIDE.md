@@ -19,47 +19,48 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 
 ## 3. Usage
 
-| Category   | Subcategory    | Method Name                                            | Rule Description                                                                                                       | Import Options          |
-|------------|----------------|--------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|-------------------------|
-| **Java**   | General        | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals`                                                                       | Default (WITHOUT_TESTS) |
-|            | General        | `fieldsShouldNotBePublic`                              | Fields should not be `public` (except constants)                                                                       | Default (WITHOUT_TESTS) |
-|            | General        | `methodsShouldNotThrowGenericException`                | Methods should not throw generic exceptions (`Exception`, `RuntimeException`)                                          | Default (WITHOUT_TESTS) |
-|            | General        | `noUsageOf`                                            | Disallow usage of specific classes                                                                                     | Default (WITHOUT_TESTS) |
-|            | General        | `noUsageOf`                                            | Disallow usage of specific classes by class reference                                                                  | Default (WITHOUT_TESTS) |
-|            | General        | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `Deprecated`                                                                | Default (WITHOUT_TESTS) |
-|            | General        | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`                                                                         | Default (WITHOUT_TESTS) |
-|            | General        | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes should be `final` and have a private constructor                                                       | Default (WITHOUT_TESTS) |
-|            | Imports        | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                                      | Default (WITHOUT_TESTS) |
-|            | Imports        | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                                         | Default (WITHOUT_TESTS) |
-|            | Naming         | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                                     | Default (WITHOUT_TESTS) |
-|            | Naming         | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                                      | Default (WITHOUT_TESTS) |
-|            | Naming         | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                                       | Default (WITHOUT_TESTS) |
-|            | Naming         | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                                                           | Default (WITHOUT_TESTS) |
-|            | Naming         | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with should match specific naming patterns                                                           | Default (WITHOUT_TESTS) |
-|            | Naming         | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                                            | Default (WITHOUT_TESTS) |
-|            | Naming         | `constantsShouldFollowConvention`                      | Constants should follow naming conventions                                                                             | Default (WITHOUT_TESTS) |
-|            | Naming         | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                              | Default (WITHOUT_TESTS) |
-| **Test**   | JUnit 5        | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                      | Default (ONLY_TESTS)    |
-|            | JUnit 5        | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                      | Default (ONLY_TESTS)    |
-|            | JUnit 5        | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                           | Default (ONLY_TESTS)    |
-|            | JUnit 5        | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.             | Default (ONLY_TESTS)    |
-|            | JUnit 5        | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.  | Default (ONLY_TESTS)    |
-|            | JUnit 5        | `methodsShouldNotDeclareThrownExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.          | Default (ONLY_TESTS)    |
-| **Spring** | General        | `noAutowiredFields`                                    | Fields should not be annotated with `@Autowired` (prefer constructor injection)                                        | Default (WITHOUT_TESTS) |
-|            | Boot           | `springBootApplicationShouldBeIn`                      | Ensure `@SpringBootApplication` is in the default package                                                              | Default (WITHOUT_TESTS) |
-|            | Configurations | `namesShouldEndWithConfiguration`                      | Configuration classes should end with "Configuration"                                                                  | Default (WITHOUT_TESTS) |
-|            | Configurations | `namesShouldMatch`                                     | Configuration classes should match a regex pattern                                                                     | Default (WITHOUT_TESTS) |
-|            | Controllers    | `namesShouldEndWithController`                         | Controllers should end with "Controller"                                                                               | Default (WITHOUT_TESTS) |
-|            | Controllers    | `namesShouldMatch`                                     | Controllers should match a regex pattern                                                                               | Default (WITHOUT_TESTS) |
-|            | Controllers    | `shouldBeAnnotatedWithRestController`                  | Controllers should be annotated with `@RestController`                                                                 | Default (WITHOUT_TESTS) |
-|            | Controllers    | `shouldBePackagePrivate`                               | Controllers should be package-private                                                                                  | Default (WITHOUT_TESTS) |
-|            | Controllers    | `shouldNotDependOnOtherControllers`                    | Controllers should not depend on other controllers                                                                     | Default (WITHOUT_TESTS) |
-|            | Repositories   | `namesShouldEndWithRepository`                         | Repositories should end with "Repository"                                                                              | Default (WITHOUT_TESTS) |
-|            | Repositories   | `namesShouldMatch`                                     | Repositories should match a regex pattern                                                                              | Default (WITHOUT_TESTS) |
-|            | Repositories   | `shouldBeAnnotatedWithRepository`                      | Repositories should be annotated with `@Repository`                                                                    | Default (WITHOUT_TESTS) |
-|            | Services       | `namesShouldEndWithService`                            | Services should end with "Service"                                                                                     | Default (WITHOUT_TESTS) |
-|            | Services       | `namesShouldMatch`                                     | Services should match a regex pattern                                                                                  | Default (WITHOUT_TESTS) |
-|            | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                           | Default (WITHOUT_TESTS) |
+| Category   | Subcategory    | Method Name                                            | Rule Description                                                                                                      | Import Options          |
+|------------|----------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|-------------------------|
+| **Java**   | General        | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals`                                                                      | Default (WITHOUT_TESTS) |
+|            | General        | `fieldsShouldNotBePublic`                              | Fields should not be `public` (except constants)                                                                      | Default (WITHOUT_TESTS) |
+|            | General        | `methodsShouldNotThrowGenericException`                | Methods should not throw generic exceptions (`Exception`, `RuntimeException`)                                         | Default (WITHOUT_TESTS) |
+|            | General        | `noUsageOf`                                            | Disallow usage of specific classes                                                                                    | Default (WITHOUT_TESTS) |
+|            | General        | `noUsageOf`                                            | Disallow usage of specific classes by class reference                                                                 | Default (WITHOUT_TESTS) |
+|            | General        | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `Deprecated`                                                               | Default (WITHOUT_TESTS) |
+|            | General        | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`                                                                        | Default (WITHOUT_TESTS) |
+|            | General        | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes should be `final` and have a private constructor                                                      | Default (WITHOUT_TESTS) |
+|            | General        | `finalClassesShouldNotHaveProtectedMembers`            | Ensures that classes declared as `final` do not contain any `protected` members                                       | Default (WITHOUT_TESTS) |
+|            | Imports        | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                                     | Default (WITHOUT_TESTS) |
+|            | Imports        | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                                        | Default (WITHOUT_TESTS) |
+|            | Naming         | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                                    | Default (WITHOUT_TESTS) |
+|            | Naming         | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                                     | Default (WITHOUT_TESTS) |
+|            | Naming         | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                                      | Default (WITHOUT_TESTS) |
+|            | Naming         | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                                                          | Default (WITHOUT_TESTS) |
+|            | Naming         | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with should match specific naming patterns                                                          | Default (WITHOUT_TESTS) |
+|            | Naming         | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                                           | Default (WITHOUT_TESTS) |
+|            | Naming         | `constantsShouldFollowConvention`                      | Constants should follow naming conventions                                                                            | Default (WITHOUT_TESTS) |
+|            | Naming         | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                             | Default (WITHOUT_TESTS) |
+| **Test**   | JUnit 5        | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                     | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                     | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                          | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.            | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern. | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldNotDeclareThrownExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.         | Default (ONLY_TESTS)    |
+| **Spring** | General        | `noAutowiredFields`                                    | Fields should not be annotated with `@Autowired` (prefer constructor injection)                                       | Default (WITHOUT_TESTS) |
+|            | Boot           | `springBootApplicationShouldBeIn`                      | Ensure `@SpringBootApplication` is in the default package                                                             | Default (WITHOUT_TESTS) |
+|            | Configurations | `namesShouldEndWithConfiguration`                      | Configuration classes should end with "Configuration"                                                                 | Default (WITHOUT_TESTS) |
+|            | Configurations | `namesShouldMatch`                                     | Configuration classes should match a regex pattern                                                                    | Default (WITHOUT_TESTS) |
+|            | Controllers    | `namesShouldEndWithController`                         | Controllers should end with "Controller"                                                                              | Default (WITHOUT_TESTS) |
+|            | Controllers    | `namesShouldMatch`                                     | Controllers should match a regex pattern                                                                              | Default (WITHOUT_TESTS) |
+|            | Controllers    | `shouldBeAnnotatedWithRestController`                  | Controllers should be annotated with `@RestController`                                                                | Default (WITHOUT_TESTS) |
+|            | Controllers    | `shouldBePackagePrivate`                               | Controllers should be package-private                                                                                 | Default (WITHOUT_TESTS) |
+|            | Controllers    | `shouldNotDependOnOtherControllers`                    | Controllers should not depend on other controllers                                                                    | Default (WITHOUT_TESTS) |
+|            | Repositories   | `namesShouldEndWithRepository`                         | Repositories should end with "Repository"                                                                             | Default (WITHOUT_TESTS) |
+|            | Repositories   | `namesShouldMatch`                                     | Repositories should match a regex pattern                                                                             | Default (WITHOUT_TESTS) |
+|            | Repositories   | `shouldBeAnnotatedWithRepository`                      | Repositories should be annotated with `@Repository`                                                                   | Default (WITHOUT_TESTS) |
+|            | Services       | `namesShouldEndWithService`                            | Services should end with "Service"                                                                                    | Default (WITHOUT_TESTS) |
+|            | Services       | `namesShouldMatch`                                     | Services should match a regex pattern                                                                                 | Default (WITHOUT_TESTS) |
+|            | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                          | Default (WITHOUT_TESTS) |
 
 ### Java Configuration
 
@@ -182,6 +183,17 @@ Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
         .noUsageOfSystemOutOrErr())
+    .build()
+    .check();
+```
+
+- **Ensure Final Classes Do Not Have Protected Members**: Ensures that classes declared as `final` do not contain any `protected` members. Since `final` classes cannot be subclassed, having `protected` members is unnecessary.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .finalClassesShouldNotHaveProtectedMembers())
     .build()
     .check();
 ```

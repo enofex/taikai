@@ -1,6 +1,6 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.AnnotationPredicates.annotatedWith;
+import static com.enofex.taikai.JavaPredicates.annotatedWith;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;

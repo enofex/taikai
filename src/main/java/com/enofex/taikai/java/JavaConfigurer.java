@@ -1,10 +1,12 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.JavaPredicates.areFinal;
+import static com.enofex.taikai.JavaPredicates.beFinal;
+import static com.enofex.taikai.JavaPredicates.notBePublic;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
-import static com.enofex.taikai.java.FieldsShouldNotBePublic.notBePublic;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
 import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
-import static com.enofex.taikai.java.UtilityClasses.beFinal;
+import static com.enofex.taikai.java.ProtectedMembers.notHaveProtectedMembers;
 import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -102,6 +104,17 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
     return addRule(TaikaiRule.of(classes().should(notUseSystemOutOrErr()), configuration));
+  }
+
+  public JavaConfigurer finalClassesShouldNotHaveProtectedMembers() {
+    return finalClassesShouldNotHaveProtectedMembers(null);
+  }
+
+  public JavaConfigurer finalClassesShouldNotHaveProtectedMembers(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that(areFinal())
+        .should(notHaveProtectedMembers())
+        .as("Final classes should not have protected members"), configuration));
   }
 
   @Override

@@ -3,7 +3,10 @@ package com.enofex.taikai;
 import java.util.Calendar;
 import java.util.Date;
 
-class Usage {
+final class Usage {
+
+  private Usage() {
+  }
 
   public static void main(String[] args) {
     Taikai taikai = Taikai.builder()
@@ -45,6 +48,7 @@ class Usage {
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotThrowGenericException()
+            .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
