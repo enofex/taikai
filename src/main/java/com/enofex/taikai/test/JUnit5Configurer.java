@@ -10,20 +10,26 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
-import com.enofex.taikai.Namespace;
+import com.enofex.taikai.Namespace.IMPORT;
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.lang.ArchCondition;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
 
 public final class JUnit5Configurer extends AbstractConfigurer {
+
+  private static final Configuration CONFIGURATION = Configuration.of(IMPORT.ONLY_TESTS);
 
   JUnit5Configurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
   public JUnit5Configurer methodsShouldMatch(String regex) {
-    return methodsShouldMatch(regex, null);
+    return methodsShouldMatch(regex, CONFIGURATION);
   }
 
   public JUnit5Configurer methodsShouldMatch(String regex, Configuration configuration) {
@@ -35,8 +41,21 @@ public final class JUnit5Configurer extends AbstractConfigurer {
         configuration));
   }
 
+  public JUnit5Configurer methodsShouldNotDeclareThrownExceptions() {
+    return methodsShouldNotDeclareThrownExceptions(CONFIGURATION);
+  }
+
+  public JUnit5Configurer methodsShouldNotDeclareThrownExceptions(Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(are(annotatedWithTestOrParameterizedTest(true)))
+            .should(notDeclareThrownExceptions())
+            .as("Methods annotated with %s or %s should not declare thrown Exceptions".formatted(
+                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST)),
+        configuration));
+  }
+
   public JUnit5Configurer methodsShouldBeAnnotatedWithDisplayName() {
-    return methodsShouldBeAnnotatedWithDisplayName(Configuration.of(Namespace.IMPORT.WITH_TESTS));
+    return methodsShouldBeAnnotatedWithDisplayName(CONFIGURATION);
   }
 
   public JUnit5Configurer methodsShouldBeAnnotatedWithDisplayName(Configuration configuration) {
@@ -49,7 +68,7 @@ public final class JUnit5Configurer extends AbstractConfigurer {
   }
 
   public JUnit5Configurer methodsShouldBePackagePrivate() {
-    return methodsShouldBePackagePrivate(Configuration.of(Namespace.IMPORT.WITH_TESTS));
+    return methodsShouldBePackagePrivate(CONFIGURATION);
   }
 
   public JUnit5Configurer methodsShouldBePackagePrivate(Configuration configuration) {
@@ -62,7 +81,7 @@ public final class JUnit5Configurer extends AbstractConfigurer {
   }
 
   public JUnit5Configurer methodsShouldNotBeAnnotatedWithDisabled() {
-    return methodsShouldNotBeAnnotatedWithDisabled(Configuration.of(Namespace.IMPORT.WITH_TESTS));
+    return methodsShouldNotBeAnnotatedWithDisabled(CONFIGURATION);
   }
 
   public JUnit5Configurer methodsShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
@@ -73,7 +92,7 @@ public final class JUnit5Configurer extends AbstractConfigurer {
   }
 
   public JUnit5Configurer classesShouldNotBeAnnotatedWithDisabled() {
-    return classesShouldNotBeAnnotatedWithDisabled(Configuration.of(Namespace.IMPORT.WITH_TESTS));
+    return classesShouldNotBeAnnotatedWithDisabled(CONFIGURATION);
   }
 
   public JUnit5Configurer classesShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
@@ -81,5 +100,18 @@ public final class JUnit5Configurer extends AbstractConfigurer {
             .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
             .as("Classes should not be annotated with %s".formatted(ANNOTATION_DISABLED)),
         configuration));
+  }
+
+  private ArchCondition<JavaMethod> notDeclareThrownExceptions() {
+    return new ArchCondition<>("not declare thrown exceptions") {
+      @Override
+      public void check(JavaMethod method, ConditionEvents events) {
+        if (!method.getThrowsClause().isEmpty()) {
+          String message = String.format("Method %s declares thrown exceptions",
+              method.getFullName());
+          events.add(SimpleConditionEvent.violated(method, message));
+        }
+      }
+    };
   }
 }

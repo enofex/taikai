@@ -39,26 +39,27 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |            | Naming         | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                                            | Default (WITHOUT_TESTS) |
 |            | Naming         | `constantsShouldFollowConvention`                      | Constants should follow naming conventions                                                                             | Default (WITHOUT_TESTS) |
 |            | Naming         | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                              | Default (WITHOUT_TESTS) |
-| **Test**   | JUnit 5        | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                      | Default (WITH_TESTS) |
-|            | JUnit 5        | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                      | Default (WITH_TESTS) |
-|            | JUnit 5        | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                           | Default (WITH_TESTS) |
-|            | JUnit 5        | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.             | Default (WITH_TESTS) |
-|            | JUnit 5        | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.  | Default (WITH_TESTS) |
-| **Spring** | General        | `noAutowiredFields`                                    | Fields should not be annotated with `@Autowired` (prefer constructor injection)                                        | Default (WITH_TESTS) |
-|            | Boot           | `springBootApplicationShouldBeIn`                      | Ensure `@SpringBootApplication` is in the default package                                                              | Default (WITH_TESTS) |
-|            | Configurations | `namesShouldEndWithConfiguration`                      | Configuration classes should end with "Configuration"                                                                  | Default (WITH_TESTS) |
-|            | Configurations | `namesShouldMatch`                                     | Configuration classes should match a regex pattern                                                                     | Default (WITH_TESTS) |
-|            | Controllers    | `namesShouldEndWithController`                         | Controllers should end with "Controller"                                                                               | Default (WITH_TESTS) |
-|            | Controllers    | `namesShouldMatch`                                     | Controllers should match a regex pattern                                                                               | Default (WITH_TESTS) |
-|            | Controllers    | `shouldBeAnnotatedWithRestController`                  | Controllers should be annotated with `@RestController`                                                                 | Default (WITH_TESTS) |
-|            | Controllers    | `shouldBePackagePrivate`                               | Controllers should be package-private                                                                                  | Default (WITH_TESTS) |
-|            | Controllers    | `shouldNotDependOnOtherControllers`                    | Controllers should not depend on other controllers                                                                     | Default (WITH_TESTS) |
-|            | Repositories   | `namesShouldEndWithRepository`                         | Repositories should end with "Repository"                                                                              | Default (WITH_TESTS) |
-|            | Repositories   | `namesShouldMatch`                                     | Repositories should match a regex pattern                                                                              | Default (WITH_TESTS) |
-|            | Repositories   | `shouldBeAnnotatedWithRepository`                      | Repositories should be annotated with `@Repository`                                                                    | Default (WITH_TESTS) |
-|            | Services       | `namesShouldEndWithService`                            | Services should end with "Service"                                                                                     | Default (WITH_TESTS) |
-|            | Services       | `namesShouldMatch`                                     | Services should match a regex pattern                                                                                  | Default (WITH_TESTS) |
-|            | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                           | Default (WITH_TESTS) |
+| **Test**   | JUnit 5        | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                      | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                      | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                           | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.             | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.  | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldNotDeclareThrownExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.          | Default (ONLY_TESTS)    |
+| **Spring** | General        | `noAutowiredFields`                                    | Fields should not be annotated with `@Autowired` (prefer constructor injection)                                        | Default (WITHOUT_TESTS) |
+|            | Boot           | `springBootApplicationShouldBeIn`                      | Ensure `@SpringBootApplication` is in the default package                                                              | Default (WITHOUT_TESTS) |
+|            | Configurations | `namesShouldEndWithConfiguration`                      | Configuration classes should end with "Configuration"                                                                  | Default (WITHOUT_TESTS) |
+|            | Configurations | `namesShouldMatch`                                     | Configuration classes should match a regex pattern                                                                     | Default (WITHOUT_TESTS) |
+|            | Controllers    | `namesShouldEndWithController`                         | Controllers should end with "Controller"                                                                               | Default (WITHOUT_TESTS) |
+|            | Controllers    | `namesShouldMatch`                                     | Controllers should match a regex pattern                                                                               | Default (WITHOUT_TESTS) |
+|            | Controllers    | `shouldBeAnnotatedWithRestController`                  | Controllers should be annotated with `@RestController`                                                                 | Default (WITHOUT_TESTS) |
+|            | Controllers    | `shouldBePackagePrivate`                               | Controllers should be package-private                                                                                  | Default (WITHOUT_TESTS) |
+|            | Controllers    | `shouldNotDependOnOtherControllers`                    | Controllers should not depend on other controllers                                                                     | Default (WITHOUT_TESTS) |
+|            | Repositories   | `namesShouldEndWithRepository`                         | Repositories should end with "Repository"                                                                              | Default (WITHOUT_TESTS) |
+|            | Repositories   | `namesShouldMatch`                                     | Repositories should match a regex pattern                                                                              | Default (WITHOUT_TESTS) |
+|            | Repositories   | `shouldBeAnnotatedWithRepository`                      | Repositories should be annotated with `@Repository`                                                                    | Default (WITHOUT_TESTS) |
+|            | Services       | `namesShouldEndWithService`                            | Services should end with "Service"                                                                                     | Default (WITHOUT_TESTS) |
+|            | Services       | `namesShouldMatch`                                     | Services should match a regex pattern                                                                                  | Default (WITHOUT_TESTS) |
+|            | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                           | Default (WITHOUT_TESTS) |
 
 ### Java Configuration
 
@@ -234,6 +235,18 @@ Taikai.builder()
     .test(test -> test
         .junit5(junit5 -> junit5
             .methodsShouldMatch("regex")))
+    .build()
+    .check();
+```
+
+- **Ensure Test Methods Do Not Declare Thrown Exceptions** Ensure that JUnit 5 test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .test(test -> test
+        .junit5(junit5 -> junit5
+            .methodsShouldNotDeclareThrownExceptions()))
     .build()
     .check();
 ```
