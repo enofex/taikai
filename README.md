@@ -56,7 +56,7 @@ void shouldFulfilConstrains() {
               .methodsShouldNotBeAnnotatedWithDisabled()))
       .java(java -> java
           .noUsageOfDeprecatedAPIs()
-          .methodsShouldNotThrowGenericException()
+          .methodsShouldNotDeclareGenericExceptions()
           .utilityClassesShouldBeFinalAndHavePrivateConstructor()
           .imports(imports -> imports
               .shouldHaveNoCycles()

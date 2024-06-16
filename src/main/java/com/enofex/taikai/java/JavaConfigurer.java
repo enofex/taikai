@@ -45,15 +45,15 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .andShould(havePrivateConstructor()), configuration));
   }
 
-  public JavaConfigurer methodsShouldNotThrowGenericException() {
-    return methodsShouldNotThrowGenericException(null);
+  public JavaConfigurer methodsShouldNotDeclareGenericExceptions() {
+    return methodsShouldNotDeclareGenericExceptions(null);
   }
 
-  public JavaConfigurer methodsShouldNotThrowGenericException(Configuration configuration) {
+  public JavaConfigurer methodsShouldNotDeclareGenericExceptions(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
         .should().notDeclareThrowableOfType(Exception.class)
         .orShould().notDeclareThrowableOfType(RuntimeException.class)
-        .as("Methods should not throw generic Exception or RuntimeException"), configuration));
+        .as("Methods should not declare generic Exception or RuntimeException"), configuration));
   }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs() {

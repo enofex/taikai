@@ -34,7 +34,7 @@ final class Usage {
                 .namesShouldEndWithRepository()))
         .test(test -> test
             .junit5(junit5 -> junit5
-                .methodsShouldNotDeclareThrownExceptions()
+                .methodsShouldNotDeclareExceptions()
                 .methodsShouldMatch("should.*")
                 .methodsShouldBePackagePrivate()
                 .methodsShouldBeAnnotatedWithDisplayName()
@@ -47,7 +47,7 @@ final class Usage {
             .noUsageOfSystemOutOrErr()
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
-            .methodsShouldNotThrowGenericException()
+            .methodsShouldNotDeclareGenericExceptions()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .imports(imports -> imports

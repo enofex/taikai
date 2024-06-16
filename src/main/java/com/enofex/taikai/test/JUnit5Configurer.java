@@ -38,11 +38,11 @@ public final class JUnit5Configurer extends AbstractConfigurer {
         configuration));
   }
 
-  public JUnit5Configurer methodsShouldNotDeclareThrownExceptions() {
-    return methodsShouldNotDeclareThrownExceptions(CONFIGURATION);
+  public JUnit5Configurer methodsShouldNotDeclareExceptions() {
+    return methodsShouldNotDeclareExceptions(CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldNotDeclareThrownExceptions(Configuration configuration) {
+  public JUnit5Configurer methodsShouldNotDeclareExceptions(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .should(notDeclareThrownExceptions())

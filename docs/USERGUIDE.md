@@ -23,7 +23,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |------------|----------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|-------------------------|
 | **Java**   | General        | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals`                                                                      | Default (WITHOUT_TESTS) |
 |            | General        | `fieldsShouldNotBePublic`                              | Fields should not be `public` (except constants)                                                                      | Default (WITHOUT_TESTS) |
-|            | General        | `methodsShouldNotThrowGenericException`                | Methods should not throw generic exceptions (`Exception`, `RuntimeException`)                                         | Default (WITHOUT_TESTS) |
+|            | General        | `methodsShouldNotDeclareGenericExceptions`              | Methods should not declare generic exceptions (`Exception`, `RuntimeException`)                                       | Default (WITHOUT_TESTS) |
 |            | General        | `noUsageOf`                                            | Disallow usage of specific classes                                                                                    | Default (WITHOUT_TESTS) |
 |            | General        | `noUsageOf`                                            | Disallow usage of specific classes by class reference                                                                 | Default (WITHOUT_TESTS) |
 |            | General        | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `Deprecated`                                                               | Default (WITHOUT_TESTS) |
@@ -45,7 +45,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |            | JUnit 5        | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                          | Default (ONLY_TESTS)    |
 |            | JUnit 5        | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.            | Default (ONLY_TESTS)    |
 |            | JUnit 5        | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern. | Default (ONLY_TESTS)    |
-|            | JUnit 5        | `methodsShouldNotDeclareThrownExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.         | Default (ONLY_TESTS)    |
+|            | JUnit 5        | `methodsShouldNotDeclareExceptions`                    | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.         | Default (ONLY_TESTS)    |
 | **Spring** | General        | `noAutowiredFields`                                    | Fields should not be annotated with `@Autowired` (prefer constructor injection)                                       | Default (WITHOUT_TESTS) |
 |            | Boot           | `springBootApplicationShouldBeIn`                      | Ensure `@SpringBootApplication` is in the default package                                                             | Default (WITHOUT_TESTS) |
 |            | Configurations | `namesShouldEndWithConfiguration`                      | Configuration classes should end with "Configuration"                                                                 | Default (WITHOUT_TESTS) |
@@ -94,7 +94,7 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
-        .methodsShouldNotThrowGenericException())
+        .methodsShouldNotDeclareGenericExceptions())
     .build()
     .check();
 ```
@@ -258,7 +258,7 @@ Taikai.builder()
     .namespace("com.company.yourproject")
     .test(test -> test
         .junit5(junit5 -> junit5
-            .methodsShouldNotDeclareThrownExceptions()))
+            .methodsShouldNotDeclareExceptions()))
     .build()
     .check();
 ```
@@ -402,7 +402,7 @@ class ArchitectureTest {
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
-            .methodsShouldNotThrowGenericException()
+            .methodsShouldNotDeclareGenericExceptions()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor())
         .spring(spring -> spring
             .repositories(repositories -> repositories
