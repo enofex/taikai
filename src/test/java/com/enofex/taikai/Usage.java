@@ -31,6 +31,7 @@ class Usage {
                 .namesShouldEndWithRepository()))
         .test(test -> test
             .junit5(junit5 -> junit5
+                .methodsShouldBePackagePrivate()
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
