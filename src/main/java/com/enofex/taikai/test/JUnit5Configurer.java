@@ -1,5 +1,7 @@
 package com.enofex.taikai.test;
 
+import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISABLED;
+import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISPLAY_NAME;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_PARAMETRIZED_TEST;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnit5Predicates.annotatedWithTestOrParameterizedTest;
@@ -16,10 +18,21 @@ import com.enofex.taikai.configures.ConfigurerContext;
 
 public final class JUnit5Configurer extends AbstractConfigurer {
 
-  private static final String ANNOTATION_DISABLED = "org.junit.jupiter.api.Disabled";
-
   JUnit5Configurer(ConfigurerContext configurerContext) {
     super(configurerContext);
+  }
+
+  public JUnit5Configurer methodsShouldBeAnnotatedWithDisplayName() {
+    return methodsShouldBeAnnotatedWithDisplayName(Configuration.of(Namespace.IMPORT.WITH_TESTS));
+  }
+
+  public JUnit5Configurer methodsShouldBeAnnotatedWithDisplayName(Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(are(annotatedWithTestOrParameterizedTest(true)))
+            .should().beMetaAnnotatedWith(ANNOTATION_DISPLAY_NAME)
+            .as("Methods annotated with %s or %s should be annotated with %s".formatted(ANNOTATION_TEST,
+                ANNOTATION_PARAMETRIZED_TEST, ANNOTATION_DISPLAY_NAME)),
+        configuration));
   }
 
   public JUnit5Configurer methodsShouldBePackagePrivate() {

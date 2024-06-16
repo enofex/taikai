@@ -32,6 +32,7 @@ class Usage {
         .test(test -> test
             .junit5(junit5 -> junit5
                 .methodsShouldBePackagePrivate()
+                .methodsShouldBeAnnotatedWithDisplayName()
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
