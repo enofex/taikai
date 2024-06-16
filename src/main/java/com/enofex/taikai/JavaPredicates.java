@@ -63,7 +63,6 @@ public final class JavaPredicates {
     };
   }
 
-
   public static ArchCondition<JavaClass> beFinal() {
     return new ArchCondition<>("be final") {
       @Override
