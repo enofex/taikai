@@ -31,6 +31,7 @@ class Usage {
                 .namesShouldEndWithRepository()))
         .test(test -> test
             .junit5(junit5 -> junit5
+                .methodsShouldMatch("should.*")
                 .methodsShouldBePackagePrivate()
                 .methodsShouldBeAnnotatedWithDisplayName()
                 .classesShouldNotBeAnnotatedWithDisabled()
