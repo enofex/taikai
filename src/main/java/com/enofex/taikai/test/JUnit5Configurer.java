@@ -1,5 +1,6 @@
 package com.enofex.taikai.test;
 
+import static com.enofex.taikai.JavaPredicates.notDeclareThrownExceptions;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISABLED;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISPLAY_NAME;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_PARAMETRIZED_TEST;
@@ -15,10 +16,6 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
-import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.lang.ArchCondition;
-import com.tngtech.archunit.lang.ConditionEvents;
-import com.tngtech.archunit.lang.SimpleConditionEvent;
 
 public final class JUnit5Configurer extends AbstractConfigurer {
 
@@ -100,18 +97,5 @@ public final class JUnit5Configurer extends AbstractConfigurer {
             .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
             .as("Classes should not be annotated with %s".formatted(ANNOTATION_DISABLED)),
         configuration));
-  }
-
-  private ArchCondition<JavaMethod> notDeclareThrownExceptions() {
-    return new ArchCondition<>("not declare thrown exceptions") {
-      @Override
-      public void check(JavaMethod method, ConditionEvents events) {
-        if (!method.getThrowsClause().isEmpty()) {
-          String message = String.format("Method %s declares thrown exceptions",
-              method.getFullName());
-          events.add(SimpleConditionEvent.violated(method, message));
-        }
-      }
-    };
   }
 }
