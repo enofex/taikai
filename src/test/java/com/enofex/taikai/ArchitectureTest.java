@@ -14,21 +14,22 @@ class ArchitectureTest {
         .test(test -> test
             .junit5(junit5 -> junit5
                 .classesShouldNotBeAnnotatedWithDisabled()
+                .classesShouldBePackagePrivate(".*Test")
                 .methodsShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldMatch("should.*")
                 .methodsShouldBePackagePrivate()
                 .methodsShouldNotDeclareExceptions()))
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
-            .finalClassesShouldNotHaveProtectedMembers()
-            .classesShouldImplementHashCodeAndEquals()
-            .methodsShouldNotDeclareGenericExceptions()
-            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
-            .fieldsShouldNotBePublic()
             .noUsageOfSystemOutOrErr()
             .noUsageOf(Date.class)
             .noUsageOf(Calendar.class)
             .noUsageOf(SimpleDateFormat.class)
+            .classesShouldImplementHashCodeAndEquals()
+            .finalClassesShouldNotHaveProtectedMembers()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .methodsShouldNotDeclareGenericExceptions()
+            .fieldsShouldNotBePublic()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
