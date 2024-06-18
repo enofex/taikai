@@ -10,9 +10,9 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
-public final class JavaPredicates {
+public final class GeneralPredicates {
 
-  private JavaPredicates() {
+  private GeneralPredicates() {
   }
 
   public static DescribedPredicate<CanBeAnnotated> annotatedWith(String annotation,
@@ -22,6 +22,15 @@ public final class JavaPredicates {
       public boolean test(CanBeAnnotated canBeAnnotated) {
         return isMetaAnnotated ? canBeAnnotated.isMetaAnnotatedWith(annotation) :
             canBeAnnotated.isAnnotatedWith(annotation);
+      }
+    };
+  }
+
+  public static DescribedPredicate<JavaClass> areFinal() {
+    return new DescribedPredicate<>("are final") {
+      @Override
+      public boolean test(JavaClass javaClass) {
+        return javaClass.getModifiers().contains(JavaModifier.FINAL);
       }
     };
   }
@@ -50,15 +59,6 @@ public final class JavaPredicates {
               field.getOwner().getFullName());
           events.add(SimpleConditionEvent.violated(field, message));
         }
-      }
-    };
-  }
-
-  public static DescribedPredicate<JavaClass> areFinal() {
-    return new DescribedPredicate<>("are final") {
-      @Override
-      public boolean test(JavaClass javaClass) {
-        return javaClass.getModifiers().contains(JavaModifier.FINAL);
       }
     };
   }

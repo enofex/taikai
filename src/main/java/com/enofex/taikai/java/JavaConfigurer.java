@@ -1,8 +1,8 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.JavaPredicates.areFinal;
-import static com.enofex.taikai.JavaPredicates.beFinal;
-import static com.enofex.taikai.JavaPredicates.notBePublic;
+import static com.enofex.taikai.GeneralPredicates.areFinal;
+import static com.enofex.taikai.GeneralPredicates.beFinal;
+import static com.enofex.taikai.GeneralPredicates.notBePublic;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
 import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;

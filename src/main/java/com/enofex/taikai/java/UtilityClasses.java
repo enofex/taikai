@@ -19,7 +19,7 @@ final class UtilityClasses {
     return classes().that(haveOnlyStaticMethods());
   }
 
-  static DescribedPredicate<JavaClass> haveOnlyStaticMethods() {
+  private static DescribedPredicate<JavaClass> haveOnlyStaticMethods() {
     return new DescribedPredicate<>("have only static methods") {
       @Override
       public boolean test(JavaClass javaClass) {

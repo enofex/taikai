@@ -1,6 +1,6 @@
 package com.enofex.taikai.test;
 
-import static com.enofex.taikai.JavaPredicates.notDeclareThrownExceptions;
+import static com.enofex.taikai.GeneralPredicates.notDeclareThrownExceptions;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISABLED;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISPLAY_NAME;
 import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_PARAMETRIZED_TEST;
