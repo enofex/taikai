@@ -1,10 +1,12 @@
 # Taikai
 
 ## 1. Introduction
+
 Taikai is an automated architecture testing tool for Java projects designed to maintain clean and consistent architecture. It enforces predefined and custom architectural constraints, ensuring code quality, maintainability, and adherence to best practices.
 
 ## 2. Getting Started
-To use Taikai, include it as a dependency in your Maven pom.xml:
+
+To use Taikai, include it as a dependency in your Maven `pom.xml`:
 
 ```xml
 <dependency>
@@ -15,59 +17,79 @@ To use Taikai, include it as a dependency in your Maven pom.xml:
 </dependency>
 ```
 
-Architecture rules are defined using Taikai's fluent API, allowing developers to specify constraints on classes, methods, imports, naming conventions, and more. Taikai provides pre-defined configurations for common architectural patterns and best practices.
+Ensure to configure `${taikai.version}` to the latest stable version compatible with your project's ArchUnit version.
 
-## 3. Usage
+## 3. Rules Overview
+ 
+Taikai's architecture rules cover a wide range of categories to enforce best practices and maintain consistency.
 
-| Category   | Subcategory    | Method Name                                            | Rule Description                                                                                                                                       | Import Options |
-|------------|----------------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
-| **Java**   | General        | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals`                                                                                                       | WITHOUT_TESTS  |
-|            | General        | `fieldsShouldNotBePublic`                              | Fields should not be `public` (except constants)                                                                                                       | WITHOUT_TESTS  |
-|            | General        | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions (`Exception`, `RuntimeException`)                                                                        | WITHOUT_TESTS  |
-|            | General        | `noUsageOf`                                            | Disallow usage of specific classes                                                                                                                     | WITHOUT_TESTS  |
-|            | General        | `noUsageOf`                                            | Disallow usage of specific classes by class reference                                                                                                  | WITHOUT_TESTS  |
-|            | General        | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`                                                                                               | WITHOUT_TESTS  |
-|            | General        | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`                                                                                                         | WITHOUT_TESTS  |
-|            | General        | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes should be `final` and have a private constructor                                                                                       | WITHOUT_TESTS  |
-|            | General        | `finalClassesShouldNotHaveProtectedMembers`            | Ensures that classes declared as `final` do not contain any `protected` members                                                                        | WITHOUT_TESTS  |
-|            | General        | `serialVersionUIDShouldBeStaticFinalLong`              | Ensure that fields named `serialVersionUID` are declared as `static final long`                                                                        | WITHOUT_TESTS  |
-|            | Imports        | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                                                                      | WITHOUT_TESTS  |
-|            | Imports        | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                                                                         | WITHOUT_TESTS  |
-|            | Naming         | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                                                                     | WITHOUT_TESTS  |
-|            | Naming         | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                                                                      | WITHOUT_TESTS  |
-|            | Naming         | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                                                                       | WITHOUT_TESTS  |
-|            | Naming         | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                                                                                           | WITHOUT_TESTS  |
-|            | Naming         | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with should match specific naming patterns                                                                                           | WITHOUT_TESTS  |
-|            | Naming         | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                                                                            | WITHOUT_TESTS  |
-|            | Naming         | `constantsShouldFollowConvention`                      | Constants should follow naming conventions, except `serialVersionUID`                                                                                  | WITHOUT_TESTS  |
-|            | Naming         | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                                                              | WITHOUT_TESTS  |
-| **Test**   | JUnit 5        | `classesShouldBePackagePrivate`                        | Ensure that classes whose names match a specific naming pattern are declared as package-private                                                        | ONLY_TESTS     |
-|            | JUnit 5        | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                                                      | ONLY_TESTS     |
-|            | JUnit 5        | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private                                                            | ONLY_TESTS     |
-|            | JUnit 5        | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                                                      | ONLY_TESTS     |
-|            | JUnit 5        | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`                                              | ONLY_TESTS     |
-|            | JUnit 5        | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern                                   | ONLY_TESTS     |
-|            | JUnit 5        | `methodsShouldNotDeclareExceptions`                    | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions                                           | ONLY_TESTS     |
-| **Spring** | General        | `noAutowiredFields`                                    | Fields should not be annotated with `@Autowired` (prefer constructor injection)                                                                        | WITHOUT_TESTS  |
-|            | Boot           | `springBootApplicationShouldBeIn`                      | Ensure `@SpringBootApplication` is in the default package                                                                                              | WITHOUT_TESTS  |
-|            | Configurations | `namesShouldEndWithConfiguration`                      | Configuration annotated with `@Configuration` classes should end with `Configuration`                                                                  | WITHOUT_TESTS  |
-|            | Configurations | `namesShouldMatch`                                     | Configuration annotated with `@Configuration` classes should match a regex pattern                                                                     | WITHOUT_TESTS  |
-|            | Controllers    | `namesShouldEndWithController`                         | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`                                                             | WITHOUT_TESTS  |
-|            | Controllers    | `namesShouldMatch`                                     | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern                                                             | WITHOUT_TESTS  |
-|            | Controllers    | `shouldBeAnnotatedWithController`                      | Controllers should be annotated with `@Controller`                                                                                                     | WITHOUT_TESTS  |
-|            | Controllers    | `shouldBeAnnotatedWithRestController`                  | Controllers should be annotated with `@RestController`                                                                                                 | WITHOUT_TESTS  |
-|            | Controllers    | `shouldBePackagePrivate`                               | Controllers annotated with `@Controller` or `@RestController` should be package-private                                                                | WITHOUT_TESTS  |
-|            | Controllers    | `shouldNotDependOnOtherControllers`                    | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController` | WITHOUT_TESTS  |
-|            | Repositories   | `namesShouldEndWithRepository`                         | Repositories annotated with `@Repository` should end with `Repository`                                                                                 | WITHOUT_TESTS  |
-|            | Repositories   | `namesShouldMatch`                                     | Repositories annotated with `@Repository` should match a regex pattern                                                                                 | WITHOUT_TESTS  |
-|            | Repositories   | `shouldBeAnnotatedWithRepository`                      | Repositories should be annotated with `@Repository`                                                                                                    | WITHOUT_TESTS  |
-|            | Repositories   | `shouldNotDependOnServices`                            | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service.`                                              | WITHOUT_TESTS  |
-|            | Services       | `namesShouldEndWithService`                            | Services annotated with `@Service.` should end with `Service`                                                                                          | WITHOUT_TESTS  |
-|            | Services       | `namesShouldMatch`                                     | Services annotated with `@Service.` should match a regex pattern                                                                                       | WITHOUT_TESTS  |
-|            | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                                                           | WITHOUT_TESTS  |
-|            | Services       | `shouldNotDependOnControllers`                         | Services  annotated with `@Service.` should not depend on controllers annotated with `@Controller` or `@RestController`                                | WITHOUT_TESTS  |
+### Java Rules
 
-### Java Configuration
+The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
+
+| Category | Method Name                                            | Rule Description                                                                                          |
+|----------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
+| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals`                                                          |
+| General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants                                                           |
+| General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception`, `RuntimeException`                       |
+| General  | `noUsageOf`                                            | Disallow usage of specific classes                                                                        |
+| General  | `noUsageOf`                                            | Disallow usage of specific classes by class reference                                                     |
+| General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`                                                  |
+| General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`                                                            |
+| General  | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes with only `static` methods except `main` should be `final` and have a private constructor |
+| General  | `finalClassesShouldNotHaveProtectedMembers`            | Ensures that classes declared as `final` do not contain any `protected` members                           |
+| General  | `serialVersionUIDShouldBeStaticFinalLong`              | Ensure that fields named `serialVersionUID` are declared as `static final long`                           |
+| Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                         |
+| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                            |
+| Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                        |
+| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                         |
+| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                          |
+| Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                                              |
+| Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with should match specific naming patterns                                              |
+| Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                               |
+| Naming   | `constantsShouldFollowConvention`                      | Constants should follow naming conventions, except `serialVersionUID`                                     |
+| Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                 |
+
+### Test Rules
+
+The default mode is `ONLY_TESTS`, which checks only test classes.
+
+| Category      | Method Name                                            | Rule Description                                                                                                      | 
+|---------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| JUnit 5       | `classesShouldBePackagePrivate`                        | Ensure that classes whose names match a specific naming pattern are declared as package-private                       |
+| JUnit 5       | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                     |
+| JUnit 5       | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private                           |
+| JUnit 5       | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                     |
+| JUnit 5       | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`             |
+| JUnit 5       | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern  |
+| JUnit 5       | `methodsShouldNotDeclareExceptions`                    | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions          |
+
+### Spring Rules
+
+The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
+
+| Category       | Method Name                                            | Rule Description                                                                                                                                       |
+|----------------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| General        | `noAutowiredFields`                                    | Fields should not be annotated with `@Autowired`, prefer constructor injection                                                                         |
+| Boot           | `springBootApplicationShouldBeIn`                      | Ensure `@SpringBootApplication` is in the default package                                                                                              |
+| Configurations | `namesShouldEndWithConfiguration`                      | Configuration annotated with `@Configuration` classes should end with `Configuration`                                                                  |
+| Configurations | `namesShouldMatch`                                     | Configuration annotated with `@Configuration` classes should match a regex pattern                                                                     |
+| Controllers    | `namesShouldEndWithController`                         | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`                                                             |
+| Controllers    | `namesShouldMatch`                                     | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern                                                             |
+| Controllers    | `shouldBeAnnotatedWithController`                      | Controllers should be annotated with `@Controller`                                                                                                     |
+| Controllers    | `shouldBeAnnotatedWithRestController`                  | Controllers should be annotated with `@RestController`                                                                                                 |
+| Controllers    | `shouldBePackagePrivate`                               | Controllers annotated with `@Controller` or `@RestController` should be package-private                                                                |
+| Controllers    | `shouldNotDependOnOtherControllers`                    | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController` |
+| Repositories   | `namesShouldEndWithRepository`                         | Repositories annotated with `@Repository` should end with `Repository`                                                                                 |
+| Repositories   | `namesShouldMatch`                                     | Repositories annotated with `@Repository` should match a regex pattern                                                                                 |
+| Repositories   | `shouldBeAnnotatedWithRepository`                      | Repositories should be annotated with `@Repository`                                                                                                    |
+| Repositories   | `shouldNotDependOnServices`                            | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service.`                                              |
+| Services       | `namesShouldEndWithService`                            | Services annotated with `@Service.` should end with `Service`                                                                                          |
+| Services       | `namesShouldMatch`                                     | Services annotated with `@Service.` should match a regex pattern                                                                                       |
+| Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                                                           |
+| Services       | `shouldNotDependOnControllers`                         | Services  annotated with `@Service.` should not depend on controllers annotated with `@Controller` or `@RestController`                                |
+
+## 4. Java Rules
 
 Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns.
 
@@ -104,7 +126,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Utility Classes Should Be Final and Have Private Constructor**: Ensure that utility classes are declared as `final` and have private constructors to prevent instantiation.
+- **Utility Classes Should Be Final and Have Private Constructor**: Ensure that utility classes with only `static` methods except `main` should be declared as `final` and have `private` constructors to prevent instantiation.
 
 ```java
 Taikai.builder()
@@ -203,7 +225,7 @@ Taikai.builder()
     .check();
 ```
 
-### Test Configuration
+## 5. Test Rules
 
 Test configuration involves specifying constraints related to testing frameworks and practices.
 
@@ -292,7 +314,7 @@ Taikai.builder()
     .check();
 ```
 
-### Spring Configuration
+## 6. Spring Rules
 
 Spring configuration involves defining constraints specific to Spring Framework usage.
 
@@ -378,7 +400,7 @@ Taikai.builder()
     .check();
 ```
 
-## 4. Customization
+## 7. Customization
 
 ### Custom Configuration for Import Rules
 
@@ -390,7 +412,7 @@ The `Configuration` class offers various static methods to create custom configu
 - `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` to set both namespace and import options.
 - `Configuration.of(JavaClasses javaClasses)` to directly provide a set of Java classes.
 
-If a `namespaceImport` is not explicitly provided, it defaults to `Namespace.IMPORT.WITHOUT_TESTS`:
+If a `namespaceImport` is not explicitly provided, it defaults to `Namespace.IMPORT.WITHOUT_TESTS`.
 
 Here's an example of how you can use these methods to create a custom configuration:
 
@@ -414,7 +436,7 @@ Taikai.builder()
 ```
 By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
 
-## 5. Examples
+## 8. Examples
 
 Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
 

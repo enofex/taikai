@@ -1,11 +1,13 @@
 ![maven workflow](https://github.com/enofex/taikai/actions/workflows/maven.yml/badge.svg) [![](https://img.shields.io/badge/Java%20Version-21-orange)](/pom.xml)
 <img height="20" src="https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg">
+
 # Taikai
 
-Taikai is an extension of the popular ArchUnit library, offering a comprehensive suite of predefined rules tailored for various technologies. It simplifies the process of enforcing architectural constraints and best practices in your codebase, ensuring consistency and quality across your projects.
+Taikai extends the capabilities of the popular ArchUnit library by offering a comprehensive suite of predefined rules tailored for various technologies. It simplifies the enforcement of architectural constraints and best practices in your codebase, ensuring consistency and quality across your projects.
 
-Maven Usage
--------------------
+## Maven Usage
+
+Add Taikai as a dependency in your `pom.xml`:
 
 ```xml
 <dependency>
@@ -16,17 +18,15 @@ Maven Usage
 </dependency>
 ```
 
-The `${taikai.version}` property should be defined as a property in your Maven project to specify the version. The library requires that the necessary dependencies in this case ArchUnit is already declared.
+Replace `${taikai.version}` with the appropriate version defined in your project. Ensure that the required dependencies like ArchUnit are already declared.
 
-JUnit 5 Example test
--------------------
+## JUnit 5 Example Test
 
-This example includes only some rules, along with an example of how to add a custom ArchUnit rule using `TaikaiRule.of()`.
+Here's an example demonstrating the usage of Taikai with JUnit 5. Customize rules as needed using `TaikaiRule.of()`.
 
 ```java
 @Test
-void shouldFulfilConstrains() {
-  // Only some rule examples
+void shouldFulfillConstraints() {
   Taikai.builder()
       .namespace("com.enofex.taikai")
       .spring(spring -> spring
@@ -34,21 +34,19 @@ void shouldFulfilConstrains() {
           .boot(boot -> boot
               .springBootApplicationShouldBeIn("com.enofex.taikai"))
           .configurations(configuration -> configuration
-              .namesShouldEndWithConfiguration()
-              .namesShouldMatch("regex"))
+              .namesShouldEndWithConfiguration())
           .controllers(controllers -> controllers
               .shouldBeAnnotatedWithRestController()
               .namesShouldEndWithController()
-              .namesShouldMatch("regex")
               .shouldNotDependOnOtherControllers()
               .shouldBePackagePrivate())
           .services(services -> services
               .shouldBeAnnotatedWithService()
-              .namesShouldMatch("regex")
+              .shouldNotDependOnControllers()
               .namesShouldEndWithService())
           .repositories(repositories -> repositories
               .shouldBeAnnotatedWithRepository()
-              .namesShouldMatch("regex")
+              .shouldNotDependOnServices()
               .namesShouldEndWithRepository()))
       .test(test -> test
           .junit5(junit5 -> junit5
@@ -65,19 +63,18 @@ void shouldFulfilConstrains() {
           .naming(naming -> naming
               .classesShouldNotMatch(".*Impl")
               .interfacesShouldNotHavePrefixI()))
-      .addRule(TaikaiRule.of(...)) //add custom ArchUnit rule here
+      .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
       .build()
       .check();
 }
 ```
 
-[Here](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java)  you can find how Taikai use it in the tests.
+For more examples and detailed usage, refer to [ArchitectureTest.java](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java).
 
 ## User Guide
 
-Please refer to the complete [documentation](https://github.com/enofex/taikai/blob/main/docs/USERGUIDE.md) for detailed information and all rules.
+Explore the complete [documentation](https://github.com/enofex/taikai/blob/main/docs/USERGUIDE.md) for comprehensive information on all available rules.
 
 ## Contributing
 
-If you want to contribute to this project, then follow please
-these [instructions](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md).
+Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved.
