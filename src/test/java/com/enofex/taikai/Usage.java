@@ -23,6 +23,7 @@ class Usage {
                 .namesShouldMatch("regex"))
             .services(services -> services
                 .shouldBeAnnotatedWithService()
+                .shouldNotDependOnControllers()
                 .namesShouldMatch("regex")
                 .namesShouldEndWithService())
             .repositories(repositories -> repositories

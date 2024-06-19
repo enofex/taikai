@@ -54,6 +54,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |            | Configurations | `namesShouldMatch`                                     | Configuration classes should match a regex pattern                                                                    | Default (WITHOUT_TESTS) |
 |            | Controllers    | `namesShouldEndWithController`                         | Controllers should end with "Controller"                                                                              | Default (WITHOUT_TESTS) |
 |            | Controllers    | `namesShouldMatch`                                     | Controllers should match a regex pattern                                                                              | Default (WITHOUT_TESTS) |
+|            | Controllers    | `shouldBeAnnotatedWithController`                      | Controllers should be annotated with `@Controller`                                                                    | Default (WITHOUT_TESTS) |
 |            | Controllers    | `shouldBeAnnotatedWithRestController`                  | Controllers should be annotated with `@RestController`                                                                | Default (WITHOUT_TESTS) |
 |            | Controllers    | `shouldBePackagePrivate`                               | Controllers should be package-private                                                                                 | Default (WITHOUT_TESTS) |
 |            | Controllers    | `shouldNotDependOnOtherControllers`                    | Controllers should not depend on other controllers                                                                    | Default (WITHOUT_TESTS) |
@@ -63,6 +64,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |            | Services       | `namesShouldEndWithService`                            | Services should end with "Service"                                                                                    | Default (WITHOUT_TESTS) |
 |            | Services       | `namesShouldMatch`                                     | Services should match a regex pattern                                                                                 | Default (WITHOUT_TESTS) |
 |            | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                          | Default (WITHOUT_TESTS) |
+|            | Services       | `shouldNotDependOnControllers`                         | Services should not depend on Controllers                                                                             | Default (WITHOUT_TESTS) |
 
 ### Java Configuration
 
@@ -345,14 +347,15 @@ Taikai.builder()
     .check();
 ```
 
-- **Services Configuration**: Ensure that service classes end with "Service" or match a specific regex pattern and are annotated with `@Service`.
+- **Services Configuration**: Ensure that service classes end with "Service" or match a specific regex pattern and are annotated with `@Service` and do not depend on other controllers.
 
 ```java
 Taikai.builder()
     .namespace("com.company.yourproject")
     .spring(spring -> spring
         .services(services -> services
-            .shouldBeAnnotatedWithService()
+            .shouldBeAnnotatedWithService()    
+            .shouldNotDependOnControllers()
             .namesShouldMatch("regex")
             .namesShouldEndWithService()))
     .build()
