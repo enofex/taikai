@@ -26,6 +26,7 @@ class Usage {
                 .namesShouldMatch("regex")
                 .namesShouldEndWithService())
             .repositories(repositories -> repositories
+                .shouldNotDependOnServices()
                 .shouldBeAnnotatedWithRepository()
                 .namesShouldMatch("regex")
                 .namesShouldEndWithRepository()))

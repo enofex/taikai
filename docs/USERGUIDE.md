@@ -60,6 +60,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |            | Repositories   | `namesShouldEndWithRepository`                         | Repositories should end with "Repository"                                                                             | Default (WITHOUT_TESTS) |
 |            | Repositories   | `namesShouldMatch`                                     | Repositories should match a regex pattern                                                                             | Default (WITHOUT_TESTS) |
 |            | Repositories   | `shouldBeAnnotatedWithRepository`                      | Repositories should be annotated with `@Repository`                                                                   | Default (WITHOUT_TESTS) |
+|            | Repositories   | `shouldNotDependOnServices`                            | Repositories should not depend on service classes annotated with `@Service.`                                          | Default (WITHOUT_TESTS) |
 |            | Services       | `namesShouldEndWithService`                            | Services should end with "Service"                                                                                    | Default (WITHOUT_TESTS) |
 |            | Services       | `namesShouldMatch`                                     | Services should match a regex pattern                                                                                 | Default (WITHOUT_TESTS) |
 |            | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                          | Default (WITHOUT_TESTS) |
@@ -359,13 +360,14 @@ Taikai.builder()
     .check();
 ```
 
-- **Repositories Configuration**: Ensure that repository classes end with "Repository" or match a specific regex pattern and are annotated with `@Repository`.
+- **Repositories Configuration**: Ensure that repository classes end with "Repository" or match a specific regex pattern and are annotated with `@Repository` and not depend on classes annotated with `@Service`.
 
 ```java
 Taikai.builder()
     .namespace("com.company.yourproject")
     .spring(spring -> spring
         .repositories(repositories -> repositories
+            .shouldNotDependOnServices()
             .shouldBeAnnotatedWithRepository()
             .namesShouldMatch("regex")
             .namesShouldEndWithRepository()))
