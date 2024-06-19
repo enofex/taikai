@@ -1,8 +1,11 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_SERVICE;
+import static com.enofex.taikai.spring.SpringPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringPredicates.annotatedWithService;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
@@ -56,6 +59,18 @@ public final class ServicesConfigurer extends AbstractConfigurer {
             .that().haveNameMatching(regex)
             .should(be(annotatedWithService(true)))
             .as("Services should be annotated with %s".formatted(ANNOTATION_SERVICE)),
+        configuration));
+  }
+
+  public ServicesConfigurer shouldNotDependOnControllers() {
+    return shouldNotDependOnControllers(null);
+  }
+
+  public ServicesConfigurer shouldNotDependOnControllers(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that(are(annotatedWithService(true)))
+            .should(not(dependOnClassesThat(annotatedWithControllerOrRestController(true))))
+            .as("Services should not depend on Controllers or RestControllers"),
         configuration));
   }
 }
