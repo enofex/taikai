@@ -7,6 +7,8 @@ import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
 import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
 import static com.enofex.taikai.java.ProtectedMembers.notHaveProtectedMembers;
+import static com.enofex.taikai.java.SerialVersionUID.beStaticFinalLong;
+import static com.enofex.taikai.java.SerialVersionUID.namedSerialVersionUID;
 import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -115,6 +117,17 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .that(areFinal())
         .should(notHaveProtectedMembers())
         .as("Final classes should not have protected members"), configuration));
+  }
+
+  public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong() {
+    return serialVersionUIDFieldsShouldBeStaticFinalLong(null);
+  }
+
+  public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong(Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+        .that(namedSerialVersionUID())
+        .should(beStaticFinalLong())
+        .as("serialVersionUID should be static final long"), configuration));
   }
 
   @Override
