@@ -1,10 +1,10 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_CONTROLLER;
-import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_REST_CONTROLLER;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithController;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithControllerOrRestController;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithRestController;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONTROLLER;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST_CONTROLLER;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithController;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRestController;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;

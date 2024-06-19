@@ -1,8 +1,7 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.GeneralPredicates.areFinal;
-import static com.enofex.taikai.GeneralPredicates.beFinal;
-import static com.enofex.taikai.GeneralPredicates.notBePublic;
+import static com.enofex.taikai.internal.ArchConditions.notBePublicButNotStatic;
+import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
 import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
@@ -11,6 +10,7 @@ import static com.enofex.taikai.java.SerialVersionUID.beStaticFinalLong;
 import static com.enofex.taikai.java.SerialVersionUID.namedSerialVersionUID;
 import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.beFinal;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -71,7 +71,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
-    return addRule(TaikaiRule.of(classes().should(implementHashCodeAndEquals()), configuration));
+    return addRule(TaikaiRule.of(classes()
+        .should(implementHashCodeAndEquals()), configuration));
   }
 
   public JavaConfigurer fieldsShouldNotBePublic() {
@@ -79,7 +80,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
-    return addRule(TaikaiRule.of(fields().should(notBePublic()), configuration));
+    return addRule(TaikaiRule.of(fields()
+        .should(notBePublicButNotStatic()), configuration));
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz) {
@@ -96,8 +98,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
-    return addRule(TaikaiRule.of(noClasses().should().dependOnClassesThat().areAssignableTo(clazz),
-        configuration));
+    return addRule(TaikaiRule.of(noClasses()
+        .should().dependOnClassesThat().areAssignableTo(clazz), configuration));
   }
 
   public JavaConfigurer noUsageOfSystemOutOrErr() {
@@ -105,7 +107,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
-    return addRule(TaikaiRule.of(classes().should(notUseSystemOutOrErr()), configuration));
+    return addRule(TaikaiRule.of(classes()
+        .should(notUseSystemOutOrErr()), configuration));
   }
 
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers() {

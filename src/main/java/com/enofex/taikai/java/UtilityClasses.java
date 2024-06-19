@@ -1,10 +1,11 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.internal.Modifiers.isMethodStatic;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
+import com.enofex.taikai.internal.Modifiers;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -24,8 +25,7 @@ final class UtilityClasses {
       @Override
       public boolean test(JavaClass javaClass) {
         return !javaClass.getMethods().isEmpty() && javaClass.getMethods().stream()
-            .allMatch(method -> method.getModifiers().contains(JavaModifier.STATIC)
-                && !"main".equals(method.getName()));
+            .allMatch(method -> isMethodStatic(method) && !"main".equals(method.getName()));
       }
     };
   }
@@ -34,11 +34,15 @@ final class UtilityClasses {
     return new ArchCondition<>("have a private constructor") {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        boolean hasPrivateConstructor = javaClass.getConstructors().stream()
-            .anyMatch(constructor -> constructor.getModifiers().contains(JavaModifier.PRIVATE));
-        String message = String.format("Class %s does not have a private constructor",
-            javaClass.getName());
-        events.add(new SimpleConditionEvent(javaClass, hasPrivateConstructor, message));
+        if (hasNoPrivateConstructor(javaClass)) {
+          events.add(SimpleConditionEvent.violated(javaClass,
+              "Class %s does not have a private constructor".formatted(
+                  javaClass.getName())));
+        }
+      }
+
+      private static boolean hasNoPrivateConstructor(JavaClass javaClass) {
+        return javaClass.getConstructors().stream().noneMatch(Modifiers::isConstructorPrivate);
       }
     };
   }

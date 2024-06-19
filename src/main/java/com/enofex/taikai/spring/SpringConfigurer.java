@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_AUTOWIRED;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedAutowired;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_AUTOWIRED;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedAutowired;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 

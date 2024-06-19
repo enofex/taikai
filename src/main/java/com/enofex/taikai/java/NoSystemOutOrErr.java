@@ -20,12 +20,11 @@ final class NoSystemOutOrErr {
               String fieldName = fieldAccess.getTarget().getName();
 
               if ("out".equals(fieldName) || "err".equals(fieldName)) {
-                String message = String.format("Method %s calls %s.%s",
-                    fieldAccess.getOrigin().getFullName(),
-                    fieldAccess.getTargetOwner().getName(),
-                    fieldAccess.getTarget().getName());
-
-                events.add(SimpleConditionEvent.violated(fieldAccess, message));
+                events.add(SimpleConditionEvent.violated(fieldAccess,
+                    "Method %s calls %s.%s".formatted(
+                        fieldAccess.getOrigin().getFullName(),
+                        fieldAccess.getTargetOwner().getName(),
+                        fieldAccess.getTarget().getName())));
               }
             });
       }

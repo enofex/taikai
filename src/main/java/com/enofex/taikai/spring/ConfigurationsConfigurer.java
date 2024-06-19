@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithConfiguration;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithSpringBootApplication;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithConfiguration;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithSpringBootApplication;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -31,8 +31,7 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
     return namesShouldMatch(regex, null);
   }
 
-  public ConfigurationsConfigurer namesShouldMatch(String regex,
-      Configuration configuration) {
+  public ConfigurationsConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithConfiguration(true)
             .and(not(annotatedWithSpringBootApplication(true))))

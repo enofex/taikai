@@ -11,27 +11,34 @@ final class HashCodeAndEquals {
   }
 
   static ArchCondition<JavaClass> implementHashCodeAndEquals() {
-    return new ArchCondition<>("implement both equals and hashCode") {
+    return new ArchCondition<>("implement both equals() and hashCode()") {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        boolean hasEquals = javaClass.getMethods().stream()
+        boolean hasEquals = hasEquals(javaClass);
+        boolean hasHashCode = hasHashCode(javaClass);
+
+        if (hasEquals && !hasHashCode) {
+          events.add(SimpleConditionEvent.violated(javaClass,
+              "Class %s implements equals() but not hashCode()".formatted(
+                  javaClass.getName())));
+        } else if (!hasEquals && hasHashCode) {
+          events.add(SimpleConditionEvent.violated(javaClass,
+              "Class %s implements hashCode() but not equals()".formatted(
+                  javaClass.getName())));
+        }
+      }
+
+      private static boolean hasHashCode(JavaClass javaClass) {
+        return javaClass.getMethods().stream()
+            .anyMatch(method -> "hashCode".equals(method.getName()) &&
+                method.getRawParameterTypes().isEmpty());
+      }
+
+      private static boolean hasEquals(JavaClass javaClass) {
+        return javaClass.getMethods().stream()
             .anyMatch(method -> "equals".equals(method.getName()) &&
                 method.getRawParameterTypes().size() == 1 &&
                 method.getRawParameterTypes().getFirst().getName().equals(Object.class.getName()));
-
-        boolean hasHashCode = javaClass.getMethods().stream()
-            .anyMatch(method -> "hashCode".equals(method.getName()) &&
-                method.getRawParameterTypes().isEmpty());
-
-        if (hasEquals && !hasHashCode) {
-          String message = String.format("Class %s implements equals() but not hashCode()",
-              javaClass.getName());
-          events.add(SimpleConditionEvent.violated(javaClass, message));
-        } else if (!hasEquals && hasHashCode) {
-          String message = String.format("Class %s implements hashCode() but not equals()",
-              javaClass.getName());
-          events.add(SimpleConditionEvent.violated(javaClass, message));
-        }
       }
     };
   }

@@ -1,11 +1,11 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.GeneralPredicates.annotatedWith;
+import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 
-final class SpringPredicates {
+final class SpringDescribedPredicates {
 
   static final String ANNOTATION_CONFIGURATION = "org.springframework.context.annotation.Configuration";
   static final String ANNOTATION_CONTROLLER = "org.springframework.web.bind.annotation.Controller";
@@ -15,7 +15,7 @@ final class SpringPredicates {
   static final String ANNOTATION_SPRING_BOOT_APPLICATION = "org.springframework.boot.autoconfigure.SpringBootApplication";
   static final String ANNOTATION_AUTOWIRED = "org.springframework.beans.factory.annotation.Autowired";
 
-  private SpringPredicates() {
+  private SpringDescribedPredicates() {
   }
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithControllerOrRestController(

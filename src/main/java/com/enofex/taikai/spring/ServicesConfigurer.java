@@ -1,8 +1,8 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_SERVICE;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithControllerOrRestController;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithService;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SERVICE;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;

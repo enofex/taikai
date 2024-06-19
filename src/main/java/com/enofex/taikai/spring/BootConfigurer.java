@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.spring.SpringPredicates.ANNOTATION_SPRING_BOOT_APPLICATION;
-import static com.enofex.taikai.spring.SpringPredicates.annotatedWithSpringBootApplication;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SPRING_BOOT_APPLICATION;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithSpringBootApplication;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 

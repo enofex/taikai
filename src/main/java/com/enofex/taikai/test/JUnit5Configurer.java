@@ -1,11 +1,11 @@
 package com.enofex.taikai.test;
 
-import static com.enofex.taikai.GeneralPredicates.notDeclareThrownExceptions;
-import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISABLED;
-import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_DISPLAY_NAME;
-import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_PARAMETRIZED_TEST;
-import static com.enofex.taikai.test.JUnit5Predicates.ANNOTATION_TEST;
-import static com.enofex.taikai.test.JUnit5Predicates.annotatedWithTestOrParameterizedTest;
+import static com.enofex.taikai.internal.ArchConditions.notDeclareThrownExceptions;
+import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_DISABLED;
+import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_DISPLAY_NAME;
+import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
+import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_TEST;
+import static com.enofex.taikai.test.JUnit5DescribedPredicates.annotatedWithTestOrParameterizedTest;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
