@@ -48,6 +48,7 @@ class Usage {
             .methodsShouldNotDeclareGenericExceptions()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .serialVersionUIDFieldsShouldBeStaticFinalLong()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")

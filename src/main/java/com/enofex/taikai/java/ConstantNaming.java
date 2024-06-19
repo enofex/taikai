@@ -18,8 +18,9 @@ final class ConstantNaming {
 
       @Override
       public void check(JavaField field, ConditionEvents events) {
-        if (!field.getOwner().isEnum() && !CONSTANT_NAME_PATTERN.matcher(field.getName())
-            .matches()) {
+        if (!field.getOwner().isEnum()
+            && !"serialVersionUID".equals(field.getName())
+            && !CONSTANT_NAME_PATTERN.matcher(field.getName()).matches()) {
           String message = String.format(
               "Constant %s in class %s does not follow the naming convention", field.getName(),
               field.getOwner().getName());

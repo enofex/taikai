@@ -30,6 +30,7 @@ Architecture rules are defined using Taikai's fluent API, allowing developers to
 |            | General        | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`                                                                        | Default (WITHOUT_TESTS) |
 |            | General        | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes should be `final` and have a private constructor                                                      | Default (WITHOUT_TESTS) |
 |            | General        | `finalClassesShouldNotHaveProtectedMembers`            | Ensures that classes declared as `final` do not contain any `protected` members                                       | Default (WITHOUT_TESTS) |
+|            | General        | `serialVersionUIDShouldBeStaticFinalLong`              | Ensure that fields named `serialVersionUID` are declared as `static final long`                                       | Default (WITHOUT_TESTS) |
 |            | Imports        | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                                     | Default (WITHOUT_TESTS) |
 |            | Imports        | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                                        | Default (WITHOUT_TESTS) |
 |            | Naming         | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                                    | Default (WITHOUT_TESTS) |
@@ -272,6 +273,18 @@ Taikai.builder()
     .test(test -> test
         .junit5(junit5 -> junit5
             .classesShouldBePackagePrivate(".*Test"))
+    .build()
+    .check();
+```
+
+- **Ensure `serialVersionUID` is `static final long`**: Ensure that fields named `serialVersionUID` are declared as `static final long`.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .test(test -> test
+        .junit5(junit5 -> junit5
+            .serialVersionUIDShouldBeStaticFinalLong())
     .build()
     .check();
 ```

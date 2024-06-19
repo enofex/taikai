@@ -30,6 +30,7 @@ class ArchitectureTest {
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .methodsShouldNotDeclareGenericExceptions()
             .fieldsShouldNotBePublic()
+            .serialVersionUIDFieldsShouldBeStaticFinalLong()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
