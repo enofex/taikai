@@ -69,8 +69,6 @@ void shouldFulfillConstraints() {
 }
 ```
 
-For more examples and detailed usage, refer to [ArchitectureTest.java](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java).
-
 ## User Guide
 
 Explore the complete [documentation](https://github.com/enofex/taikai/blob/main/docs/USERGUIDE.md) for comprehensive information on all available rules.
