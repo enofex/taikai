@@ -60,6 +60,7 @@ class Usage {
                 .classesShouldNotMatch(".*Impl")
                 .methodsShouldNotMatch("foo")
                 .fieldsShouldNotMatch("bar")
+                .fieldsShouldMatch("com.awesome.Foo", "foo")
                 .constantsShouldFollowConvention()
                 .interfacesShouldNotHavePrefixI()))
         .build()

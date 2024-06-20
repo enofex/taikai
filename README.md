@@ -29,6 +29,25 @@ Here's an example demonstrating the usage of Taikai with JUnit 5. Customize rule
 void shouldFulfillConstraints() {
   Taikai.builder()
       .namespace("com.enofex.taikai")
+      .java(java -> java
+          .noUsageOfDeprecatedAPIs()
+          .methodsShouldNotDeclareGenericExceptions()
+          .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+          .imports(imports -> imports
+              .shouldHaveNoCycles()
+              .shouldNotImport("..shaded..")
+              .shouldNotImport("org.junit.."))
+          .naming(naming -> naming
+              .classesShouldNotMatch(".*Impl")
+              .methodsShouldNotMatch("foo")
+              .fieldsShouldNotMatch("bar")
+              .fieldsShouldMatch("com.awesome.Foo", "foo")
+              .constantsShouldFollowConvention()
+              .interfacesShouldNotHavePrefixI()))
+      .test(test -> test
+          .junit5(junit5 -> junit5
+              .classesShouldNotBeAnnotatedWithDisabled()
+              .methodsShouldNotBeAnnotatedWithDisabled()))      
       .spring(spring -> spring
           .noAutowiredFields()
           .boot(boot -> boot
@@ -47,22 +66,7 @@ void shouldFulfillConstraints() {
           .repositories(repositories -> repositories
               .shouldBeAnnotatedWithRepository()
               .shouldNotDependOnServices()
-              .namesShouldEndWithRepository()))
-      .test(test -> test
-          .junit5(junit5 -> junit5
-              .classesShouldNotBeAnnotatedWithDisabled()
-              .methodsShouldNotBeAnnotatedWithDisabled()))
-      .java(java -> java
-          .noUsageOfDeprecatedAPIs()
-          .methodsShouldNotDeclareGenericExceptions()
-          .utilityClassesShouldBeFinalAndHavePrivateConstructor()
-          .imports(imports -> imports
-              .shouldHaveNoCycles()
-              .shouldNotImport("..shaded..")
-              .shouldNotImport("org.junit.."))
-          .naming(naming -> naming
-              .classesShouldNotMatch(".*Impl")
-              .interfacesShouldNotHavePrefixI()))
+              .namesShouldEndWithRepository()))      
       .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
       .build()
       .check();
