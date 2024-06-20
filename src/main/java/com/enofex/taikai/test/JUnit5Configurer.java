@@ -6,8 +6,6 @@ import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_DISPLA
 import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
 import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnit5DescribedPredicates.annotatedWithTestOrParameterizedTest;
-import static com.tngtech.archunit.base.DescribedPredicate.not;
-import static com.tngtech.archunit.lang.conditions.ArchConditions.beInterfaces;
 
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
