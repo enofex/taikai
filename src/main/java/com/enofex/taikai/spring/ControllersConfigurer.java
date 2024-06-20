@@ -18,7 +18,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 
 public final class ControllersConfigurer extends AbstractConfigurer {
 
-  private static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".*Controller";
+  private static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".+Controller";
 
   ControllersConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);

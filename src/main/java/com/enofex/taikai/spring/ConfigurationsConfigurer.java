@@ -13,7 +13,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 
 public final class ConfigurationsConfigurer extends AbstractConfigurer {
 
-  private static final String DEFAULT_CONFIGURATION_NAME_MATCHING = ".*Configuration";
+  private static final String DEFAULT_CONFIGURATION_NAME_MATCHING = ".+Configuration";
 
   ConfigurationsConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);

@@ -6,6 +6,9 @@ import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_DISPLA
 import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
 import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnit5DescribedPredicates.annotatedWithTestOrParameterizedTest;
+import static com.tngtech.archunit.base.DescribedPredicate.not;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.beInterfaces;
+
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -45,7 +48,7 @@ public final class JUnit5Configurer extends AbstractConfigurer {
 
   public JUnit5Configurer classesShouldBePackagePrivate(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that().areNotInterfaces().and().haveNameMatching(regex)
             .should().bePackagePrivate()
             .as("Classes with names matching %s should be package-private".formatted(regex)),
         configuration));

@@ -16,7 +16,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 
 public final class RepositoriesConfigurer extends AbstractConfigurer {
 
-  private static final String DEFAULT_REPOSITORY_NAME_MATCHING = ".*Repository";
+  private static final String DEFAULT_REPOSITORY_NAME_MATCHING = ".+Repository";
 
   RepositoriesConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);

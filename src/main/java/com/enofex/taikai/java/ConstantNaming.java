@@ -1,5 +1,7 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.internal.Modifiers.isFieldSynthetic;
+
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -17,7 +19,7 @@ final class ConstantNaming {
     return new ArchCondition<>("follow constant naming convention") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
-        if (!field.getOwner().isEnum()
+        if (!isFieldSynthetic(field)
             && !"serialVersionUID".equals(field.getName())
             && !CONSTANT_NAME_PATTERN.matcher(field.getName()).matches()) {
           events.add(SimpleConditionEvent.violated(field,

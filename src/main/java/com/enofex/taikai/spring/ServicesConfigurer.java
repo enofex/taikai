@@ -16,7 +16,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 
 public final class ServicesConfigurer extends AbstractConfigurer {
 
-  private static final String DEFAULT_SERVICE_NAME_MATCHING = ".*Service";
+  private static final String DEFAULT_SERVICE_NAME_MATCHING = ".+Service";
 
   ServicesConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
