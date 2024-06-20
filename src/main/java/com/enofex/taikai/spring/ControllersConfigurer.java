@@ -104,6 +104,6 @@ public final class ControllersConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithControllerOrRestController(true)))
         .should(not(dependOnClassesThat(are(annotatedWithControllerOrRestController(true)))))
-        .as("Controllers should not be depend on other Controller"), configuration));
+        .as("Controllers should not be depend on other Controllers"), configuration));
   }
 }
