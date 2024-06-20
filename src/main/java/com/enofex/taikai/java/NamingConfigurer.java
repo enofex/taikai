@@ -89,6 +89,16 @@ public final class NamingConfigurer extends AbstractConfigurer {
             annotationType, regex)), configuration));
   }
 
+  public NamingConfigurer methodsShouldNotMatch(String regex) {
+    return methodsShouldNotMatch(regex, null);
+  }
+
+  public NamingConfigurer methodsShouldNotMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(noMethods()
+        .should().haveNameMatching(regex)
+        .as("Methods should not have names matching %s".formatted(regex)), configuration));
+  }
+
   public NamingConfigurer fieldsAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
     return fieldsAnnotatedWithShouldMatch(annotationType, regex, null);
@@ -116,14 +126,30 @@ public final class NamingConfigurer extends AbstractConfigurer {
             annotationType, regex)), configuration));
   }
 
-  public NamingConfigurer methodsShouldNotMatch(String regex) {
-    return methodsShouldNotMatch(regex, null);
+  public NamingConfigurer fieldsShouldMatch(String typeName, String regex) {
+    return fieldsShouldMatch(typeName, regex, null);
   }
 
-  public NamingConfigurer methodsShouldNotMatch(String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(noMethods()
-        .should().haveNameMatching(regex)
-        .as("Methods should not have names matching %s".formatted(regex)), configuration));
+  public NamingConfigurer fieldsShouldMatch(String typeName, String regex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+            .that().haveRawType(typeName)
+            .should().haveNameMatching(regex)
+            .as("Fields of type %s should have names matching %s".formatted(typeName, regex)),
+        configuration));
+  }
+
+  public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex) {
+    return fieldsShouldMatch(clazz, regex, null);
+  }
+
+  public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+            .that().haveRawType(clazz)
+            .should().haveNameMatching(regex)
+            .as("Fields of type %s should have names matching %s".formatted(clazz, regex)),
+        configuration));
   }
 
   public NamingConfigurer fieldsShouldNotMatch(String regex) {
@@ -148,7 +174,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   private static ArchCondition<JavaClass> notBePrefixedWithI() {
-    return new ArchCondition<>("not be prefixed with I.") {
+    return new ArchCondition<>("not be prefixed with I") {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         if (javaClass.getSimpleName().startsWith("I") && Character.isUpperCase(

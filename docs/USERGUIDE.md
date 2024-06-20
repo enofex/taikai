@@ -42,10 +42,11 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                         |
 | Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                            |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                        |
-| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                         |
-| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                          |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                                              |
+| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                         |
 | Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with should match specific naming patterns                                              |
+| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                          |
+| Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes                                         |
 | Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                               |
 | Naming   | `constantsShouldFollowConvention`                      | Constants should follow naming conventions, except `serialVersionUID`                                     |
 | Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                 |
@@ -170,12 +171,14 @@ Taikai.builder()
     .java(java -> java
         .naming(naming -> naming
             .classesShouldNotMatch(".*Impl")
+            .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
             .methodsShouldNotMatch("coolMethod")
-            .fieldsShouldNotMatch("coolField")
-            .constantsShouldFollowConvention()
-            .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")
             .methodsAnnotatedWithShouldMatch(Annotation.class, "coolMethods")
+            .fieldsShouldNotMatch("coolField")
+            .fieldsShouldMatch("com.awesome.Foo", "foo")
+            .fieldsShouldMatch(Foo.class, "foo")
             .fieldsAnnotatedWithShouldMatch(Annotation.class, "coolField")
+            .constantsShouldFollowConvention()
             .interfacesShouldNotHavePrefixI())))
     .build()
     .check();
@@ -447,15 +450,15 @@ class ArchitectureTest {
   void shouldFulfilConstrains() {
     Taikai.builder()
         .namespace("com.company.yourproject")
-        .test(test -> test
-            .junit5(junit5 -> junit5
-                .classesShouldNotBeAnnotatedWithDisabled()
-                .methodsShouldNotBeAnnotatedWithDisabled()))
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotDeclareGenericExceptions()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor())
+        .test(test -> test
+            .junit5(junit5 -> junit5
+                .classesShouldNotBeAnnotatedWithDisabled()
+                .methodsShouldNotBeAnnotatedWithDisabled()))        
         .spring(spring -> spring
             .repositories(repositories -> repositories
                 .namesShouldEndWithRepository()
