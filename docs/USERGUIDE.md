@@ -29,7 +29,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 
 | Category | Method Name                                            | Rule Description                                                                                          |
 |----------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals`                                                          |
+| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together                                                         |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants                                                           |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception`, `RuntimeException`                       |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes                                                                        |
@@ -105,7 +105,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Implement `hashCode` and `equals`**: Ensure that classes override the `hashCode` and `equals` methods.
+- **Classes Should Implement `hashCode` and `equals` together**: Ensure that classes override the `hashCode` and `equals` methods together.
 
 ```java
 Taikai.builder()
