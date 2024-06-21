@@ -17,6 +17,7 @@ import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -40,6 +41,7 @@ class TaikaiTest {
     assertNotNull(taikai.classes());
     assertNotNull(taikai.classesWithTests());
     assertTrue(taikai.rules().isEmpty());
+    assertTrue(taikai.excludedClasses().isEmpty());
   }
 
   @Test
@@ -49,6 +51,9 @@ class TaikaiTest {
 
     Taikai taikai = Taikai.builder()
         .namespace(VALID_NAMESPACE)
+        .excludeClass("com.enofex.taikai.SomeClassToExclude")
+        .excludeClasses(
+            Set.of("com.enofex.taikai.foo.ClassToExclude", "com.enofex.taikai.bar.ClassToExclude"))
         .failOnEmpty(true)
         .addRules(rules)
         .build();
@@ -59,6 +64,7 @@ class TaikaiTest {
     assertNotNull(taikai.classesWithTests());
     assertEquals(1, taikai.rules().size());
     assertTrue(taikai.rules().contains(mockRule));
+    assertEquals(3, taikai.excludedClasses().size());
   }
 
   @Test
@@ -127,6 +133,6 @@ class TaikaiTest {
         .build()
         .check();
 
-    verify(mockRule, times(1)).check(VALID_NAMESPACE);
+    verify(mockRule, times(1)).check(VALID_NAMESPACE, Collections.emptySet());
   }
 }

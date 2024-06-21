@@ -44,6 +44,19 @@ Taikai.builder()
     .check();
 ```
 
+### 3.3 Excluding Classes Globally
+
+You can globally exclude specific classes from all rule checks by using the `excludeClass` or `excludeClasses` methods in the builder. This ensures that the specified classes are not checked by any rule.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .excludeClass("com.company.yourproject.SomeClassToExclude")
+    .excludeClasses(Set.of("com.company.yourproject.foo.ClassToExclude", "com.company.yourproject.bar.ClassToExclude"))
+    .build()
+    .check();
+```
+
 ## 4. Rules Overview
  
 Taikai's architecture rules cover a wide range of categories to enforce best practices and maintain consistency.
@@ -455,13 +468,15 @@ Taikai.builder()
 
 ### Custom Configuration for Import Rules
 
-For every rule, you have the flexibility to add a custom configuration. This allows you to specify the namespace and import options tailored to your needs.
+For every rule, you have the flexibility to add a custom configuration. This allows you to specify the namespace, import options, and exclude specific classes from the checks.
 
 The `Configuration` class offers various static methods to create custom configurations:
 - `Configuration.of(String namespace)` to set a custom namespace.
 - `Configuration.of(Namespace.IMPORT namespaceImport)` to specify import options such as `WITHOUT_TESTS`, `WITH_TESTS`, or `ONLY_TESTS`.
 - `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` to set both namespace and import options.
 - `Configuration.of(JavaClasses javaClasses)` to directly provide a set of Java classes.
+- `Configuration.of(Set<String> excludedClasses)` to exclude specific classes from the checks. 
+- Additional overloaded methods to combine these options in various ways.
 
 If a `namespaceImport` is not explicitly provided, it defaults to `Namespace.IMPORT.WITHOUT_TESTS`.
 

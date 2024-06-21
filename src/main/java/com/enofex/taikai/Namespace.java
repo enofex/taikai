@@ -1,9 +1,10 @@
 package com.enofex.taikai;
 
+import static java.util.Objects.requireNonNull;
+
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
-import java.util.Objects;
 
 public final class Namespace {
 
@@ -17,8 +18,8 @@ public final class Namespace {
   }
 
   public static JavaClasses from(String namespace, IMPORT importOption) {
-    Objects.requireNonNull(namespace);
-    Objects.requireNonNull(importOption);
+    requireNonNull(namespace);
+    requireNonNull(importOption);
 
     return switch (importOption) {
       case WITH_TESTS -> withTests(namespace);
@@ -28,7 +29,7 @@ public final class Namespace {
   }
 
   public static JavaClasses withoutTests(String namespace) {
-    Objects.requireNonNull(namespace);
+    requireNonNull(namespace);
 
     return new ClassFileImporter()
         .withImportOption(new ImportOption.DoNotIncludeTests())
@@ -37,7 +38,7 @@ public final class Namespace {
   }
 
   public static JavaClasses withTests(String namespace) {
-    Objects.requireNonNull(namespace);
+    requireNonNull(namespace);
 
     return new ClassFileImporter()
         .withImportOption(new ImportOption.DoNotIncludeJars())
@@ -45,7 +46,7 @@ public final class Namespace {
   }
 
   public static JavaClasses onlyTests(String namespace) {
-    Objects.requireNonNull(namespace);
+    requireNonNull(namespace);
 
     return new ClassFileImporter()
         .withImportOption(new ImportOption.OnlyIncludeTests())

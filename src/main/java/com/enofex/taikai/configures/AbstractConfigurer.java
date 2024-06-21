@@ -1,9 +1,10 @@
 package com.enofex.taikai.configures;
 
+import static java.util.Objects.requireNonNull;
+
 import com.enofex.taikai.TaikaiRule;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 public abstract class AbstractConfigurer implements Configurer {
@@ -12,7 +13,7 @@ public abstract class AbstractConfigurer implements Configurer {
   private final Collection<TaikaiRule> rules;
 
   protected AbstractConfigurer(ConfigurerContext configurerContext) {
-    this.configurerContext = Objects.requireNonNull(configurerContext);
+    this.configurerContext = requireNonNull(configurerContext);
     this.rules = new ArrayList<>();
   }
 
@@ -37,8 +38,8 @@ public abstract class AbstractConfigurer implements Configurer {
 
   protected <T extends Configurer, C extends Configurer> C customizer(Customizer<T> customizer,
       Supplier<T> supplier) {
-    Objects.requireNonNull(customizer);
-    Objects.requireNonNull(supplier);
+    requireNonNull(customizer);
+    requireNonNull(supplier);
 
     customizer.customize(this.configurerContext
         .configurers()

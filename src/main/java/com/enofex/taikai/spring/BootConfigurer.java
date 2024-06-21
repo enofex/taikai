@@ -4,12 +4,12 @@ import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SPRI
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithSpringBootApplication;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static java.util.Objects.requireNonNull;
 
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
-import java.util.Objects;
 
 public final class BootConfigurer extends AbstractConfigurer {
 
@@ -18,7 +18,7 @@ public final class BootConfigurer extends AbstractConfigurer {
   }
 
   public BootConfigurer springBootApplicationShouldBeIn(String location) {
-    Objects.requireNonNull(location);
+    requireNonNull(location);
 
     return springBootApplicationShouldBeIn(location, null);
   }
