@@ -1,13 +1,52 @@
 package com.enofex.taikai;
 
+import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
+import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
+
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
+import java.util.logging.Logger;
 
 class Usage {
 
   public static void main(String[] args) {
     Taikai.builder()
         .namespace("com.enofex.taikai")
+        .java(java -> java
+            .noUsageOf(Date.class)
+            .noUsageOf(Calendar.class)
+            .noUsageOf("java.text.SimpleDateFormat")
+            .noUsageOfSystemOutOrErr()
+            .noUsageOfDeprecatedAPIs()
+            .classesShouldImplementHashCodeAndEquals()
+            .methodsShouldNotDeclareGenericExceptions()
+            .finalClassesShouldNotHaveProtectedMembers()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .serialVersionUIDFieldsShouldBeStaticFinalLong()
+            .imports(imports -> imports
+                .shouldHaveNoCycles()
+                .shouldNotImport("..shaded..")
+                .shouldNotImport("..lombok..")
+                .shouldNotImport("org.junit.."))
+            .naming(naming -> naming
+                .classesShouldNotMatch(".*Impl")
+                .methodsShouldNotMatch("foo")
+                .fieldsShouldNotMatch("bar")
+                .fieldsShouldMatch("com.awesome.Foo", "foo")
+                .constantsShouldFollowConventions()
+                .interfacesShouldNotHavePrefixI()))
+        .logging(logging -> logging
+            .loggersShouldFollowConventions(Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))
+        .test(test -> test
+            .junit5(junit5 -> junit5
+                .methodsShouldNotDeclareExceptions()
+                .methodsShouldMatch("should.*")
+                .methodsShouldBePackagePrivate()
+                .methodsShouldBeAnnotatedWithDisplayName()
+                .methodsShouldNotBeAnnotatedWithDisabled()
+                .classesShouldBePackagePrivate(".*Test")
+                .classesShouldNotBeAnnotatedWithDisabled()))
         .spring(spring -> spring
             .noAutowiredFields()
             .boot(boot -> boot
@@ -31,38 +70,6 @@ class Usage {
                 .shouldBeAnnotatedWithRepository()
                 .namesShouldMatch("regex")
                 .namesShouldEndWithRepository()))
-        .test(test -> test
-            .junit5(junit5 -> junit5
-                .methodsShouldNotDeclareExceptions()
-                .methodsShouldMatch("should.*")
-                .methodsShouldBePackagePrivate()
-                .methodsShouldBeAnnotatedWithDisplayName()
-                .methodsShouldNotBeAnnotatedWithDisabled()
-                .classesShouldBePackagePrivate(".*Test")
-                .classesShouldNotBeAnnotatedWithDisabled()))
-        .java(java -> java
-            .noUsageOf(Date.class)
-            .noUsageOf(Calendar.class)
-            .noUsageOf("java.text.SimpleDateFormat")
-            .noUsageOfSystemOutOrErr()
-            .noUsageOfDeprecatedAPIs()
-            .classesShouldImplementHashCodeAndEquals()
-            .methodsShouldNotDeclareGenericExceptions()
-            .finalClassesShouldNotHaveProtectedMembers()
-            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
-            .serialVersionUIDFieldsShouldBeStaticFinalLong()
-            .imports(imports -> imports
-                .shouldHaveNoCycles()
-                .shouldNotImport("..shaded..")
-                .shouldNotImport("..lombok..")
-                .shouldNotImport("org.junit.."))
-            .naming(naming -> naming
-                .classesShouldNotMatch(".*Impl")
-                .methodsShouldNotMatch("foo")
-                .fieldsShouldNotMatch("bar")
-                .fieldsShouldMatch("com.awesome.Foo", "foo")
-                .constantsShouldFollowConvention()
-                .interfacesShouldNotHavePrefixI()))
         .build()
         .check();
   }

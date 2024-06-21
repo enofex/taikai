@@ -1,6 +1,6 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.java.ConstantNaming.shouldFollowConstantNamingConvention;
+import static com.enofex.taikai.java.ConstantNaming.shouldFollowConstantNamingConventions;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -185,14 +185,14 @@ public final class NamingConfigurer extends AbstractConfigurer {
     };
   }
 
-  public NamingConfigurer constantsShouldFollowConvention() {
-    return constantsShouldFollowConvention(null);
+  public NamingConfigurer constantsShouldFollowConventions() {
+    return constantsShouldFollowConventions(null);
   }
 
-  public NamingConfigurer constantsShouldFollowConvention(Configuration configuration) {
+  public NamingConfigurer constantsShouldFollowConventions(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
         .that().areFinal().and().areStatic()
-        .should(shouldFollowConstantNamingConvention())
-        .as("Constants should follow constant naming convention"), configuration));
+        .should(shouldFollowConstantNamingConventions())
+        .as("Constants should follow constant naming conventions"), configuration));
   }
 }

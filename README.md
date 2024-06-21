@@ -42,12 +42,14 @@ void shouldFulfillConstraints() {
               .methodsShouldNotMatch("foo")
               .fieldsShouldNotMatch("bar")
               .fieldsShouldMatch("com.awesome.Foo", "foo")
-              .constantsShouldFollowConvention()
+              .constantsShouldFollowConventions()
               .interfacesShouldNotHavePrefixI()))
+      .logging(logging -> logging
+          .loggersShouldFollowConventions(Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))      
       .test(test -> test
           .junit5(junit5 -> junit5
               .classesShouldNotBeAnnotatedWithDisabled()
-              .methodsShouldNotBeAnnotatedWithDisabled()))      
+              .methodsShouldNotBeAnnotatedWithDisabled()))
       .spring(spring -> spring
           .noAutowiredFields()
           .boot(boot -> boot

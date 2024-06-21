@@ -19,7 +19,32 @@ To use Taikai, include it as a dependency in your Maven `pom.xml`:
 
 Ensure to configure `${taikai.version}` to the latest stable version compatible with your project's ArchUnit version.
 
-## 3. Rules Overview
+## 3. Usage
+
+### 3.1 Setting the Namespace
+
+The `namespace` setting specifies the base package of your project. Taikai will analyze all classes within this namespace. The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .build()
+    .check();
+```
+
+### 3.2 Enforcing Rules on Empty Sets
+
+The `failOnEmpty` setting determines whether the build should fail if no classes match a given rule. This is useful to ensure that your rules are applied consistently and to avoid false positives. The default is `false`.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .failOnEmpty(true)
+    .build()
+    .check();
+```
+
+## 4. Rules Overview
  
 Taikai's architecture rules cover a wide range of categories to enforce best practices and maintain consistency.
 
@@ -48,8 +73,16 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                          |
 | Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes                                         |
 | Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                               |
-| Naming   | `constantsShouldFollowConvention`                      | Constants should follow naming conventions, except `serialVersionUID`                                     |
+| Naming   | `constantsShouldFollowConventions`                      | Constants should follow naming conventions, except `serialVersionUID`                                     |
 | Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                 |
+
+### Logging Rules
+
+The default mode is `WITHOUT_TESTS`, which checks only test classes.
+
+| Category | Method Name       | Rule Description                                                                                   | 
+|----------|-------------------|----------------------------------------------------------------------------------------------------|
+| General  | `loggersShouldFollowConventions` | Ensure that the specified logger follow a specific naming pattern and have the required modifiers |
 
 ### Test Rules
 
@@ -90,7 +123,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Services       | `shouldBeAnnotatedWithService`                         | Services should be annotated with `@Service`                                                                                                           |
 | Services       | `shouldNotDependOnControllers`                         | Services  annotated with `@Service.` should not depend on controllers annotated with `@Controller` or `@RestController`                                |
 
-## 4. Java Rules
+## 5. Java Rules
 
 Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns.
 
@@ -178,7 +211,7 @@ Taikai.builder()
             .fieldsShouldMatch("com.awesome.Foo", "foo")
             .fieldsShouldMatch(Foo.class, "foo")
             .fieldsAnnotatedWithShouldMatch(Annotation.class, "coolField")
-            .constantsShouldFollowConvention()
+            .constantsShouldFollowConventions()
             .interfacesShouldNotHavePrefixI())))
     .build()
     .check();
@@ -206,7 +239,7 @@ Taikai.builder()
     .check();
 ```
 
-- **No Usage of System.out or System.err**: Enforce disallowing the use of `System.out` and `System.err` for logging, encouraging the use of proper logging frameworks instead.
+- **No Usage of `System.out` or `System.err`**: Enforce disallowing the use of `System.out` and `System.err` for logging, encouraging the use of proper logging frameworks instead.
 
 ```java
 Taikai.builder()
@@ -228,7 +261,22 @@ Taikai.builder()
     .check();
 ```
 
-## 5. Test Rules
+## 6. Logging Rules
+
+Logging configuration involves specifying constraints related to logging frameworks and practices.
+
+- **Ensure Logger Field Conforms to Standards**: Ensure that classes use a logger field of the specified type, with the correct name and modifiers.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .logging(logging -> logging
+        .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))
+    .build()
+    .check();
+```
+
+## 7. Test Rules
 
 Test configuration involves specifying constraints related to testing frameworks and practices.
 
@@ -317,7 +365,7 @@ Taikai.builder()
     .check();
 ```
 
-## 6. Spring Rules
+## 8. Spring Rules
 
 Spring configuration involves defining constraints specific to Spring Framework usage.
 
@@ -403,7 +451,7 @@ Taikai.builder()
     .check();
 ```
 
-## 7. Customization
+## 9. Customization
 
 ### Custom Configuration for Import Rules
 
@@ -439,7 +487,7 @@ Taikai.builder()
 ```
 By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
 
-## 8. Examples
+## 10. Examples
 
 Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
 
@@ -478,6 +526,8 @@ class ArchitectureTest {
                 .namesShouldMatch("regex")
                 .shouldNotDependOnOtherControllers()
                 .shouldBePackagePrivate()))
+        .logging(logging -> logging
+            .loggersShouldFollowConventions(Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))        
         .build()
         .check();
   }

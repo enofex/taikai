@@ -15,7 +15,7 @@ final class ConstantNaming {
   private ConstantNaming() {
   }
 
-  static ArchCondition<JavaField> shouldFollowConstantNamingConvention() {
+  static ArchCondition<JavaField> shouldFollowConstantNamingConventions() {
     return new ArchCondition<>("follow constant naming convention") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
