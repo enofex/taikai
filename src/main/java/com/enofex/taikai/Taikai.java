@@ -5,6 +5,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
+import com.enofex.taikai.logging.LoggingConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
@@ -100,12 +101,16 @@ public final class Taikai {
       return configure(customizer, JavaConfigurer::new);
     }
 
-    public Builder spring(Customizer<SpringConfigurer> customizer) {
-      return configure(customizer, SpringConfigurer::new);
+    public Builder logging(Customizer<LoggingConfigurer> customizer) {
+      return configure(customizer, LoggingConfigurer::new);
     }
 
     public Builder test(Customizer<TestConfigurer> customizer) {
       return configure(customizer, TestConfigurer::new);
+    }
+
+    public Builder spring(Customizer<SpringConfigurer> customizer) {
+      return configure(customizer, SpringConfigurer::new);
     }
 
     private <T extends Configurer> Builder configure(Customizer<T> customizer,

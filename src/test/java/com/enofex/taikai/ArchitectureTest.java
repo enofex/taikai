@@ -11,14 +11,6 @@ class ArchitectureTest {
   void shouldFulfilConstrains() {
     Taikai.builder()
         .namespace("com.enofex.taikai")
-        .test(test -> test
-            .junit5(junit5 -> junit5
-                .classesShouldNotBeAnnotatedWithDisabled()
-                .classesShouldBePackagePrivate(".*Test")
-                .methodsShouldNotBeAnnotatedWithDisabled()
-                .methodsShouldMatch("should.*")
-                .methodsShouldBePackagePrivate()
-                .methodsShouldNotDeclareExceptions()))
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
             .noUsageOfSystemOutOrErr()
@@ -39,7 +31,15 @@ class ArchitectureTest {
             .naming(naming -> naming
                 .classesShouldNotMatch(".*Impl")
                 .interfacesShouldNotHavePrefixI()
-                .constantsShouldFollowConvention()))
+                .constantsShouldFollowConventions()))
+        .test(test -> test
+            .junit5(junit5 -> junit5
+                .classesShouldNotBeAnnotatedWithDisabled()
+                .classesShouldBePackagePrivate(".*Test")
+                .methodsShouldNotBeAnnotatedWithDisabled()
+                .methodsShouldMatch("should.*")
+                .methodsShouldBePackagePrivate()
+                .methodsShouldNotDeclareExceptions()))
         .build()
         .check();
   }
