@@ -75,7 +75,8 @@ public final class TaikaiRule {
         this.configuration.excludedClasses != null
             ? this.configuration.excludedClasses.stream() : Stream.empty(),
         excludedClasses != null
-            ? excludedClasses.stream() : Stream.empty()).collect(Collectors.toSet());
+            ? excludedClasses.stream() : Stream.empty())
+        .collect(Collectors.toSet());
   }
 
   public static final class Configuration {
@@ -88,8 +89,7 @@ public final class TaikaiRule {
     private Configuration(String namespace, Namespace.IMPORT namespaceImport,
         JavaClasses javaClasses, Set<String> excludedClasses) {
       this.namespace = namespace;
-      this.namespaceImport = requireNonNullElse(namespaceImport,
-          Namespace.IMPORT.WITHOUT_TESTS);
+      this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.IMPORT.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
       this.excludedClasses = excludedClasses != null ? excludedClasses : Collections.emptySet();
     }
@@ -150,7 +150,5 @@ public final class TaikaiRule {
     public static Configuration of(Set<String> excludedClasses) {
       return new Configuration(null, null, null, excludedClasses);
     }
-
-
   }
 }

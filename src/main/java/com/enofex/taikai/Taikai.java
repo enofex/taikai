@@ -33,11 +33,9 @@ public final class Taikai {
     this.namespace = builder.namespace;
     this.excludedClasses = requireNonNullElse(builder.excludedClasses, Collections.emptySet());
     this.rules = Stream.concat(
-        builder.configurers.all()
-            .stream()
-            .flatMap(configurer -> configurer.rules().stream()),
-        builder.rules.stream()
-    ).toList();
+            builder.configurers.all().stream().flatMap(configurer -> configurer.rules().stream()),
+            builder.rules.stream())
+        .toList();
 
     ArchConfiguration.get()
         .setProperty("archRule.failOnEmptyShould", Boolean.toString(this.failOnEmpty));
