@@ -57,6 +57,33 @@ Taikai.builder()
     .check();
 ```
 
+### 3.4 Modifying an Existing Configuration
+The `toBuilder` method allows you to create a new Builder instance from an existing Taikai configuration. This is useful if you need to modify an existing configuration.
+
+```java
+Taikai taikai = Taikai.builder()
+    .namespace("com.company.yourproject")
+    .excludeClass("com.company.yourproject.SomeClassToExclude")
+    .failOnEmpty(true)
+    .java(java -> java
+        .fieldsShouldNotBePublic())
+    .build();
+
+// Modify the existing configuration
+Taikai modifiedTaikai = taikai.toBuilder()
+    .namespace("com.company.newproject")
+    .excludeClass("com.company.yourproject.AnotherClassToExclude")
+    .failOnEmpty(false)
+    .java(java -> java
+        .classesShouldImplementHashCodeAndEquals()
+        .finalClassesShouldNotHaveProtectedMembers())
+    .build();
+
+// Perform the check with the modified configuration
+modifiedTaikai.check();
+```
+
+
 ## 4. Rules Overview
  
 Taikai's architecture rules cover a wide range of categories to enforce best practices and maintain consistency.

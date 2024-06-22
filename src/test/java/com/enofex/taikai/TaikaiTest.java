@@ -1,3 +1,4 @@
+
 package com.enofex.taikai;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -134,5 +135,33 @@ class TaikaiTest {
         .check();
 
     verify(mockRule, times(1)).check(VALID_NAMESPACE, Collections.emptySet());
+  }
+
+  @Test
+  void shouldRebuildTaikaiWithNewValues() {
+    Taikai taikai = Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .excludeClass("com.enofex.taikai.ClassToExclude")
+        .failOnEmpty(true)
+        .java(java -> java
+            .fieldsShouldNotBePublic())
+        .build();
+
+    Taikai modifiedTaikai = taikai.toBuilder()
+        .namespace("com.enofex.newnamespace")
+        .excludeClass("com.enofex.taikai.AnotherClassToExclude")
+        .failOnEmpty(false)
+        .java(java -> java
+            .classesShouldImplementHashCodeAndEquals()
+            .finalClassesShouldNotHaveProtectedMembers())
+        .build();
+
+    assertFalse(modifiedTaikai.failOnEmpty());
+    assertEquals("com.enofex.newnamespace", modifiedTaikai.namespace());
+    assertEquals(2, modifiedTaikai.excludedClasses().size());
+    assertEquals(3, modifiedTaikai.rules().size());
+    assertTrue(modifiedTaikai.excludedClasses().contains("com.enofex.taikai.ClassToExclude"));
+    assertTrue(
+        modifiedTaikai.excludedClasses().contains("com.enofex.taikai.AnotherClassToExclude"));
   }
 }

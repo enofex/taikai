@@ -73,12 +73,15 @@ public final class Taikai {
     return new Builder();
   }
 
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   public static final class Builder {
 
     private final Configurers configurers;
     private final Collection<TaikaiRule> rules;
     private final Set<String> excludedClasses;
-
     private boolean failOnEmpty;
     private String namespace;
 
@@ -86,6 +89,14 @@ public final class Taikai {
       this.configurers = new Configurers();
       this.rules = new ArrayList<>();
       this.excludedClasses = new HashSet<>();
+    }
+
+    public Builder(Taikai taikai) {
+      this.configurers = new Configurers();
+      this.rules = taikai.rules();
+      this.excludedClasses = taikai.excludedClasses();
+      this.failOnEmpty = taikai.failOnEmpty();
+      this.namespace = taikai.namespace();
     }
 
     public Builder addRule(TaikaiRule rule) {
