@@ -81,4 +81,26 @@ Explore the complete [documentation](https://github.com/enofex/taikai/blob/main/
 
 ## Contributing
 
-Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved.
+Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved. Note, that we expect everyone to follow the [code of conduct](https://github.com/enofex/taikai/blob/main/CODE_OF_CONDUCT.md).
+
+### What you will need
+
+* Git
+* Java 21 or higher
+
+### Get the Source Code
+
+Clone the repository
+
+```shell
+git clone git@github.com:enofex/taikai.git
+cd taikai
+```
+
+### Build the code
+
+To compile, test, and build
+
+```shell
+./mvnw -B
+```
