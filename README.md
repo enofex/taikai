@@ -102,5 +102,5 @@ cd taikai
 To compile, test, and build
 
 ```shell
-./mvnw -B
+./mvnw clean package -B
 ```
