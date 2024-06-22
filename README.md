@@ -81,7 +81,7 @@ Explore the complete [documentation](https://github.com/enofex/taikai/blob/main/
 
 ## Contributing
 
-Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved. Note, that we expect everyone to follow the [code of conduct](https://github.com/enofex/taikai/blob/main/CODE_OF_CONDUCT.md).
+Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved. Note, that we expect everyone to follow the [Code of Conduct](https://github.com/enofex/taikai/blob/main/CODE_OF_CONDUCT.md).
 
 ### What you will need
 
