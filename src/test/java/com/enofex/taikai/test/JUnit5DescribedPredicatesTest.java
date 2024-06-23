@@ -5,6 +5,7 @@ import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnit5DescribedPredicates.annotatedWithTestOrParameterizedTest;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beAnnotatedWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -25,7 +26,7 @@ class JUnit5DescribedPredicatesTest {
         .should(beAnnotatedWith(ANNOTATION_TEST)
             .or(beAnnotatedWith(ANNOTATION_PARAMETRIZED_TEST)));
 
-    rule.check(importedClasses);
+    assertDoesNotThrow(() -> rule.check(importedClasses));
   }
 
   @Test
@@ -37,7 +38,7 @@ class JUnit5DescribedPredicatesTest {
         .should(ArchConditions.beMetaAnnotatedWith(ANNOTATION_TEST)
             .or(ArchConditions.beMetaAnnotatedWith(ANNOTATION_PARAMETRIZED_TEST)));
 
-    rule.check(importedClasses);
+    assertDoesNotThrow(() -> rule.check(importedClasses));
   }
 
   private static final class TestExample {
