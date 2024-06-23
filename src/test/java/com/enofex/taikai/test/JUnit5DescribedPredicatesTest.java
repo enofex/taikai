@@ -43,7 +43,7 @@ class JUnit5DescribedPredicatesTest {
   private static final class TestExample {
 
     @Test
-    void testMethod() {
+    void should() {
     }
   }
 
@@ -51,14 +51,14 @@ class JUnit5DescribedPredicatesTest {
 
     @ParameterizedTest
     @EmptySource
-    void parameterizedTestMethod(String empty) {
+    void should(String empty) {
     }
   }
 
   private static class MetaTestExample {
 
     @TestAnnotation
-    void metaTestMethod() {
+    void should() {
     }
   }
 
@@ -66,7 +66,7 @@ class JUnit5DescribedPredicatesTest {
 
     @ParameterizedTestAnnotation
     @EmptySource
-    void metaParameterizedTestMethod(String empty) {
+    void should(String empty) {
     }
   }
 
