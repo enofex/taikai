@@ -25,17 +25,23 @@ public final class Taikai {
 
   private final boolean failOnEmpty;
   private final String namespace;
+  private final JavaClasses classes;
   private final Set<String> excludedClasses;
   private final Collection<TaikaiRule> rules;
 
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
     this.namespace = builder.namespace;
+    this.classes = builder.classes;;
     this.excludedClasses = requireNonNullElse(builder.excludedClasses, Collections.emptySet());
     this.rules = Stream.concat(
             builder.configurers.all().stream().flatMap(configurer -> configurer.rules().stream()),
             builder.rules.stream())
         .toList();
+
+    if (this.namespace != null && this.classes != null) {
+      throw new IllegalArgumentException("Setting namespace and classes are not supported");
+    }
 
     ArchConfiguration.get()
         .setProperty("archRule.failOnEmptyShould", Boolean.toString(this.failOnEmpty));
@@ -50,11 +56,7 @@ public final class Taikai {
   }
 
   public JavaClasses classes() {
-    return Namespace.withoutTests(this.namespace);
-  }
-
-  public JavaClasses classesWithTests() {
-    return Namespace.withTests(this.namespace);
+    return this.classes;
   }
 
   public Set<String> excludedClasses() {
@@ -66,7 +68,7 @@ public final class Taikai {
   }
 
   public void check() {
-    this.rules.forEach(rule -> rule.check(this.namespace, this.excludedClasses));
+    this.rules.forEach(rule -> rule.check(this.namespace, this.classes, this.excludedClasses));
   }
 
   public static Builder builder() {
@@ -84,6 +86,7 @@ public final class Taikai {
     private final Set<String> excludedClasses;
     private boolean failOnEmpty;
     private String namespace;
+    private JavaClasses classes;
 
     public Builder() {
       this.configurers = new Configurers();
@@ -97,6 +100,7 @@ public final class Taikai {
       this.excludedClasses = taikai.excludedClasses();
       this.failOnEmpty = taikai.failOnEmpty();
       this.namespace = taikai.namespace();
+      this.classes = taikai.classes();
     }
 
     public Builder addRule(TaikaiRule rule) {
@@ -116,6 +120,11 @@ public final class Taikai {
 
     public Builder namespace(String namespace) {
       this.namespace = namespace;
+      return this;
+    }
+
+    public Builder classes(JavaClasses classes) {
+      this.classes = classes;
       return this;
     }
 

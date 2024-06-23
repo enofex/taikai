@@ -39,12 +39,14 @@ public final class TaikaiRule {
   }
 
   public void check(String globalNamespace) {
-    check(globalNamespace, Collections.emptySet());
+    check(globalNamespace, null, Collections.emptySet());
   }
 
-  public void check(String globalNamespace, Set<String> excludedClasses) {
+  public void check(String globalNamespace, JavaClasses classes, Set<String> excludedClasses) {
     if (this.configuration.javaClasses() != null) {
       this.archRule.check(this.configuration.javaClasses());
+    } else if (classes != null) {
+      this.archRule.check(classes);
     } else {
       String namespace = this.configuration.namespace() != null
           ? this.configuration.namespace()

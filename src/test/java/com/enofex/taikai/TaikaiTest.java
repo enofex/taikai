@@ -4,6 +4,7 @@ package com.enofex.taikai;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
@@ -16,6 +17,7 @@ import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -39,8 +41,7 @@ class TaikaiTest {
 
     assertFalse(taikai.failOnEmpty());
     assertEquals(VALID_NAMESPACE, taikai.namespace());
-    assertNotNull(taikai.classes());
-    assertNotNull(taikai.classesWithTests());
+    assertNull(taikai.classes());
     assertTrue(taikai.rules().isEmpty());
     assertTrue(taikai.excludedClasses().isEmpty());
   }
@@ -51,7 +52,7 @@ class TaikaiTest {
     Collection<TaikaiRule> rules = Collections.singletonList(mockRule);
 
     Taikai taikai = Taikai.builder()
-        .namespace(VALID_NAMESPACE)
+        .classes(new ClassFileImporter().importClasses(TaikaiTest.class))
         .excludeClass("com.enofex.taikai.SomeClassToExclude")
         .excludeClasses(
             Set.of("com.enofex.taikai.foo.ClassToExclude", "com.enofex.taikai.bar.ClassToExclude"))
@@ -60,9 +61,8 @@ class TaikaiTest {
         .build();
 
     assertTrue(taikai.failOnEmpty());
-    assertEquals(VALID_NAMESPACE, taikai.namespace());
+    assertNull(taikai.namespace());
     assertNotNull(taikai.classes());
-    assertNotNull(taikai.classesWithTests());
     assertEquals(1, taikai.rules().size());
     assertTrue(taikai.rules().contains(mockRule));
     assertEquals(3, taikai.excludedClasses().size());
@@ -134,7 +134,7 @@ class TaikaiTest {
         .build()
         .check();
 
-    verify(mockRule, times(1)).check(VALID_NAMESPACE, Collections.emptySet());
+    verify(mockRule, times(1)).check(VALID_NAMESPACE, null, Collections.emptySet());
   }
 
   @Test
@@ -163,5 +163,13 @@ class TaikaiTest {
     assertTrue(modifiedTaikai.excludedClasses().contains("com.enofex.taikai.ClassToExclude"));
     assertTrue(
         modifiedTaikai.excludedClasses().contains("com.enofex.taikai.AnotherClassToExclude"));
+  }
+
+  @Test
+  void shouldThrowExceptionIfNamespaceAndClasses() {
+    assertThrows(IllegalArgumentException.class, () -> Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .classes(new ClassFileImporter().importClasses(TaikaiTest.class))
+        .build());
   }
 }

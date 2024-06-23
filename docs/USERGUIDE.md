@@ -32,7 +32,21 @@ Taikai.builder()
     .check();
 ```
 
-### 3.2 Enforcing Rules on Empty Sets
+### 3.2 Setting the JavaClasses
+
+You can configure `classes` as well. This allows you to specify specific Java classes to analyze. Note that setting both `namespace` and `classes` simultaneously is not supported and will result in an `IllegalArgumentException`.
+
+```java
+JavaClasses classes = new ClassFileImporter()
+    .importClasses(ClassToCheck.class)
+
+Taikai.builder()
+    .classes(classes)
+    .build()
+    .check();
+```
+
+### 3.3 Enforcing Rules on Empty Sets
 
 The `failOnEmpty` setting determines whether the build should fail if no classes match a given rule. This is useful to ensure that your rules are applied consistently and to avoid false positives. The default is `false`.
 
@@ -44,7 +58,7 @@ Taikai.builder()
     .check();
 ```
 
-### 3.3 Excluding Classes Globally
+### 3.4 Excluding Classes Globally
 
 You can globally exclude specific classes from all rule checks by using the `excludeClass` or `excludeClasses` methods in the builder. This ensures that the specified classes are not checked by any rule.
 
@@ -57,7 +71,7 @@ Taikai.builder()
     .check();
 ```
 
-### 3.4 Modifying an Existing Configuration
+### 3.5 Modifying an Existing Configuration
 The `toBuilder` method allows you to create a new Builder instance from an existing Taikai configuration. This is useful if you need to modify an existing configuration.
 
 ```java
@@ -82,7 +96,6 @@ Taikai modifiedTaikai = taikai.toBuilder()
 // Perform the check with the modified configuration
 modifiedTaikai.check();
 ```
-
 
 ## 4. Rules Overview
  
