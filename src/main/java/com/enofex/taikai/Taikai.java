@@ -32,7 +32,7 @@ public final class Taikai {
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
     this.namespace = builder.namespace;
-    this.classes = builder.classes;;
+    this.classes = builder.classes;
     this.excludedClasses = requireNonNullElse(builder.excludedClasses, Collections.emptySet());
     this.rules = Stream.concat(
             builder.configurers.all().stream().flatMap(configurer -> configurer.rules().stream()),
