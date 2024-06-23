@@ -44,7 +44,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(classes()
         .that().areMetaAnnotatedWith(annotationType)
         .should().haveNameMatching(regex)
-        .as("Classes annotated with %s should not have names matching %s".formatted(
+        .as("Classes annotated with %s should have names matching %s".formatted(
             annotationType.getName(), regex)), configuration));
   }
 
@@ -57,7 +57,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(classes()
         .that().areMetaAnnotatedWith(annotationType)
         .should().haveNameMatching(regex)
-        .as("Classes annotated with %s should not have names matching %s".formatted(
+        .as("Classes annotated with %s should have names matching %s".formatted(
             annotationType, regex)), configuration));
   }
 
@@ -71,7 +71,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(methods()
         .that().areMetaAnnotatedWith(annotationType)
         .should().haveNameMatching(regex)
-        .as("Methods annotated with %s should not have names matching %s".formatted(
+        .as("Methods annotated with %s should have names matching %s".formatted(
             annotationType.getName(), regex)), configuration));
   }
 
@@ -85,7 +85,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(methods()
         .that().areMetaAnnotatedWith(annotationType)
         .should().haveNameMatching(regex)
-        .as("Methods annotated with %s should not have names matching %s".formatted(
+        .as("Methods annotated with %s should have names matching %s".formatted(
             annotationType, regex)), configuration));
   }
 
@@ -109,7 +109,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(fields()
         .that().areMetaAnnotatedWith(annotationType)
         .should().haveNameMatching(regex)
-        .as("Fields annotated with %s should not have names matching %s".formatted(
+        .as("Fields annotated with %s should have names matching %s".formatted(
             annotationType.getName(), regex)), configuration));
   }
 
@@ -122,7 +122,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(fields()
         .that().areMetaAnnotatedWith(annotationType)
         .should().haveNameMatching(regex)
-        .as("Fields annotated with %s should not have names matching %s".formatted(
+        .as("Fields annotated with %s should have names matching %s".formatted(
             annotationType, regex)), configuration));
   }
 
