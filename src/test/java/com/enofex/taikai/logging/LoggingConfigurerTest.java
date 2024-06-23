@@ -44,7 +44,7 @@ class LoggingConfigurerTest {
             EnumSet.of(PRIVATE, FINAL)))
         .build();
 
-    assertThrows(AssertionError.class, () -> taikai.check());
+    assertThrows(AssertionError.class, taikai::check);
   }
 
   @Test
@@ -55,7 +55,7 @@ class LoggingConfigurerTest {
             EnumSet.of(PRIVATE, FINAL)))
         .build();
 
-    assertThrows(AssertionError.class, () -> taikai.check());
+    assertThrows(AssertionError.class, taikai::check);
   }
 
   private static class LoggerConventionsFollowed {
