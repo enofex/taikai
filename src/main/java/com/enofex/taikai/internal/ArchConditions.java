@@ -3,6 +3,7 @@ package com.enofex.taikai.internal;
 import static com.enofex.taikai.internal.Modifiers.isFieldPublic;
 import static com.enofex.taikai.internal.Modifiers.isFieldStatic;
 
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -52,6 +53,29 @@ public final class ArchConditions {
               "Field %s in class %s is public".formatted(
                   field.getName(),
                   field.getOwner().getFullName())));
+        }
+      }
+    };
+  }
+
+  /**
+   * Creates a condition that checks if a class has a field of the specified type.
+   *
+   * @param typeName the name of the type to check for in the fields of the class
+   * @return an architectural condition for checking if a class has a field of the specified type
+   */
+  public static ArchCondition<JavaClass> haveFieldOfType(String typeName) {
+    return new ArchCondition<>("have a field of type %s".formatted(typeName)) {
+      @Override
+      public void check(JavaClass item, ConditionEvents events) {
+        boolean hasFieldOfType = item.getAllFields().stream()
+            .anyMatch(field -> field.getRawType().getName().equals(typeName));
+
+        if (!hasFieldOfType) {
+          events.add(SimpleConditionEvent.violated(item,
+              "%s does not have a field of type %s".formatted(
+                  item.getName(),
+                  typeName)));
         }
       }
     };

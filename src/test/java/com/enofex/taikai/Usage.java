@@ -37,6 +37,7 @@ class Usage {
                 .constantsShouldFollowConventions()
                 .interfacesShouldNotHavePrefixI()))
         .logging(logging -> logging
+            .classesShouldUseLogger(Logger.class, ".*Service")
             .loggersShouldFollowConventions(Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))
         .test(test -> test
             .junit5(junit5 -> junit5

@@ -133,9 +133,10 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 
 The default mode is `WITHOUT_TESTS`, which checks only test classes.
 
-| Category | Method Name       | Rule Description                                                                                   | 
-|----------|-------------------|----------------------------------------------------------------------------------------------------|
-| General  | `loggersShouldFollowConventions` | Ensure that the specified logger follow a specific naming pattern and have the required modifiers |
+| Category | Method Name                       | Rule Description                                                                                  | 
+|----------|-----------------------------------|---------------------------------------------------------------------------------------------------|
+| General  | `loggersShouldFollowConventions`  | Ensure that the specified logger follow a specific naming pattern and have the required modifiers |
+| General  | `classesShouldUseLogger`          | Ensure that classes matching a given regex have a field of a specified logger type                |
 
 ### Test Rules
 
@@ -325,6 +326,17 @@ Taikai.builder()
     .namespace("com.company.yourproject")
     .logging(logging -> logging
         .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))
+    .build()
+    .check();
+```
+
+- **Ensure Classes Use Specified Logger**: Ensure that classes matching a given regex have a field of a specified logger type.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .logging(logging -> logging
+        .classesShouldUseLogger(org.slf4j.Logger.class, ".*Service")
     .build()
     .check();
 ```
