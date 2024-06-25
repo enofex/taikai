@@ -24,6 +24,17 @@ public final class NamingConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
+  public NamingConfigurer packagesShouldMatch(String regex) {
+    return packagesShouldMatch(regex, null);
+  }
+
+  public NamingConfigurer packagesShouldMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .should().resideInAPackage(regex)
+            .as("Package names should match %s".formatted(regex)),
+        configuration));
+  }
+
   public NamingConfigurer classesShouldNotMatch(String regex) {
     return classesShouldNotMatch(regex, null);
   }

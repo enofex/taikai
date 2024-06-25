@@ -30,6 +30,7 @@ class Usage {
                 .shouldNotImport("..lombok..")
                 .shouldNotImport("org.junit.."))
             .naming(naming -> naming
+                .packagesShouldMatch("com.enofex.taikai..")
                 .classesShouldNotMatch(".*Impl")
                 .methodsShouldNotMatch("foo")
                 .fieldsShouldNotMatch("bar")

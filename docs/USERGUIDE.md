@@ -107,7 +107,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 
 | Category | Method Name                                            | Rule Description                                                                                          |
 |----------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together                                                         |
+| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together                                                 |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants                                                           |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception`, `RuntimeException`                       |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes                                                                        |
@@ -119,6 +119,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `serialVersionUIDShouldBeStaticFinalLong`              | Ensure that fields named `serialVersionUID` are declared as `static final long`                           |
 | Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                         |
 | Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                            |
+| Naming   | `packagesShouldMatch`                                  | Package should match the specified regex pattern. (e.g., `com.company.yourproject..`)                     |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                        |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                                              |
 | Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                         |
@@ -126,7 +127,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                          |
 | Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes                                         |
 | Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                               |
-| Naming   | `constantsShouldFollowConventions`                      | Constants should follow naming conventions, except `serialVersionUID`                                     |
+| Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`                                     |
 | Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                 |
 
 ### Logging Rules
@@ -250,13 +251,14 @@ Taikai.builder()
     .check();
 ```
 
-- **Naming Configuration**: Define naming conventions for classes, methods, fields, constants, and interfaces.
+- **Naming Configuration**: Define naming conventions for packages, classes, methods, fields, constants and interfaces.
 
 ```java
 Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
         .naming(naming -> naming
+            .packagesShouldMatch("com.company.yourproject..")
             .classesShouldNotMatch(".*Impl")
             .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
             .methodsShouldNotMatch("coolMethod")
