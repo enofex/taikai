@@ -21,6 +21,7 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
+import java.lang.annotation.Annotation;
 
 public final class JavaConfigurer extends AbstractConfigurer {
 
@@ -86,6 +87,33 @@ public final class JavaConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(classes()
         .that().haveNameMatching(regex)
         .should().resideOutsideOfPackage(packageIdentifier), configuration));
+  }
+
+  public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType) {
+    return classesShouldBeAnnotatedWith(regex, annotationType, null);
+  }
+
+  public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveNameMatching(regex)
+        .should().beMetaAnnotatedWith(annotationType)
+        .as("Classes have name matching %s should be annotated with %s".formatted(
+            regex, annotationType.getName())), configuration));
+  }
+
+  public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType) {
+    return classesShouldBeAnnotatedWith(regex, annotationType, null);
+  }
+
+  public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveNameMatching(regex)
+        .should().beMetaAnnotatedWith(annotationType)
+        .as("Classes have name matching %s should be annotated with %s".formatted(regex,
+            annotationType)), configuration));
   }
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {

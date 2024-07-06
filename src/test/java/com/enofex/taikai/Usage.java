@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.DisplayName;
 
 class Usage {
 
@@ -22,6 +23,7 @@ class Usage {
             .classesShouldImplementHashCodeAndEquals()
             .classesShouldResideInPackage("regex", "com.enofex.taikai")
             .classesShouldResideOutsidePackage("regex", "com.enofex.taikai")
+            .classesShouldBeAnnotatedWith("regex", DisplayName.class)
             .methodsShouldNotDeclareGenericExceptions()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
