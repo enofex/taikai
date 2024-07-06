@@ -21,6 +21,7 @@ class Usage {
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
             .classesShouldResideInPackage("regex", "com.enofex.taikai")
+            .classesShouldResideOutsidePackage("regex", "com.enofex.taikai")
             .methodsShouldNotDeclareGenericExceptions()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()

@@ -109,6 +109,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 |----------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together                                                 |
 | General  | `classesShouldResideInPackage`                         | Classes match a specific naming patterns should reside in a specified package                             |
+| General  | `classesShouldResideOutsidePackage`                    | Classes match a specific naming patterns should reside outside a specified package                        |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants                                                           |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception`, `RuntimeException`                       |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes                                                                        |
@@ -216,6 +217,17 @@ Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
         .classesShouldResideInPackage(".*Utils", "com.company.yourproject.utils"))
+    .build()
+    .check();
+```
+
+- **Classes Should Reside outside Specified Package**: Ensure that classes matching a specific regex pattern reside outside the specified package.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .classesShouldResideOutsidePackage(".*Utils", "com.company.yourproject.utils"))
     .build()
     .check();
 ```

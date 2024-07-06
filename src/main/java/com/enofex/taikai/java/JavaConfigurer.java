@@ -77,6 +77,17 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .should().resideInAPackage(packageIdentifier), configuration));
   }
 
+  public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier) {
+    return classesShouldResideOutsidePackage(regex, packageIdentifier, null);
+  }
+
+  public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveNameMatching(regex)
+        .should().resideOutsideOfPackage(packageIdentifier), configuration));
+  }
+
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
     return classesShouldImplementHashCodeAndEquals(null);
   }
