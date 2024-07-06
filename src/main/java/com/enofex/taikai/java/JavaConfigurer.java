@@ -66,6 +66,17 @@ public final class JavaConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(classes().should(notUseDeprecatedAPIs()), configuration));
   }
 
+  public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier) {
+    return classesShouldResideInPackage(regex, packageIdentifier, null);
+  }
+
+  public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveNameMatching(regex)
+        .should().resideInAPackage(packageIdentifier), configuration));
+  }
+
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
     return classesShouldImplementHashCodeAndEquals(null);
   }

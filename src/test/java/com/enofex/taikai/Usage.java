@@ -20,6 +20,7 @@ class Usage {
             .noUsageOfSystemOutOrErr()
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
+            .classesShouldResideInPackage("regex", "com.enofex.taikai")
             .methodsShouldNotDeclareGenericExceptions()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
