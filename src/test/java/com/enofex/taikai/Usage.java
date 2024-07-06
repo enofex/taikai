@@ -53,6 +53,11 @@ class Usage {
             .noAutowiredFields()
             .boot(boot -> boot
                 .springBootApplicationShouldBeIn("com.enofex.taikai"))
+            .properties(properties -> properties
+                .namesShouldEndWithProperties()
+                .namesShouldMatch("regex")
+                .shouldBeAnnotatedWithConfigurationProperties()
+                .shouldBeAnnotatedWithValidated())
             .configurations(configuration -> configuration
                 .namesShouldEndWithConfiguration()
                 .namesShouldMatch("regex"))

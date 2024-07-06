@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_AUTOWIRED;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedAutowired;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithAutowired;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 
@@ -15,6 +15,10 @@ public final class SpringConfigurer extends AbstractConfigurer {
 
   public SpringConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
+  }
+
+  public SpringConfigurer properties(Customizer<PropertiesConfigurer> customizer) {
+    return customizer(customizer, () -> new PropertiesConfigurer(configurerContext()));
   }
 
   public SpringConfigurer configurations(Customizer<ConfigurationsConfigurer> customizer) {
@@ -43,13 +47,14 @@ public final class SpringConfigurer extends AbstractConfigurer {
 
   public SpringConfigurer noAutowiredFields(Configuration configuration) {
     return addRule(TaikaiRule.of(noFields()
-        .should(be(annotatedAutowired(true)))
+        .should(be(annotatedWithAutowired(true)))
         .as("No fields should be annotated with %s, use constructor injection".formatted(
             ANNOTATION_AUTOWIRED)), configuration));
   }
 
   @Override
   public void disable() {
+    disable(PropertiesConfigurer.class);
     disable(ConfigurationsConfigurer.class);
     disable(ControllersConfigurer.class);
     disable(ServicesConfigurer.class);
