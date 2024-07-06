@@ -48,7 +48,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
             .that(are(annotatedWithConfigurationProperties(true)))
             .should().beMetaAnnotatedWith(ANNOTATION_VALIDATED)
             .as("Configuration properties annotated with %s should be annotated with %s as well".formatted(
-                ANNOTATION_VALIDATED)),
+                ANNOTATION_CONFIGURATION_PROPERTIES, ANNOTATION_VALIDATED)),
         configuration));
   }
 
