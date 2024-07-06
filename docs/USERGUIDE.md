@@ -164,23 +164,23 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`                                                                      |
 | Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern                                                                      |
 | Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`                                                             |
-| Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties should be annotated with `@ConfigurationProperties`                                                                                         |
-| Configurations | `namesShouldEndWithConfiguration`              | Configuration annotated with `@Configuration` classes should end with `Configuration`                                                                  |
-| Configurations | `namesShouldMatch`                             | Configuration annotated with `@Configuration` classes should match a regex pattern                                                                     |
+| Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties end with `Properties` should be annotated with `@ConfigurationProperties`                                                                   |
+| Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`                                                                         |
+| Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern                                                                            |
 | Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`                                                             |
 | Controllers    | `namesShouldMatch`                             | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern                                                             |
-| Controllers    | `shouldBeAnnotatedWithController`              | Controllers should be annotated with `@Controller`                                                                                                     |
-| Controllers    | `shouldBeAnnotatedWithRestController`          | Controllers should be annotated with `@RestController`                                                                                                 |
+| Controllers    | `shouldBeAnnotatedWithController`              | Controllers end with `Controller` should be annotated with `@Controller`                                                                               |
+| Controllers    | `shouldBeAnnotatedWithRestController`          | Controllers end with `Controller` should be annotated with `@RestController`                                                                           |
 | Controllers    | `shouldBePackagePrivate`                       | Controllers annotated with `@Controller` or `@RestController` should be package-private                                                                |
 | Controllers    | `shouldNotDependOnOtherControllers`            | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController` |
 | Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`                                                                                 |
 | Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern                                                                                 |
-| Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories should be annotated with `@Repository`                                                                                                    |
+| Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories end with `Repository` should be annotated with `@Repository`                                                                              |
 | Repositories   | `shouldNotDependOnServices`                    | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service.`                                              |
 | Services       | `namesShouldEndWithService`                    | Services annotated with `@Service.` should end with `Service`                                                                                          |
 | Services       | `namesShouldMatch`                             | Services annotated with `@Service.` should match a regex pattern                                                                                       |
-| Services       | `shouldBeAnnotatedWithService`                 | Services should be annotated with `@Service`                                                                                                           |
-| Services       | `shouldNotDependOnControllers`                 | Services  annotated with `@Service.` should not depend on controllers annotated with `@Controller` or `@RestController`                                |
+| Services       | `shouldBeAnnotatedWithService`                 | Services end with `Service` should be annotated with `@Service`                                                                                        |
+| Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service.` should not depend on controllers annotated with `@Controller` or `@RestController`                                 |
 
 ## 5. Java Rules
 
@@ -547,7 +547,7 @@ The `Configuration` class offers various static methods to create custom configu
 - `Configuration.of(String namespace)` to set a custom namespace.
 - `Configuration.of(Namespace.IMPORT namespaceImport)` to specify import options such as `WITHOUT_TESTS`, `WITH_TESTS`, or `ONLY_TESTS`.
 - `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` to set both namespace and import options.
-- `Configuration.of(JavaClasses javaClasses)` to directly provide a set of Java classes.
+- `Configuration.of(JavaClasses javaClasses)` to directly provide a set of [Java classes](https://www.archunit.org/userguide/html/000_Index.html#_importing_classes).
 - `Configuration.of(Set<String> excludedClasses)` to exclude specific classes from the checks. 
 - Additional overloaded methods to combine these options in various ways.
 
