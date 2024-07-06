@@ -34,7 +34,7 @@ Taikai.builder()
 
 ### 3.2 Setting the JavaClasses
 
-You can configure `classes` as well. This allows you to specify specific Java classes to analyze. Note that setting both `namespace` and `classes` simultaneously is not supported and will result in an `IllegalArgumentException`.
+You can configure `classes` as well. This allows you to specify specific [Java classes](https://www.archunit.org/userguide/html/000_Index.html#_importing_classes) to analyze. Note that setting both `namespace` and `classes` simultaneously is not supported and will result in an `IllegalArgumentException`.
 
 ```java
 JavaClasses classes = new ClassFileImporter()
