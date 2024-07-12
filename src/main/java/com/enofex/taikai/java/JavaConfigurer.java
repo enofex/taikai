@@ -75,7 +75,9 @@ public final class JavaConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that().haveNameMatching(regex)
-        .should().resideInAPackage(packageIdentifier), configuration));
+        .should().resideInAPackage(packageIdentifier)
+        .as("Classes have name matching %s should reside in package %s".formatted(
+            regex, packageIdentifier)), configuration));
   }
 
   public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier) {
@@ -86,7 +88,9 @@ public final class JavaConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that().haveNameMatching(regex)
-        .should().resideOutsideOfPackage(packageIdentifier), configuration));
+        .should().resideOutsideOfPackage(packageIdentifier)
+        .as("Classes have name matching %s should reside outside package %s".formatted(
+            regex, packageIdentifier)), configuration));
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
