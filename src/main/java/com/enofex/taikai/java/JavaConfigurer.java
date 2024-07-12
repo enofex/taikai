@@ -116,6 +116,35 @@ public final class JavaConfigurer extends AbstractConfigurer {
             annotationType)), configuration));
   }
 
+  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
+      Class<? extends Annotation> annotationType, String packageIdentifier) {
+    return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier, null);
+  }
+
+  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
+      Class<? extends Annotation> annotationType, String packageIdentifier,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().areMetaAnnotatedWith(annotationType)
+        .should().resideInAPackage(packageIdentifier)
+        .as("Classes annotated with %s should reside in package %s".formatted(
+            annotationType.getName(), packageIdentifier)), configuration));
+  }
+
+  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
+      String annotationType, String packageIdentifier) {
+    return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier, null);
+  }
+
+  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
+      String annotationType, String packageIdentifier, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().areMetaAnnotatedWith(annotationType)
+        .should().resideInAPackage(packageIdentifier)
+        .as("Classes annotated with %s should reside in package %s".formatted(
+            annotationType, packageIdentifier)), configuration));
+  }
+
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
     return classesShouldImplementHashCodeAndEquals(null);
   }

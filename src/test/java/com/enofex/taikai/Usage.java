@@ -24,6 +24,7 @@ class Usage {
             .classesShouldResideInPackage("regex", "com.enofex.taikai")
             .classesShouldResideOutsidePackage("regex", "com.enofex.taikai")
             .classesShouldBeAnnotatedWith("regex", DisplayName.class)
+            .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai")
             .methodsShouldNotDeclareGenericExceptions()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
