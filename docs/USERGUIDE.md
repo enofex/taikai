@@ -109,6 +109,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 |----------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
 | General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together                                                 |
 | General  | `classesShouldResideInPackage`                         | Classes match a specific naming patterns should reside in a specified package                             |
+| General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package                         |
 | General  | `classesShouldResideOutsidePackage`                    | Classes match a specific naming patterns should reside outside a specified package                        |
 | General  | `classesShouldBeAnnotatedWith`                         | Classes match a specific naming patterns should be annotated with a specified annotation                  |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants                                                           |
@@ -218,6 +219,17 @@ Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
         .classesShouldResideInPackage(".*Utils", "com.company.yourproject.utils"))
+    .build()
+    .check();
+```
+
+- **Classes Annotated with Specified Annotation Should Reside in Specified Package**: Ensure that classes annotated with a specific annotation reside in the specified package.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .classesAnnotatedWithShouldResideInPackage(PublicApi.class, "com.company.yourproject.api"))
     .build()
     .check();
 ```
