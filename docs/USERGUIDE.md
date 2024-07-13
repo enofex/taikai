@@ -98,7 +98,7 @@ modifiedTaikai.check();
 ```
 
 ## 4. Rules Overview
- 
+
 Taikai's architecture rules cover a wide range of categories to enforce best practices and maintain consistency.
 
 ### Java Rules
@@ -107,32 +107,32 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 
 | Category | Method Name                                            | Rule Description                                                                                          |
 |----------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together                                                 |
-| General  | `classesShouldResideInPackage`                         | Classes match a specific naming patterns should reside in a specified package                             |
-| General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package                         |
-| General  | `classesShouldResideOutsidePackage`                    | Classes match a specific naming patterns should reside outside a specified package                        |
-| General  | `classesShouldBeAnnotatedWith`                         | Classes match a specific naming patterns should be annotated with a specified annotation                  |
-| General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants                                                           |
-| General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception`, `RuntimeException`                       |
-| General  | `noUsageOf`                                            | Disallow usage of specific classes                                                                        |
-| General  | `noUsageOf`                                            | Disallow usage of specific classes by class reference                                                     |
-| General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`                                                  |
-| General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`                                                            |
-| General  | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes with only `static` methods except `main` should be `final` and have a private constructor |
-| General  | `finalClassesShouldNotHaveProtectedMembers`            | Ensures that classes declared as `final` do not contain any `protected` members                           |
-| General  | `serialVersionUIDShouldBeStaticFinalLong`              | Ensure that fields named `serialVersionUID` are declared as `static final long`                           |
-| Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports                                                                         |
-| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`)                                                            |
-| Naming   | `packagesShouldMatch`                                  | Package should match the specified regex pattern. (e.g., `com.company.yourproject..`)                     |
-| Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`)                                        |
-| Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with should match specific naming patterns                                              |
-| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns                                                         |
-| Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with should match specific naming patterns                                              |
-| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns                                                          |
-| Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes                                         |
-| Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with should match specific naming patterns                                               |
-| Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`                                     |
-| Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`                                                                 |
+| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together.                                                |
+| General  | `classesShouldResideInPackage`                         | Classes matching specific naming patterns should reside in a specified package.                           |
+| General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package.                        |
+| General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                      |
+| General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                |
+| General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                          |
+| General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                    |
+| General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                       |
+| General  | `noUsageOf`                                            | Disallow usage of specific classes by class reference.                                                    |
+| General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                 |
+| General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                           |
+| General  | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes with only `static` methods (except `main`) should be `final` and have a private constructor. |
+| General  | `finalClassesShouldNotHaveProtectedMembers`            | Classes declared as `final` should not contain any `protected` members.                                   |
+| General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                |
+| Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                        |
+| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                           |
+| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.yourproject..`).                    |
+| Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                       |
+| Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                       |
+| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                        |
+| Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with a specific annotation should match specific naming patterns.                       |
+| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns.                                                         |
+| Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes.                                        |
+| Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with a specific annotation should match specific naming patterns.                        |
+| Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`.                                    |
+| Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`.                                                                |
 
 ### Logging Rules
 
@@ -140,8 +140,8 @@ The default mode is `WITHOUT_TESTS`, which checks only test classes.
 
 | Category | Method Name                       | Rule Description                                                                                  | 
 |----------|-----------------------------------|---------------------------------------------------------------------------------------------------|
-| General  | `loggersShouldFollowConventions`  | Ensure that the specified logger follow a specific naming pattern and have the required modifiers |
-| General  | `classesShouldUseLogger`          | Ensure that classes matching a given regex have a field of a specified logger type                |
+| General  | `loggersShouldFollowConventions`  | Ensure that specified loggers follow specific naming patterns and have the required modifiers.    |
+| General  | `classesShouldUseLogger`          | Ensure that classes matching a given regex have a field of a specified logger type.               |
 
 ### Test Rules
 
@@ -149,13 +149,13 @@ The default mode is `ONLY_TESTS`, which checks only test classes.
 
 | Category      | Method Name                                            | Rule Description                                                                                                      | 
 |---------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| JUnit 5       | `classesShouldBePackagePrivate`                        | Ensure that classes whose names match a specific naming pattern are declared as package-private                       |
-| JUnit 5       | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`                                                                     |
-| JUnit 5       | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private                           |
-| JUnit 5       | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`                                                                     |
-| JUnit 5       | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`             |
-| JUnit 5       | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern  |
-| JUnit 5       | `methodsShouldNotDeclareExceptions`                    | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions          |
+| JUnit 5       | `classesShouldBePackagePrivate`                        | Ensure that classes whose names match a specific naming pattern are declared as package-private.                      |
+| JUnit 5       | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`.                                                                    |
+| JUnit 5       | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                          |
+| JUnit 5       | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`.                                                                    |
+| JUnit 5       | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.            |
+| JUnit 5       | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern. |
+| JUnit 5       | `methodsShouldNotDeclareExceptions`                    | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.         |
 
 ### Spring Rules
 
@@ -163,28 +163,28 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 
 | Category       | Method Name                                    | Rule Description                                                                                                                                       |
 |----------------|------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| General        | `noAutowiredFields`                            | Fields should not be annotated with `@Autowired`, prefer constructor injection                                                                         |
-| Boot           | `springBootApplicationShouldBeIn`              | Ensure `@SpringBootApplication` is in the default package                                                                                              |
-| Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`                                                                      |
-| Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern                                                                      |
-| Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`                                                             |
-| Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties end with `Properties` should be annotated with `@ConfigurationProperties`                                                                   |
-| Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`                                                                         |
-| Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern                                                                            |
-| Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`                                                             |
-| Controllers    | `namesShouldMatch`                             | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern                                                             |
-| Controllers    | `shouldBeAnnotatedWithController`              | Controllers end with `Controller` should be annotated with `@Controller`                                                                               |
-| Controllers    | `shouldBeAnnotatedWithRestController`          | Controllers end with `Controller` should be annotated with `@RestController`                                                                           |
-| Controllers    | `shouldBePackagePrivate`                       | Controllers annotated with `@Controller` or `@RestController` should be package-private                                                                |
-| Controllers    | `shouldNotDependOnOtherControllers`            | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController` |
-| Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`                                                                                 |
-| Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern                                                                                 |
-| Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories end with `Repository` should be annotated with `@Repository`                                                                              |
-| Repositories   | `shouldNotDependOnServices`                    | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service.`                                              |
-| Services       | `namesShouldEndWithService`                    | Services annotated with `@Service.` should end with `Service`                                                                                          |
-| Services       | `namesShouldMatch`                             | Services annotated with `@Service.` should match a regex pattern                                                                                       |
-| Services       | `shouldBeAnnotatedWithService`                 | Services end with `Service` should be annotated with `@Service`                                                                                        |
-| Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service.` should not depend on controllers annotated with `@Controller` or `@RestController`                                 |
+| General        | `noAutowiredFields`                            | Fields should not be annotated with `@Autowired`, prefer constructor injection.                                                                        |
+| Boot           | `springBootApplicationShouldBeIn`              | Ensure `@SpringBootApplication` is in the default package.                                                                                             |
+| Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`.                                                                     |
+| Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern.                                                                     |
+| Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`.                                                            |
+| Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties ending with `Properties` should be annotated with `@ConfigurationProperties`.                                                               |
+| Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`.                                                                        |
+| Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern.                                                                           |
+| Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`.                                                            |
+| Controllers    | `namesShouldMatch`                             | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern.                                                            |
+| Controllers    | `shouldBeAnnotatedWithController`              | Controllers ending with `Controller` should be annotated with `@Controller`.                                                                           |
+| Controllers    | `shouldBeAnnotatedWithRestController`          | Controllers ending with `Controller` should be annotated with `@RestController`.                                                                       |
+| Controllers    | `shouldBePackagePrivate`                       | Controllers annotated with `@Controller` or `@RestController` should be package-private.                                                               |
+| Controllers    | `shouldNotDependOnOtherControllers`            | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController`. |
+| Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`.                                                                                |
+| Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern.                                                                                |
+| Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories ending with `Repository` should be annotated with `@Repository`.                                                                          |
+| Repositories   | `shouldNotDependOnServices`                    | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service`.                                              |
+| Services       | `namesShouldEndWithService`                    | Services annotated with `@Service` should end with `Service`.                                                                                          |
+| Services       | `namesShouldMatch`                             | Services annotated with `@Service` should match a regex pattern.                                                                                       |
+| Services       | `shouldBeAnnotatedWithService`                 | Services ending with `Service` should be annotated with `@Service`.                                                                                    |
+| Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                 |
 
 ## 5. Java Rules
 
