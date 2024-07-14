@@ -25,7 +25,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer namesShouldEndWithController() {
-    return namesShouldMatch(DEFAULT_CONTROLLER_NAME_MATCHING, null);
+    return namesShouldMatch(DEFAULT_CONTROLLER_NAME_MATCHING, Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer namesShouldEndWithController(Configuration configuration) {
@@ -33,7 +33,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, null);
+    return namesShouldMatch(regex, Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -44,7 +44,8 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController() {
-    return shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING, null);
+    return shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING,
+        Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController(Configuration configuration) {
@@ -52,7 +53,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController(String regex) {
-    return shouldBeAnnotatedWithRestController(regex, null);
+    return shouldBeAnnotatedWithRestController(regex, Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController(String regex,
@@ -65,7 +66,8 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController() {
-    return shouldBeAnnotatedWithController(DEFAULT_CONTROLLER_NAME_MATCHING, null);
+    return shouldBeAnnotatedWithController(DEFAULT_CONTROLLER_NAME_MATCHING,
+        Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController(Configuration configuration) {
@@ -73,7 +75,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController(String regex) {
-    return shouldBeAnnotatedWithController(regex, null);
+    return shouldBeAnnotatedWithController(regex, Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController(String regex,
@@ -86,7 +88,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBePackagePrivate() {
-    return shouldBePackagePrivate(null);
+    return shouldBePackagePrivate(Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBePackagePrivate(Configuration configuration) {
@@ -97,7 +99,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldNotDependOnOtherControllers() {
-    return shouldNotDependOnOtherControllers(null);
+    return shouldNotDependOnOtherControllers(Configuration.defaultConfiguration());
   }
 
   public ControllersConfigurer shouldNotDependOnOtherControllers(Configuration configuration) {

@@ -23,7 +23,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer namesShouldEndWithService() {
-    return namesShouldMatch(DEFAULT_SERVICE_NAME_MATCHING, null);
+    return namesShouldMatch(DEFAULT_SERVICE_NAME_MATCHING, Configuration.defaultConfiguration());
   }
 
   public ServicesConfigurer namesShouldEndWithService(Configuration configuration) {
@@ -31,7 +31,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, null);
+    return namesShouldMatch(regex, Configuration.defaultConfiguration());
   }
 
   public ServicesConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -42,7 +42,8 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService() {
-    return shouldBeAnnotatedWithService(DEFAULT_SERVICE_NAME_MATCHING, null);
+    return shouldBeAnnotatedWithService(DEFAULT_SERVICE_NAME_MATCHING,
+        Configuration.defaultConfiguration());
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService(Configuration configuration) {
@@ -50,7 +51,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService(String regex) {
-    return shouldBeAnnotatedWithService(regex, null);
+    return shouldBeAnnotatedWithService(regex, Configuration.defaultConfiguration());
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService(String regex,
@@ -63,7 +64,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer shouldNotDependOnControllers() {
-    return shouldNotDependOnControllers(null);
+    return shouldNotDependOnControllers(Configuration.defaultConfiguration());
   }
 
   public ServicesConfigurer shouldNotDependOnControllers(Configuration configuration) {

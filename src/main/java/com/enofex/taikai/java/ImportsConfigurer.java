@@ -16,14 +16,29 @@ public final class ImportsConfigurer extends AbstractConfigurer {
   }
 
   public ImportsConfigurer shouldNotImport(String packageIdentifier) {
-    return shouldNotImport(packageIdentifier, null);
+    return shouldNotImport(packageIdentifier, Configuration.defaultConfiguration());
   }
 
   public ImportsConfigurer shouldNotImport(String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
         .should().accessClassesThat()
         .resideInAPackage(packageIdentifier)
-        .as("No classes should have imports from %s".formatted(packageIdentifier)), configuration));
+            .as("No classes should have imports from package %s".formatted(packageIdentifier)),
+        configuration));
+  }
+
+  public ImportsConfigurer shouldNotImport(String regex, String notImportClassesRegex) {
+    return shouldNotImport(regex, notImportClassesRegex, Configuration.defaultConfiguration());
+  }
+
+  public ImportsConfigurer shouldNotImport(String regex, String notImportClassesRegex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses()
+        .that().haveNameMatching(regex)
+        .should().accessClassesThat()
+        .haveNameMatching(notImportClassesRegex)
+        .as("No classes that have name matching %s should have imports %s".formatted(
+            regex, notImportClassesRegex)), configuration));
   }
 
   public ImportsConfigurer shouldHaveNoCycles() {

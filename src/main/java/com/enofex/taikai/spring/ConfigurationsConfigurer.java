@@ -20,7 +20,8 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
   }
 
   public ConfigurationsConfigurer namesShouldEndWithConfiguration() {
-    return namesShouldMatch(DEFAULT_CONFIGURATION_NAME_MATCHING, null);
+    return namesShouldMatch(DEFAULT_CONFIGURATION_NAME_MATCHING,
+        Configuration.defaultConfiguration());
   }
 
   public ConfigurationsConfigurer namesShouldEndWithConfiguration(Configuration configuration) {
@@ -28,7 +29,7 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
   }
 
   public ConfigurationsConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, null);
+    return namesShouldMatch(regex, Configuration.defaultConfiguration());
   }
 
   public ConfigurationsConfigurer namesShouldMatch(String regex, Configuration configuration) {

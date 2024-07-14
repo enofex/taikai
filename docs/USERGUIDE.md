@@ -299,7 +299,8 @@ Taikai.builder()
         .imports(imports -> imports
             .shouldHaveNoCycles()
             .shouldNotImport("..shaded..")
-            .shouldNotImport("..lombok..")))
+            .shouldNotImport("..lombok..")
+            .shouldNotImport(".*Service", "com.company.yourproject.SpecificException")))
     .build()
     .check();
 ```

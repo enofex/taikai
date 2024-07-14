@@ -18,7 +18,7 @@ public final class LoggingConfigurer extends AbstractConfigurer {
   }
 
   public LoggingConfigurer classesShouldUseLogger(String typeName, String regex) {
-    return classesShouldUseLogger(typeName, regex, null);
+    return classesShouldUseLogger(typeName, regex, Configuration.defaultConfiguration());
   }
 
   public LoggingConfigurer classesShouldUseLogger(String typeName, String regex,
@@ -29,7 +29,7 @@ public final class LoggingConfigurer extends AbstractConfigurer {
   }
 
   public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex) {
-    return classesShouldUseLogger(clazz, regex, null);
+    return classesShouldUseLogger(clazz, regex, Configuration.defaultConfiguration());
   }
 
   public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex,
@@ -41,7 +41,8 @@ public final class LoggingConfigurer extends AbstractConfigurer {
 
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Set<JavaModifier> requiredModifiers) {
-    return loggersShouldFollowConventions(typeName, regex, requiredModifiers, null);
+    return loggersShouldFollowConventions(typeName, regex, requiredModifiers,
+        Configuration.defaultConfiguration());
   }
 
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
@@ -52,7 +53,8 @@ public final class LoggingConfigurer extends AbstractConfigurer {
 
   public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
       Set<JavaModifier> requiredModifiers) {
-    return loggersShouldFollowConventions(clazz, regex, requiredModifiers, null);
+    return loggersShouldFollowConventions(clazz, regex, requiredModifiers,
+        Configuration.defaultConfiguration());
   }
 
   public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,

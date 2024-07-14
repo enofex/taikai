@@ -23,7 +23,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer namesShouldEndWithRepository() {
-    return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, null);
+    return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, Configuration.defaultConfiguration());
   }
 
   public RepositoriesConfigurer namesShouldEndWithRepository(Configuration configuration) {
@@ -31,7 +31,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, null);
+    return namesShouldMatch(regex, Configuration.defaultConfiguration());
   }
 
   public RepositoriesConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -42,7 +42,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository() {
-    return shouldBeAnnotatedWithRepository(DEFAULT_REPOSITORY_NAME_MATCHING, null);
+    return shouldBeAnnotatedWithRepository(DEFAULT_REPOSITORY_NAME_MATCHING,
+        Configuration.defaultConfiguration());
   }
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(Configuration configuration) {
@@ -50,7 +51,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(String regex) {
-    return shouldBeAnnotatedWithRepository(regex, null);
+    return shouldBeAnnotatedWithRepository(regex, Configuration.defaultConfiguration());
   }
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(String regex,
@@ -63,7 +64,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer shouldNotDependOnServices() {
-    return shouldNotDependOnServices(null);
+    return shouldNotDependOnServices(Configuration.defaultConfiguration());
   }
 
   public RepositoriesConfigurer shouldNotDependOnServices(Configuration configuration) {

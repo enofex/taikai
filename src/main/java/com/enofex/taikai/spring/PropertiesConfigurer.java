@@ -21,7 +21,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer namesShouldEndWithProperties() {
-    return namesShouldMatch(DEFAULT_PROPERTIES_NAME_MATCHING, null);
+    return namesShouldMatch(DEFAULT_PROPERTIES_NAME_MATCHING, Configuration.defaultConfiguration());
   }
 
   public PropertiesConfigurer namesShouldEndWithProperties(Configuration configuration) {
@@ -29,7 +29,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, null);
+    return namesShouldMatch(regex, Configuration.defaultConfiguration());
   }
 
   public PropertiesConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -40,7 +40,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithValidated() {
-    return shouldBeAnnotatedWithValidated(null);
+    return shouldBeAnnotatedWithValidated(Configuration.defaultConfiguration());
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithValidated(Configuration configuration) {
@@ -53,7 +53,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties() {
-    return shouldBeAnnotatedWithConfigurationProperties(DEFAULT_PROPERTIES_NAME_MATCHING, null);
+    return shouldBeAnnotatedWithConfigurationProperties(DEFAULT_PROPERTIES_NAME_MATCHING,
+        Configuration.defaultConfiguration());
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(
@@ -63,7 +64,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(String regex) {
-    return shouldBeAnnotatedWithConfigurationProperties(regex, null);
+    return shouldBeAnnotatedWithConfigurationProperties(regex,
+        Configuration.defaultConfiguration());
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(String regex,
