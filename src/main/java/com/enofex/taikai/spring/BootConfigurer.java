@@ -20,7 +20,7 @@ public final class BootConfigurer extends AbstractConfigurer {
   public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier) {
     requireNonNull(packageIdentifier);
 
-    return springBootApplicationShouldBeIn(packageIdentifier, null);
+    return springBootApplicationShouldBeIn(packageIdentifier, Configuration.defaultConfiguration());
   }
 
   public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier, Configuration configuration) {

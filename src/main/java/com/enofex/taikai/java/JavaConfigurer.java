@@ -38,7 +38,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor() {
-    return utilityClassesShouldBeFinalAndHavePrivateConstructor(null);
+    return utilityClassesShouldBeFinalAndHavePrivateConstructor(
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor(
@@ -49,7 +50,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions() {
-    return methodsShouldNotDeclareGenericExceptions(null);
+    return methodsShouldNotDeclareGenericExceptions(Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions(Configuration configuration) {
@@ -60,7 +61,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs() {
-    return noUsageOfDeprecatedAPIs(null);
+    return noUsageOfDeprecatedAPIs(Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs(Configuration configuration) {
@@ -68,7 +69,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier) {
-    return classesShouldResideInPackage(regex, packageIdentifier, null);
+    return classesShouldResideInPackage(regex, packageIdentifier,
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier,
@@ -81,7 +83,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier) {
-    return classesShouldResideOutsidePackage(regex, packageIdentifier, null);
+    return classesShouldResideOutsidePackage(regex, packageIdentifier,
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier,
@@ -95,7 +98,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType) {
-    return classesShouldBeAnnotatedWith(regex, annotationType, null);
+    return classesShouldBeAnnotatedWith(regex, annotationType,
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
@@ -108,7 +112,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType) {
-    return classesShouldBeAnnotatedWith(regex, annotationType, null);
+    return classesShouldBeAnnotatedWith(regex, annotationType,
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType,
@@ -122,7 +127,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       Class<? extends Annotation> annotationType, String packageIdentifier) {
-    return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier, null);
+    return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier,
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
@@ -137,7 +143,8 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       String annotationType, String packageIdentifier) {
-    return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier, null);
+    return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier,
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
@@ -150,7 +157,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
-    return classesShouldImplementHashCodeAndEquals(null);
+    return classesShouldImplementHashCodeAndEquals(Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
@@ -159,7 +166,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer fieldsShouldNotBePublic() {
-    return fieldsShouldNotBePublic(null);
+    return fieldsShouldNotBePublic(Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
@@ -168,11 +175,11 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz) {
-    return noUsageOf(clazz, null);
+    return noUsageOf(clazz, Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(String typeName) {
-    return noUsageOf(typeName, null);
+    return noUsageOf(typeName, Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(String typeName, Configuration configuration) {
@@ -186,7 +193,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOfSystemOutOrErr() {
-    return noUsageOfSystemOutOrErr(null);
+    return noUsageOfSystemOutOrErr(Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
@@ -195,7 +202,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers() {
-    return finalClassesShouldNotHaveProtectedMembers(null);
+    return finalClassesShouldNotHaveProtectedMembers(Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers(Configuration configuration) {
@@ -206,7 +213,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong() {
-    return serialVersionUIDFieldsShouldBeStaticFinalLong(null);
+    return serialVersionUIDFieldsShouldBeStaticFinalLong(Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong(Configuration configuration) {

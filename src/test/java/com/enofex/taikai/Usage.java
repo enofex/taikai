@@ -33,7 +33,8 @@ class Usage {
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
                 .shouldNotImport("..lombok..")
-                .shouldNotImport("org.junit.."))
+                .shouldNotImport("org.junit..")
+                .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException"))
             .naming(naming -> naming
                 .packagesShouldMatch("com.enofex.taikai..")
                 .classesShouldNotMatch(".*Impl")

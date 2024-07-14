@@ -42,7 +42,7 @@ public final class SpringConfigurer extends AbstractConfigurer {
   }
 
   public SpringConfigurer noAutowiredFields() {
-    return noAutowiredFields(null);
+    return noAutowiredFields(Configuration.defaultConfiguration());
   }
 
   public SpringConfigurer noAutowiredFields(Configuration configuration) {
