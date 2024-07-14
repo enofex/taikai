@@ -26,6 +26,7 @@ class Usage {
             .classesShouldBeAnnotatedWith("regex", DisplayName.class)
             .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai")
             .methodsShouldNotDeclareGenericExceptions()
+            .methodsShouldNotDeclareException("regex", RuntimeException.class)
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .serialVersionUIDFieldsShouldBeStaticFinalLong()

@@ -105,34 +105,35 @@ Taikai's architecture rules cover a wide range of categories to enforce best pra
 
 The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
 
-| Category | Method Name                                            | Rule Description                                                                                          |
-|----------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together.                                                |
-| General  | `classesShouldResideInPackage`                         | Classes matching specific naming patterns should reside in a specified package.                           |
-| General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package.                        |
-| General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                      |
-| General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                |
-| General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                          |
-| General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                    |
-| General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                       |
-| General  | `noUsageOf`                                            | Disallow usage of specific classes by class reference.                                                    |
-| General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                 |
-| General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                           |
+| Category | Method Name                                            | Rule Description                                                                                             |
+|----------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together.                                                   |
+| General  | `classesShouldResideInPackage`                         | Classes matching specific naming patterns should reside in a specified package.                              |
+| General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package.                           |
+| General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                         |
+| General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
+| General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
+| General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
+| General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
+| General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
+| General  | `noUsageOf`                                            | Disallow usage of specific classes by class reference.                                                       |
+| General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
+| General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                              |
 | General  | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes with only `static` methods (except `main`) should be `final` and have a private constructor. |
-| General  | `finalClassesShouldNotHaveProtectedMembers`            | Classes declared as `final` should not contain any `protected` members.                                   |
-| General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                |
-| Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                        |
-| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                           |
-| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.yourproject..`).                    |
-| Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                       |
-| Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                       |
-| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                        |
-| Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with a specific annotation should match specific naming patterns.                       |
-| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns.                                                         |
-| Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes.                                        |
-| Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with a specific annotation should match specific naming patterns.                        |
-| Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`.                                    |
-| Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`.                                                                |
+| General  | `finalClassesShouldNotHaveProtectedMembers`            | Classes declared as `final` should not contain any `protected` members.                                      |
+| General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                   |
+| Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                           |
+| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                              |
+| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.yourproject..`).                       |
+| Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
+| Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
+| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
+| Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with a specific annotation should match specific naming patterns.                          |
+| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns.                                                            |
+| Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes.                                           |
+| Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with a specific annotation should match specific naming patterns.                           |
+| Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`.                                       |
+| Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`.                                                                   |
 
 ### Logging Rules
 
@@ -264,6 +265,18 @@ Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
         .methodsShouldNotDeclareGenericExceptions())
+    .build()
+    .check();
+```
+
+- **Methods Should Not Declare Specific Exception**: Ensure that methods with names matching a specified pattern do not declare a specified exception type.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .methodsShouldNotDeclareException("should*", SpecificException.class)
+        .methodsShouldNotDeclareException("should*", "com.company.yourproject.SpecificException"))
     .build()
     .check();
 ```

@@ -60,6 +60,33 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .as("Methods should not declare generic Exception or RuntimeException"), configuration));
   }
 
+  public JavaConfigurer methodsShouldNotDeclareException(String regex,
+      Class<? extends Throwable> clazz) {
+    return methodsShouldNotDeclareException(regex, clazz, Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldNotDeclareException(String regex,
+      Class<? extends Throwable> clazz, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().haveNameMatching(regex)
+            .should().notDeclareThrowableOfType(clazz)
+            .as("Methods have name matching %s should not declare %s".formatted(regex, clazz)),
+        configuration));
+  }
+
+  public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName) {
+    return methodsShouldNotDeclareException(regex, typeName, Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().haveNameMatching(regex)
+            .should().notDeclareThrowableOfType(typeName)
+            .as("Methods have name matching %s should not declare %s".formatted(regex, typeName)),
+        configuration));
+  }
+
   public JavaConfigurer noUsageOfDeprecatedAPIs() {
     return noUsageOfDeprecatedAPIs(Configuration.defaultConfiguration());
   }
