@@ -15,15 +15,15 @@ public final class ImportsConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
-  public ImportsConfigurer shouldNotImport(String regex) {
-    return shouldNotImport(regex, null);
+  public ImportsConfigurer shouldNotImport(String packageIdentifier) {
+    return shouldNotImport(packageIdentifier, null);
   }
 
-  public ImportsConfigurer shouldNotImport(String regex, Configuration configuration) {
+  public ImportsConfigurer shouldNotImport(String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
         .should().accessClassesThat()
-        .resideInAPackage(regex)
-        .as("No classes should have imports from %s".formatted(regex)), configuration));
+        .resideInAPackage(packageIdentifier)
+        .as("No classes should have imports from %s".formatted(packageIdentifier)), configuration));
   }
 
   public ImportsConfigurer shouldHaveNoCycles() {

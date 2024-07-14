@@ -17,17 +17,17 @@ public final class BootConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
-  public BootConfigurer springBootApplicationShouldBeIn(String location) {
-    requireNonNull(location);
+  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier) {
+    requireNonNull(packageIdentifier);
 
-    return springBootApplicationShouldBeIn(location, null);
+    return springBootApplicationShouldBeIn(packageIdentifier, null);
   }
 
-  public BootConfigurer springBootApplicationShouldBeIn(String location, Configuration configuration) {
+  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithSpringBootApplication(true)))
-        .should().resideInAPackage(location)
+        .should().resideInAPackage(packageIdentifier)
         .as("Classes annotated with %s should be located in %s".formatted(
-            ANNOTATION_SPRING_BOOT_APPLICATION, location)), configuration));
+            ANNOTATION_SPRING_BOOT_APPLICATION, packageIdentifier)), configuration));
   }
 }

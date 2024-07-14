@@ -24,14 +24,14 @@ public final class NamingConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
-  public NamingConfigurer packagesShouldMatch(String regex) {
-    return packagesShouldMatch(regex, null);
+  public NamingConfigurer packagesShouldMatch(String packageIdentifier) {
+    return packagesShouldMatch(packageIdentifier, null);
   }
 
-  public NamingConfigurer packagesShouldMatch(String regex, Configuration configuration) {
+  public NamingConfigurer packagesShouldMatch(String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .should().resideInAPackage(regex)
-            .as("Package names should match %s".formatted(regex)),
+            .should().resideInAPackage(packageIdentifier)
+            .as("Package names should match %s".formatted(packageIdentifier)),
         configuration));
   }
 
