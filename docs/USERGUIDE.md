@@ -619,8 +619,14 @@ If a `namespaceImport` is not explicitly provided, it defaults to `Namespace.IMP
 Here's an example of how you can use these methods to create a custom configuration:
 
 ```java
-ImportsConfigurer configurer = new ImportsConfigurer();
-configurer.shouldNotImport("com.example.package", Configuration.of("com.example.namespace", Namespace.IMPORT.WITHOUT_TESTS));
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .imports(imports -> imports
+            .shouldNotImport("..shaded..", Configuration.of("com.company.yourproject.different", Namespace.IMPORT.WITHOUT_TESTS))
+            .shouldNotImport("..lombok.."), Configuration.of(Namespace.IMPORT.ONLY_TESTS)))
+    .build()
+    .check();
 ```
 
 In this example, the import rule is configured to apply to classes within the specified namespace, excluding test classes.
