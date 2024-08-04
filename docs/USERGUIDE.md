@@ -624,7 +624,7 @@ Taikai.builder()
     .java(java -> java
         .imports(imports -> imports
             .shouldNotImport("..shaded..", Configuration.of("com.company.yourproject.different", Namespace.IMPORT.WITHOUT_TESTS))
-            .shouldNotImport("..lombok.."), Configuration.of(Namespace.IMPORT.ONLY_TESTS)))
+            .shouldNotImport("..lombok..", Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
     .build()
     .check();
 ```
