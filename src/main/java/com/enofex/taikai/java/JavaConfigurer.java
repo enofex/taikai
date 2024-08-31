@@ -152,6 +152,35 @@ public final class JavaConfigurer extends AbstractConfigurer {
             annotationType)), configuration));
   }
 
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType) {
+    return classesShouldNotBeAnnotatedWith(regex, annotationType,
+        Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveNameMatching(regex)
+        .should().notBeMetaAnnotatedWith(annotationType)
+        .as("Classes have name matching %s should not be annotated with %s".formatted(
+            regex, annotationType.getName())), configuration));
+  }
+
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType) {
+    return classesShouldNotBeAnnotatedWith(regex, annotationType,
+        Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveNameMatching(regex)
+        .should().notBeMetaAnnotatedWith(annotationType)
+        .as("Classes have name matching %s should not be annotated with %s".formatted(regex,
+            annotationType)), configuration));
+  }
+
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       Class<? extends Annotation> annotationType, String packageIdentifier) {
     return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier,
