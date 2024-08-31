@@ -62,16 +62,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer methodsShouldNotDeclareException(String regex,
       Class<? extends Throwable> clazz) {
-    return methodsShouldNotDeclareException(regex, clazz, Configuration.defaultConfiguration());
-  }
-
-  public JavaConfigurer methodsShouldNotDeclareException(String regex,
-      Class<? extends Throwable> clazz, Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-            .that().haveNameMatching(regex)
-            .should().notDeclareThrowableOfType(clazz)
-            .as("Methods have name matching %s should not declare %s".formatted(regex, clazz)),
-        configuration));
+    return methodsShouldNotDeclareException(regex, clazz.getName(), Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName) {
@@ -222,16 +213,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz) {
-    return classesShouldBeAssignableTo(regex, clazz, Configuration.defaultConfiguration());
-  }
-
-  public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-        .that().haveSimpleNameEndingWith(regex)
-        .should().beAssignableTo(clazz)
-        .as("Classes have name matching %s should be assignable to %s".formatted(
-            regex, clazz)), configuration));
+    return classesShouldBeAssignableTo(regex, clazz.getName(), Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName) {
@@ -257,30 +239,15 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz) {
-    return noUsageOf(clazz, null, Configuration.defaultConfiguration());
+    return noUsageOf(clazz.getName(), null, Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier) {
-    return noUsageOf(clazz, packageIdentifier, Configuration.defaultConfiguration());
+    return noUsageOf(clazz.getName(), packageIdentifier, Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
-    return noUsageOf(clazz, null, configuration);
-  }
-
-  public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier,
-      Configuration configuration) {
-    if (packageIdentifier != null) {
-      return addRule(TaikaiRule.of(noClasses()
-          .that().resideInAPackage(packageIdentifier)
-          .should().dependOnClassesThat().areAssignableTo(clazz)
-          .as("Classes %s reside in %s should not be used".formatted(
-              clazz, packageIdentifier)), configuration));
-    }
-
-    return addRule(TaikaiRule.of(noClasses()
-        .should().dependOnClassesThat().areAssignableTo(clazz)
-        .as("Classes %s should not be used".formatted(clazz)), configuration));
+    return noUsageOf(clazz.getName(), null, configuration);
   }
 
   public JavaConfigurer noUsageOf(String typeName) {

@@ -21,22 +21,15 @@ public final class LoggingConfigurer extends AbstractConfigurer {
     return classesShouldUseLogger(typeName, regex, Configuration.defaultConfiguration());
   }
 
+  public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex) {
+    return classesShouldUseLogger(clazz.getName(), regex, Configuration.defaultConfiguration());
+  }
+
   public LoggingConfigurer classesShouldUseLogger(String typeName, String regex,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that().haveNameMatching(regex)
         .should(haveFieldOfType(typeName)), configuration));
-  }
-
-  public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex) {
-    return classesShouldUseLogger(clazz, regex, Configuration.defaultConfiguration());
-  }
-
-  public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
-        .should(haveFieldOfType(clazz.getName())), configuration));
   }
 
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
@@ -45,22 +38,15 @@ public final class LoggingConfigurer extends AbstractConfigurer {
         Configuration.defaultConfiguration());
   }
 
+  public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
+      Set<JavaModifier> requiredModifiers) {
+    return loggersShouldFollowConventions(clazz.getName(), regex, requiredModifiers,
+        Configuration.defaultConfiguration());
+  }
+
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Set<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(followLoggerConventions(typeName, regex, requiredModifiers)), configuration));
-  }
-
-  public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
-      Set<JavaModifier> requiredModifiers) {
-    return loggersShouldFollowConventions(clazz, regex, requiredModifiers,
-        Configuration.defaultConfiguration());
-  }
-
-  public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
-      Set<JavaModifier> requiredModifiers, Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-            .should(followLoggerConventions(clazz.getName(), regex, requiredModifiers)),
-        configuration));
   }
 }

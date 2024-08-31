@@ -147,25 +147,16 @@ public final class NamingConfigurer extends AbstractConfigurer {
     return fieldsShouldMatch(typeName, regex, Configuration.defaultConfiguration());
   }
 
+  public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex) {
+    return fieldsShouldMatch(clazz.getName(), regex, Configuration.defaultConfiguration());
+  }
+
   public NamingConfigurer fieldsShouldMatch(String typeName, String regex,
       Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
             .that().haveRawType(typeName)
             .should().haveNameMatching(regex)
             .as("Fields of type %s should have names matching %s".formatted(typeName, regex)),
-        configuration));
-  }
-
-  public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex) {
-    return fieldsShouldMatch(clazz, regex, Configuration.defaultConfiguration());
-  }
-
-  public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(fields()
-            .that().haveRawType(clazz)
-            .should().haveNameMatching(regex)
-            .as("Fields of type %s should have names matching %s".formatted(clazz, regex)),
         configuration));
   }
 
