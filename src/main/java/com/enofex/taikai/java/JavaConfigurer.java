@@ -125,12 +125,6 @@ public final class JavaConfigurer extends AbstractConfigurer {
         Configuration.defaultConfiguration());
   }
 
-  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
-      Class<? extends Annotation> annotationType) {
-    return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(),
-        Configuration.defaultConfiguration());
-  }
-
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -138,6 +132,12 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .should().beMetaAnnotatedWith(annotationType)
         .as("Classes have name matching %s should be annotated with %s".formatted(regex,
             annotationType)), configuration));
+  }
+
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType) {
+    return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(),
+        Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType) {
