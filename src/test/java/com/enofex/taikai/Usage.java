@@ -17,7 +17,9 @@ class Usage {
         .java(java -> java
             .noUsageOf(Date.class)
             .noUsageOf(Calendar.class)
+            .noUsageOf(Calendar.class, "com.enofex.taikai.java")
             .noUsageOf("java.text.SimpleDateFormat")
+            .noUsageOf("java.time.LocalDate", "com.enofex.taikai.java")
             .noUsageOfSystemOutOrErr()
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()

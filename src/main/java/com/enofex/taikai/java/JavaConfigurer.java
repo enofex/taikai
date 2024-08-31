@@ -202,21 +202,57 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz) {
-    return noUsageOf(clazz, Configuration.defaultConfiguration());
+    return noUsageOf(clazz, null, Configuration.defaultConfiguration());
   }
 
-  public JavaConfigurer noUsageOf(String typeName) {
-    return noUsageOf(typeName, Configuration.defaultConfiguration());
-  }
-
-  public JavaConfigurer noUsageOf(String typeName, Configuration configuration) {
-    return addRule(TaikaiRule.of(noClasses()
-        .should().dependOnClassesThat().areAssignableTo(typeName), configuration));
+  public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier) {
+    return noUsageOf(clazz, packageIdentifier, Configuration.defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
+    return noUsageOf(clazz, null, configuration);
+  }
+
+  public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier,
+      Configuration configuration) {
+    if (packageIdentifier != null) {
+      return addRule(TaikaiRule.of(noClasses()
+          .that().resideInAPackage(packageIdentifier)
+          .should().dependOnClassesThat().areAssignableTo(clazz)
+          .as("Classes %s reside in %s should not be used".formatted(
+              clazz, packageIdentifier)), configuration));
+    }
+
     return addRule(TaikaiRule.of(noClasses()
-        .should().dependOnClassesThat().areAssignableTo(clazz), configuration));
+        .should().dependOnClassesThat().areAssignableTo(clazz)
+        .as("Classes %s should not be used".formatted(clazz)), configuration));
+  }
+
+  public JavaConfigurer noUsageOf(String typeName) {
+    return noUsageOf(typeName, null, Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer noUsageOf(String typeName, String packageIdentifier) {
+    return noUsageOf(typeName, packageIdentifier, Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer noUsageOf(String typeName, Configuration configuration) {
+    return noUsageOf(typeName, null, configuration);
+  }
+
+  public JavaConfigurer noUsageOf(String typeName, String packageIdentifier,
+      Configuration configuration) {
+    if (packageIdentifier != null) {
+      return addRule(TaikaiRule.of(noClasses()
+          .that().resideInAPackage(packageIdentifier)
+          .should().dependOnClassesThat().areAssignableTo(typeName)
+          .as("Classes %s reside in %s should not be used".formatted(
+              typeName, packageIdentifier)), configuration));
+    }
+
+    return addRule(TaikaiRule.of(noClasses()
+        .should().dependOnClassesThat().areAssignableTo(typeName)
+        .as("Classes %s should not be used".formatted(typeName)), configuration));
   }
 
   public JavaConfigurer noUsageOfSystemOutOrErr() {
