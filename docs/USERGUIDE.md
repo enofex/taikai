@@ -346,7 +346,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
-        .noUsageOf("com.example.UnwantedClass"))
+        .noUsageOf("com.example.UnwantedClass")
+        .noUsageOf("com.example.UnwantedClass", "in.specific.package"))
     .build()
     .check();
 ```
@@ -357,7 +358,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
-        .noUsageOf(UnwantedClass.class))
+        .noUsageOf(UnwantedClass.class)
+        .noUsageOf(UnwantedClass.class, "in.specific.package"))   
     .build()
     .check();
 ```
