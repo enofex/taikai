@@ -3,6 +3,7 @@ package com.enofex.taikai;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumSet;
@@ -27,6 +28,8 @@ class Usage {
             .classesShouldResideOutsidePackage("regex", "com.enofex.taikai")
             .classesShouldBeAnnotatedWith("regex", DisplayName.class)
             .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai")
+            .classesShouldBeAssignableTo("regex", "java.time.LocalDate")
+            .classesShouldBeAssignableTo("regex", LocalDate.class)
             .methodsShouldNotDeclareGenericExceptions()
             .methodsShouldNotDeclareException("regex", RuntimeException.class)
             .finalClassesShouldNotHaveProtectedMembers()

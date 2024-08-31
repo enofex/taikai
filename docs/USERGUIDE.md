@@ -113,6 +113,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                         |
 | General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `classesShouldNotBeAnnotatedWith`                      | Classes matching specific naming patterns should not be annotated with a specified annotation.               |
+| General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
@@ -266,10 +267,23 @@ Taikai.builder()
     .namespace("com.company.yourproject")
     .java(java -> java
         .classesShouldNotBeAnnotatedWith(".*Internal", PublicApi.class))
-        .classesShouldNotBeAnnotatedWith(".*Internal", "com.company.yourproject.api"))
+        .classesShouldNotBeAnnotatedWith(".*Internal", "com.company.yourproject.PublicApi"))
     .build()
     .check();
 ```
+
+- **Classes Should Not Be Annotated with Specified Annotation**: Ensure that classes matching a specific regex pattern are not annotated with the specified annotation.
+
+```java
+Taikai.builder()
+    .namespace("com.company.yourproject")
+    .java(java -> java
+        .classesShouldBeAssignableTo(".*Repository", SpecialCrudRepository.class))
+        .classesShouldBeAssignableTo(".*Repository", "com.company.yourproject.SpecialCrudRepository"))
+    .build()
+    .check();
+```
+
 
 - **Methods Should Not Throw Generic Exception**: Ensure that methods do not throw generic exceptions like `Exception` and `RuntimeException` and use specific exception types instead.
 

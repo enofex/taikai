@@ -221,6 +221,32 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .should(implementHashCodeAndEquals()), configuration));
   }
 
+  public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz) {
+    return classesShouldBeAssignableTo(regex, clazz, Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveSimpleNameEndingWith(regex)
+        .should().beAssignableTo(clazz)
+        .as("Classes have name matching %s should be assignable to %s".formatted(
+            regex, clazz)), configuration));
+  }
+
+  public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName) {
+    return classesShouldBeAssignableTo(regex, typeName, Configuration.defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveSimpleNameEndingWith(regex)
+        .should().beAssignableTo(typeName)
+        .as("Classes have name matching %s should be assignable to %s".formatted(
+            regex, typeName)), configuration));
+  }
+
   public JavaConfigurer fieldsShouldNotBePublic() {
     return fieldsShouldNotBePublic(Configuration.defaultConfiguration());
   }
