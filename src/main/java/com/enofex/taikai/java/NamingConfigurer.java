@@ -47,17 +47,8 @@ public final class NamingConfigurer extends AbstractConfigurer {
 
   public NamingConfigurer classesAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
-    return classesAnnotatedWithShouldMatch(annotationType, regex,
+    return classesAnnotatedWithShouldMatch(annotationType.getName(), regex,
         Configuration.defaultConfiguration());
-  }
-
-  public NamingConfigurer classesAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-        .that().areMetaAnnotatedWith(annotationType)
-        .should().haveNameMatching(regex)
-        .as("Classes annotated with %s should have names matching %s".formatted(
-            annotationType.getName(), regex)), configuration));
   }
 
   public NamingConfigurer classesAnnotatedWithShouldMatch(String annotationType, String regex) {
@@ -76,17 +67,8 @@ public final class NamingConfigurer extends AbstractConfigurer {
 
   public NamingConfigurer methodsAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
-    return methodsAnnotatedWithShouldMatch(annotationType, regex,
+    return methodsAnnotatedWithShouldMatch(annotationType.getName(), regex,
         Configuration.defaultConfiguration());
-  }
-
-  public NamingConfigurer methodsAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-        .that().areMetaAnnotatedWith(annotationType)
-        .should().haveNameMatching(regex)
-        .as("Methods annotated with %s should have names matching %s".formatted(
-            annotationType.getName(), regex)), configuration));
   }
 
   public NamingConfigurer methodsAnnotatedWithShouldMatch(
@@ -116,17 +98,8 @@ public final class NamingConfigurer extends AbstractConfigurer {
 
   public NamingConfigurer fieldsAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
-    return fieldsAnnotatedWithShouldMatch(annotationType, regex,
+    return fieldsAnnotatedWithShouldMatch(annotationType.getName(), regex,
         Configuration.defaultConfiguration());
-  }
-
-  public NamingConfigurer fieldsAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(fields()
-        .that().areMetaAnnotatedWith(annotationType)
-        .should().haveNameMatching(regex)
-        .as("Fields annotated with %s should have names matching %s".formatted(
-            annotationType.getName(), regex)), configuration));
   }
 
   public NamingConfigurer fieldsAnnotatedWithShouldMatch(String annotationType, String regex) {
