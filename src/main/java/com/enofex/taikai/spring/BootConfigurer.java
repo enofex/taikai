@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SPRING_BOOT_APPLICATION;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithSpringBootApplication;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
@@ -20,7 +21,7 @@ public final class BootConfigurer extends AbstractConfigurer {
   public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier) {
     requireNonNull(packageIdentifier);
 
-    return springBootApplicationShouldBeIn(packageIdentifier, Configuration.defaultConfiguration());
+    return springBootApplicationShouldBeIn(packageIdentifier, defaultConfiguration());
   }
 
   public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier, Configuration configuration) {

@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONFIGURATION_PROPERTIES;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithConfigurationProperties;
@@ -21,7 +22,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer namesShouldEndWithProperties() {
-    return namesShouldMatch(DEFAULT_PROPERTIES_NAME_MATCHING, Configuration.defaultConfiguration());
+    return namesShouldMatch(DEFAULT_PROPERTIES_NAME_MATCHING, defaultConfiguration());
   }
 
   public PropertiesConfigurer namesShouldEndWithProperties(Configuration configuration) {
@@ -29,7 +30,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, Configuration.defaultConfiguration());
+    return namesShouldMatch(regex, defaultConfiguration());
   }
 
   public PropertiesConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -40,7 +41,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithValidated() {
-    return shouldBeAnnotatedWithValidated(Configuration.defaultConfiguration());
+    return shouldBeAnnotatedWithValidated(defaultConfiguration());
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithValidated(Configuration configuration) {
@@ -54,7 +55,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties() {
     return shouldBeAnnotatedWithConfigurationProperties(DEFAULT_PROPERTIES_NAME_MATCHING,
-        Configuration.defaultConfiguration());
+        defaultConfiguration());
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(
@@ -64,8 +65,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(String regex) {
-    return shouldBeAnnotatedWithConfigurationProperties(regex,
-        Configuration.defaultConfiguration());
+    return shouldBeAnnotatedWithConfigurationProperties(regex, defaultConfiguration());
   }
 
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(String regex,

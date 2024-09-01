@@ -1,5 +1,6 @@
 package com.enofex.taikai;
 
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
@@ -14,10 +15,8 @@ import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -26,14 +25,14 @@ public final class Taikai {
   private final boolean failOnEmpty;
   private final String namespace;
   private final JavaClasses classes;
-  private final Set<String> excludedClasses;
+  private final Collection<String> excludedClasses;
   private final Collection<TaikaiRule> rules;
 
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
     this.namespace = builder.namespace;
     this.classes = builder.classes;
-    this.excludedClasses = requireNonNullElse(builder.excludedClasses, Collections.emptySet());
+    this.excludedClasses = requireNonNullElse(builder.excludedClasses, emptyList());
     this.rules = Stream.concat(
             builder.configurers.all().stream().flatMap(configurer -> configurer.rules().stream()),
             builder.rules.stream())
@@ -59,7 +58,7 @@ public final class Taikai {
     return this.classes;
   }
 
-  public Set<String> excludedClasses() {
+  public Collection<String> excludedClasses() {
     return this.excludedClasses;
   }
 
@@ -83,7 +82,7 @@ public final class Taikai {
 
     private final Configurers configurers;
     private final Collection<TaikaiRule> rules;
-    private final Set<String> excludedClasses;
+    private final Collection<String> excludedClasses;
     private boolean failOnEmpty;
     private String namespace;
     private JavaClasses classes;
@@ -91,7 +90,7 @@ public final class Taikai {
     public Builder() {
       this.configurers = new Configurers();
       this.rules = new ArrayList<>();
-      this.excludedClasses = new HashSet<>();
+      this.excludedClasses = new ArrayList<>();
     }
 
     public Builder(Taikai taikai) {
@@ -135,6 +134,11 @@ public final class Taikai {
 
     public Builder excludeClasses(Collection<String> classNames) {
       this.excludedClasses.addAll(classNames);
+      return this;
+    }
+
+    public Builder excludeClasses(String... classNames) {
+      this.excludedClasses.addAll(Arrays.asList(classNames));
       return this;
     }
 

@@ -45,7 +45,7 @@ void shouldFulfillConstraints() {
               .constantsShouldFollowConventions()
               .interfacesShouldNotHavePrefixI()))
       .logging(logging -> logging
-          .loggersShouldFollowConventions(Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))      
+          .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))      
       .test(test -> test
           .junit5(junit5 -> junit5
               .classesShouldNotBeAnnotatedWithDisabled()

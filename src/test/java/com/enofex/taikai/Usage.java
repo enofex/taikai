@@ -6,7 +6,7 @@ import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.EnumSet;
+import java.util.List;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.DisplayName;
 
@@ -57,7 +57,7 @@ class Usage {
         .logging(logging -> logging
             .classesShouldUseLogger("java.util.logging.Logger", ".*Service")
             .classesShouldUseLogger(Logger.class, ".*Service")
-            .loggersShouldFollowConventions(Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))
         .test(test -> test
             .junit5(junit5 -> junit5
                 .methodsShouldNotDeclareExceptions()

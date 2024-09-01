@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithController;
@@ -25,7 +26,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer namesShouldEndWithController() {
-    return namesShouldMatch(DEFAULT_CONTROLLER_NAME_MATCHING, Configuration.defaultConfiguration());
+    return namesShouldMatch(DEFAULT_CONTROLLER_NAME_MATCHING, defaultConfiguration());
   }
 
   public ControllersConfigurer namesShouldEndWithController(Configuration configuration) {
@@ -33,7 +34,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, Configuration.defaultConfiguration());
+    return namesShouldMatch(regex, defaultConfiguration());
   }
 
   public ControllersConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -45,7 +46,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController() {
     return shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING,
-        Configuration.defaultConfiguration());
+        defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController(Configuration configuration) {
@@ -53,7 +54,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController(String regex) {
-    return shouldBeAnnotatedWithRestController(regex, Configuration.defaultConfiguration());
+    return shouldBeAnnotatedWithRestController(regex, defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithRestController(String regex,
@@ -67,7 +68,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
 
   public ControllersConfigurer shouldBeAnnotatedWithController() {
     return shouldBeAnnotatedWithController(DEFAULT_CONTROLLER_NAME_MATCHING,
-        Configuration.defaultConfiguration());
+        defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController(Configuration configuration) {
@@ -75,7 +76,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController(String regex) {
-    return shouldBeAnnotatedWithController(regex, Configuration.defaultConfiguration());
+    return shouldBeAnnotatedWithController(regex, defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithController(String regex,
@@ -88,7 +89,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldBePackagePrivate() {
-    return shouldBePackagePrivate(Configuration.defaultConfiguration());
+    return shouldBePackagePrivate(defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBePackagePrivate(Configuration configuration) {
@@ -99,7 +100,7 @@ public final class ControllersConfigurer extends AbstractConfigurer {
   }
 
   public ControllersConfigurer shouldNotDependOnOtherControllers() {
-    return shouldNotDependOnOtherControllers(Configuration.defaultConfiguration());
+    return shouldNotDependOnOtherControllers(defaultConfiguration());
   }
 
   public ControllersConfigurer shouldNotDependOnOtherControllers(Configuration configuration) {

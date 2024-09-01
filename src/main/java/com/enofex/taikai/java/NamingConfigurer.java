@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.java.ConstantNaming.shouldFollowConstantNamingConventions;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
@@ -25,7 +26,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer packagesShouldMatch(String packageIdentifier) {
-    return packagesShouldMatch(packageIdentifier, Configuration.defaultConfiguration());
+    return packagesShouldMatch(packageIdentifier, defaultConfiguration());
   }
 
   public NamingConfigurer packagesShouldMatch(String packageIdentifier, Configuration configuration) {
@@ -36,7 +37,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer classesShouldNotMatch(String regex) {
-    return classesShouldNotMatch(regex, Configuration.defaultConfiguration());
+    return classesShouldNotMatch(regex, defaultConfiguration());
   }
 
   public NamingConfigurer classesShouldNotMatch(String regex, Configuration configuration) {
@@ -47,13 +48,11 @@ public final class NamingConfigurer extends AbstractConfigurer {
 
   public NamingConfigurer classesAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
-    return classesAnnotatedWithShouldMatch(annotationType.getName(), regex,
-        Configuration.defaultConfiguration());
+    return classesAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
   }
 
   public NamingConfigurer classesAnnotatedWithShouldMatch(String annotationType, String regex) {
-    return classesAnnotatedWithShouldMatch(annotationType, regex,
-        Configuration.defaultConfiguration());
+    return classesAnnotatedWithShouldMatch(annotationType, regex, defaultConfiguration());
   }
 
   public NamingConfigurer classesAnnotatedWithShouldMatch(String annotationType, String regex,
@@ -67,14 +66,12 @@ public final class NamingConfigurer extends AbstractConfigurer {
 
   public NamingConfigurer methodsAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
-    return methodsAnnotatedWithShouldMatch(annotationType.getName(), regex,
-        Configuration.defaultConfiguration());
+    return methodsAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
   }
 
   public NamingConfigurer methodsAnnotatedWithShouldMatch(
       String annotationType, String regex) {
-    return methodsAnnotatedWithShouldMatch(annotationType, regex,
-        Configuration.defaultConfiguration());
+    return methodsAnnotatedWithShouldMatch(annotationType, regex, defaultConfiguration());
   }
 
   public NamingConfigurer methodsAnnotatedWithShouldMatch(String annotationType, String regex,
@@ -87,7 +84,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer methodsShouldNotMatch(String regex) {
-    return methodsShouldNotMatch(regex, Configuration.defaultConfiguration());
+    return methodsShouldNotMatch(regex, defaultConfiguration());
   }
 
   public NamingConfigurer methodsShouldNotMatch(String regex, Configuration configuration) {
@@ -98,13 +95,11 @@ public final class NamingConfigurer extends AbstractConfigurer {
 
   public NamingConfigurer fieldsAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
-    return fieldsAnnotatedWithShouldMatch(annotationType.getName(), regex,
-        Configuration.defaultConfiguration());
+    return fieldsAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
   }
 
   public NamingConfigurer fieldsAnnotatedWithShouldMatch(String annotationType, String regex) {
-    return fieldsAnnotatedWithShouldMatch(annotationType, regex,
-        Configuration.defaultConfiguration());
+    return fieldsAnnotatedWithShouldMatch(annotationType, regex, defaultConfiguration());
   }
 
   public NamingConfigurer fieldsAnnotatedWithShouldMatch(String annotationType, String regex,
@@ -117,11 +112,11 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer fieldsShouldMatch(String typeName, String regex) {
-    return fieldsShouldMatch(typeName, regex, Configuration.defaultConfiguration());
+    return fieldsShouldMatch(typeName, regex, defaultConfiguration());
   }
 
   public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex) {
-    return fieldsShouldMatch(clazz.getName(), regex, Configuration.defaultConfiguration());
+    return fieldsShouldMatch(clazz.getName(), regex, defaultConfiguration());
   }
 
   public NamingConfigurer fieldsShouldMatch(String typeName, String regex,
@@ -134,7 +129,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer fieldsShouldNotMatch(String regex) {
-    return fieldsShouldNotMatch(regex, Configuration.defaultConfiguration());
+    return fieldsShouldNotMatch(regex, defaultConfiguration());
   }
 
   public NamingConfigurer fieldsShouldNotMatch(String regex, Configuration configuration) {
@@ -144,7 +139,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer interfacesShouldNotHavePrefixI() {
-    return interfacesShouldNotHavePrefixI(Configuration.defaultConfiguration());
+    return interfacesShouldNotHavePrefixI(defaultConfiguration());
   }
 
   public NamingConfigurer interfacesShouldNotHavePrefixI(Configuration configuration) {
@@ -167,7 +162,7 @@ public final class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer constantsShouldFollowConventions() {
-    return constantsShouldFollowConventions(Configuration.defaultConfiguration());
+    return constantsShouldFollowConventions(defaultConfiguration());
   }
 
   public NamingConfigurer constantsShouldFollowConventions(Configuration configuration) {

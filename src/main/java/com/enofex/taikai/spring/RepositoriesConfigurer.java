@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REPOSITORY;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRepository;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;
@@ -23,7 +24,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer namesShouldEndWithRepository() {
-    return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, Configuration.defaultConfiguration());
+    return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, defaultConfiguration());
   }
 
   public RepositoriesConfigurer namesShouldEndWithRepository(Configuration configuration) {
@@ -31,7 +32,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, Configuration.defaultConfiguration());
+    return namesShouldMatch(regex, defaultConfiguration());
   }
 
   public RepositoriesConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -43,7 +44,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository() {
     return shouldBeAnnotatedWithRepository(DEFAULT_REPOSITORY_NAME_MATCHING,
-        Configuration.defaultConfiguration());
+        defaultConfiguration());
   }
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(Configuration configuration) {
@@ -51,7 +52,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(String regex) {
-    return shouldBeAnnotatedWithRepository(regex, Configuration.defaultConfiguration());
+    return shouldBeAnnotatedWithRepository(regex, defaultConfiguration());
   }
 
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(String regex,
@@ -64,7 +65,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
   }
 
   public RepositoriesConfigurer shouldNotDependOnServices() {
-    return shouldNotDependOnServices(Configuration.defaultConfiguration());
+    return shouldNotDependOnServices(defaultConfiguration());
   }
 
   public RepositoriesConfigurer shouldNotDependOnServices(Configuration configuration) {

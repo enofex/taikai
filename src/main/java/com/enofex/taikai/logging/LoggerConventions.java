@@ -6,7 +6,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import java.util.Set;
+import java.util.Collection;
 
 final class LoggerConventions {
 
@@ -14,7 +14,7 @@ final class LoggerConventions {
   }
 
   static ArchCondition<JavaClass> followLoggerConventions(String typeName, String regex,
-      Set<JavaModifier> requiredModifiers) {
+      Collection<JavaModifier> requiredModifiers) {
     return new ArchCondition<>(
         "have a logger field of type %s with name pattern %s and modifiers %s".formatted(
             typeName, regex, requiredModifiers)) {

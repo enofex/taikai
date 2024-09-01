@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.notBePublicButNotStatic;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
@@ -38,8 +39,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor() {
-    return utilityClassesShouldBeFinalAndHavePrivateConstructor(
-        Configuration.defaultConfiguration());
+    return utilityClassesShouldBeFinalAndHavePrivateConstructor(defaultConfiguration());
   }
 
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor(
@@ -50,7 +50,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions() {
-    return methodsShouldNotDeclareGenericExceptions(Configuration.defaultConfiguration());
+    return methodsShouldNotDeclareGenericExceptions(defaultConfiguration());
   }
 
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions(Configuration configuration) {
@@ -62,11 +62,11 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer methodsShouldNotDeclareException(String regex,
       Class<? extends Throwable> clazz) {
-    return methodsShouldNotDeclareException(regex, clazz.getName(), Configuration.defaultConfiguration());
+    return methodsShouldNotDeclareException(regex, clazz.getName(), defaultConfiguration());
   }
 
   public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName) {
-    return methodsShouldNotDeclareException(regex, typeName, Configuration.defaultConfiguration());
+    return methodsShouldNotDeclareException(regex, typeName, defaultConfiguration());
   }
 
   public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName,
@@ -79,7 +79,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs() {
-    return noUsageOfDeprecatedAPIs(Configuration.defaultConfiguration());
+    return noUsageOfDeprecatedAPIs(defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs(Configuration configuration) {
@@ -87,8 +87,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier) {
-    return classesShouldResideInPackage(regex, packageIdentifier,
-        Configuration.defaultConfiguration());
+    return classesShouldResideInPackage(regex, packageIdentifier, defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier,
@@ -101,8 +100,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier) {
-    return classesShouldResideOutsidePackage(regex, packageIdentifier,
-        Configuration.defaultConfiguration());
+    return classesShouldResideOutsidePackage(regex, packageIdentifier, defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier,
@@ -116,13 +114,11 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType) {
-    return classesShouldBeAnnotatedWith(regex, annotationType.getName(),
-        Configuration.defaultConfiguration());
+    return classesShouldBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType) {
-    return classesShouldBeAnnotatedWith(regex, annotationType,
-        Configuration.defaultConfiguration());
+    return classesShouldBeAnnotatedWith(regex, annotationType, defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType,
@@ -136,13 +132,11 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType) {
-    return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(),
-        Configuration.defaultConfiguration());
+    return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType) {
-    return classesShouldNotBeAnnotatedWith(regex, annotationType,
-        Configuration.defaultConfiguration());
+    return classesShouldNotBeAnnotatedWith(regex, annotationType, defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType,
@@ -157,13 +151,13 @@ public final class JavaConfigurer extends AbstractConfigurer {
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       Class<? extends Annotation> annotationType, String packageIdentifier) {
     return classesAnnotatedWithShouldResideInPackage(annotationType.getName(), packageIdentifier,
-        Configuration.defaultConfiguration());
+        defaultConfiguration());
   }
 
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       String annotationType, String packageIdentifier) {
     return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier,
-        Configuration.defaultConfiguration());
+        defaultConfiguration());
   }
 
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
@@ -176,7 +170,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
-    return classesShouldImplementHashCodeAndEquals(Configuration.defaultConfiguration());
+    return classesShouldImplementHashCodeAndEquals(defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
@@ -185,11 +179,11 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz) {
-    return classesShouldBeAssignableTo(regex, clazz.getName(), Configuration.defaultConfiguration());
+    return classesShouldBeAssignableTo(regex, clazz.getName(), defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName) {
-    return classesShouldBeAssignableTo(regex, typeName, Configuration.defaultConfiguration());
+    return classesShouldBeAssignableTo(regex, typeName, defaultConfiguration());
   }
 
   public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName,
@@ -202,7 +196,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer fieldsShouldNotBePublic() {
-    return fieldsShouldNotBePublic(Configuration.defaultConfiguration());
+    return fieldsShouldNotBePublic(defaultConfiguration());
   }
 
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
@@ -211,11 +205,11 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz) {
-    return noUsageOf(clazz.getName(), null, Configuration.defaultConfiguration());
+    return noUsageOf(clazz.getName(), null, defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier) {
-    return noUsageOf(clazz.getName(), packageIdentifier, Configuration.defaultConfiguration());
+    return noUsageOf(clazz.getName(), packageIdentifier, defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
@@ -223,11 +217,11 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOf(String typeName) {
-    return noUsageOf(typeName, null, Configuration.defaultConfiguration());
+    return noUsageOf(typeName, null, defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(String typeName, String packageIdentifier) {
-    return noUsageOf(typeName, packageIdentifier, Configuration.defaultConfiguration());
+    return noUsageOf(typeName, packageIdentifier, defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOf(String typeName, Configuration configuration) {
@@ -250,7 +244,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOfSystemOutOrErr() {
-    return noUsageOfSystemOutOrErr(Configuration.defaultConfiguration());
+    return noUsageOfSystemOutOrErr(defaultConfiguration());
   }
 
   public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
@@ -259,7 +253,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers() {
-    return finalClassesShouldNotHaveProtectedMembers(Configuration.defaultConfiguration());
+    return finalClassesShouldNotHaveProtectedMembers(defaultConfiguration());
   }
 
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers(Configuration configuration) {
@@ -270,7 +264,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong() {
-    return serialVersionUIDFieldsShouldBeStaticFinalLong(Configuration.defaultConfiguration());
+    return serialVersionUIDFieldsShouldBeStaticFinalLong(defaultConfiguration());
   }
 
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong(Configuration configuration) {

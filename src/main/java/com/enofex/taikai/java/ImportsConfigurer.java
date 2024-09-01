@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
@@ -16,7 +17,7 @@ public final class ImportsConfigurer extends AbstractConfigurer {
   }
 
   public ImportsConfigurer shouldNotImport(String packageIdentifier) {
-    return shouldNotImport(packageIdentifier, Configuration.defaultConfiguration());
+    return shouldNotImport(packageIdentifier, defaultConfiguration());
   }
 
   public ImportsConfigurer shouldNotImport(String packageIdentifier, Configuration configuration) {
@@ -28,7 +29,7 @@ public final class ImportsConfigurer extends AbstractConfigurer {
   }
 
   public ImportsConfigurer shouldNotImport(String regex, String notImportClassesRegex) {
-    return shouldNotImport(regex, notImportClassesRegex, Configuration.defaultConfiguration());
+    return shouldNotImport(regex, notImportClassesRegex, defaultConfiguration());
   }
 
   public ImportsConfigurer shouldNotImport(String regex, String notImportClassesRegex,

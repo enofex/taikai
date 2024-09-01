@@ -1,5 +1,8 @@
 package com.enofex.taikai;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
@@ -7,9 +10,7 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Collection;
 import java.util.stream.Stream;
 
 public final class TaikaiRule {
@@ -19,7 +20,7 @@ public final class TaikaiRule {
 
   private TaikaiRule(ArchRule archRule, Configuration configuration) {
     this.archRule = requireNonNull(archRule);
-    this.configuration = requireNonNullElse(configuration, Configuration.defaultConfiguration());
+    this.configuration = requireNonNullElse(configuration, defaultConfiguration());
   }
 
   public ArchRule archRule() {
@@ -31,7 +32,7 @@ public final class TaikaiRule {
   }
 
   public static TaikaiRule of(ArchRule archRule) {
-    return new TaikaiRule(archRule, Configuration.defaultConfiguration());
+    return new TaikaiRule(archRule, defaultConfiguration());
   }
 
   public static TaikaiRule of(ArchRule archRule, Configuration configuration) {
@@ -39,10 +40,11 @@ public final class TaikaiRule {
   }
 
   public void check(String globalNamespace) {
-    check(globalNamespace, null, Collections.emptySet());
+    check(globalNamespace, null, emptySet());
   }
 
-  public void check(String globalNamespace, JavaClasses classes, Set<String> excludedClasses) {
+  public void check(String globalNamespace, JavaClasses classes,
+      Collection<String> excludedClasses) {
     if (this.configuration.javaClasses() != null) {
       this.archRule.check(this.configuration.javaClasses());
     } else if (classes != null) {
@@ -56,7 +58,7 @@ public final class TaikaiRule {
         throw new TaikaiException("Namespace is not provided");
       }
 
-      Set<String> allExcludedClasses = allExcludedClasses(excludedClasses);
+      Collection<String> allExcludedClasses = allExcludedClasses(excludedClasses);
 
       if (allExcludedClasses.isEmpty()) {
         this.archRule.check(Namespace.from(namespace, this.configuration.namespaceImport));
@@ -72,13 +74,13 @@ public final class TaikaiRule {
     }
   }
 
-  private Set<String> allExcludedClasses(Set<String> excludedClasses) {
+  private Collection<String> allExcludedClasses(Collection<String> excludedClasses) {
     return Stream.concat(
         this.configuration.excludedClasses != null
             ? this.configuration.excludedClasses.stream() : Stream.empty(),
         excludedClasses != null
-            ? excludedClasses.stream() : Stream.empty())
-        .collect(Collectors.toSet());
+            ? excludedClasses.stream() : Stream.empty()
+    ).toList();
   }
 
   public static final class Configuration {
@@ -86,14 +88,14 @@ public final class TaikaiRule {
     private final String namespace;
     private final Namespace.IMPORT namespaceImport;
     private final JavaClasses javaClasses;
-    private final Set<String> excludedClasses;
+    private final Collection<String> excludedClasses;
 
     private Configuration(String namespace, Namespace.IMPORT namespaceImport,
-        JavaClasses javaClasses, Set<String> excludedClasses) {
+        JavaClasses javaClasses, Collection<String> excludedClasses) {
       this.namespace = namespace;
       this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.IMPORT.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
-      this.excludedClasses = excludedClasses != null ? excludedClasses : Collections.emptySet();
+      this.excludedClasses = excludedClasses != null ? excludedClasses : emptyList();
     }
 
     public String namespace() {
@@ -108,7 +110,7 @@ public final class TaikaiRule {
       return this.javaClasses;
     }
 
-    public Set<String> excludedClasses() {
+    public Collection<String> excludedClasses() {
       return this.excludedClasses;
     }
 
@@ -120,7 +122,7 @@ public final class TaikaiRule {
       return new Configuration(namespace, Namespace.IMPORT.WITHOUT_TESTS, null, null);
     }
 
-    public static Configuration of(String namespace, Set<String> excludedClasses) {
+    public static Configuration of(String namespace, Collection<String> excludedClasses) {
       return new Configuration(namespace, Namespace.IMPORT.WITHOUT_TESTS, null, excludedClasses);
     }
 
@@ -128,7 +130,8 @@ public final class TaikaiRule {
       return new Configuration(null, namespaceImport, null, null);
     }
 
-    public static Configuration of(Namespace.IMPORT namespaceImport, Set<String> excludedClasses) {
+    public static Configuration of(Namespace.IMPORT namespaceImport,
+        Collection<String> excludedClasses) {
       return new Configuration(null, namespaceImport, null, excludedClasses);
     }
 
@@ -137,7 +140,7 @@ public final class TaikaiRule {
     }
 
     public static Configuration of(String namespace, Namespace.IMPORT namespaceImport,
-        Set<String> excludedClasses) {
+        Collection<String> excludedClasses) {
       return new Configuration(namespace, namespaceImport, null, excludedClasses);
     }
 
@@ -145,11 +148,11 @@ public final class TaikaiRule {
       return new Configuration(null, null, javaClasses, null);
     }
 
-    public static Configuration of(JavaClasses javaClasses, Set<String> excludedClasses) {
+    public static Configuration of(JavaClasses javaClasses, Collection<String> excludedClasses) {
       return new Configuration(null, null, javaClasses, excludedClasses);
     }
 
-    public static Configuration of(Set<String> excludedClasses) {
+    public static Configuration of(Collection<String> excludedClasses) {
       return new Configuration(null, null, null, excludedClasses);
     }
   }

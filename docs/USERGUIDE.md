@@ -27,7 +27,7 @@ The `namespace` setting specifies the base package of your project. Taikai will 
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .build()
     .check();
 ```
@@ -52,7 +52,7 @@ The `failOnEmpty` setting determines whether the build should fail if no classes
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .failOnEmpty(true)
     .build()
     .check();
@@ -64,9 +64,9 @@ You can globally exclude specific classes from all rule checks by using the `exc
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
-    .excludeClass("com.company.yourproject.SomeClassToExclude")
-    .excludeClasses(Set.of("com.company.yourproject.foo.ClassToExclude", "com.company.yourproject.bar.ClassToExclude"))
+    .namespace("com.company.project")
+    .excludeClass("com.company.project.SomeClassToExclude")
+    .excludeClasses("com.company.project.foo.ClassToExclude", "com.company.project.bar.ClassToExclude")
     .build()
     .check();
 ```
@@ -76,8 +76,8 @@ The `toBuilder` method allows you to create a new Builder instance from an exist
 
 ```java
 Taikai taikai = Taikai.builder()
-    .namespace("com.company.yourproject")
-    .excludeClass("com.company.yourproject.SomeClassToExclude")
+    .namespace("com.company.project")
+    .excludeClass("com.company.project.SomeClassToExclude")
     .failOnEmpty(true)
     .java(java -> java
         .fieldsShouldNotBePublic())
@@ -86,7 +86,7 @@ Taikai taikai = Taikai.builder()
 // Modify the existing configuration
 Taikai modifiedTaikai = taikai.toBuilder()
     .namespace("com.company.newproject")
-    .excludeClass("com.company.yourproject.AnotherClassToExclude")
+    .excludeClass("com.company.project.AnotherClassToExclude")
     .failOnEmpty(false)
     .java(java -> java
         .classesShouldImplementHashCodeAndEquals()
@@ -118,7 +118,6 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
-| General  | `noUsageOf`                                            | Disallow usage of specific classes by class reference.                                                       |
 | General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
 | General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                              |
 | General  | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes with only `static` methods (except `main`) should be `final` and have a private constructor. |
@@ -126,7 +125,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                   |
 | Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                           |
 | Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                              |
-| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.yourproject..`).                       |
+| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.project..`).                       |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
 | Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
@@ -197,7 +196,7 @@ Java configuration involves defining constraints related to Java language featur
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .noUsageOfDeprecatedAPIs())
     .build()
@@ -208,7 +207,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .classesShouldImplementHashCodeAndEquals())
     .build()
@@ -219,9 +218,9 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
-        .classesShouldResideInPackage(".*Utils", "com.company.yourproject.utils"))
+        .classesShouldResideInPackage(".*Utils", "com.company.project.utils"))
     .build()
     .check();
 ```
@@ -230,9 +229,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
-        .classesAnnotatedWithShouldResideInPackage(PublicApi.class, "com.company.yourproject.api"))
+        .classesAnnotatedWithShouldResideInPackage(PublicApi.class, "com.company.project.api")    
+        .classesAnnotatedWithShouldResideInPackage("com.company.project.PublicApi", "com.company.project.api"))
     .build()
     .check();
 ```
@@ -241,9 +241,9 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
-        .classesShouldResideOutsidePackage(".*Utils", "com.company.yourproject.utils"))
+        .classesShouldResideOutsidePackage(".*Utils", "com.company.project.utils"))
     .build()
     .check();
 ```
@@ -252,10 +252,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
-        .classesShouldBeAnnotatedWith(".*Api", PublicApi.class))
-        .classesShouldBeAnnotatedWith(".*Internal", "com.company.yourproject.Internal"))
+        .classesShouldBeAnnotatedWith(".*Api", PublicApi.class)
+        .classesShouldBeAnnotatedWith(".*Api", "com.company.project.PublicApi"))
     .build()
     .check();
 ```
@@ -264,10 +264,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
-        .classesShouldNotBeAnnotatedWith(".*Internal", PublicApi.class))
-        .classesShouldNotBeAnnotatedWith(".*Internal", "com.company.yourproject.PublicApi"))
+        .classesShouldNotBeAnnotatedWith(".*Internal", PublicApi.class)
+        .classesShouldNotBeAnnotatedWith(".*Internal", "com.company.project.PublicApi"))
     .build()
     .check();
 ```
@@ -276,10 +276,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
-        .classesShouldBeAssignableTo(".*Repository", SpecialCrudRepository.class))
-        .classesShouldBeAssignableTo(".*Repository", "com.company.yourproject.SpecialCrudRepository"))
+        .classesShouldBeAssignableTo(".*Repository", SpecificCrudRepository.class)
+        .classesShouldBeAssignableTo(".*Repository", "com.company.project.SpecificCrudRepository"))
     .build()
     .check();
 ```
@@ -289,7 +289,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .methodsShouldNotDeclareGenericExceptions())
     .build()
@@ -300,10 +300,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .methodsShouldNotDeclareException("should*", SpecificException.class)
-        .methodsShouldNotDeclareException("should*", "com.company.yourproject.SpecificException"))
+        .methodsShouldNotDeclareException("should*", "com.company.project.SpecificException"))
     .build()
     .check();
 ```
@@ -312,7 +312,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .utilityClassesShouldBeFinalAndHavePrivateConstructor())
     .build()
@@ -330,17 +330,28 @@ Taikai.builder()
     .check();
 ```
 
+- **Ensure `serialVersionUID` is `static final long`**: Ensure that fields named `serialVersionUID` are declared as `static final long`.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .serialVersionUIDShouldBeStaticFinalLong())
+    .build()
+    .check();
+```
+
 - **Imports Configuration**: Ensure that there are no cyclic dependencies in imports and disallow specific imports.
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .imports(imports -> imports
             .shouldHaveNoCycles()
             .shouldNotImport("..shaded..")
             .shouldNotImport("..lombok..")
-            .shouldNotImport(".*Service", "com.company.yourproject.SpecificException")))
+            .shouldNotImport(".*Service", "com.company.project.SpecificException")))
     .build()
     .check();
 ```
@@ -349,18 +360,21 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .naming(naming -> naming
-            .packagesShouldMatch("com.company.yourproject..")
+            .packagesShouldMatch("com.company.project..")
             .classesShouldNotMatch(".*Impl")
             .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
+            .classesAnnotatedWithShouldMatch("com.company.project.Annotation", "coolClass")            
             .methodsShouldNotMatch("coolMethod")
             .methodsAnnotatedWithShouldMatch(Annotation.class, "coolMethods")
+            .methodsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolMethods")  
             .fieldsShouldNotMatch("coolField")
-            .fieldsShouldMatch("com.awesome.Foo", "foo")
-            .fieldsShouldMatch(Foo.class, "foo")
+            .fieldsShouldMatch(Annotation.class, "coolField")
+            .fieldsShouldMatch("com.company.project.Annotation", "coolField")
             .fieldsAnnotatedWithShouldMatch(Annotation.class, "coolField")
+            .fieldsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolField")  
             .constantsShouldFollowConventions()
             .interfacesShouldNotHavePrefixI())))
     .build()
@@ -371,22 +385,12 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
-    .java(java -> java
-        .noUsageOf("com.example.UnwantedClass")
-        .noUsageOf("com.example.UnwantedClass", "in.specific.package"))
-    .build()
-    .check();
-```
-
-- **No Usage of Specific Classes by Class Reference**: Ensure that certain classes are not used in your codebase by directly referencing the class.
-
-```java
-Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .noUsageOf(UnwantedClass.class)
-        .noUsageOf(UnwantedClass.class, "in.specific.package"))   
+        .noUsageOf(UnwantedClass.class, "in.specific.package")
+        .noUsageOf("com.example.UnwantedClass")
+        .noUsageOf("com.example.UnwantedClass", "in.specific.package"))
     .build()
     .check();
 ```
@@ -395,7 +399,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .noUsageOfSystemOutOrErr())
     .build()
@@ -406,7 +410,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .finalClassesShouldNotHaveProtectedMembers())
     .build()
@@ -421,9 +425,10 @@ Logging configuration involves specifying constraints related to logging framewo
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .logging(logging -> logging
-        .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))
+        .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger", List.of(PRIVATE, FINAL))
+        .loggersShouldFollowConventions("org.slf4j.Logger", "logger", List.of(PRIVATE, FINAL)))
     .build()
     .check();
 ```
@@ -432,9 +437,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .logging(logging -> logging
         .classesShouldUseLogger(org.slf4j.Logger.class, ".*Service")
+        .classesShouldUseLogger("org.slf4j.Logger", ".*Service"))
     .build()
     .check();
 ```
@@ -447,7 +453,7 @@ Test configuration involves specifying constraints related to testing frameworks
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .test(test -> test
         .junit5(junit5 -> junit5
             .classesShouldNotBeAnnotatedWithDisabled()
@@ -460,7 +466,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .test(test -> test
         .junit5(junit5 -> junit5
             .methodsShouldBePackagePrivate()))
@@ -472,7 +478,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .test(test -> test
         .junit5(junit5 -> junit5
             .methodsShouldBeAnnotatedWithDisplayName()))
@@ -484,7 +490,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .test(test -> test
         .junit5(junit5 -> junit5
             .methodsShouldMatch("regex")))
@@ -496,7 +502,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .test(test -> test
         .junit5(junit5 -> junit5
             .methodsShouldNotDeclareExceptions()))
@@ -508,22 +514,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .test(test -> test
         .junit5(junit5 -> junit5
-            .classesShouldBePackagePrivate(".*Test"))
-    .build()
-    .check();
-```
-
-- **Ensure `serialVersionUID` is `static final long`**: Ensure that fields named `serialVersionUID` are declared as `static final long`.
-
-```java
-Taikai.builder()
-    .namespace("com.company.yourproject")
-    .test(test -> test
-        .junit5(junit5 -> junit5
-            .serialVersionUIDShouldBeStaticFinalLong())
+            .classesShouldBePackagePrivate(".*Test")))
     .build()
     .check();
 ```
@@ -536,7 +530,7 @@ Spring configuration involves defining constraints specific to Spring Framework 
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .spring(spring -> spring
         .noAutowiredFields())
     .build()
@@ -547,10 +541,10 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .spring(spring -> spring
         .boot(boot -> boot
-            .springBootApplicationShouldBeIn("com.company.yourproject")))
+            .springBootApplicationShouldBeIn("com.company.project")))
     .build()
     .check();
 ```
@@ -559,7 +553,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .spring(spring -> spring
         .properties(properties -> properties
             .shouldBeAnnotatedWithConfigurationProperties()
@@ -574,7 +568,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .spring(spring -> spring
         .configurations(configuration -> configuration
             .namesShouldEndWithConfiguration()
@@ -587,7 +581,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .spring(spring -> spring
         .controllers(controllers -> controllers
             .shouldBeAnnotatedWithRestController()
@@ -603,7 +597,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .spring(spring -> spring
         .services(services -> services
             .shouldBeAnnotatedWithService()    
@@ -618,7 +612,7 @@ Taikai.builder()
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .spring(spring -> spring
         .repositories(repositories -> repositories
             .shouldNotDependOnServices()
@@ -649,10 +643,10 @@ Here's an example of how you can use these methods to create a custom configurat
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .java(java -> java
         .imports(imports -> imports
-            .shouldNotImport("..shaded..", Configuration.of("com.company.yourproject.different", Namespace.IMPORT.WITHOUT_TESTS))
+            .shouldNotImport("..shaded..", Configuration.of("com.company.project.different", Namespace.IMPORT.WITHOUT_TESTS))
             .shouldNotImport("..lombok..", Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
     .build()
     .check();
@@ -666,7 +660,7 @@ In addition to the predefined rules provided by Taikai, you can also add custom 
 
 ```java
 Taikai.builder()
-    .namespace("com.company.yourproject")
+    .namespace("com.company.project")
     .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
     .build()
     .check();
@@ -683,7 +677,7 @@ class ArchitectureTest {
   @Test
   void shouldFulfilConstrains() {
     Taikai.builder()
-        .namespace("com.company.yourproject")
+        .namespace("com.company.project")
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
@@ -692,17 +686,13 @@ class ArchitectureTest {
         .test(test -> test
             .junit5(junit5 -> junit5
                 .classesShouldNotBeAnnotatedWithDisabled()
-                .methodsShouldNotBeAnnotatedWithDisabled()))        
+                .methodsShouldNotBeAnnotatedWithDisabled()))
+        .logging(logging -> logging
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))
         .spring(spring -> spring
-            .repositories(repositories -> repositories
-                .namesShouldEndWithRepository()
-                .shouldBeAnnotatedWithRepository())
-            .services(services -> services
-                .namesShouldEndWithService()
-                .shouldBeAnnotatedWithService())
+            .noAutowiredFields()
             .boot(boot -> boot
                 .shouldBeAnnotatedWithSpringBootApplication())
-            .noAutowiredFields()
             .configurations(configuration -> configuration
                 .namesShouldEndWithConfiguration()
                 .namesShouldMatch("regex"))
@@ -712,8 +702,12 @@ class ArchitectureTest {
                 .namesShouldMatch("regex")
                 .shouldNotDependOnOtherControllers()
                 .shouldBePackagePrivate()))
-        .logging(logging -> logging
-            .loggersShouldFollowConventions(Logger.class, "logger", EnumSet.of(PRIVATE, FINAL)))        
+            .services(services -> services
+                .namesShouldEndWithService()
+                .shouldBeAnnotatedWithService())        
+            .repositories(repositories -> repositories
+                .namesShouldEndWithRepository()
+                .shouldBeAnnotatedWithRepository())
         .build()
         .check();
   }

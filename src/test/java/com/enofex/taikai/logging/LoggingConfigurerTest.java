@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
-import java.util.EnumSet;
+import java.util.List;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +18,7 @@ class LoggingConfigurerTest {
     Taikai taikai = Taikai.builder()
         .classes(new ClassFileImporter().importClasses(LoggerConventionsFollowed.class))
         .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger",
-            EnumSet.of(PRIVATE, FINAL)))
+            List.of(PRIVATE, FINAL)))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -30,7 +30,7 @@ class LoggingConfigurerTest {
         .classes(new ClassFileImporter().importClasses(LoggerConventionsFollowed.class))
         .logging(logging -> logging
             .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
-                EnumSet.of(PRIVATE, FINAL)))
+                List.of(PRIVATE, FINAL)))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -41,7 +41,7 @@ class LoggingConfigurerTest {
     Taikai taikai = Taikai.builder()
         .classes(new ClassFileImporter().importClasses(LoggerConventionsNotFollowedNaming.class))
         .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger",
-            EnumSet.of(PRIVATE, FINAL)))
+            List.of(PRIVATE, FINAL)))
         .build();
 
     assertThrows(AssertionError.class, taikai::check);
@@ -52,7 +52,7 @@ class LoggingConfigurerTest {
     Taikai taikai = Taikai.builder()
         .classes(new ClassFileImporter().importClasses(LoggerConventionsPartiallyModifier.class))
         .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger",
-            EnumSet.of(PRIVATE, FINAL)))
+            List.of(PRIVATE, FINAL)))
         .build();
 
     assertThrows(AssertionError.class, taikai::check);

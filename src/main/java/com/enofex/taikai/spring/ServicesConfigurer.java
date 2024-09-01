@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SERVICE;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;
@@ -23,7 +24,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer namesShouldEndWithService() {
-    return namesShouldMatch(DEFAULT_SERVICE_NAME_MATCHING, Configuration.defaultConfiguration());
+    return namesShouldMatch(DEFAULT_SERVICE_NAME_MATCHING, defaultConfiguration());
   }
 
   public ServicesConfigurer namesShouldEndWithService(Configuration configuration) {
@@ -31,7 +32,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, Configuration.defaultConfiguration());
+    return namesShouldMatch(regex, defaultConfiguration());
   }
 
   public ServicesConfigurer namesShouldMatch(String regex, Configuration configuration) {
@@ -42,8 +43,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService() {
-    return shouldBeAnnotatedWithService(DEFAULT_SERVICE_NAME_MATCHING,
-        Configuration.defaultConfiguration());
+    return shouldBeAnnotatedWithService(DEFAULT_SERVICE_NAME_MATCHING, defaultConfiguration());
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService(Configuration configuration) {
@@ -51,7 +51,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService(String regex) {
-    return shouldBeAnnotatedWithService(regex, Configuration.defaultConfiguration());
+    return shouldBeAnnotatedWithService(regex, defaultConfiguration());
   }
 
   public ServicesConfigurer shouldBeAnnotatedWithService(String regex,
@@ -64,7 +64,7 @@ public final class ServicesConfigurer extends AbstractConfigurer {
   }
 
   public ServicesConfigurer shouldNotDependOnControllers() {
-    return shouldNotDependOnControllers(Configuration.defaultConfiguration());
+    return shouldNotDependOnControllers(defaultConfiguration());
   }
 
   public ServicesConfigurer shouldNotDependOnControllers(Configuration configuration) {

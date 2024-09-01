@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_AUTOWIRED;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithAutowired;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
@@ -42,7 +43,7 @@ public final class SpringConfigurer extends AbstractConfigurer {
   }
 
   public SpringConfigurer noAutowiredFields() {
-    return noAutowiredFields(Configuration.defaultConfiguration());
+    return noAutowiredFields(defaultConfiguration());
   }
 
   public SpringConfigurer noAutowiredFields(Configuration configuration) {

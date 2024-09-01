@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithSpringBootApplication;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
@@ -20,8 +21,7 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
   }
 
   public ConfigurationsConfigurer namesShouldEndWithConfiguration() {
-    return namesShouldMatch(DEFAULT_CONFIGURATION_NAME_MATCHING,
-        Configuration.defaultConfiguration());
+    return namesShouldMatch(DEFAULT_CONFIGURATION_NAME_MATCHING, defaultConfiguration());
   }
 
   public ConfigurationsConfigurer namesShouldEndWithConfiguration(Configuration configuration) {
@@ -29,7 +29,7 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
   }
 
   public ConfigurationsConfigurer namesShouldMatch(String regex) {
-    return namesShouldMatch(regex, Configuration.defaultConfiguration());
+    return namesShouldMatch(regex, defaultConfiguration());
   }
 
   public ConfigurationsConfigurer namesShouldMatch(String regex, Configuration configuration) {
