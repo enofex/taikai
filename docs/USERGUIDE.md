@@ -634,7 +634,7 @@ The `Configuration` class offers various static methods to create custom configu
 - `Configuration.of(Namespace.IMPORT namespaceImport)` to specify import options such as `WITHOUT_TESTS`, `WITH_TESTS`, or `ONLY_TESTS`.
 - `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` to set both namespace and import options.
 - `Configuration.of(JavaClasses javaClasses)` to directly provide a set of [Java classes](https://www.archunit.org/userguide/html/000_Index.html#_importing_classes).
-- `Configuration.of(Set<String> excludedClasses)` to exclude specific classes from the checks. 
+- `Configuration.of(Collection<String> excludedClasses)` to exclude specific classes from the checks. 
 - Additional overloaded methods to combine these options in various ways.
 
 If a `namespaceImport` is not explicitly provided, it defaults to `Namespace.IMPORT.WITHOUT_TESTS`.
