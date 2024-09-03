@@ -3,6 +3,7 @@ package com.enofex.taikai;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,6 +35,8 @@ class Usage {
             .classesAnnotatedWithShouldResideInPackage("org.junit.jupiter.api.DisplayName", "com.enofex.taikai")
             .classesShouldBeAssignableTo("regex", "java.time.LocalDate")
             .classesShouldBeAssignableTo("regex", LocalDate.class)
+            .classesShouldImplement("regex", "java.io.Serializable")
+            .classesShouldImplement("regex", Serializable.class)
             .methodsShouldNotDeclareGenericExceptions()
             .methodsShouldNotDeclareException("regex", RuntimeException.class)
             .methodsShouldNotDeclareException("regex", "java.lang.RuntimeException")

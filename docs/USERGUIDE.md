@@ -114,6 +114,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `classesShouldNotBeAnnotatedWith`                      | Classes matching specific naming patterns should not be annotated with a specified annotation.               |
 | General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
+| General  | `classesShouldImplement`                               | Classes matching specific naming patterns should implement to a interface.                                   |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
@@ -125,7 +126,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                   |
 | Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                           |
 | Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                              |
-| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.project..`).                       |
+| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.project..`).                           |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
 | Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
@@ -272,7 +273,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Not Be Annotated with Specified Annotation**: Ensure that classes matching a specific regex pattern are not annotated with the specified annotation.
+- **Classes Should Be Assignable to a Specified Type**: Ensure that classes matching a specific regex pattern assignable to a certain type.
 
 ```java
 Taikai.builder()
@@ -284,6 +285,17 @@ Taikai.builder()
     .check();
 ```
 
+- **Classes Should Implement a Specified Interface**: Ensure that classes matching a specific regex pattern implement a certain interface.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldImplement(".*Repository", CrudRepository.class)
+        .classesShouldImplement(".*Repository", "org.springframework.data.repository.CrudRepository"))
+    .build()
+    .check();
+```
 
 - **Methods Should Not Throw Generic Exception**: Ensure that methods do not throw generic exceptions like `Exception` and `RuntimeException` and use specific exception types instead.
 
