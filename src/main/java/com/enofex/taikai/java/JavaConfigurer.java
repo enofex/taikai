@@ -195,6 +195,23 @@ public final class JavaConfigurer extends AbstractConfigurer {
             regex, typeName)), configuration));
   }
 
+  public JavaConfigurer classesShouldImplement(String regex, Class<?> clazz) {
+    return classesShouldImplement(regex, clazz.getName(), defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldImplement(String regex, String typeName) {
+    return classesShouldImplement(regex, typeName, defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldImplement(String regex, String typeName,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveSimpleNameEndingWith(regex)
+        .should().implement(typeName)
+        .as("Classes have name matching %s should implement %s".formatted(
+            regex, typeName)), configuration));
+  }
+
   public JavaConfigurer fieldsShouldNotBePublic() {
     return fieldsShouldNotBePublic(defaultConfiguration());
   }
