@@ -150,15 +150,16 @@ The default mode is `WITHOUT_TESTS`, which checks only test classes.
 
 The default mode is `ONLY_TESTS`, which checks only test classes.
 
-| Category      | Method Name                                            | Rule Description                                                                                                      | 
-|---------------|--------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| JUnit 5       | `classesShouldBePackagePrivate`                        | Ensure that classes whose names match a specific naming pattern are declared as package-private.                      |
-| JUnit 5       | `classesShouldNotBeAnnotatedWithDisabled`              | Ensure classes are not annotated with `@Disabled`.                                                                    |
-| JUnit 5       | `methodsShouldBePackagePrivate`                        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                          |
-| JUnit 5       | `methodsShouldNotBeAnnotatedWithDisabled`              | Ensure methods are not annotated with `@Disabled`.                                                                    |
-| JUnit 5       | `methodsShouldBeAnnotatedWithDisplayName`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.            |
-| JUnit 5       | `methodsShouldMatch`                                   | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern. |
-| JUnit 5       | `methodsShouldNotDeclareExceptions`                    | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.         |
+| Category | Method Name                                      | Rule Description                                                                                                        | 
+|----------|--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| JUnit 5  | `classesShouldBePackagePrivate`                  | Ensure that classes whose names match a specific naming pattern are declared as package-private.                        |
+| JUnit 5  | `classesShouldNotBeAnnotatedWithDisabled`        | Ensure classes are not annotated with `@Disabled`.                                                                      |
+| JUnit 5  | `methodsShouldBePackagePrivate`                  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                            |
+| JUnit 5  | `methodsShouldNotBeAnnotatedWithDisabled`        | Ensure methods are not annotated with `@Disabled`.                                                                      |
+| JUnit 5  | `methodsShouldBeAnnotatedWithDisplayName`        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.              |
+| JUnit 5  | `methodsShouldMatch`                             | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.   |
+| JUnit 5  | `methodsShouldNotDeclareExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.           |
+| JUnit 5  | `methodsShouldContainAssertionsOrVerifications`  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification. |
 
 ### Spring Rules
 
@@ -530,6 +531,28 @@ Taikai.builder()
     .test(test -> test
         .junit5(junit5 -> junit5
             .classesShouldBePackagePrivate(".*Test")))
+    .build()
+    .check();
+```
+
+- **Ensure Test Methods Contain Assertions or Verifications**: : Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification.
+
+    - **JUnit 5**: Ensure the use of assertions from `org.junit.jupiter.api.Assertions`.
+    - **Mockito**: Ensure the use of verification methods from `org.mockito.Mockito` like `verify`, `inOrder`, or `capture`.
+    - **Hamcrest**: Ensure the use of assertions from `org.hamcrest.MatcherAssert`.
+    - **AssertJ**: Ensure the use of assertions from `org.assertj.core.api.Assertions`.
+    - **Truth**: Ensure the use of assertions from `com.google.common.truth.Truth`.
+    - **Cucumber**: Ensure the use of assertions from `io.cucumber.java.en.Then` or `io.cucumber.java.en.Given`.
+    - **Spring MockMvc**: Ensure the use of assertions from `org.springframework.test.web.servlet.MockMvc` like `andExpect` or `andDo`.
+    - **ArchUnit**: Ensure the use of the `check` method from `com.tngtech.archunit.lang.ArchRule`.
+    - **Taikai**: Ensure the use of the `check` method from `com.enofex.taikai.Taikai`.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .test(test -> test
+        .junit5(junit5 -> junit5
+            .methodsShouldContainAssertionsOrVerifications()))
     .build()
     .check();
 ```

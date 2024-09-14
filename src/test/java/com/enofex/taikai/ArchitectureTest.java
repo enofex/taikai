@@ -40,7 +40,8 @@ class ArchitectureTest {
                 .methodsShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldMatch("should.*")
                 .methodsShouldBePackagePrivate()
-                .methodsShouldNotDeclareExceptions()))
+                .methodsShouldNotDeclareExceptions()
+                .methodsShouldContainAssertionsOrVerifications()))
         .build()
         .check();
   }
