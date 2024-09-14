@@ -6,6 +6,7 @@ import static com.enofex.taikai.test.JUnit5DescribedPredicates.annotatedWithTest
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beAnnotatedWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -45,6 +46,7 @@ class JUnit5DescribedPredicatesTest {
 
     @Test
     void should() {
+      assertTrue(true);
     }
   }
 
@@ -53,6 +55,7 @@ class JUnit5DescribedPredicatesTest {
     @ParameterizedTest
     @EmptySource
     void should(String empty) {
+      assertTrue(true);
     }
   }
 
@@ -60,6 +63,7 @@ class JUnit5DescribedPredicatesTest {
 
     @TestAnnotation
     void should() {
+      assertTrue(true);
     }
   }
 
@@ -68,14 +72,17 @@ class JUnit5DescribedPredicatesTest {
     @ParameterizedTestAnnotation
     @EmptySource
     void should(String empty) {
+      assertTrue(true);
     }
   }
 
   @Test
   private @interface TestAnnotation {
+
   }
 
   @ParameterizedTest
   private @interface ParameterizedTestAnnotation {
+
   }
 }

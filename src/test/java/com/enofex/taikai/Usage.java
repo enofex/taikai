@@ -68,6 +68,7 @@ class Usage {
                 .methodsShouldBePackagePrivate()
                 .methodsShouldBeAnnotatedWithDisplayName()
                 .methodsShouldNotBeAnnotatedWithDisabled()
+                .methodsShouldContainAssertionsOrVerifications()
                 .classesShouldBePackagePrivate(".*Test")
                 .classesShouldNotBeAnnotatedWithDisabled()))
         .spring(spring -> spring
