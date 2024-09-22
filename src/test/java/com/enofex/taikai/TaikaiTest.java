@@ -53,7 +53,6 @@ class TaikaiTest {
 
     Taikai taikai = Taikai.builder()
         .classes(new ClassFileImporter().importClasses(TaikaiTest.class))
-        .excludeClass("com.enofex.taikai.SomeClassToExclude")
         .excludeClasses("com.enofex.taikai.foo.ClassToExclude", "com.enofex.taikai.bar.ClassToExclude")
         .failOnEmpty(true)
         .addRules(rules)
@@ -64,7 +63,7 @@ class TaikaiTest {
     assertNotNull(taikai.classes());
     assertEquals(1, taikai.rules().size());
     assertTrue(taikai.rules().contains(mockRule));
-    assertEquals(3, taikai.excludedClasses().size());
+    assertEquals(2, taikai.excludedClasses().size());
   }
 
   @Test
@@ -140,7 +139,7 @@ class TaikaiTest {
   void shouldRebuildTaikaiWithNewValues() {
     Taikai taikai = Taikai.builder()
         .namespace(VALID_NAMESPACE)
-        .excludeClass("com.enofex.taikai.ClassToExclude")
+        .excludeClasses("com.enofex.taikai.ClassToExclude")
         .failOnEmpty(true)
         .java(java -> java
             .fieldsShouldNotBePublic())
@@ -148,7 +147,7 @@ class TaikaiTest {
 
     Taikai modifiedTaikai = taikai.toBuilder()
         .namespace("com.enofex.newnamespace")
-        .excludeClass("com.enofex.taikai.AnotherClassToExclude")
+        .excludeClasses("com.enofex.taikai.AnotherClassToExclude")
         .failOnEmpty(false)
         .java(java -> java
             .classesShouldImplementHashCodeAndEquals()

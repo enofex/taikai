@@ -127,11 +127,6 @@ public final class Taikai {
       return this;
     }
 
-    public Builder excludeClass(String className) {
-      this.excludedClasses.add(className);
-      return this;
-    }
-
     public Builder excludeClasses(Collection<String> classNames) {
       this.excludedClasses.addAll(classNames);
       return this;
