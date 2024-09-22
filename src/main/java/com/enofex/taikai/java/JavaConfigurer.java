@@ -293,6 +293,7 @@ public final class JavaConfigurer extends AbstractConfigurer {
 
   @Override
   public void disable() {
+    disable(JavaConfigurer.class);
     disable(ImportsConfigurer.class);
     disable(NamingConfigurer.class);
   }

@@ -16,6 +16,7 @@ public final class TestConfigurer extends AbstractConfigurer {
 
   @Override
   public void disable() {
+    disable(TestConfigurer.class);
     disable(JUnit5Configurer.class);
   }
 }

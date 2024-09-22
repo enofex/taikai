@@ -55,6 +55,7 @@ public final class SpringConfigurer extends AbstractConfigurer {
 
   @Override
   public void disable() {
+    disable(SpringConfigurer.class);
     disable(PropertiesConfigurer.class);
     disable(ConfigurationsConfigurer.class);
     disable(ControllersConfigurer.class);
