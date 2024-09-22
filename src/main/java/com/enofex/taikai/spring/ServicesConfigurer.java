@@ -14,8 +14,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class ServicesConfigurer extends AbstractConfigurer {
+public class ServicesConfigurer extends AbstractConfigurer {
 
   private static final String DEFAULT_SERVICE_NAME_MATCHING = ".+Service";
 
@@ -73,6 +74,21 @@ public final class ServicesConfigurer extends AbstractConfigurer {
             .should(not(dependOnClassesThat(annotatedWithControllerOrRestController(true))))
             .as("Services should not depend on Controllers or RestControllers"),
         configuration));
+  }
+
+  public static final class Disableable extends ServicesConfigurer implements
+      DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public ServicesConfigurer disable() {
+      disable(ServicesConfigurer.class);
+
+      return this;
+    }
   }
 }
 

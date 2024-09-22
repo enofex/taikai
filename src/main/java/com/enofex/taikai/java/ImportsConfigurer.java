@@ -9,8 +9,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class ImportsConfigurer extends AbstractConfigurer {
+public class ImportsConfigurer extends AbstractConfigurer {
 
   ImportsConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
@@ -61,5 +62,19 @@ public final class ImportsConfigurer extends AbstractConfigurer {
         .matching(namespace + ".(*)..")
         .should().beFreeOfCycles()
         .as("Namespace %s should be free of cycles".formatted(namespace)), configuration));
+  }
+
+  public static final class Disableable extends ImportsConfigurer implements DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public ImportsConfigurer disable() {
+      disable(ImportsConfigurer.class);
+
+      return this;
+    }
   }
 }

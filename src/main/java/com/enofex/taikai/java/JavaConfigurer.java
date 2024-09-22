@@ -22,20 +22,21 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.configures.DisableableConfigurer;
 import java.lang.annotation.Annotation;
 
-public final class JavaConfigurer extends AbstractConfigurer {
+public class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
-  public JavaConfigurer imports(Customizer<ImportsConfigurer> customizer) {
-    return customizer(customizer, () -> new ImportsConfigurer(configurerContext()));
+  public Disableable imports(Customizer<ImportsConfigurer.Disableable> customizer) {
+    return customizer(customizer, () -> new ImportsConfigurer.Disableable(configurerContext()));
   }
 
-  public JavaConfigurer naming(Customizer<NamingConfigurer> customizer) {
-    return customizer(customizer, () -> new NamingConfigurer(configurerContext()));
+  public Disableable naming(Customizer<NamingConfigurer.Disableable> customizer) {
+    return customizer(customizer, () -> new NamingConfigurer.Disableable(configurerContext()));
   }
 
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor() {
@@ -291,10 +292,19 @@ public final class JavaConfigurer extends AbstractConfigurer {
         .as("serialVersionUID should be static final long"), configuration));
   }
 
-  @Override
-  public void disable() {
-    disable(JavaConfigurer.class);
-    disable(ImportsConfigurer.class);
-    disable(NamingConfigurer.class);
+  public static final class Disableable extends JavaConfigurer implements DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public JavaConfigurer disable() {
+      disable(JavaConfigurer.class);
+      disable(ImportsConfigurer.class);
+      disable(NamingConfigurer.class);
+
+      return this;
+    }
   }
 }

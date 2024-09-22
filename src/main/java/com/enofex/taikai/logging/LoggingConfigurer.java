@@ -9,10 +9,11 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.util.Collection;
 
-public final class LoggingConfigurer extends AbstractConfigurer {
+public class LoggingConfigurer extends AbstractConfigurer {
 
   public LoggingConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
@@ -49,5 +50,19 @@ public final class LoggingConfigurer extends AbstractConfigurer {
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(followLoggerConventions(typeName, regex, requiredModifiers)), configuration));
+  }
+
+  public static final class Disableable extends LoggingConfigurer implements DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public LoggingConfigurer disable() {
+      disable(LoggingConfigurer.class);
+
+      return this;
+    }
   }
 }

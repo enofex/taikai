@@ -11,8 +11,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class BootConfigurer extends AbstractConfigurer {
+public class BootConfigurer extends AbstractConfigurer {
 
   BootConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
@@ -30,5 +31,19 @@ public final class BootConfigurer extends AbstractConfigurer {
         .should().resideInAPackage(packageIdentifier)
         .as("Classes annotated with %s should be located in %s".formatted(
             ANNOTATION_SPRING_BOOT_APPLICATION, packageIdentifier)), configuration));
+  }
+
+  public static final class Disableable extends BootConfigurer implements DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public BootConfigurer disable() {
+      disable(BootConfigurer.class);
+
+      return this;
+    }
   }
 }

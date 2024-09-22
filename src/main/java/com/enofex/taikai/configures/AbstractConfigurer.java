@@ -31,7 +31,7 @@ public abstract class AbstractConfigurer implements Configurer {
       Configurer configurer = this.configurerContext.configurers().get(clazz);
 
       if (configurer != null) {
-        configurer.disable();
+        configurer.clear();
       }
     }
   }

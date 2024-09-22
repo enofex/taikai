@@ -13,13 +13,14 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.lang.annotation.Annotation;
 
-public final class NamingConfigurer extends AbstractConfigurer {
+public class NamingConfigurer extends AbstractConfigurer {
 
   NamingConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
@@ -170,5 +171,19 @@ public final class NamingConfigurer extends AbstractConfigurer {
         .that().areFinal().and().areStatic()
         .should(shouldFollowConstantNamingConventions())
         .as("Constants should follow constant naming conventions"), configuration));
+  }
+
+  public static final class Disableable extends NamingConfigurer implements DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public NamingConfigurer disable() {
+      disable(NamingConfigurer.class);
+
+      return this;
+    }
   }
 }

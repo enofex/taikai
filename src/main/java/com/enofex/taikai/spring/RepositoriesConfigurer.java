@@ -14,8 +14,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class RepositoriesConfigurer extends AbstractConfigurer {
+public class RepositoriesConfigurer extends AbstractConfigurer {
 
   private static final String DEFAULT_REPOSITORY_NAME_MATCHING = ".+Repository";
 
@@ -74,6 +75,21 @@ public final class RepositoriesConfigurer extends AbstractConfigurer {
             .should(not(dependOnClassesThat(annotatedWithService(true))))
             .as("Repositories should not depend on Services"),
         configuration));
+  }
+
+  public static final class Disableable extends RepositoriesConfigurer implements
+      DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public RepositoriesConfigurer disable() {
+      disable(RepositoriesConfigurer.class);
+
+      return this;
+    }
   }
 }
 

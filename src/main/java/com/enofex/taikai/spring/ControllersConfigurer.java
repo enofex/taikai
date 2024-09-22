@@ -16,8 +16,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class ControllersConfigurer extends AbstractConfigurer {
+public class ControllersConfigurer extends AbstractConfigurer {
 
   private static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".+Controller";
 
@@ -108,5 +109,20 @@ public final class ControllersConfigurer extends AbstractConfigurer {
         .that(are(annotatedWithControllerOrRestController(true)))
         .should(not(dependOnClassesThat(are(annotatedWithControllerOrRestController(true)))))
         .as("Controllers should not be depend on other Controllers"), configuration));
+  }
+
+  public static final class Disableable extends ControllersConfigurer implements
+      DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public ControllersConfigurer disable() {
+      disable(ControllersConfigurer.class);
+
+      return this;
+    }
   }
 }

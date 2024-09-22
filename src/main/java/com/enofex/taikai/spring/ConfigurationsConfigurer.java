@@ -11,8 +11,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class ConfigurationsConfigurer extends AbstractConfigurer {
+public class ConfigurationsConfigurer extends AbstractConfigurer {
 
   private static final String DEFAULT_CONFIGURATION_NAME_MATCHING = ".+Configuration";
 
@@ -39,5 +40,20 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer {
         )
         .should().haveNameMatching(regex)
         .as("Configurations should have name ending %s".formatted(regex)), configuration));
+  }
+
+  public static final class Disableable extends ConfigurationsConfigurer implements
+      DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public ConfigurationsConfigurer disable() {
+      disable(ConfigurationsConfigurer.class);
+
+      return this;
+    }
   }
 }

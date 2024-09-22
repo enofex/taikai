@@ -5,7 +5,7 @@ import java.util.Collection;
 
 public interface Configurer {
 
-  default void disable() {
+  default void clear() {
     rules().clear();
   }
 

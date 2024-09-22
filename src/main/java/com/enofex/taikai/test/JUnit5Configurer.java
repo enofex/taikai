@@ -18,8 +18,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class JUnit5Configurer extends AbstractConfigurer {
+public class JUnit5Configurer extends AbstractConfigurer {
 
   private static final Configuration CONFIGURATION = Configuration.of(IMPORT.ONLY_TESTS);
 
@@ -122,5 +123,19 @@ public final class JUnit5Configurer extends AbstractConfigurer {
             .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
             .as("Classes should not be annotated with %s".formatted(ANNOTATION_DISABLED)),
         configuration));
+  }
+
+  public static final class Disableable extends JUnit5Configurer implements DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public JUnit5Configurer disable() {
+      disable(JUnit5Configurer.class);
+
+      return this;
+    }
   }
 }

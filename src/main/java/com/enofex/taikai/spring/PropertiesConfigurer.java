@@ -12,8 +12,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
-public final class PropertiesConfigurer extends AbstractConfigurer {
+public class PropertiesConfigurer extends AbstractConfigurer {
 
   private static final String DEFAULT_PROPERTIES_NAME_MATCHING = ".+Properties";
 
@@ -76,5 +77,20 @@ public final class PropertiesConfigurer extends AbstractConfigurer {
             .as("Configuration properties should be annotated with %s".formatted(
                 ANNOTATION_CONFIGURATION_PROPERTIES)),
         configuration));
+  }
+
+  public static final class Disableable extends PropertiesConfigurer implements
+      DisableableConfigurer {
+
+    public Disableable(ConfigurerContext configurerContext) {
+      super(configurerContext);
+    }
+
+    @Override
+    public PropertiesConfigurer disable() {
+      disable(PropertiesConfigurer.class);
+
+      return this;
+    }
   }
 }
