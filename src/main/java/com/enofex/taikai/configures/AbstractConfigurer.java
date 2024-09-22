@@ -21,7 +21,7 @@ public abstract class AbstractConfigurer implements Configurer {
     return this.configurerContext;
   }
 
-  protected <T> T addRule(TaikaiRule rule) {
+  protected <T extends Configurer> T addRule(TaikaiRule rule) {
     this.rules.add(rule);
     return (T) this;
   }
