@@ -118,6 +118,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
+| General  | `methodsShouldBeAnnotatedWithAll`                      | Methods annotated with a specific annotation should be annotated with a specified annotations.               |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
 | General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
 | General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                              |
@@ -268,8 +269,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesShouldNotBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class))
-        .classesShouldNotBeAnnotatedWithAll("org.springframework.data.jpa.repository.Modifying", List.of("org.springframework.transaction.annotation.Transactional", "org.springframework.data.jpa.repository.Query"))
+        .classesShouldBeAnnotatedWithAll(RestController.class, List.of(RequestMapping.class))
+        .classesShouldBeAnnotatedWithAll("org.springframework.web.bind.annotation.RestController", List.of("org.springframework.web.bind.annotation.RequestMapping"))
     .build()
     .check();
 ```
@@ -332,6 +333,20 @@ Taikai.builder()
     .build()
     .check();
 ```
+
+
+- **Methods Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that methods annotated with a specific annotations should be annotated with the specified annotations.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsShouldBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class))
+        .methodsShouldBeAnnotatedWithAll("org.springframework.data.jpa.repository.Modifying", List.of("org.springframework.transaction.annotation.Transactional", "org.springframework.data.jpa.repository.Query"))
+    .build()
+    .check();
+```
+
 
 - **Utility Classes Should Be Final and Have Private Constructor**: Ensure that utility classes with only `static` methods except `main` should be declared as `final` and have `private` constructors to prevent instantiation.
 
