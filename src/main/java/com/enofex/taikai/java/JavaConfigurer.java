@@ -82,6 +82,28 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  public JavaConfigurer methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
+      Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
+    return methodsShouldBeAnnotatedWithAll(annotationType.getName(),
+        requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldBeAnnotatedWithAll(String annotationType,
+      Collection<String> requiredAnnotationTypes) {
+    return methodsShouldBeAnnotatedWithAll(annotationType, requiredAnnotationTypes,
+        defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldBeAnnotatedWithAll(String annotationType,
+      Collection<String> requiredAnnotationTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areMetaAnnotatedWith(annotationType)
+            .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
+            .as("Methods annotated with %s should be annotated with %s".formatted(
+                annotationType, String.join(", ", requiredAnnotationTypes))),
+        configuration));
+  }
+
   public JavaConfigurer noUsageOfDeprecatedAPIs() {
     return noUsageOfDeprecatedAPIs(defaultConfiguration());
   }
