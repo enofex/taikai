@@ -28,6 +28,11 @@ public class LoggingConfigurer extends AbstractConfigurer {
     return classesShouldUseLogger(clazz.getName(), regex, defaultConfiguration());
   }
 
+  public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex,
+      Configuration configuration) {
+    return classesShouldUseLogger(clazz.getName(), regex, configuration);
+  }
+
   public LoggingConfigurer classesShouldUseLogger(String typeName, String regex,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()

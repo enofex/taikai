@@ -69,6 +69,11 @@ public class JavaConfigurer extends AbstractConfigurer {
     return methodsShouldNotDeclareException(regex, clazz.getName(), defaultConfiguration());
   }
 
+  public JavaConfigurer methodsShouldNotDeclareException(String regex,
+      Class<? extends Throwable> clazz, Configuration configuration) {
+    return methodsShouldNotDeclareException(regex, clazz.getName(), configuration);
+  }
+
   public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName) {
     return methodsShouldNotDeclareException(regex, typeName, defaultConfiguration());
   }
@@ -86,6 +91,13 @@ public class JavaConfigurer extends AbstractConfigurer {
       Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
     return methodsShouldBeAnnotatedWithAll(annotationType.getName(),
         requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
+      Collection<Class<? extends Annotation>> requiredAnnotationTypes,
+      Configuration configuration) {
+    return methodsShouldBeAnnotatedWithAll(annotationType.getName(),
+        requiredAnnotationTypes.stream().map(Class::getName).toList(), configuration);
   }
 
   public JavaConfigurer methodsShouldBeAnnotatedWithAll(String annotationType,
@@ -150,11 +162,17 @@ public class JavaConfigurer extends AbstractConfigurer {
             regex, packageIdentifier)), configuration));
   }
 
-
   public JavaConfigurer classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
       Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
     return classesShouldBeAnnotatedWithAll(annotationType.getName(),
         requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
+      Collection<Class<? extends Annotation>> requiredAnnotationTypes,
+      Configuration configuration) {
+    return classesShouldBeAnnotatedWithAll(annotationType.getName(),
+        requiredAnnotationTypes.stream().map(Class::getName).toList(), configuration);
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWithAll(String annotationType,
@@ -178,6 +196,11 @@ public class JavaConfigurer extends AbstractConfigurer {
     return classesShouldBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
   }
 
+  public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return classesShouldBeAnnotatedWith(regex, annotationType.getName(), configuration);
+  }
+
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType) {
     return classesShouldBeAnnotatedWith(regex, annotationType, defaultConfiguration());
   }
@@ -194,6 +217,11 @@ public class JavaConfigurer extends AbstractConfigurer {
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType) {
     return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(), configuration);
   }
 
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType) {
@@ -213,6 +241,13 @@ public class JavaConfigurer extends AbstractConfigurer {
       Class<? extends Annotation> annotationType, String packageIdentifier) {
     return classesAnnotatedWithShouldResideInPackage(annotationType.getName(), packageIdentifier,
         defaultConfiguration());
+  }
+
+  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
+      Class<? extends Annotation> annotationType, String packageIdentifier,
+      Configuration configuration) {
+    return classesAnnotatedWithShouldResideInPackage(annotationType.getName(), packageIdentifier,
+        configuration);
   }
 
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
@@ -243,6 +278,11 @@ public class JavaConfigurer extends AbstractConfigurer {
     return classesShouldBeAssignableTo(regex, clazz.getName(), defaultConfiguration());
   }
 
+  public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz,
+      Configuration configuration) {
+    return classesShouldBeAssignableTo(regex, clazz.getName(), configuration);
+  }
+
   public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName) {
     return classesShouldBeAssignableTo(regex, typeName, defaultConfiguration());
   }
@@ -258,6 +298,11 @@ public class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesShouldImplement(String regex, Class<?> clazz) {
     return classesShouldImplement(regex, clazz.getName(), defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldImplement(String regex, Class<?> clazz,
+      Configuration configuration) {
+    return classesShouldImplement(regex, clazz.getName(), configuration);
   }
 
   public JavaConfigurer classesShouldImplement(String regex, String typeName) {
@@ -288,6 +333,11 @@ public class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier) {
     return noUsageOf(clazz.getName(), packageIdentifier, defaultConfiguration());
+  }
+
+  public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier,
+      Configuration configuration) {
+    return noUsageOf(clazz.getName(), packageIdentifier, configuration);
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
