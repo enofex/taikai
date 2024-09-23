@@ -26,18 +26,6 @@ public class NamingConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
-  public NamingConfigurer packagesShouldMatch(String packageIdentifier) {
-    return packagesShouldMatch(packageIdentifier, defaultConfiguration());
-  }
-
-  public NamingConfigurer packagesShouldMatch(String packageIdentifier,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-            .should().resideInAPackage(packageIdentifier)
-            .as("Package names should match %s".formatted(packageIdentifier)),
-        configuration));
-  }
-
   public NamingConfigurer classesShouldNotMatch(String regex) {
     return classesShouldNotMatch(regex, defaultConfiguration());
   }

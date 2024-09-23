@@ -23,13 +23,13 @@ class ArchitectureTest {
             .methodsShouldNotDeclareGenericExceptions()
             .fieldsShouldNotBePublic()
             .serialVersionUIDFieldsShouldBeStaticFinalLong()
+            .classesShouldResideInPackage("com.enofex.taikai..")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
                 .shouldNotImport("..lombok..")
                 .shouldNotImport("org.junit.."))
             .naming(naming -> naming
-                .packagesShouldMatch("com.enofex.taikai..")
                 .classesShouldNotMatch(".*Impl")
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))

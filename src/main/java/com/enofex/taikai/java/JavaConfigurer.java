@@ -112,6 +112,18 @@ public class JavaConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(classes().should(notUseDeprecatedAPIs()), configuration));
   }
 
+  public JavaConfigurer classesShouldResideInPackage(String packageIdentifier) {
+    return classesShouldResideInPackage(packageIdentifier, defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldResideInPackage(String packageIdentifier,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .should().resideInAPackage(packageIdentifier)
+            .as("Package names should match %s".formatted(packageIdentifier)),
+        configuration));
+  }
+
   public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier) {
     return classesShouldResideInPackage(regex, packageIdentifier, defaultConfiguration());
   }

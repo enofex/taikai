@@ -108,6 +108,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 |----------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
 | General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together.                                                   |
 | General  | `classesShouldResideInPackage`                         | Classes matching specific naming patterns should reside in a specified package.                              |
+| General  | `classesShouldResideInPackage`                         | Classes should reside in a specified package.  (e.g., `com.company.project..`).                              |
 | General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package.                           |
 | General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                         |
 | General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
@@ -127,7 +128,6 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                   |
 | Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                           |
 | Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                              |
-| Naming   | `packagesShouldMatch`                                  | Packages should match the specified regex pattern (e.g., `com.company.project..`).                           |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
 | Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
@@ -224,6 +224,17 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .classesShouldResideInPackage(".*Utils", "com.company.project.utils"))
+    .build()
+    .check();
+```
+
+- **Classes Should Reside in Specified Package**: Ensure that classes reside in the specified package.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldResideInPackage("com.company.project.."))
     .build()
     .check();
 ```
@@ -403,7 +414,6 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .naming(naming -> naming
-            .packagesShouldMatch("com.company.project..")
             .classesShouldNotMatch(".*Impl")
             .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
             .classesAnnotatedWithShouldMatch("com.company.project.Annotation", "coolClass")            

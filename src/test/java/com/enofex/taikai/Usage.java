@@ -43,6 +43,7 @@ class Usage {
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .serialVersionUIDFieldsShouldBeStaticFinalLong()
+            .classesShouldResideInPackage("com.enofex.taikai..")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport("..shaded..")
@@ -50,7 +51,6 @@ class Usage {
                 .shouldNotImport("org.junit..")
                 .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException"))
             .naming(naming -> naming
-                .packagesShouldMatch("com.enofex.taikai..")
                 .classesShouldNotMatch(".*Impl")
                 .methodsShouldNotMatch("foo")
                 .fieldsShouldNotMatch("bar")
