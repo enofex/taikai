@@ -30,7 +30,8 @@ public class NamingConfigurer extends AbstractConfigurer {
     return packagesShouldMatch(packageIdentifier, defaultConfiguration());
   }
 
-  public NamingConfigurer packagesShouldMatch(String packageIdentifier, Configuration configuration) {
+  public NamingConfigurer packagesShouldMatch(String packageIdentifier,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .should().resideInAPackage(packageIdentifier)
             .as("Package names should match %s".formatted(packageIdentifier)),
@@ -50,6 +51,11 @@ public class NamingConfigurer extends AbstractConfigurer {
   public NamingConfigurer classesAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
     return classesAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
+  }
+
+  public NamingConfigurer classesAnnotatedWithShouldMatch(
+      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
+    return classesAnnotatedWithShouldMatch(annotationType.getName(), regex, configuration);
   }
 
   public NamingConfigurer classesAnnotatedWithShouldMatch(String annotationType, String regex) {
