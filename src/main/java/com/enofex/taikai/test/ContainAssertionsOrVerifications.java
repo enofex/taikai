@@ -65,8 +65,8 @@ final class ContainAssertionsOrVerifications {
 
       private boolean springMockMvc(JavaMethodCall call) {
         return
-            "org.springframework.test.web.servlet.MockMvc".equals(call.getTargetOwner().getName())
-                && ("andExpect".equals(call.getName()) || "andDo".equals(call.getName()));
+            "org.springframework.test.web.servlet.ResultActions".equals(call.getTargetOwner().getName())
+                && ("andExpect".equals(call.getName()) || "andExpectAll".equals(call.getName()));
       }
 
       private boolean archRule(JavaMethodCall call) {
