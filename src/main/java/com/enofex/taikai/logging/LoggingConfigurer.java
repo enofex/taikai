@@ -46,6 +46,12 @@ public class LoggingConfigurer extends AbstractConfigurer {
         defaultConfiguration());
   }
 
+  public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
+      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+    return loggersShouldFollowConventions(clazz.getName(), regex, requiredModifiers,
+        configuration);
+  }
+
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
