@@ -461,12 +461,14 @@ Taikai.builder()
 
 Logging configuration involves specifying constraints related to logging frameworks and practices.
 
-- **Ensure Logger Field Conforms to Standards**: Ensure that classes use a logger field of the specified type, with the correct name and modifiers.
+- **Ensure Logger Field Conforms to Standards**: Ensure that classes use a logger field of the specified type, with the correct name and optionally required modifiers.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .logging(logging -> logging
+        .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger")
+        .loggersShouldFollowConventions("org.slf4j.Logger", "logger")
         .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger", List.of(PRIVATE, FINAL))
         .loggersShouldFollowConventions("org.slf4j.Logger", "logger", List.of(PRIVATE, FINAL)))
     .build()

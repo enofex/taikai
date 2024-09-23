@@ -12,6 +12,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.util.Collection;
+import java.util.List;
 
 public class LoggingConfigurer extends AbstractConfigurer {
 
@@ -34,6 +35,28 @@ public class LoggingConfigurer extends AbstractConfigurer {
         .should(haveFieldOfType(typeName)), configuration));
   }
 
+  public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex) {
+    return loggersShouldFollowConventions(typeName, regex, List.of(),
+        defaultConfiguration());
+  }
+
+  public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
+      Configuration configuration) {
+    return loggersShouldFollowConventions(typeName, regex, List.of(),
+        configuration);
+  }
+
+  public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex) {
+    return loggersShouldFollowConventions(clazz.getName(), regex, List.of(),
+        defaultConfiguration());
+  }
+
+  public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
+      Configuration configuration) {
+    return loggersShouldFollowConventions(clazz.getName(), regex, List.of(),
+        configuration);
+  }
+
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Collection<JavaModifier> requiredModifiers) {
     return loggersShouldFollowConventions(typeName, regex, requiredModifiers,
@@ -45,6 +68,7 @@ public class LoggingConfigurer extends AbstractConfigurer {
     return loggersShouldFollowConventions(clazz.getName(), regex, requiredModifiers,
         defaultConfiguration());
   }
+
 
   public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
