@@ -111,6 +111,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package.                           |
 | General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                         |
 | General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
+| General  | `classesShouldBeAnnotatedWithAll`                      | Classes annotated with a specific annotation should be annotated with a specified annotations.               |
 | General  | `classesShouldNotBeAnnotatedWith`                      | Classes matching specific naming patterns should not be annotated with a specified annotation.               |
 | General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
 | General  | `classesShouldImplement`                               | Classes matching specific naming patterns should implement to a interface.                                   |
@@ -257,6 +258,18 @@ Taikai.builder()
     .java(java -> java
         .classesShouldBeAnnotatedWith(".*Api", PublicApi.class)
         .classesShouldBeAnnotatedWith(".*Api", "com.company.project.PublicApi"))
+    .build()
+    .check();
+```
+
+- **Classes Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that classes annotated with a specific annotations should be annotated with the specified annotations.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldNotBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class))
+        .classesShouldNotBeAnnotatedWithAll("org.springframework.data.jpa.repository.Modifying", List.of("org.springframework.transaction.annotation.Transactional", "org.springframework.data.jpa.repository.Query"))
     .build()
     .check();
 ```

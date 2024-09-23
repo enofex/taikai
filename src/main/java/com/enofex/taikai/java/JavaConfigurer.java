@@ -2,6 +2,7 @@ package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.notBePublicButNotStatic;
+import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
@@ -11,6 +12,7 @@ import static com.enofex.taikai.java.SerialVersionUID.beStaticFinalLong;
 import static com.enofex.taikai.java.SerialVersionUID.namedSerialVersionUID;
 import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beFinal;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
@@ -24,6 +26,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 
 public class JavaConfigurer extends AbstractConfigurer {
 
@@ -111,6 +114,29 @@ public class JavaConfigurer extends AbstractConfigurer {
         .should().resideOutsideOfPackage(packageIdentifier)
         .as("Classes have name matching %s should reside outside package %s".formatted(
             regex, packageIdentifier)), configuration));
+  }
+
+
+  public JavaConfigurer classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
+      Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
+    return classesShouldBeAnnotatedWithAll(annotationType.getName(),
+        requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldBeAnnotatedWithAll(String annotationType,
+      Collection<String> requiredAnnotationTypes) {
+    return classesShouldBeAnnotatedWithAll(annotationType, requiredAnnotationTypes,
+        defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldBeAnnotatedWithAll(String annotationType,
+      Collection<String> requiredAnnotationTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().areMetaAnnotatedWith(annotationType)
+            .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
+            .as("Classes annotated with %s should be annotated with %s".formatted(
+                annotationType, String.join(", ", requiredAnnotationTypes))),
+        configuration));
   }
 
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
