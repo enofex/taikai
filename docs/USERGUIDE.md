@@ -128,6 +128,8 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                   |
 | Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                           |
 | Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                              |
+| Naming   | `packagesShouldMatchDefault`                           | Packages should match `^[a-z_]+(\.[a-z_][a-z0-9_]*)*$` naming patterns.                                      |
+| Naming   | `packagesShouldMatch`                                  | Packages should match specific naming patterns.                                                              |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
 | Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
@@ -414,6 +416,8 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .naming(naming -> naming
+            .packagesShouldMatchDefault()
+            .packagesShouldMatch("regex")
             .classesShouldNotMatch(".*Impl")
             .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
             .classesAnnotatedWithShouldMatch("com.company.project.Annotation", "coolClass")            
