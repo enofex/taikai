@@ -2,6 +2,7 @@ package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.java.ConstantNaming.shouldFollowConstantNamingConventions;
+import static com.enofex.taikai.java.PackageNaming.resideInPackageWithProperNamingConvention;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -22,8 +23,28 @@ import java.lang.annotation.Annotation;
 
 public class NamingConfigurer extends AbstractConfigurer {
 
+  private static final String PACKAGE_NAME_REGEX = "^[a-z_]+(\\.[a-z_][a-z0-9_]*)*$";
+
   NamingConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
+  }
+
+  public NamingConfigurer packagesShouldMatchDefault() {
+    return packagesShouldMatch(PACKAGE_NAME_REGEX, defaultConfiguration());
+  }
+
+  public NamingConfigurer packagesShouldMatchDefault(Configuration configuration) {
+    return packagesShouldMatch(PACKAGE_NAME_REGEX, configuration);
+  }
+
+  public NamingConfigurer packagesShouldMatch(String regex) {
+    return packagesShouldMatch(regex, defaultConfiguration());
+  }
+
+  public NamingConfigurer packagesShouldMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .should(resideInPackageWithProperNamingConvention(regex))
+        .as("Packages should have names matching %s".formatted(regex)), configuration));
   }
 
   public NamingConfigurer classesShouldNotMatch(String regex) {

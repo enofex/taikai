@@ -107,6 +107,11 @@ class Usage {
                 .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
                 .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException", defaultConfiguration()))
             .naming(naming -> naming
+                .packagesShouldMatchDefault()
+                .packagesShouldMatchDefault(defaultConfiguration())
+                .packagesShouldMatch("regex")
+                .packagesShouldMatch("regex", defaultConfiguration())
+
                 .classesShouldNotMatch(".*Impl")
                 .classesShouldNotMatch(".*Impl", defaultConfiguration())
 
