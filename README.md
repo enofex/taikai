@@ -1,6 +1,11 @@
 ![maven workflow](https://github.com/enofex/taikai/actions/workflows/maven.yml/badge.svg) [![](https://img.shields.io/badge/Java%20Version-21-orange)](/pom.xml)
 <img height="20" src="https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg">
 
+<p align="center">
+    <img src="docs/icon.png"
+        height="150">
+</p>
+
 # Taikai
 
 Taikai extends the capabilities of the popular ArchUnit library by offering a comprehensive suite of predefined rules tailored for various technologies. It simplifies the enforcement of architectural constraints and best practices in your codebase, ensuring consistency and quality across your projects.
