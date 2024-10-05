@@ -90,6 +90,29 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType) {
+    return methodsShouldBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex,
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return methodsShouldBeAnnotatedWith(regex, annotationType.getName(), configuration);
+  }
+
+  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex, String annotationType) {
+    return methodsShouldBeAnnotatedWith(regex, annotationType, defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex, String annotationType,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().haveNameMatching(regex)
+        .should().beMetaAnnotatedWith(annotationType)
+        .as("Methods have name matching %s should be annotated with %s".formatted(regex,
+            annotationType)), configuration));
+  }
+
   public JavaConfigurer methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
       Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
     return methodsShouldBeAnnotatedWithAll(annotationType.getName(),

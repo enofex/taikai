@@ -120,6 +120,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
+| General  | `methodsShouldBeAnnotatedWith`                         | Methods matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `methodsShouldBeAnnotatedWithAll`                      | Methods annotated with a specific annotation should be annotated with a specified annotations.               |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
 | General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
@@ -348,6 +349,17 @@ Taikai.builder()
     .check();
 ```
 
+- **Methods Should Be Annotated with Specified Annotation**: Ensure that methods matching a specific regex pattern are annotated with the specified annotation.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsShouldBeAnnotatedWith(".*Api", PublicApi.class)
+        .methodsShouldBeAnnotatedWith(".*Api", "com.company.project.PublicApi"))
+    .build()
+    .check();
+```
 
 - **Methods Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that methods annotated with a specific annotations should be annotated with the specified annotations.
 
