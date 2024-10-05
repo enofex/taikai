@@ -33,6 +33,12 @@ class Usage {
             .noUsageOfDeprecatedAPIs()
             .noUsageOfDeprecatedAPIs(defaultConfiguration())
 
+            .fieldsShouldNotBePublic()
+            .fieldsShouldNotBePublic(defaultConfiguration())
+
+            .fieldsShouldHaveModifiers("regex", List.of(PRIVATE, FINAL))
+            .fieldsShouldHaveModifiers("regex", List.of(PRIVATE, FINAL), defaultConfiguration())
+
             .classesShouldImplementHashCodeAndEquals()
             .classesShouldImplementHashCodeAndEquals(defaultConfiguration())
 

@@ -116,6 +116,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldNotBeAnnotatedWith`                      | Classes matching specific naming patterns should not be annotated with a specified annotation.               |
 | General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
 | General  | `classesShouldImplement`                               | Classes matching specific naming patterns should implement to a interface.                                   |
+| General  | `fieldsShouldHaveModifiers`                            | Fields matching specific naming patterns should have specified modifiers.                                    |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
@@ -368,6 +369,18 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .utilityClassesShouldBeFinalAndHavePrivateConstructor())
+    .build()
+    .check();
+```
+
+
+- **Fields Should Have Modifiers**: Ensure that fields matching a specific naming pattern have the required modifiers.
+
+```java
+Taikai.builder()
+    .namespace("com.enofex.taikai")
+    .java(java -> java
+        .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL)))
     .build()
     .check();
 ```
