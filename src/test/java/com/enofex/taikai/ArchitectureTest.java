@@ -1,8 +1,12 @@
 package com.enofex.taikai;
 
+import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
+import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class ArchitectureTest {
@@ -17,6 +21,7 @@ class ArchitectureTest {
             .noUsageOf(Date.class)
             .noUsageOf(Calendar.class)
             .noUsageOf(SimpleDateFormat.class)
+            .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL))
             .classesShouldImplementHashCodeAndEquals()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()

@@ -6,9 +6,12 @@ import static com.enofex.taikai.internal.Modifiers.isFieldStatic;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Internal utility class for defining general ArchCondition used in architectural rules.
@@ -76,6 +79,28 @@ public final class ArchConditions {
               "%s does not have a field of type %s".formatted(
                   item.getName(),
                   typeName)));
+        }
+      }
+    };
+  }
+
+  /**
+   * Creates a condition that checks if a field contains all the specified modifiers.
+   *
+   * @param requiredModifiers the collection of modifiers that the field is required to have
+   * @return an architectural condition for checking if a field has the required modifiers
+   */
+  public static ArchCondition<JavaField> hasFieldModifiers(
+      Collection<JavaModifier> requiredModifiers) {
+    return new ArchCondition<>("has field modifiers") {
+      @Override
+      public void check(JavaField field, ConditionEvents events) {
+        if (!field.getModifiers().containsAll(requiredModifiers)) {
+          events.add(SimpleConditionEvent.violated(field,
+              "Field %s in class %s is missing one of this %s modifier".formatted(
+                  field.getName(),
+                  field.getOwner().getFullName(),
+                  requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
         }
       }
     };

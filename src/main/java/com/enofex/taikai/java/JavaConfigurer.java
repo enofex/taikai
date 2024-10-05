@@ -1,6 +1,7 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.internal.ArchConditions.hasFieldModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notBePublicButNotStatic;
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
@@ -25,8 +26,10 @@ import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class JavaConfigurer extends AbstractConfigurer {
 
@@ -325,6 +328,23 @@ public class JavaConfigurer extends AbstractConfigurer {
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
         .should(notBePublicButNotStatic()), configuration));
+  }
+
+  public JavaConfigurer fieldsShouldHaveModifiers(String regex,
+      Collection<JavaModifier> requiredModifiers) {
+    return fieldsShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
+  }
+
+  public JavaConfigurer fieldsShouldHaveModifiers(String regex,
+      Collection<JavaModifier> requiredModifiers,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+            .that().haveNameMatching(regex)
+            .should(hasFieldModifiers(requiredModifiers))
+            .as("Fields have name matching %s should have all of this modifiers %s".formatted(
+                regex,
+                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
   }
 
   public JavaConfigurer noUsageOf(Class<?> clazz) {
