@@ -78,6 +78,11 @@ class Usage {
             .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
             .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(), defaultConfiguration())
 
+            .methodsShouldBeAnnotatedWith("regex", DisplayName.class)
+            .methodsShouldBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
+            .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
+            .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName", defaultConfiguration())
+
             .methodsShouldNotDeclareGenericExceptions()
             .methodsShouldNotDeclareGenericExceptions(defaultConfiguration())
 
