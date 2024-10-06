@@ -36,7 +36,7 @@ Add Taikai as a dependency in your `build.gradle` file:
 testImplementation "com.enofex:taikai:${taikaiVersion}"
 ```
 
-Replace `${taikai.version}` with the appropriate version defined in your project. Ensure that the required dependencies like ArchUnit are already declared.
+Replace `${taikaiVersion}` with the appropriate version defined in your project. Ensure that the required dependencies like ArchUnit are already declared.
 
 ## JUnit 5 Example Test
 
