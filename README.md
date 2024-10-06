@@ -28,6 +28,16 @@ Add Taikai as a dependency in your `pom.xml`:
 
 Replace `${taikai.version}` with the appropriate version defined in your project. Ensure that the required dependencies like ArchUnit are already declared.
 
+## Gradle Usage
+
+Add Taikai as a dependency in your `build.gradle` file:
+
+```groovy
+testImplementation "com.enofex:taikai:${taikaiVersion}"
+```
+
+Replace `${taikai.version}` with the appropriate version defined in your project. Ensure that the required dependencies like ArchUnit are already declared.
+
 ## JUnit 5 Example Test
 
 Here's an example demonstrating the usage of some Taikai rules with JUnit 5. Customize rules as needed using `TaikaiRule.of()`.
