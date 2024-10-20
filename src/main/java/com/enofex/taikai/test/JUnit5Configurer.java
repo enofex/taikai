@@ -95,10 +95,14 @@ public class JUnit5Configurer extends AbstractConfigurer {
     return methodsShouldContainAssertionsOrVerifications(CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldContainAssertionsOrVerifications(Configuration configuration) {
+  public JUnit5Configurer methodsShouldContainAssertionsOrVerifications(
+      Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-        .that(are(annotatedWithTestOrParameterizedTest(true)))
-        .should(containAssertionsOrVerifications()), configuration));
+            .that(are(annotatedWithTestOrParameterizedTest(true)))
+            .should(containAssertionsOrVerifications())
+            .as("Methods annotated with %s or %s should contain assertions or verifications".formatted(
+                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST)),
+        configuration));
   }
 
   public JUnit5Configurer classesShouldNotBeAnnotatedWithDisabled() {

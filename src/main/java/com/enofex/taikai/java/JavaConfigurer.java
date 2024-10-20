@@ -53,7 +53,8 @@ public class JavaConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(utilityClasses()
         .should(beFinal())
-        .andShould(havePrivateConstructor()), configuration));
+        .andShould(havePrivateConstructor())
+        .as("Utility classes should be final and have a private constructor"), configuration));
   }
 
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions() {
@@ -147,7 +148,9 @@ public class JavaConfigurer extends AbstractConfigurer {
   }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs(Configuration configuration) {
-    return addRule(TaikaiRule.of(classes().should(notUseDeprecatedAPIs()), configuration));
+    return addRule(TaikaiRule.of(classes()
+        .should(notUseDeprecatedAPIs())
+        .as("Classes should not use deprecated APIs"), configuration));
   }
 
   public JavaConfigurer classesShouldResideInPackage(String packageIdentifier) {
@@ -297,7 +300,8 @@ public class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .should(implementHashCodeAndEquals()), configuration));
+        .should(implementHashCodeAndEquals())
+        .as("Classes should implement hashCode and equals"), configuration));
   }
 
   public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz) {
@@ -350,7 +354,8 @@ public class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
-        .should(notBePublicButNotStatic()), configuration));
+        .should(notBePublicButNotStatic())
+        .as("Fields should not be public unless they are static"), configuration));
   }
 
   public JavaConfigurer fieldsShouldHaveModifiers(String regex,
@@ -420,7 +425,8 @@ public class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .should(notUseSystemOutOrErr()), configuration));
+        .should(notUseSystemOutOrErr())
+        .as("Classes should not use System.out or System.err"), configuration));
   }
 
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers() {

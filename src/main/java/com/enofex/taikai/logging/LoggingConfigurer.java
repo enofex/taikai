@@ -36,8 +36,11 @@ public class LoggingConfigurer extends AbstractConfigurer {
   public LoggingConfigurer classesShouldUseLogger(String typeName, String regex,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
-        .should(haveFieldOfType(typeName)), configuration));
+            .that().haveNameMatching(regex)
+            .should(haveFieldOfType(typeName))
+            .as("Classes with names matching %s should use a logger of type %s".formatted(regex,
+                typeName)),
+        configuration));
   }
 
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex) {
@@ -84,7 +87,10 @@ public class LoggingConfigurer extends AbstractConfigurer {
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .should(followLoggerConventions(typeName, regex, requiredModifiers)), configuration));
+            .should(followLoggerConventions(typeName, regex, requiredModifiers))
+            .as("Loggers in classes matching %s should follow conventions and be of type %s with required modifiers %s".formatted(
+                regex, typeName, requiredModifiers)),
+        configuration));
   }
 
   public static final class Disableable extends LoggingConfigurer implements DisableableConfigurer {
