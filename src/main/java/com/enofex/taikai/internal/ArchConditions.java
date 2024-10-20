@@ -47,7 +47,7 @@ public final class ArchConditions {
    *
    * @return an architectural condition for checking public except static fields
    */
-  public static ArchCondition<JavaField> notBePublicButNotStatic() {
+  public static ArchCondition<JavaField> notBePublicUnlessStatic() {
     return new ArchCondition<>("not be public") {
       @Override
       public void check(JavaField field, ConditionEvents events) {

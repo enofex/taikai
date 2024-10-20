@@ -2,7 +2,7 @@ package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.hasFieldModifiers;
-import static com.enofex.taikai.internal.ArchConditions.notBePublicButNotStatic;
+import static com.enofex.taikai.internal.ArchConditions.notBePublicUnlessStatic;
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
@@ -354,7 +354,7 @@ public class JavaConfigurer extends AbstractConfigurer {
 
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
-        .should(notBePublicButNotStatic())
+        .should(notBePublicUnlessStatic())
         .as("Fields should not be public unless they are static"), configuration));
   }
 
