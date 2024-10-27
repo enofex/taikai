@@ -38,7 +38,7 @@ final class HashCodeAndEquals {
         return javaClass.getMethods().stream()
             .anyMatch(method -> "equals".equals(method.getName()) &&
                 method.getRawParameterTypes().size() == 1 &&
-                method.getRawParameterTypes().getFirst().getName().equals(Object.class.getName()));
+                method.getRawParameterTypes().get(0).getName().equals(Object.class.getName()));
       }
     };
   }

@@ -51,8 +51,8 @@ class DescribedPredicatesTest {
   void shouldReturnFalseWhenNotAnnotatedWithAllAnnotations() {
     Set<String> annotations = Set.of("MyAnnotation1", "MyAnnotation2");
 
-    when(this.canBeAnnotated.isAnnotatedWith("MyAnnotation1")).thenReturn(false);
-    when(this.canBeAnnotated.isAnnotatedWith("MyAnnotation2")).thenReturn(true);
+    when(this.canBeAnnotated.isAnnotatedWith("MyAnnotation1")).thenReturn(true);
+    when(this.canBeAnnotated.isAnnotatedWith("MyAnnotation2")).thenReturn(false);
 
     assertFalse(DescribedPredicates.annotatedWithAll(annotations, false).test(this.canBeAnnotated));
   }
