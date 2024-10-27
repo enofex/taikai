@@ -5,7 +5,7 @@
 
 <p align="center">
     <img src="https://github.com/enofex/taikai/actions/workflows/maven.yml/badge.svg" />
-    <img src="https://img.shields.io/badge/Java%20Version-21-orange" />
+    <img src="https://img.shields.io/badge/Java%20Version-17-orange" />
     <img height="20" src="https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg">
 </p>
 
@@ -104,7 +104,7 @@ Interested in contributing? Check out our [Contribution Guidelines](https://gith
 ### What you will need
 
 * Git
-* Java 21 or higher
+* Java 17 or higher
 
 ### Get the Source Code
 

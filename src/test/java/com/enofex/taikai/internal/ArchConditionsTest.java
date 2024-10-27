@@ -72,7 +72,7 @@ class ArchConditionsTest {
     verify(this.events).add(eventCaptor.capture());
     assertEquals("Field %s in class %s is public".formatted(
             this.mockField.getName(), this.mockClass.getFullName()),
-        eventCaptor.getValue().getDescriptionLines().getFirst());
+        eventCaptor.getValue().getDescriptionLines().get(0));
   }
 
 
@@ -102,7 +102,7 @@ class ArchConditionsTest {
             this.mockField.getName(),
             this.mockClass.getFullName(),
             "PRIVATE, FINAL"),
-        eventCaptor.getValue().getDescriptionLines().getFirst());
+        eventCaptor.getValue().getDescriptionLines().get(0));
   }
 
   @Test
