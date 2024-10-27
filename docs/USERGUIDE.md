@@ -261,7 +261,7 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesShouldResideOutsidePackage(".*Utils", "com.company.project.utils"))
+        .classesShouldResideOutsidePackage(".*Dto", "com.company.project.domain"))
     .build()
     .check();
 ```
@@ -308,8 +308,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesShouldBeAssignableTo(".*Repository", SpecificCrudRepository.class)
-        .classesShouldBeAssignableTo(".*Repository", "com.company.project.SpecificCrudRepository"))
+        .classesShouldBeAssignableTo(".*Repository", BaseRepository.class)
+        .classesShouldBeAssignableTo(".*Repository", "com.company.project.BaseRepository"))
     .build()
     .check();
 ```
