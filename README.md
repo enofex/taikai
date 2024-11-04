@@ -58,7 +58,7 @@ void shouldFulfillConstraints() {
           .naming(naming -> naming
               .classesShouldNotMatch(".*Impl")
               .methodsShouldNotMatch("^(?!foo$|bar$).*")
-              .fieldsShouldNotMatch("^(?!.*(List|Set|Map)$).*")
+              .fieldsShouldNotMatch(".*(List|Set|Map)$")
               .fieldsShouldMatch("com.enofex.taikai.Matcher", "matcher")
               .constantsShouldFollowConventions()
               .interfacesShouldNotHavePrefixI()))
