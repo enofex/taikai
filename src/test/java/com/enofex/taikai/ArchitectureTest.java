@@ -36,6 +36,7 @@ class ArchitectureTest {
                 .shouldNotImport("org.junit.."))
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
+                .fieldsShouldNotMatch(".*(List|Set|Map)$")
                 .classesShouldNotMatch(".*Impl")
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))
