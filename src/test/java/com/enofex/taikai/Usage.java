@@ -244,6 +244,12 @@ class Usage {
                 .shouldBeAnnotatedWithRestController("regex")
                 .shouldBeAnnotatedWithRestController("regex", defaultConfiguration())
 
+                .shouldBeAnnotatedWithValidated()
+                .shouldBeAnnotatedWithValidated(defaultConfiguration())
+
+                .shouldBeAnnotatedWithValidated("regex")
+                .shouldBeAnnotatedWithValidated("regex", defaultConfiguration())
+
                 .shouldNotDependOnOtherControllers()
                 .shouldNotDependOnOtherControllers(defaultConfiguration())
 
