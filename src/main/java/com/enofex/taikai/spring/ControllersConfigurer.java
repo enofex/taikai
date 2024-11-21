@@ -1,13 +1,13 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.spring.ValidatedController.beAnnotatedWithValidated;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRestController;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithValidated;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
@@ -113,25 +113,29 @@ public class ControllersConfigurer extends AbstractConfigurer {
         .as("Controllers should not be depend on other Controllers"), configuration));
   }
 
+  public ControllersConfigurer shouldBeAnnotatedWithValidated(String regex) {
+    return shouldBeAnnotatedWithValidated(regex, defaultConfiguration());
+  }
+
+  public ControllersConfigurer shouldBeAnnotatedWithValidated(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().haveNameMatching(regex)
+            .should(beAnnotatedWithValidated())
+            .as("Validation annotations on @RequestParam or @PathVariable require the controller to be annotated with %s."
+                .formatted(ANNOTATION_VALIDATED)),
+        configuration));
+  }
+
   public ControllersConfigurer shouldBeAnnotatedWithValidated() {
-    return shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING,
-          defaultConfiguration());
+    return shouldBeAnnotatedWithValidated(defaultConfiguration());
   }
 
   public ControllersConfigurer shouldBeAnnotatedWithValidated(Configuration configuration) {
-    return shouldBeAnnotatedWithRestController(DEFAULT_CONTROLLER_NAME_MATCHING, configuration);
-  }
-
-  public ControllersConfigurer shouldBeAnnotatedWithValidated(String regex) {
-    return shouldBeAnnotatedWithRestController(regex, defaultConfiguration());
-  }
-
-  public ControllersConfigurer shouldBeAnnotatedWithValidated(String regex,
-        Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-                .that().haveNameMatching(regex)
-                .should(be(annotatedWithValidated(true)))
-                .as("Controllers should be annotated with %s".formatted(ANNOTATION_VALIDATED)),
+                .that(are(annotatedWithControllerOrRestController(true)))
+                .should(beAnnotatedWithValidated())
+                .as("Validation annotations on @RequestParam or @PathVariable require the controller to be annotated with %s."
+                    .formatted(ANNOTATION_VALIDATED)),
           configuration));
   }
 
