@@ -97,6 +97,16 @@ void shouldFulfillConstraints() {
 
 Explore the complete [documentation](https://enofex.github.io/taikai) for comprehensive information on all available rules.
 
+## Backers
+
+The Open Source Community
+
+<br>
+<a href="https://github.com/enofex/taikai/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=enofex/taikai" />
+</a>
+<br>
+
 ## Contributing
 
 Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved. Note, that we expect everyone to follow the [Code of Conduct](https://github.com/enofex/taikai/blob/main/CODE_OF_CONDUCT.md).
@@ -122,3 +132,7 @@ To compile, test, and build
 ```shell
 ./mvnw clean package -B
 ```
+
+## Website
+
+Visit the [Taikai](https://enofex.github.io/taikai/) Website for general information and documentation.
