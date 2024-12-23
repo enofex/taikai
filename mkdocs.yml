@@ -1,0 +1,105 @@
+# Project information
+site_name: Taikai
+site_url: https://enofex.github.io/taikai
+site_author: Martin Hock
+site_description: >-
+  Taikai is an extension of the popular ArchUnit library, offering a comprehensive suite of predefined rules tailored for various technologies.
+
+# Repository
+repo_name: taikai
+repo_url: https://github.com/enofex/taikai
+
+# Copyright
+copyright: Copyright &copy; 2025 Martin Hock / Enofex
+
+# Configuration
+theme:
+  name: material
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.tooltips
+    - navigation.footer
+    - navigation.indexes
+    - search.share
+    - search.suggest
+    - toc.follow
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/favicon.ico
+  logo: assets/images/taikai-logo-light.png
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      minify_html: true
+
+# Customization
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/enofex/taikai
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/enofex
+
+# Extensions
+markdown_extensions:
+  - pymdownx.snippets
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Page tree
+nav:
+  - Home: index.md
+  - Documentation: documentation.md
+  - Contributing: contributing.md

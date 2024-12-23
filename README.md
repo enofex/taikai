@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="docs/icon.png"
+    <img src="docs/assets/images/taikai-logo-dark.png"
         height="150">
 </p>
 
@@ -95,7 +95,7 @@ void shouldFulfillConstraints() {
 
 ## User Guide
 
-Explore the complete [documentation](https://github.com/enofex/taikai/blob/main/docs/USERGUIDE.md) for comprehensive information on all available rules.
+Explore the complete [documentation](https://enofex.github.io/taikai) for comprehensive information on all available rules.
 
 ## Contributing
 
