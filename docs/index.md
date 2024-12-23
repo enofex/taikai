@@ -1,4 +1,6 @@
-# Taikai
+#
+
+<img src="assets/images/taikai-header.png" alt="Taikai logo" width="1024"/>
 
 *Taikai* extends the capabilities of the popular ArchUnit library by offering a comprehensive suite of predefined rules tailored for various technologies. It simplifies the enforcement of architectural constraints and best practices in your codebase, ensuring consistency and quality across your projects.
 
