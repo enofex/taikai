@@ -97,10 +97,10 @@ public final class TaikaiRule {
       this.namespace = namespace;
       this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.IMPORT.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
-      this.excludedClasses = excludedClasses != null ? a(excludedClasses) : emptyList();
+      this.excludedClasses = excludedClasses != null ? toClassNames(excludedClasses) : emptyList();
     }
 
-    private static <T> Collection<String> a(Collection<T> excludedClasses) {
+    private static <T> Collection<String> toClassNames(Collection<T> excludedClasses) {
       if (excludedClasses.isEmpty()) {
         return emptyList();
       }
