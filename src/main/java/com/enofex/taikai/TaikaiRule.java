@@ -10,7 +10,9 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class TaikaiRule {
@@ -91,11 +93,30 @@ public final class TaikaiRule {
     private final Collection<String> excludedClasses;
 
     private Configuration(String namespace, Namespace.IMPORT namespaceImport,
-        JavaClasses javaClasses, Collection<String> excludedClasses) {
+        JavaClasses javaClasses, Collection<?> excludedClasses) {
       this.namespace = namespace;
       this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.IMPORT.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
-      this.excludedClasses = excludedClasses != null ? excludedClasses : emptyList();
+      this.excludedClasses = excludedClasses != null ? a(excludedClasses) : emptyList();
+    }
+
+    private static <T> Collection<String> a(Collection<T> excludedClasses) {
+      if (excludedClasses.isEmpty()) {
+        return emptyList();
+      }
+
+      T firstElement = excludedClasses.iterator().next();
+
+      if (firstElement instanceof String) {
+        return new ArrayList<>((Collection<String>) excludedClasses);
+      } else if (firstElement instanceof Class<?>) {
+        return excludedClasses.stream()
+            .map(clazz -> ((Class<?>) clazz).getName())
+            .collect(Collectors.toList());
+      } else {
+        throw new IllegalArgumentException(
+            "Unsupported collection type, only String and Class<?> are supported");
+      }
     }
 
     public String namespace() {
@@ -122,7 +143,7 @@ public final class TaikaiRule {
       return new Configuration(namespace, Namespace.IMPORT.WITHOUT_TESTS, null, null);
     }
 
-    public static Configuration of(String namespace, Collection<String> excludedClasses) {
+    public static <T> Configuration of(String namespace, Collection<T> excludedClasses) {
       return new Configuration(namespace, Namespace.IMPORT.WITHOUT_TESTS, null, excludedClasses);
     }
 
@@ -139,8 +160,8 @@ public final class TaikaiRule {
       return new Configuration(namespace, namespaceImport, null, null);
     }
 
-    public static Configuration of(String namespace, Namespace.IMPORT namespaceImport,
-        Collection<String> excludedClasses) {
+    public static <T> Configuration of(String namespace, Namespace.IMPORT namespaceImport,
+        Collection<T> excludedClasses) {
       return new Configuration(namespace, namespaceImport, null, excludedClasses);
     }
 
@@ -148,11 +169,11 @@ public final class TaikaiRule {
       return new Configuration(null, null, javaClasses, null);
     }
 
-    public static Configuration of(JavaClasses javaClasses, Collection<String> excludedClasses) {
+    public static <T> Configuration of(JavaClasses javaClasses, Collection<T> excludedClasses) {
       return new Configuration(null, null, javaClasses, excludedClasses);
     }
 
-    public static Configuration of(Collection<String> excludedClasses) {
+    public static <T> Configuration of(Collection<T> excludedClasses) {
       return new Configuration(null, null, null, excludedClasses);
     }
   }
