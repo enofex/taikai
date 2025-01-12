@@ -80,6 +80,29 @@ public class NamingConfigurer extends AbstractConfigurer {
             annotationType, regex)), configuration));
   }
 
+  public NamingConfigurer classesImplementingShouldMatch(Class<?> clazz, String regex) {
+    return classesImplementingShouldMatch(clazz.getName(), regex, defaultConfiguration());
+  }
+
+  public NamingConfigurer classesImplementingShouldMatch(Class<?> clazz, String regex,
+      Configuration configuration) {
+    return classesImplementingShouldMatch(clazz.getName(), regex, configuration);
+  }
+
+  public NamingConfigurer classesImplementingShouldMatch(String typeName, String regex) {
+    return classesImplementingShouldMatch(typeName, regex, defaultConfiguration());
+  }
+
+  public NamingConfigurer classesImplementingShouldMatch(String typeName, String regex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().implement(typeName)
+        .should().haveNameMatching(regex)
+        .as("Classes implementing %s should have names matching %s".formatted(
+            typeName, regex)), configuration));
+  }
+
+
   public NamingConfigurer methodsAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
     return methodsAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
