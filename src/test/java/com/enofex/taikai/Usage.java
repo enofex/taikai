@@ -4,6 +4,7 @@ import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 
+import com.enofex.taikai.configures.Configurer;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
@@ -122,6 +123,12 @@ class Usage {
                 .packagesShouldMatchDefault(defaultConfiguration())
                 .packagesShouldMatch("regex")
                 .packagesShouldMatch("regex", defaultConfiguration())
+
+
+                .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
+                .classesImplementingShouldMatch(Configurer.class, ".*Configurer", defaultConfiguration())
+                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer", ".*Configurer")
+                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer", ".*Configurer", defaultConfiguration())
 
                 .classesShouldNotMatch(".*Impl")
                 .classesShouldNotMatch(".*Impl", defaultConfiguration())

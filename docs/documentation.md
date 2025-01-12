@@ -134,6 +134,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Naming   | `packagesShouldMatch`                                  | Packages should match specific naming patterns.                                                              |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
+| Naming   | `classesImplementingShouldMatch`                       | Classes implementing a specific interface should match specific naming patterns (e.g., `.*Impl`).            |
 | Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
 | Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with a specific annotation should match specific naming patterns.                          |
 | Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns.                                                            |
@@ -446,7 +447,9 @@ Taikai.builder()
             .packagesShouldMatch("regex")
             .classesShouldNotMatch(".*Impl")
             .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
-            .classesAnnotatedWithShouldMatch("com.company.project.Annotation", "coolClass")            
+            .classesAnnotatedWithShouldMatch("com.company.project.Annotation", "coolClass")   
+            .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
+            .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer", ".*Configurer")
             .methodsShouldNotMatch("coolMethod")
             .methodsAnnotatedWithShouldMatch(Annotation.class, "coolMethods")
             .methodsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolMethods")  
