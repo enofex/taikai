@@ -102,6 +102,27 @@ public class NamingConfigurer extends AbstractConfigurer {
             typeName, regex)), configuration));
   }
 
+  public NamingConfigurer classesAssignableToShouldMatch(Class<?> clazz, String regex) {
+    return classesAssignableToShouldMatch(clazz.getName(), regex, defaultConfiguration());
+  }
+
+  public NamingConfigurer classesAssignableToShouldMatch(Class<?> clazz, String regex,
+      Configuration configuration) {
+    return classesAssignableToShouldMatch(clazz.getName(), regex, configuration);
+  }
+
+  public NamingConfigurer classesAssignableToShouldMatch(String typeName, String regex) {
+    return classesAssignableToShouldMatch(typeName, regex, defaultConfiguration());
+  }
+
+  public NamingConfigurer classesAssignableToShouldMatch(String typeName, String regex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().areAssignableTo(typeName)
+        .should().haveNameMatching(regex)
+        .as("Classes assignable to %s should have names matching %s".formatted(
+            typeName, regex)), configuration));
+  }
 
   public NamingConfigurer methodsAnnotatedWithShouldMatch(
       Class<? extends Annotation> annotationType, String regex) {
