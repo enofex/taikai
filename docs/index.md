@@ -7,56 +7,48 @@
 [Get Started](./documentation){ .md-button .md-button--primary }
 [View on GitHub :simple-github:](https://github.com/enofex/taikai){ .md-button }
 
-# Example Usage
+## Example Usage
 
 ```java
-@Test
-void shouldFulfillConstraints() {
-  Taikai.builder()
-      .namespace("com.enofex.taikai")
-      .java(java -> java
-          .noUsageOfDeprecatedAPIs()
-          .methodsShouldNotDeclareGenericExceptions()
-          .utilityClassesShouldBeFinalAndHavePrivateConstructor()
-          .imports(imports -> imports
-              .shouldHaveNoCycles()
-              .shouldNotImport("..shaded..")
-              .shouldNotImport("org.junit.."))
-          .naming(naming -> naming
-              .classesShouldNotMatch(".*Impl")
-              .methodsShouldNotMatch("^(?!foo$|bar$).*")
-              .fieldsShouldNotMatch(".*(List|Set|Map)$")
-              .fieldsShouldMatch("com.enofex.taikai.Matcher", "matcher")
-              .constantsShouldFollowConventions()
-              .interfacesShouldNotHavePrefixI()))
-      .logging(logging -> logging
-          .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))      
-      .test(test -> test
-          .junit5(junit5 -> junit5
-              .classesShouldNotBeAnnotatedWithDisabled()
-              .methodsShouldNotBeAnnotatedWithDisabled()))
-      .spring(spring -> spring
-          .noAutowiredFields()
-          .boot(boot -> boot
-              .springBootApplicationShouldBeIn("com.enofex.taikai"))
-          .configurations(configuration -> configuration
-              .namesShouldEndWithConfiguration())
-          .controllers(controllers -> controllers
-              .shouldBeAnnotatedWithRestController()
-              .namesShouldEndWithController()
-              .shouldNotDependOnOtherControllers()
-              .shouldBePackagePrivate())
-          .services(services -> services
-              .shouldBeAnnotatedWithService()
-              .shouldNotDependOnControllers()
-              .namesShouldEndWithService())
-          .repositories(repositories -> repositories
-              .shouldBeAnnotatedWithRepository()
-              .shouldNotDependOnServices()
-              .namesShouldEndWithRepository()))      
-      .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
-      .build()
-      .check();
+class ArchitectureTest {
+
+  @Test
+  void shouldFulfilConstrains() {
+    Taikai.builder()
+        .namespace("com.company.project")
+        .java(java -> java
+            .noUsageOfDeprecatedAPIs()
+            .classesShouldImplementHashCodeAndEquals()
+            .methodsShouldNotDeclareGenericExceptions()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor())
+        .test(test -> test
+            .junit5(junit5 -> junit5
+                .classesShouldNotBeAnnotatedWithDisabled()
+                .methodsShouldNotBeAnnotatedWithDisabled()))
+        .logging(logging -> logging
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))
+        .spring(spring -> spring
+            .noAutowiredFields()
+            .boot(boot -> boot
+                .shouldBeAnnotatedWithSpringBootApplication())
+            .configurations(configuration -> configuration
+                .namesShouldEndWithConfiguration()
+                .namesShouldMatch("regex"))
+            .controllers(controllers -> controllers
+                .shouldBeAnnotatedWithRestController()
+                .namesShouldEndWithController()
+                .namesShouldMatch("regex")
+                .shouldNotDependOnOtherControllers()
+                .shouldBePackagePrivate()))
+        .services(services -> services
+            .namesShouldEndWithService()
+            .shouldBeAnnotatedWithService())
+        .repositories(repositories -> repositories
+            .namesShouldEndWithRepository()
+            .shouldBeAnnotatedWithRepository())
+        .build()
+        .check();
+  }
 }
 ```
 
