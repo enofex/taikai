@@ -1,7 +1,9 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.internal.ArchConditions.hasClassModifiers;
 import static com.enofex.taikai.internal.ArchConditions.hasFieldModifiers;
+import static com.enofex.taikai.internal.ArchConditions.hasMethodsModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notBePublicUnlessStatic;
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
@@ -140,6 +142,38 @@ public class JavaConfigurer extends AbstractConfigurer {
             .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
             .as("Methods annotated with %s should be annotated with %s".formatted(
                 annotationType, String.join(", ", requiredAnnotationTypes))),
+        configuration));
+  }
+
+  public JavaConfigurer methodsShouldHaveModifiers(String regex,
+      Collection<JavaModifier> requiredModifiers) {
+    return methodsShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldHaveModifiers(String regex,
+      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().haveNameMatching(regex)
+            .should(hasMethodsModifiers(requiredModifiers))
+            .as("Methods have name matching %s should have all of this modifiers %s".formatted(
+                regex,
+                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  public JavaConfigurer methodsShouldHaveModifiersForClass(String regex,
+      Collection<JavaModifier> requiredModifiers) {
+    return methodsShouldHaveModifiersForClass(regex, requiredModifiers, defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsShouldHaveModifiersForClass(String regex,
+      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areDeclaredIn(regex)
+            .should(hasMethodsModifiers(requiredModifiers))
+            .as("Methods in class %s should have all of this modifiers %s".formatted(
+                regex,
+                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
@@ -346,6 +380,22 @@ public class JavaConfigurer extends AbstractConfigurer {
         .should().implement(typeName)
         .as("Classes have name matching %s should implement %s".formatted(
             regex, typeName)), configuration));
+  }
+
+  public JavaConfigurer classesShouldHaveModifiers(String regex,
+      Collection<JavaModifier> requiredModifiers) {
+    return classesShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
+  }
+
+  public JavaConfigurer classesShouldHaveModifiers(String regex,
+      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().haveNameMatching(regex)
+            .should(hasClassModifiers(requiredModifiers))
+            .as("Classes have name matching %s should have all of this modifiers %s".formatted(
+                regex,
+                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
   }
 
   public JavaConfigurer fieldsShouldNotBePublic() {

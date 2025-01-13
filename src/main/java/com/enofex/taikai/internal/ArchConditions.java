@@ -105,4 +105,47 @@ public final class ArchConditions {
       }
     };
   }
+
+  /**
+   * Creates a condition that checks if a method contains all the specified modifiers.
+   *
+   * @param requiredModifiers the collection of modifiers that the method is required to have
+   * @return an architectural condition for checking if a method has the required modifiers
+   */
+  public static ArchCondition<JavaMethod> hasMethodsModifiers(
+      Collection<JavaModifier> requiredModifiers) {
+    return new ArchCondition<>("has method modifiers") {
+      @Override
+      public void check(JavaMethod method, ConditionEvents events) {
+        if (!method.getModifiers().containsAll(requiredModifiers)) {
+          events.add(SimpleConditionEvent.violated(method,
+              "Method %s in class %s is missing one of this %s modifier".formatted(
+                  method.getName(),
+                  method.getOwner().getFullName(),
+                  requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+        }
+      }
+    };
+  }
+
+  /**
+   * Creates a condition that checks if a class contains all the specified modifiers.
+   *
+   * @param requiredModifiers the collection of modifiers that the class is required to have
+   * @return an architectural condition for checking if a class has the required modifiers
+   */
+  public static ArchCondition<JavaClass> hasClassModifiers(
+      Collection<JavaModifier> requiredModifiers) {
+    return new ArchCondition<>("has class modifiers") {
+      @Override
+      public void check(JavaClass clazz, ConditionEvents events) {
+        if (!clazz.getModifiers().containsAll(requiredModifiers)) {
+          events.add(SimpleConditionEvent.violated(clazz,
+              "Class %s is missing one of this %s modifier".formatted(
+                  clazz.getName(),
+                  requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+        }
+      }
+    };
+  }
 }

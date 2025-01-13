@@ -3,6 +3,7 @@ package com.enofex.taikai;
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
+import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.Configurer;
@@ -80,6 +81,9 @@ class Usage {
             .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
             .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(), defaultConfiguration())
 
+            .classesShouldHaveModifiers("regex", List.of(PUBLIC))
+            .classesShouldHaveModifiers("regex", List.of(PUBLIC), defaultConfiguration())
+
             .methodsShouldBeAnnotatedWith("regex", DisplayName.class)
             .methodsShouldBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
             .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
@@ -97,6 +101,12 @@ class Usage {
             .methodsShouldBeAnnotatedWithAll(DisplayName.class, List.of(), defaultConfiguration())
             .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
             .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(), defaultConfiguration())
+
+            .methodsShouldHaveModifiers("regex", List.of(PRIVATE))
+            .methodsShouldHaveModifiers("regex", List.of(PRIVATE), defaultConfiguration())
+
+            .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE))
+            .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE), defaultConfiguration())
 
             .finalClassesShouldNotHaveProtectedMembers()
             .finalClassesShouldNotHaveProtectedMembers(defaultConfiguration())

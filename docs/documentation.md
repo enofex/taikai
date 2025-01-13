@@ -116,12 +116,15 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldNotBeAnnotatedWith`                      | Classes matching specific naming patterns should not be annotated with a specified annotation.               |
 | General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
 | General  | `classesShouldImplement`                               | Classes matching specific naming patterns should implement to a interface.                                   |
+| General  | `classesShouldHaveModifiers`                           | Classes matching specific naming patterns should have specified modifiers.                                   |
 | General  | `fieldsShouldHaveModifiers`                            | Fields matching specific naming patterns should have specified modifiers.                                    |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
 | General  | `methodsShouldBeAnnotatedWith`                         | Methods matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `methodsShouldBeAnnotatedWithAll`                      | Methods annotated with a specific annotation should be annotated with a specified annotations.               |
+| General  | `methodsShouldHaveModifiers`                           | Methods matching specific naming patterns should have specified modifiers.                                   |
+| General  | `methodsShouldHaveModifiersForClass`                   | Methods in a class matching specific naming patterns should have specified modifiers.                        |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
 | General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
 | General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                              |
@@ -329,6 +332,18 @@ Taikai.builder()
     .check();
 ```
 
+- **Classes Should Have a Specified Modifiers**: Ensure that classes matching a specific regex pattern have a certain modifier.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldHaveModifiers(".*Repository", List.of(PUBLIC))
+        .classesShouldHaveModifiers(".*Repository", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
 - **Methods Should Not Throw Generic Exception**: Ensure that methods do not throw generic exceptions like `Exception` and `RuntimeException` and use specific exception types instead.
 
 ```java
@@ -376,6 +391,29 @@ Taikai.builder()
     .check();
 ```
 
+- **Methods Should Have a Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsShouldHaveModifiers(".*methodRegex", List.of(PUBLIC))
+        .methodsShouldHaveModifiers(".*methodRegex", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Methods Should Have a Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsShouldHaveModifiersForClass(".*classRegex", List.of(PUBLIC))
+        .methodsShouldHaveModifiersForClass(".*classRegex", List.of(PUBLIC)))
+    .build()
+    .check();
+```
 
 - **Utility Classes Should Be Final and Have Private Constructor**: Ensure that utility classes with only `static` methods except `main` should be declared as `final` and have `private` constructors to prevent instantiation.
 
