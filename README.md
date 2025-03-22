@@ -57,7 +57,7 @@ void shouldFulfillConstraints() {
               .shouldNotImport("org.junit.."))
           .naming(naming -> naming
               .classesShouldNotMatch(".*Impl")
-              .methodsShouldNotMatch("^(?!foo$|bar$).*")
+              .methodsShouldNotMatch("^(foo$|bar$).*")
               .fieldsShouldNotMatch(".*(List|Set|Map)$")
               .fieldsShouldMatch("com.enofex.taikai.Matcher", "matcher")
               .constantsShouldFollowConventions()
