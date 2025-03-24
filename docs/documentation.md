@@ -95,6 +95,28 @@ Taikai modifiedTaikai = taikai.toBuilder()
 // Perform the check with the modified configuration
 modifiedTaikai.check();
 ```
+### 3.6 Check Method Usage
+
+#### 3.6.1  Check with Fail Fast
+The `check()` method performs the rule checks and fails immediately when the first violation is encountered. This is the default behavior, ensuring that the process halts as soon as a failure occurs.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .build()
+    .check();  // Stops on the first failure
+
+```
+
+#### 3.6.2  Check with Fail Fast
+The `checkAll()` method allows you to evaluate all rules and collect all failures before throwing an exception. It aggregates all violations and throws an exception with a detailed failure report once all rules are processed. This is useful when you want to see all the issues without stopping at the first failure.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .build()
+    .checkAll();  // Collects all errors before failing
+```
 
 ## 4. Rules Overview
 
