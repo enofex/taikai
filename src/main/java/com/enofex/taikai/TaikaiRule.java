@@ -50,7 +50,7 @@ public final class TaikaiRule {
     this.archRule.check(javaClasses(globalNamespace, classes, excludedClasses));
   }
 
-  private JavaClasses javaClasses(String globalNamespace, JavaClasses classes,
+  JavaClasses javaClasses(String globalNamespace, JavaClasses classes,
       Collection<String> excludedClasses) {
     if (this.configuration.javaClasses() != null) {
       return this.configuration.javaClasses();

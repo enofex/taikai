@@ -14,6 +14,9 @@ import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.lang.EvaluationResult;
+import com.tngtech.archunit.lang.FailureReport;
+import com.tngtech.archunit.lang.Priority;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -66,8 +69,38 @@ public final class Taikai {
     return this.rules;
   }
 
+  /**
+   * Executes all rules and fails immediately on the first violation.
+   *
+   * <p>Each rule is checked sequentially, and if a rule fails, an exception
+   * is thrown immediately, stopping further execution.</p>
+   */
   public void check() {
     this.rules.forEach(rule -> rule.check(this.namespace, this.classes, this.excludedClasses));
+  }
+
+  /**
+   * Executes all rules and collects all violations before failing.
+   *
+   * <p>Unlike {@link #check()}, this method evaluates all rules and
+   * aggregates all failures into a single report. If violations exist, an {@link AssertionError} is
+   * thrown with a detailed failure summary.</p>
+   *
+   * @throws AssertionError if any rule violations are found.
+   */
+  public void checkAll() {
+    EvaluationResult result = new EvaluationResult(() -> "All Taikai rules", Priority.MEDIUM);
+
+    for (TaikaiRule rule : this.rules) {
+      result.add(rule.archRule()
+          .evaluate(rule.javaClasses(this.namespace, this.classes, this.excludedClasses)));
+    }
+
+    FailureReport report = result.getFailureReport();
+
+    if (!report.isEmpty()) {
+      throw new AssertionError(report.toString());
+    }
   }
 
   public static Builder builder() {

@@ -76,7 +76,7 @@ final class ContainAssertionsOrVerifications {
 
       private boolean taikai(JavaMethodCall call) {
         return "com.enofex.taikai.Taikai".equals(call.getTargetOwner().getName())
-            && "check".equals(call.getName());
+            && ("check".equals(call.getName()) || "checkAll".equals(call.getName())) ;
       }
     };
   }
