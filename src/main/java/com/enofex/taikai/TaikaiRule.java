@@ -47,33 +47,33 @@ public final class TaikaiRule {
 
   public void check(String globalNamespace, JavaClasses classes,
       Collection<String> excludedClasses) {
+    this.archRule.check(javaClasses(globalNamespace, classes, excludedClasses));
+  }
+
+  private JavaClasses javaClasses(String globalNamespace, JavaClasses classes,
+      Collection<String> excludedClasses) {
     if (this.configuration.javaClasses() != null) {
-      this.archRule.check(this.configuration.javaClasses());
-    } else if (classes != null) {
-      this.archRule.check(classes);
-    } else {
-      String namespace = this.configuration.namespace() != null
-          ? this.configuration.namespace()
-          : globalNamespace;
-
-      if (namespace == null) {
-        throw new TaikaiException("Namespace is not provided");
-      }
-
-      Collection<String> allExcludedClasses = allExcludedClasses(excludedClasses);
-
-      if (allExcludedClasses.isEmpty()) {
-        this.archRule.check(Namespace.from(namespace, this.configuration.namespaceImport));
-      } else {
-        this.archRule.check(Namespace.from(namespace, this.configuration.namespaceImport)
-            .that(new DescribedPredicate<>("exclude classes") {
-              @Override
-              public boolean test(JavaClass javaClass) {
-                return !allExcludedClasses.contains(javaClass.getFullName());
-              }
-            }));
-      }
+      return this.configuration.javaClasses();
     }
+
+    if (classes != null) {
+      return classes;
+    }
+
+    String namespace = this.configuration.namespace() != null
+        ? this.configuration.namespace()
+        : globalNamespace;
+
+    if (namespace == null) {
+      throw new TaikaiException("Namespace is not provided");
+    }
+
+    Collection<String> allExcludedClasses = allExcludedClasses(excludedClasses);
+    JavaClasses javaClasses = Namespace.from(namespace, this.configuration.namespaceImport);
+
+    return allExcludedClasses.isEmpty()
+        ? javaClasses
+        : javaClasses.that(new ExcludeJavaClassDescribedPredicate(allExcludedClasses));
   }
 
   private Collection<String> allExcludedClasses(Collection<String> excludedClasses) {
@@ -175,6 +175,22 @@ public final class TaikaiRule {
 
     public static <T> Configuration of(Collection<T> excludedClasses) {
       return new Configuration(null, null, null, excludedClasses);
+    }
+  }
+
+  private static final class ExcludeJavaClassDescribedPredicate extends
+      DescribedPredicate<JavaClass> {
+
+    private final Collection<String> allExcludedClasses;
+
+    ExcludeJavaClassDescribedPredicate(Collection<String> allExcludedClasses) {
+      super("exclude classes");
+      this.allExcludedClasses = allExcludedClasses;
+    }
+
+    @Override
+    public boolean test(JavaClass javaClass) {
+      return !this.allExcludedClasses.contains(javaClass.getFullName());
     }
   }
 }
