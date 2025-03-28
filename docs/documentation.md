@@ -108,7 +108,7 @@ Taikai.builder()
 
 ```
 
-#### 3.6.2  Check with Fail Fast
+#### 3.6.2  Check without Fail Fast
 The `checkAll()` method allows you to evaluate all rules and collect all failures before throwing an exception. It aggregates all violations and throws an exception with a detailed failure report once all rules are processed. This is useful when you want to see all the issues without stopping at the first failure.
 
 ```java
