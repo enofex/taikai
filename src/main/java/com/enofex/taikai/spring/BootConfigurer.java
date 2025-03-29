@@ -29,6 +29,7 @@ public class BootConfigurer extends AbstractConfigurer {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithSpringBootApplication(true)))
         .should().resideInAPackage(packageIdentifier)
+        .allowEmptyShould(false)
         .as("Classes annotated with %s should be located in %s".formatted(
             ANNOTATION_SPRING_BOOT_APPLICATION, packageIdentifier)), configuration));
   }
