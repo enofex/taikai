@@ -12,6 +12,7 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -181,16 +182,19 @@ public final class TaikaiRule {
   private static final class ExcludeJavaClassDescribedPredicate extends
       DescribedPredicate<JavaClass> {
 
-    private final Collection<String> allExcludedClasses;
+    private final Collection<Pattern> allExcludedClassPatterns;
 
     ExcludeJavaClassDescribedPredicate(Collection<String> allExcludedClasses) {
       super("exclude classes");
-      this.allExcludedClasses = allExcludedClasses;
+      this.allExcludedClassPatterns = allExcludedClasses.stream()
+          .map(Pattern::compile)
+          .toList();
     }
 
     @Override
     public boolean test(JavaClass javaClass) {
-      return !this.allExcludedClasses.contains(javaClass.getFullName());
+      return this.allExcludedClassPatterns.stream()
+          .noneMatch(pattern -> pattern.matcher(javaClass.getFullName()).matches());
     }
   }
 }
