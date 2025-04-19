@@ -163,6 +163,23 @@
                 </rules>
               </configuration>
             </execution>
+            <execution>
+              <id>enforce-no-snapshots</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireReleaseDeps>
+                    <message>No Snapshots Allowed!</message>
+                    <excludes>
+                      <exclude>com.enofex</exclude>
+                    </excludes>
+                  </requireReleaseDeps>
+                </rules>
+                <fail>true</fail>
+              </configuration>
+            </execution>
           </executions>
         </plugin>
         <plugin>
