@@ -30,7 +30,7 @@
 
     <junit-jupiter.version>5.12.2</junit-jupiter.version>
     <mockito.version>5.17.0</mockito.version>
-    <archunit.version>1.4.0</archunit.version>
+    <archunit.version>1.4.1</archunit.version>
 
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
