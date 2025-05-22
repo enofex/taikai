@@ -136,3 +136,7 @@ The Open Source Community
 ## Website
 
 Visit the [Taikai](https://enofex.github.io/taikai/) Website for general information and documentation.
+
+## Links
+
+https://dzone.com/articles/enforcing-architecture-with-archunit-in-java
