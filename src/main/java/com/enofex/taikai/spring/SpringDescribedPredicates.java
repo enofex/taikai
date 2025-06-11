@@ -9,7 +9,7 @@ final class SpringDescribedPredicates {
 
   static final String ANNOTATION_CONFIGURATION = "org.springframework.context.annotation.Configuration";
   static final String ANNOTATION_CONFIGURATION_PROPERTIES = "org.springframework.boot.context.properties.ConfigurationProperties";
-  static final String ANNOTATION_CONTROLLER = "org.springframework.web.bind.annotation.Controller";
+  static final String ANNOTATION_CONTROLLER = "org.springframework.stereotype.Controller";
   static final String ANNOTATION_REST_CONTROLLER = "org.springframework.web.bind.annotation.RestController";
   static final String ANNOTATION_SERVICE = "org.springframework.stereotype.Service";
   static final String ANNOTATION_REPOSITORY = "org.springframework.stereotype.Repository";
