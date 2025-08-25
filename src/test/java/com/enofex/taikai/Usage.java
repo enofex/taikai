@@ -108,6 +108,11 @@ class Usage {
             .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
             .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(), defaultConfiguration())
 
+            .methodsAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class)
+            .methodsAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class, defaultConfiguration())
+            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled")
+            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled", defaultConfiguration())
+
             .methodsShouldHaveModifiers("regex", List.of(PRIVATE))
             .methodsShouldHaveModifiers("regex", List.of(PRIVATE), defaultConfiguration())
 
