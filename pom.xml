@@ -194,13 +194,13 @@
               </signing>
               <deploy>
                 <maven>
-                <mavenCentral>
-                <sonatype>
-                <active>ALWAYS</active>
-                <url>https://central.sonatype.com/api/v1/publisher</url>
-                <stagingRepositories>target/staging-deploy</stagingRepositories>
-                </sonatype>
-                </mavenCentral>
+                  <mavenCentral>
+                    <sonatype>
+                      <active>ALWAYS</active>
+                      <url>https://central.sonatype.com/api/v1/publisher</url>
+                      <stagingRepositories>target/staging-deploy</stagingRepositories>
+                    </sonatype>
+                  </mavenCentral>
                 </maven>
               </deploy>
             </jreleaser>
