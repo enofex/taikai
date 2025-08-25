@@ -194,15 +194,13 @@
               </signing>
               <deploy>
                 <maven>
-                  <nexus2>
-                    <maven-central>
-                      <active>ALWAYS</active>
-                      <url>https://central.sonatype.com/api/v1/publisher</url>
-                      <closeRepository>true</closeRepository>
-                      <releaseRepository>true</releaseRepository>
-                      <stagingRepositories>target/staging-deploy</stagingRepositories>
-                    </maven-central>
-                  </nexus2>
+                <mavenCentral>
+                <sonatype>
+                <active>ALWAYS</active>
+                <url>https://central.sonatype.com/api/v1/publisher</url>
+                <stagingRepositories>target/staging-deploy</stagingRepositories>
+                </sonatype>
+                </mavenCentral>
                 </maven>
               </deploy>
             </jreleaser>
