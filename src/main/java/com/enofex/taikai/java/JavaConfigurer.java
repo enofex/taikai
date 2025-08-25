@@ -145,6 +145,29 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
+      Class<? extends Annotation> notAnnotationType) {
+    return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
+      Class<? extends Annotation> notAnnotationType, Configuration configuration) {
+    return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), configuration);
+  }
+
+  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType) {
+    return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType, notAnnotationType, defaultConfiguration());
+  }
+
+  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areAnnotatedWith(annotationType)
+        .should().notBeMetaAnnotatedWith(notAnnotationType)
+        .as("Methods annotated with %s should not be annotated with %s".formatted(annotationType,
+            notAnnotationType)), configuration));
+  }
+
   public JavaConfigurer methodsShouldHaveModifiers(String regex,
       Collection<JavaModifier> requiredModifiers) {
     return methodsShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());

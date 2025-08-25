@@ -146,6 +146,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
 | General  | `methodsShouldBeAnnotatedWith`                         | Methods matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `methodsShouldBeAnnotatedWithAll`                      | Methods annotated with a specific annotation should be annotated with a specified annotations.               |
+| General  | `methodsAnnotatedWithShouldNotBeAnnotatedWith`         | Methods annotated with a specific annotation should not be annotated with a specified annotation.            |
 | General  | `methodsShouldHaveModifiers`                           | Methods matching specific naming patterns should have specified modifiers.                                   |
 | General  | `methodsShouldHaveModifiersForClass`                   | Methods in a class matching specific naming patterns should have specified modifiers.                        |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
@@ -422,6 +423,18 @@ Taikai.builder()
     .java(java -> java
         .methodsShouldBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class))
         .methodsShouldBeAnnotatedWithAll("org.springframework.data.jpa.repository.Modifying", List.of("org.springframework.transaction.annotation.Transactional", "org.springframework.data.jpa.repository.Query"))
+    .build()
+    .check();
+```
+
+- **Methods Annotated with a Specified Annotation Should not be annotated with a Specified Annotation.**: Ensure that methods annotated with a specific not also be annotated with another specified annotation.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class)    
+        .methodsAnnotatedWithShouldNotBeAnnotatedWith("com.company.project.PublicApi", "com.company.project.InternalApi"))
     .build()
     .check();
 ```
