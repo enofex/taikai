@@ -41,7 +41,7 @@ jobs:
           JRELEASER_GPG_SECRET_KEY: ${{ secrets.JRELEASER_GPG_SECRET_KEY }}
           JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.JRELEASER_GPG_PUBLIC_KEY }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.JRELEASER_GITHUB_TOKEN }}
-        run: ./mvnw --no-transfer-progress --batch-mode -Prelease deploy jreleaser:deploy
+        run: ./mvnw -X --no-transfer-progress --batch-mode -Prelease deploy jreleaser:deploy
 
       - name: Set next version
         run: ./mvnw --no-transfer-progress --batch-mode build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.nextIncrementalVersion}-SNAPSHOT versions:commit
