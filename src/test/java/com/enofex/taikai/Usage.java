@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 
 class Usage {
@@ -60,6 +61,11 @@ class Usage {
             .classesShouldNotBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
             .classesShouldNotBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
             .classesShouldNotBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName", defaultConfiguration())
+
+            .classesAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class)
+            .classesAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class, defaultConfiguration())
+            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled")
+            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled", defaultConfiguration())
 
             .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai")
             .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai", defaultConfiguration())
