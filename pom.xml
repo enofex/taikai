@@ -198,8 +198,6 @@
                     <maven-central>
                       <active>ALWAYS</active>
                       <url>https://central.sonatype.com/api/v1/publisher</url>
-                      <snapshotUrl>https://s01.oss.sonatype.org/content/repositories/snapshots/
-                      </snapshotUrl>
                       <closeRepository>true</closeRepository>
                       <releaseRepository>true</releaseRepository>
                       <stagingRepositories>target/staging-deploy</stagingRepositories>
