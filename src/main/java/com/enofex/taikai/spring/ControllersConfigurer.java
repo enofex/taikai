@@ -9,8 +9,8 @@ import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithCo
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRestController;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
-import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.onlyHaveDependentClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
@@ -109,7 +109,7 @@ public class ControllersConfigurer extends AbstractConfigurer {
   public ControllersConfigurer shouldNotDependOnOtherControllers(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithControllerOrRestController(true)))
-        .should(not(dependOnClassesThat(are(annotatedWithControllerOrRestController(true)))))
+        .should(not(onlyHaveDependentClassesThat(are(annotatedWithControllerOrRestController(true)))))
         .as("Controllers should not be depend on other Controllers"), configuration));
   }
 
