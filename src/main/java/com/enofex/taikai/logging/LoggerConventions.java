@@ -20,7 +20,7 @@ final class LoggerConventions {
             typeName, regex, requiredModifiers)) {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        for (JavaField field : javaClass.getAllFields()) {
+        for (JavaField field : javaClass.getFields()) {
           if (field.getRawType().isAssignableTo(typeName)) {
             if (!field.getName().matches(regex)) {
               events.add(SimpleConditionEvent.violated(field,
