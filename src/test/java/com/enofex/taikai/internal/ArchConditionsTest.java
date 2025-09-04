@@ -132,4 +132,59 @@ class ArchConditionsTest {
 
     verify(this.events).add(any(SimpleConditionEvent.class));
   }
+
+  @Test
+  void shouldHaveRequiredMethodModifiers() {
+    Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC);
+    when(this.mockMethod.getModifiers()).thenReturn(requiredModifiers);
+
+    ArchConditions.hasMethodsModifiers(requiredModifiers).check(this.mockMethod, this.events);
+
+    verify(this.events, never()).add(any(SimpleConditionEvent.class));
+  }
+
+  @Test
+  void shouldNotHaveRequiredMethodModifiers() {
+    Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC);
+    when(this.mockMethod.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
+    when(this.mockMethod.getName()).thenReturn("someMethod");
+    when(this.mockMethod.getOwner()).thenReturn(this.mockClass);
+
+    ArchConditions.hasMethodsModifiers(requiredModifiers).check(this.mockMethod, this.events);
+
+    ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
+    verify(this.events).add(eventCaptor.capture());
+    assertEquals("Method %s in class %s is missing one of this %s modifier".formatted(
+            this.mockMethod.getName(),
+            this.mockClass.getFullName(),
+            "PUBLIC, STATIC"),
+        eventCaptor.getValue().getDescriptionLines().get(0));
+  }
+
+  @Test
+  void shouldHaveRequiredClassModifiers() {
+    Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL);
+    when(this.mockClass.getModifiers()).thenReturn(requiredModifiers);
+
+    ArchConditions.hasClassModifiers(requiredModifiers).check(this.mockClass, this.events);
+
+    verify(this.events, never()).add(any(SimpleConditionEvent.class));
+  }
+
+  @Test
+  void shouldNotHaveRequiredClassModifiers() {
+    Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL);
+    when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
+    when(this.mockClass.getName()).thenReturn("MyClass");
+
+    ArchConditions.hasClassModifiers(requiredModifiers).check(this.mockClass, this.events);
+
+    ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
+    verify(this.events).add(eventCaptor.capture());
+    assertEquals("Class %s is missing one of this %s modifier".formatted(
+            this.mockClass.getName(),
+            "PUBLIC, FINAL"),
+        eventCaptor.getValue().getDescriptionLines().get(0));
+  }
+
 }
