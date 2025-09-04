@@ -36,6 +36,22 @@ class LoggingConfigurerTest {
     assertDoesNotThrow(taikai::check);
   }
 
+  /**
+   * Violations in base classes should not be reported, as the base class may be part
+   * of an external library, which is not under control of the developer.
+   */
+  @Test
+  void shouldApplyLoggerConventionsEvenIfLoggerInBaseClassDoesNotFollowConventions() {
+    Taikai taikai = Taikai.builder()
+        .classes(new ClassFileImporter().importClasses(SubClassNotViolatingConventions.class))
+        .logging(logging -> logging
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
+                List.of(PRIVATE, FINAL)))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
   @Test
   void shouldThrowLoggerConventionsWithClassNaming() {
     Taikai taikai = Taikai.builder()
@@ -71,5 +87,8 @@ class LoggingConfigurerTest {
   private static class LoggerConventionsPartiallyModifier {
     private Logger logger = Logger.getLogger(
         LoggerConventionsPartiallyModifier.class.getName());
+  }
+
+  private static class SubClassNotViolatingConventions extends LoggerConventionsNotFollowedNaming {
   }
 }
