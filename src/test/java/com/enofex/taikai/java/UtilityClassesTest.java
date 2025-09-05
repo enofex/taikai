@@ -81,7 +81,10 @@ class UtilityClassesTest {
     }
   }
 
-  private static final class FinalUtilityClassWithImplicitPublicConstructor {
+  /**
+   * Class must be declared as public, otherwise the implicit constructor is private.
+   */
+  public static final class FinalUtilityClassWithImplicitPublicConstructor {
 
     public static int number() {
       return 42;
