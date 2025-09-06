@@ -1,6 +1,7 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.internal.Modifiers.isMethodStatic;
+import static com.tngtech.archunit.base.DescribedPredicate.doNot;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 import com.enofex.taikai.internal.Modifiers;
@@ -17,7 +18,7 @@ final class UtilityClasses {
   }
 
   static GivenClassesConjunction utilityClasses() {
-    return classes().that(haveOnlyStaticMethods());
+    return classes().that(haveOnlyStaticMethods()).and(doNot(extendAnyClass()));
   }
 
   private static DescribedPredicate<JavaClass> haveOnlyStaticMethods() {
@@ -26,6 +27,18 @@ final class UtilityClasses {
       public boolean test(JavaClass javaClass) {
         return !javaClass.getMethods().isEmpty() && javaClass.getMethods().stream()
             .allMatch(method -> isMethodStatic(method) && !"main".equals(method.getName()));
+      }
+    };
+  }
+
+  private static DescribedPredicate<JavaClass> extendAnyClass() {
+    return new DescribedPredicate<>("extend any class") {
+      @Override
+      public boolean test(JavaClass javaClass) {
+        return javaClass.getSuperclass()
+            // Ignore implicit Object super class.
+            .filter(superClass -> !Object.class.getName().equals(superClass.getName()))
+            .isPresent();
       }
     };
   }
