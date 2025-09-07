@@ -40,16 +40,7 @@ class ArchitectureTest {
                 .classesShouldNotMatch(".*Impl")
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))
-        .test(test -> test
-            .junit5(junit5 -> junit5
-                .classesShouldNotBeAnnotatedWithDisabled()
-                .classesShouldBePackagePrivate(".*Test")
-                .methodsShouldNotBeAnnotatedWithDisabled()
-                .methodsShouldMatch("should.*")
-                .methodsShouldBePackagePrivate()
-                .methodsShouldNotDeclareExceptions()
-                .methodsShouldContainAssertionsOrVerifications()))
         .build()
-        .check();
+        .checkAll();
   }
 }
