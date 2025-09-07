@@ -187,7 +187,8 @@ public final class TaikaiRule {
     ExcludeJavaClassDescribedPredicate(Collection<String> allExcludedClasses) {
       super("exclude classes");
       this.allExcludedClassPatterns = allExcludedClasses.stream()
-          .map(Pattern::compile)
+              .map(Pattern::quote)
+              .map(Pattern::compile)
           .toList();
     }
 
