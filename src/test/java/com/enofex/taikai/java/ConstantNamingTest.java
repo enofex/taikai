@@ -7,6 +7,8 @@ import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.Serializable;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ConstantNamingTest {
 
@@ -40,6 +42,16 @@ class ConstantNamingTest {
     assertDoesNotThrow(taikai::check);
   }
 
+  @Test
+  void shouldIgnoreExcludedFields() {
+    Taikai taikai = Taikai.builder()
+        .classes(new ClassFileImporter().importClasses(LoggerField.class))
+        .java(java -> java.naming(NamingConfigurer::constantsShouldFollowConventions))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
   static class ValidConstants {
 
     private static final String SOME_VALUE = "ABC";
@@ -55,5 +67,10 @@ class ConstantNamingTest {
   static class SerialVersionUIDClass implements Serializable {
 
     private static final long serialVersionUID = 1L;
+  }
+
+  static class LoggerField {
+
+    private static final Logger log = LoggerFactory.getLogger(LoggerField.class);
   }
 }
