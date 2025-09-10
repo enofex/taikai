@@ -19,12 +19,13 @@ final class ConstantNaming {
   private ConstantNaming() {
   }
 
-  static ArchCondition<JavaField> shouldFollowConstantNamingConventions() {
+  static ArchCondition<JavaField> shouldFollowConstantNamingConventions(
+      Collection<String> excludedFields) {
     return new ArchCondition<>("follow constant naming convention") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
         if (!isFieldSynthetic(field)
-            && !"serialVersionUID".equals(field.getName())
+            && !excludedFields.contains(field.getName())
             && !CONSTANT_NAME_PATTERN.matcher(field.getName()).matches()) {
           events.add(SimpleConditionEvent.violated(field,
               "Constant %s in class %s does not follow the naming convention".formatted(

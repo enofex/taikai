@@ -254,7 +254,7 @@ public class NamingConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
         .that().areFinal().and().areStatic()
-        .should(shouldFollowConstantNamingConventions())
+        .should(shouldFollowConstantNamingConventions(excludedFields))
         .as("Constants should follow constant naming conventions"), configuration));
   }
 
