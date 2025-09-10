@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.Serializable;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +47,8 @@ class ConstantNamingTest {
   void shouldIgnoreExcludedFields() {
     Taikai taikai = Taikai.builder()
         .classes(new ClassFileImporter().importClasses(LoggerField.class))
-        .java(java -> java.naming(NamingConfigurer::constantsShouldFollowConventions))
+        .java(
+            java -> java.naming(naming -> naming.constantsShouldFollowConventions(List.of("log"))))
         .build();
 
     assertDoesNotThrow(taikai::check);

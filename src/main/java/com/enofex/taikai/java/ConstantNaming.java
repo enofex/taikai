@@ -6,9 +6,13 @@ import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Pattern;
 
 final class ConstantNaming {
+
+  static final Collection<String> DEFAULT_EXCLUDED_FIELDS = List.of("serialVersionUID");
 
   private static final Pattern CONSTANT_NAME_PATTERN = Pattern.compile("^[A-Z][A-Z0-9_]*$");
 

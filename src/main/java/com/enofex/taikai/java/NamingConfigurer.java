@@ -20,6 +20,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 
 public class NamingConfigurer extends AbstractConfigurer {
 
@@ -237,10 +238,20 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer constantsShouldFollowConventions() {
-    return constantsShouldFollowConventions(defaultConfiguration());
+    return constantsShouldFollowConventions(ConstantNaming.DEFAULT_EXCLUDED_FIELDS,
+        defaultConfiguration());
+  }
+
+  public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields) {
+    return constantsShouldFollowConventions(excludedFields, defaultConfiguration());
   }
 
   public NamingConfigurer constantsShouldFollowConventions(Configuration configuration) {
+    return constantsShouldFollowConventions(ConstantNaming.DEFAULT_EXCLUDED_FIELDS, configuration);
+  }
+
+  public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
         .that().areFinal().and().areStatic()
         .should(shouldFollowConstantNamingConventions())
