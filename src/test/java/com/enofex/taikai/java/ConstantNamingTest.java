@@ -6,7 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ConstantNamingTest {
 
@@ -40,6 +44,41 @@ class ConstantNamingTest {
     assertDoesNotThrow(taikai::check);
   }
 
+  @Test
+  void shouldIgnoreExcludedFields() {
+    Taikai taikai = Taikai.builder()
+        .classes(new ClassFileImporter().importClasses(LoggerField.class))
+        .java(
+            java -> java.naming(naming -> naming.constantsShouldFollowConventions(List.of("log"))))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldIgnoreExcludedFieldsIfMultipleFieldNamesAreProvided() {
+    Taikai taikai = Taikai.builder()
+        .classes(new ClassFileImporter().importClasses(LoggerField.class))
+        .java(
+            java -> java.naming(
+                naming -> naming.constantsShouldFollowConventions(List.of("log", "logger"))))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldThrowOnSerialVersionUIDWhenNoFieldsAreExcluded() {
+    Taikai taikai = Taikai.builder()
+        .classes(new ClassFileImporter().importClasses(SerialVersionUIDClass.class))
+        .java(
+            java -> java.naming(
+                naming -> naming.constantsShouldFollowConventions(Collections.emptyList())))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
   static class ValidConstants {
 
     private static final String SOME_VALUE = "ABC";
@@ -55,5 +94,10 @@ class ConstantNamingTest {
   static class SerialVersionUIDClass implements Serializable {
 
     private static final long serialVersionUID = 1L;
+  }
+
+  static class LoggerField {
+
+    private static final Logger log = LoggerFactory.getLogger(LoggerField.class);
   }
 }

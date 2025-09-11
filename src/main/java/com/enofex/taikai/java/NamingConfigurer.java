@@ -20,10 +20,16 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.lang.annotation.Annotation;
+import java.util.Collection;
+import java.util.List;
 
 public class NamingConfigurer extends AbstractConfigurer {
 
   private static final String PACKAGE_NAME_REGEX = "^[a-z_]+(\\.[a-z_][a-z0-9_]*)*$";
+
+  private static final Collection<String> DEFAULT_FIELDS_EXCLUDED_FROM_CONSTANT_NAMING = List.of(
+      "serialVersionUID"
+  );
 
   NamingConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
@@ -237,13 +243,24 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   public NamingConfigurer constantsShouldFollowConventions() {
-    return constantsShouldFollowConventions(defaultConfiguration());
+    return constantsShouldFollowConventions(DEFAULT_FIELDS_EXCLUDED_FROM_CONSTANT_NAMING,
+        defaultConfiguration());
+  }
+
+  public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields) {
+    return constantsShouldFollowConventions(excludedFields, defaultConfiguration());
   }
 
   public NamingConfigurer constantsShouldFollowConventions(Configuration configuration) {
+    return constantsShouldFollowConventions(DEFAULT_FIELDS_EXCLUDED_FROM_CONSTANT_NAMING,
+        configuration);
+  }
+
+  public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
         .that().areFinal().and().areStatic()
-        .should(shouldFollowConstantNamingConventions())
+        .should(shouldFollowConstantNamingConventions(excludedFields))
         .as("Constants should follow constant naming conventions"), configuration));
   }
 
