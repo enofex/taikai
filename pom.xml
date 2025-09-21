@@ -29,7 +29,7 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <junit-jupiter.version>5.13.4</junit-jupiter.version>
-    <mockito.version>5.19.0</mockito.version>
+    <mockito.version>5.20.0</mockito.version>
     <archunit.version>1.4.1</archunit.version>
 
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
