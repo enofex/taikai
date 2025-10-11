@@ -16,6 +16,18 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Represents a single executable Taikai architectural rule wrapping an ArchUnit {@link ArchRule}.
+ *
+ * <p>A {@code TaikaiRule} provides optional configuration via
+ * {@link Configuration}, allowing customization of namespaces, import options, or class exclusions.</p>
+ *
+ * <p>Instances can be created via {@link #of(ArchRule)} or {@link #of(ArchRule, Configuration)}.</p>
+ *
+ * @see ArchRule
+ * @see Namespace
+ * @see Taikai
+ */
 public final class TaikaiRule {
 
   private final ArchRule archRule;
@@ -26,26 +38,61 @@ public final class TaikaiRule {
     this.configuration = requireNonNullElse(configuration, defaultConfiguration());
   }
 
+  /**
+   * Returns the underlying ArchUnit {@link ArchRule}.
+   *
+   * @return the wrapped ArchRule
+   */
   public ArchRule archRule() {
     return this.archRule;
   }
 
+  /**
+   * Returns the {@link Configuration} associated with this rule.
+   *
+   * @return the rule configuration
+   */
   public Configuration configuration() {
     return this.configuration;
   }
 
+  /**
+   * Creates a {@link TaikaiRule} from a given {@link ArchRule} with the default configuration.
+   *
+   * @param archRule the ArchUnit rule to wrap
+   * @return a new TaikaiRule instance
+   */
   public static TaikaiRule of(ArchRule archRule) {
     return new TaikaiRule(archRule, defaultConfiguration());
   }
 
+  /**
+   * Creates a {@link TaikaiRule} with a custom {@link Configuration}.
+   *
+   * @param archRule the ArchUnit rule to wrap
+   * @param configuration the rule configuration
+   * @return a new TaikaiRule instance
+   */
   public static TaikaiRule of(ArchRule archRule, Configuration configuration) {
     return new TaikaiRule(archRule, configuration);
   }
 
+  /**
+   * Executes this rule for the given namespace.
+   *
+   * @param globalNamespace the namespace to analyze
+   */
   public void check(String globalNamespace) {
     check(globalNamespace, null, emptySet());
   }
 
+  /**
+   * Executes this rule for the given namespace or set of classes, excluding specific class names.
+   *
+   * @param globalNamespace the global namespace (used if no explicit namespace is configured)
+   * @param classes optional pre-imported Java classes to analyze
+   * @param excludedClasses optional list of fully qualified class names to exclude
+   */
   public void check(String globalNamespace, JavaClasses classes,
       Collection<String> excludedClasses) {
     this.archRule.check(javaClasses(globalNamespace, classes, excludedClasses));
@@ -187,8 +234,8 @@ public final class TaikaiRule {
     ExcludeJavaClassDescribedPredicate(Collection<String> allExcludedClasses) {
       super("exclude classes");
       this.allExcludedClassPatterns = allExcludedClasses.stream()
-              .map(Pattern::quote)
-              .map(Pattern::compile)
+          .map(Pattern::quote)
+          .map(Pattern::compile)
           .toList();
     }
 

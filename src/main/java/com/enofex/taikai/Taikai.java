@@ -23,6 +23,26 @@ import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * Central entry point for defining and executing Taikai architectural rules.
+ *
+ * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration
+ * through various {@code Configurer} implementations (Java, Spring, Logging, Test),
+ * and executes rules against the imported {@link JavaClasses} for a given namespace.</p>
+ *
+ * <p>Rules can be executed in two modes:
+ * <ul>
+ *   <li>{@link #check()} – stops at the first failure</li>
+ *   <li>{@link #checkAll()} – evaluates all rules and aggregates failures</li>
+ * </ul>
+ *
+ * <p>Use the {@link Builder} to configure and create an instance.</p>
+ *
+ * @see TaikaiRule
+ * @see Configurer
+ * @see Configurers
+ * @see Namespace
+ */
 public final class Taikai {
 
   private final boolean failOnEmpty;
@@ -49,31 +69,58 @@ public final class Taikai {
         .setProperty("archRule.failOnEmptyShould", Boolean.toString(this.failOnEmpty));
   }
 
+  /**
+   * Returns whether Taikai should fail when a rule has no matching elements.
+   *
+   * @return {@code true} if Taikai should fail on empty rules, {@code false} otherwise
+   */
   public boolean failOnEmpty() {
     return this.failOnEmpty;
   }
 
+  /**
+   * Returns the namespace configured for rule evaluation.
+   *
+   * @return the package namespace, or {@code null} if {@link #classes()} is used instead
+   */
   public String namespace() {
     return this.namespace;
   }
 
+  /**
+   * Returns the {@link JavaClasses} directly provided for rule evaluation.
+   *
+   * @return the imported Java classes, or {@code null} if {@link #namespace()} is used instead
+   */
   public JavaClasses classes() {
     return this.classes;
   }
 
+  /**
+   * Returns the list of excluded class names that should not be validated by any rule.
+   *
+   * @return collection of fully qualified class names to exclude
+   */
   public Collection<String> excludedClasses() {
     return this.excludedClasses;
   }
 
+  /**
+   * Returns all active {@link TaikaiRule} instances that will be executed.
+   *
+   * @return collection of active Taikai rules
+   */
   public Collection<TaikaiRule> rules() {
     return this.rules;
   }
 
   /**
-   * Executes all rules and fails immediately on the first violation.
+   * Executes all configured rules and fails immediately on the first violation.
    *
-   * <p>Each rule is checked sequentially, and if a rule fails, an exception
-   * is thrown immediately, stopping further execution.</p>
+   * <p>Each rule is evaluated sequentially. If a rule fails, execution stops and
+   * an {@link AssertionError} is thrown with the failure details.</p>
+   *
+   * @throws AssertionError if any rule fails
    */
   public void check() {
     this.rules.forEach(rule -> rule.check(this.namespace, this.classes, this.excludedClasses));
