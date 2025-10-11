@@ -149,6 +149,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `methodsAnnotatedWithShouldNotBeAnnotatedWith`         | Methods annotated with a specific annotation should not be annotated with a specified annotation.            |
 | General  | `methodsShouldHaveModifiers`                           | Methods matching specific naming patterns should have specified modifiers.                                   |
 | General  | `methodsShouldHaveModifiersForClass`                   | Methods in a class matching specific naming patterns should have specified modifiers.                        |
+| General  | `methodsShouldNotExceedMaxParameters`                  | Methods in a class should not have more than the specified maximum number of parameters.                     |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
 | General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
 | General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                              |
@@ -459,6 +460,17 @@ Taikai.builder()
     .java(java -> java
         .methodsShouldHaveModifiersForClass(".*classRegex", List.of(PUBLIC))
         .methodsShouldHaveModifiersForClass(".*classRegex", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Methods Should Not Exceed a Maximum Number of Parameters:**: Ensure that methods in classes do not have more than the specified maximum number of parameters.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsShouldNotExceedMaxParameters(10)
     .build()
     .check();
 ```
