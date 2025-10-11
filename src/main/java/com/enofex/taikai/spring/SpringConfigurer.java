@@ -15,7 +15,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
 
 public class SpringConfigurer extends AbstractConfigurer {
 
-  public SpringConfigurer(ConfigurerContext configurerContext) {
+  SpringConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 

@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 
 public class JavaConfigurer extends AbstractConfigurer {
 
-  public JavaConfigurer(ConfigurerContext configurerContext) {
+  JavaConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 

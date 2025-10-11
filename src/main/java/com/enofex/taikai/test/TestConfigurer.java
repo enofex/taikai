@@ -7,7 +7,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
 
 public class TestConfigurer extends AbstractConfigurer {
 
-  public TestConfigurer(ConfigurerContext configurerContext) {
+  TestConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 

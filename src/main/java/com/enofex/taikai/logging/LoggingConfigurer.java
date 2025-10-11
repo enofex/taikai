@@ -16,7 +16,7 @@ import java.util.List;
 
 public class LoggingConfigurer extends AbstractConfigurer {
 
-  public LoggingConfigurer(ConfigurerContext configurerContext) {
+  LoggingConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
