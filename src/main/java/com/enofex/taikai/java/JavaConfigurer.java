@@ -9,6 +9,7 @@ import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
+import static com.enofex.taikai.java.MaxMethodParameters.notExceedMaxParameters;
 import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
 import static com.enofex.taikai.java.ProtectedMembers.notHaveProtectedMembers;
 import static com.enofex.taikai.java.SerialVersionUID.beStaticFinalLong;
@@ -199,6 +200,16 @@ public class JavaConfigurer extends AbstractConfigurer {
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
+
+    public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters) {
+        return methodsShouldNotExceedMaxParameters(maxMethodParameters, defaultConfiguration());
+    }
+
+    public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters, Configuration configuration) {
+        return addRule(TaikaiRule.of(methods()
+            .should(notExceedMaxParameters(maxMethodParameters))
+            .as("Methods should not have more than %d parameters".formatted(maxMethodParameters)), configuration));
+    }
 
   public JavaConfigurer noUsageOfDeprecatedAPIs() {
     return noUsageOfDeprecatedAPIs(defaultConfiguration());

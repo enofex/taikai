@@ -119,6 +119,9 @@ class Usage {
             .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE))
             .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE), defaultConfiguration())
 
+            .methodsShouldNotExceedMaxParameters(10)
+            .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
+
             .finalClassesShouldNotHaveProtectedMembers()
             .finalClassesShouldNotHaveProtectedMembers(defaultConfiguration())
 
