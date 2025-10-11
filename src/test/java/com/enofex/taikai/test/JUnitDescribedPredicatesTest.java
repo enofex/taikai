@@ -1,8 +1,8 @@
 package com.enofex.taikai.test;
 
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_TEST;
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.annotatedWithTestOrParameterizedTest;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.annotatedWithTestOrParameterizedTest;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beAnnotatedWith;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 
-class JUnit5DescribedPredicatesTest {
+class JUnitDescribedPredicatesTest {
 
   @Test
   void shouldIdentifyClassesAnnotatedWithTestOrParameterizedTest() {

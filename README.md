@@ -38,9 +38,9 @@ testImplementation "com.enofex:taikai:${taikaiVersion}"
 
 Replace `${taikaiVersion}` with the appropriate version defined in your project. Ensure that the required dependencies like ArchUnit are already declared.
 
-## JUnit 5 Example Test
+## JUnit Example Test
 
-Here's an example demonstrating the usage of some Taikai rules with JUnit 5. Customize rules as needed using `TaikaiRule.of()`.
+Here's an example demonstrating the usage of some Taikai rules with JUnit. Customize rules as needed using `TaikaiRule.of()`.
 
 ```java
 @Test
@@ -65,7 +65,7 @@ void shouldFulfillConstraints() {
       .logging(logging -> logging
           .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))      
       .test(test -> test
-          .junit5(junit5 -> junit5
+          .junit(junit -> junit
               .classesShouldNotBeAnnotatedWithDisabled()
               .methodsShouldNotBeAnnotatedWithDisabled()))
       .spring(spring -> spring

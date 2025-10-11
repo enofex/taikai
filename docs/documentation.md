@@ -187,14 +187,14 @@ The default mode is `ONLY_TESTS`, which checks only test classes.
 
 | Category | Method Name                                      | Rule Description                                                                                                        | 
 |----------|--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| JUnit 5  | `classesShouldBePackagePrivate`                  | Ensure that classes whose names match a specific naming pattern are declared as package-private.                        |
-| JUnit 5  | `classesShouldNotBeAnnotatedWithDisabled`        | Ensure classes are not annotated with `@Disabled`.                                                                      |
-| JUnit 5  | `methodsShouldBePackagePrivate`                  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                            |
-| JUnit 5  | `methodsShouldNotBeAnnotatedWithDisabled`        | Ensure methods are not annotated with `@Disabled`.                                                                      |
-| JUnit 5  | `methodsShouldBeAnnotatedWithDisplayName`        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.              |
-| JUnit 5  | `methodsShouldMatch`                             | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.   |
-| JUnit 5  | `methodsShouldNotDeclareExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.           |
-| JUnit 5  | `methodsShouldContainAssertionsOrVerifications`  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification. |
+| JUnit  | `classesShouldBePackagePrivate`                  | Ensure that classes whose names match a specific naming pattern are declared as package-private.                        |
+| JUnit  | `classesShouldNotBeAnnotatedWithDisabled`        | Ensure classes are not annotated with `@Disabled`.                                                                      |
+| JUnit  | `methodsShouldBePackagePrivate`                  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                            |
+| JUnit  | `methodsShouldNotBeAnnotatedWithDisabled`        | Ensure methods are not annotated with `@Disabled`.                                                                      |
+| JUnit  | `methodsShouldBeAnnotatedWithDisplayName`        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.              |
+| JUnit  | `methodsShouldMatch`                             | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.   |
+| JUnit  | `methodsShouldNotDeclareExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.           |
+| JUnit  | `methodsShouldContainAssertionsOrVerifications`  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification. |
 
 ### Spring Rules
 
@@ -635,62 +635,62 @@ Taikai.builder()
 
 Test configuration involves specifying constraints related to testing frameworks and practices.
 
-- **JUnit 5 Configuration**: Ensure that JUnit 5 test classes and methods are not annotated with `@Disabled`.
+- **JUnit Configuration**: Ensure that JUnit test classes and methods are not annotated with `@Disabled`.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .test(test -> test
-        .junit5(junit5 -> junit5
+        .junit(junit -> junit
             .classesShouldNotBeAnnotatedWithDisabled()
             .methodsShouldNotBeAnnotatedWithDisabled()))
     .build()
     .check();
 ```
 
-- **Ensure Test Methods are Package-Private**: Ensure that JUnit 5 test methods annotated with `@Test` or `@ParameterizedTest` are package-private.
+- **Ensure Test Methods are Package-Private**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` are package-private.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .test(test -> test
-        .junit5(junit5 -> junit5
+        .junit(junit -> junit
             .methodsShouldBePackagePrivate()))
     .build()
     .check();
 ```
 
-- **Ensure Test Methods are Annotated with `@DisplayName`**: Ensure that JUnit 5 test methods annotated with `@Test` or `@ParameterizedTest` are also annotated with `@DisplayName` to provide descriptive test names.
+- **Ensure Test Methods are Annotated with `@DisplayName`**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` are also annotated with `@DisplayName` to provide descriptive test names.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .test(test -> test
-        .junit5(junit5 -> junit5
+        .junit(junit -> junit
             .methodsShouldBeAnnotatedWithDisplayName()))
     .build()
     .check();
 ```
 
-- **Ensure Test Methods Follow Naming Convention**: Ensure that JUnit 5 test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.
+- **Ensure Test Methods Follow Naming Convention**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .test(test -> test
-        .junit5(junit5 -> junit5
+        .junit(junit -> junit
             .methodsShouldMatch("regex")))
     .build()
     .check();
 ```
 
-- **Ensure Test Methods Do Not Declare Thrown Exceptions**: Ensure that JUnit 5 test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.
+- **Ensure Test Methods Do Not Declare Thrown Exceptions**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .test(test -> test
-        .junit5(junit5 -> junit5
+        .junit(junit -> junit
             .methodsShouldNotDeclareExceptions()))
     .build()
     .check();
@@ -702,7 +702,7 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .test(test -> test
-        .junit5(junit5 -> junit5
+        .junit(junit -> junit
             .classesShouldBePackagePrivate(".*Test")))
     .build()
     .check();
@@ -710,7 +710,7 @@ Taikai.builder()
 
 - **Ensure Test Methods Contain Assertions or Verifications**: : Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification.
 
-    - **JUnit 5**: Ensure the use of assertions from `org.junit.jupiter.api.Assertions`.
+    - **JUnit**: Ensure the use of assertions from `org.junit.jupiter.api.Assertions`.
     - **Mockito**: Ensure the use of verification methods from `org.mockito.Mockito` like `verify`, `inOrder`, or `capture`.
     - **Hamcrest**: Ensure the use of assertions from `org.hamcrest.MatcherAssert`.
     - **AssertJ**: Ensure the use of assertions from `org.assertj.core.api.Assertions`.
@@ -724,7 +724,7 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .test(test -> test
-        .junit5(junit5 -> junit5
+        .junit(junit -> junit
             .methodsShouldContainAssertionsOrVerifications()))
     .build()
     .check();
@@ -894,7 +894,7 @@ class ArchitectureTest {
             .methodsShouldNotDeclareGenericExceptions()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor())
         .test(test -> test
-            .junit5(junit5 -> junit5
+            .junit(junit -> junit
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .logging(logging -> logging

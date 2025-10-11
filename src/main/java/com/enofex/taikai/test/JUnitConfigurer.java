@@ -2,11 +2,11 @@ package com.enofex.taikai.test;
 
 import static com.enofex.taikai.internal.ArchConditions.notDeclareThrownExceptions;
 import static com.enofex.taikai.test.ContainAssertionsOrVerifications.containAssertionsOrVerifications;
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_DISABLED;
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_DISPLAY_NAME;
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.ANNOTATION_TEST;
-import static com.enofex.taikai.test.JUnit5DescribedPredicates.annotatedWithTestOrParameterizedTest;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_DISABLED;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_DISPLAY_NAME;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.annotatedWithTestOrParameterizedTest;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -20,19 +20,19 @@ import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
-public class JUnit5Configurer extends AbstractConfigurer {
+public class JUnitConfigurer extends AbstractConfigurer {
 
   private static final Configuration CONFIGURATION = Configuration.of(IMPORT.ONLY_TESTS);
 
-  JUnit5Configurer(ConfigurerContext configurerContext) {
+  JUnitConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
-  public JUnit5Configurer methodsShouldMatch(String regex) {
+  public JUnitConfigurer methodsShouldMatch(String regex) {
     return methodsShouldMatch(regex, CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldMatch(String regex, Configuration configuration) {
+  public JUnitConfigurer methodsShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .should().haveNameMatching(regex)
@@ -41,11 +41,11 @@ public class JUnit5Configurer extends AbstractConfigurer {
         configuration));
   }
 
-  public JUnit5Configurer methodsShouldNotDeclareExceptions() {
+  public JUnitConfigurer methodsShouldNotDeclareExceptions() {
     return methodsShouldNotDeclareExceptions(CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldNotDeclareExceptions(Configuration configuration) {
+  public JUnitConfigurer methodsShouldNotDeclareExceptions(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .should(notDeclareThrownExceptions())
@@ -54,11 +54,11 @@ public class JUnit5Configurer extends AbstractConfigurer {
         configuration));
   }
 
-  public JUnit5Configurer methodsShouldBeAnnotatedWithDisplayName() {
+  public JUnitConfigurer methodsShouldBeAnnotatedWithDisplayName() {
     return methodsShouldBeAnnotatedWithDisplayName(CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldBeAnnotatedWithDisplayName(Configuration configuration) {
+  public JUnitConfigurer methodsShouldBeAnnotatedWithDisplayName(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .should().beMetaAnnotatedWith(ANNOTATION_DISPLAY_NAME)
@@ -67,11 +67,11 @@ public class JUnit5Configurer extends AbstractConfigurer {
         configuration));
   }
 
-  public JUnit5Configurer methodsShouldBePackagePrivate() {
+  public JUnitConfigurer methodsShouldBePackagePrivate() {
     return methodsShouldBePackagePrivate(CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldBePackagePrivate(Configuration configuration) {
+  public JUnitConfigurer methodsShouldBePackagePrivate(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .should().bePackagePrivate()
@@ -80,22 +80,22 @@ public class JUnit5Configurer extends AbstractConfigurer {
         configuration));
   }
 
-  public JUnit5Configurer methodsShouldNotBeAnnotatedWithDisabled() {
+  public JUnitConfigurer methodsShouldNotBeAnnotatedWithDisabled() {
     return methodsShouldNotBeAnnotatedWithDisabled(CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
+  public JUnitConfigurer methodsShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
     return addRule(TaikaiRule.of(noMethods()
             .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
             .as("Methods should not be annotated with %s".formatted(ANNOTATION_DISABLED)),
         configuration));
   }
 
-  public JUnit5Configurer methodsShouldContainAssertionsOrVerifications() {
+  public JUnitConfigurer methodsShouldContainAssertionsOrVerifications() {
     return methodsShouldContainAssertionsOrVerifications(CONFIGURATION);
   }
 
-  public JUnit5Configurer methodsShouldContainAssertionsOrVerifications(
+  public JUnitConfigurer methodsShouldContainAssertionsOrVerifications(
       Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
@@ -105,15 +105,15 @@ public class JUnit5Configurer extends AbstractConfigurer {
         configuration));
   }
 
-  public JUnit5Configurer classesShouldNotBeAnnotatedWithDisabled() {
+  public JUnitConfigurer classesShouldNotBeAnnotatedWithDisabled() {
     return classesShouldNotBeAnnotatedWithDisabled(CONFIGURATION);
   }
 
-  public JUnit5Configurer classesShouldBePackagePrivate(String regex) {
+  public JUnitConfigurer classesShouldBePackagePrivate(String regex) {
     return classesShouldBePackagePrivate(regex, CONFIGURATION);
   }
 
-  public JUnit5Configurer classesShouldBePackagePrivate(String regex, Configuration configuration) {
+  public JUnitConfigurer classesShouldBePackagePrivate(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and().haveNameMatching(regex)
             .should().bePackagePrivate()
@@ -122,22 +122,22 @@ public class JUnit5Configurer extends AbstractConfigurer {
   }
 
 
-  public JUnit5Configurer classesShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
+  public JUnitConfigurer classesShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
             .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
             .as("Classes should not be annotated with %s".formatted(ANNOTATION_DISABLED)),
         configuration));
   }
 
-  public static final class Disableable extends JUnit5Configurer implements DisableableConfigurer {
+  public static final class Disableable extends JUnitConfigurer implements DisableableConfigurer {
 
     public Disableable(ConfigurerContext configurerContext) {
       super(configurerContext);
     }
 
     @Override
-    public JUnit5Configurer disable() {
-      disable(JUnit5Configurer.class);
+    public JUnitConfigurer disable() {
+      disable(JUnitConfigurer.class);
 
       return this;
     }

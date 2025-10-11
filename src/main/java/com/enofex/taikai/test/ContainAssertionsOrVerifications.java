@@ -16,7 +16,7 @@ final class ContainAssertionsOrVerifications {
       @Override
       public void check(JavaMethod item, ConditionEvents events) {
         for (JavaMethodCall call : item.getMethodCallsFromSelf()) {
-          if (jUnit5(call) ||
+          if (junit(call) ||
               mockito(call) ||
               hamcrest(call) ||
               assertJ(call) ||
@@ -35,7 +35,7 @@ final class ContainAssertionsOrVerifications {
         );
       }
 
-      private boolean jUnit5(JavaMethodCall call) {
+      private boolean junit(JavaMethodCall call) {
         return "org.junit.jupiter.api.Assertions".equals(call.getTargetOwner().getName());
       }
 

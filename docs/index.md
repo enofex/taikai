@@ -22,7 +22,7 @@ class ArchitectureTest {
             .methodsShouldNotDeclareGenericExceptions()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor())
         .test(test -> test
-            .junit5(junit5 -> junit5
+            .junit(junit -> junit
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotBeAnnotatedWithDisabled()))
         .logging(logging -> logging

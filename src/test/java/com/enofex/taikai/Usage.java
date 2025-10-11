@@ -211,7 +211,7 @@ class Usage {
 
         )
         .test(test -> test
-            .junit5(junit5 -> junit5
+            .junit(junit -> junit
                 .methodsShouldNotDeclareExceptions()
                 .methodsShouldNotDeclareExceptions(defaultConfiguration())
 

@@ -11,8 +11,18 @@ public class TestConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
-  public Disableable junit5(Customizer<JUnit5Configurer.Disableable> customizer) {
-    return customizer(customizer, () -> new JUnit5Configurer.Disableable(configurerContext()));
+  /**
+   * @deprecated Since only JUnit and above are supported, use {@link #junit(Customizer)} instead.
+   * This method was retained for backward compatibility and delegates directly to
+   * {@link #junit(Customizer)}.
+   */
+  @Deprecated(since = "1.3.9", forRemoval = true)
+  public Disableable junit5(Customizer<JUnitConfigurer.Disableable> customizer) {
+    return junit(customizer);
+  }
+
+  public Disableable junit(Customizer<JUnitConfigurer.Disableable> customizer) {
+    return customizer(customizer, () -> new JUnitConfigurer.Disableable(configurerContext()));
   }
 
   public static final class Disableable extends TestConfigurer implements DisableableConfigurer {
@@ -24,7 +34,7 @@ public class TestConfigurer extends AbstractConfigurer {
     @Override
     public TestConfigurer disable() {
       disable(TestConfigurer.class);
-      disable(JUnit5Configurer.class);
+      disable(JUnitConfigurer.class);
 
       return this;
     }
