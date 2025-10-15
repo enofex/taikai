@@ -138,6 +138,9 @@ class Usage {
                 .shouldHaveNoCycles()
                 .shouldHaveNoCycles(defaultConfiguration())
 
+                .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
+                .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException", defaultConfiguration())
+
                 .shouldNotImport("..shaded..")
                 .shouldNotImport("..shaded..", defaultConfiguration())
 

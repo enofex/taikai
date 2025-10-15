@@ -157,7 +157,8 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `finalClassesShouldNotHaveProtectedMembers`            | Classes declared as `final` should not contain any `protected` members.                                      |
 | General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                   |
 | Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                           |
-| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..shaded..`).                                                              |
+| Imports  | `shouldImport`                                         | Check for specific imports (e.g., `..allow..`).                                                              |
+| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..disallow..`).                                                            |
 | Naming   | `packagesShouldMatchDefault`                           | Packages should match `^[a-z_]+(\.[a-z_][a-z0-9_]*)*$` naming patterns.                                      |
 | Naming   | `packagesShouldMatch`                                  | Packages should match specific naming patterns.                                                              |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
@@ -520,7 +521,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Imports Configuration**: Ensure that there are no cyclic dependencies in imports and disallow specific imports.
+- **Imports Configuration**: Ensure that there are no cyclic dependencies in imports, check for imports or disallow specific imports.
 
 ```java
 Taikai.builder()
@@ -528,6 +529,7 @@ Taikai.builder()
     .java(java -> java
         .imports(imports -> imports
             .shouldHaveNoCycles()
+            .shouldImport(".*Service", "com.company.project.BusinessException")
             .shouldNotImport("..shaded..")
             .shouldNotImport("..lombok..")
             .shouldNotImport(".*Service", "com.company.project.SpecificException")))

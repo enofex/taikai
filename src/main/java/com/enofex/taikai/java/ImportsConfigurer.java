@@ -1,6 +1,7 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
@@ -41,6 +42,20 @@ public class ImportsConfigurer extends AbstractConfigurer {
         .haveNameMatching(notImportClassesRegex)
         .as("No classes that have name matching %s should have imports %s".formatted(
             regex, notImportClassesRegex)), configuration));
+  }
+
+  public ImportsConfigurer shouldImport(String regex, String importClassesRegex) {
+    return shouldImport(regex, importClassesRegex, defaultConfiguration());
+  }
+
+  public ImportsConfigurer shouldImport(String regex, String importClassesRegex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().haveNameMatching(regex)
+        .should().accessClassesThat()
+        .haveNameMatching(importClassesRegex)
+        .as("Classes that have name matching %s should have imports %s".formatted(
+            regex, importClassesRegex)), configuration));
   }
 
   public ImportsConfigurer shouldHaveNoCycles() {

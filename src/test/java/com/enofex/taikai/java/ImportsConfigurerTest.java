@@ -11,6 +11,28 @@ import org.junit.jupiter.api.Test;
 class ImportsConfigurerTest {
 
   @Test
+  void shouldImportByRegex() {
+    Taikai taikai = Taikai.builder()
+        .classes(new ClassFileImporter().importClasses(ClassUsingAllowedImport.class))
+        .java(java -> java.imports(
+            imports -> imports.shouldImport(".*ClassUsingAllowedImport", "java\\.lang\\..*")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldThrowExceptionForImportByRegex() {
+    Taikai taikai = Taikai.builder()
+        .classes(new ClassFileImporter().importClasses(ClassUsingAllowedImport.class))
+        .java(java -> java.imports(
+            imports -> imports.shouldImport(".*ClassUsingAllowedImport", "java\\.not\\.found..*")))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  @Test
   void shouldNotImportSpecificPackage() {
     Taikai taikai = Taikai.builder()
         .classes(new ClassFileImporter().importClasses(ClassUsingDisallowedImport.class))
@@ -51,7 +73,7 @@ class ImportsConfigurerTest {
 
   static class ClassUsingAllowedImport {
 
-    private final String value = "ok";
+    private final java.lang.String value = "ok";
   }
 
   static class ClassUsingDisallowedImport {
