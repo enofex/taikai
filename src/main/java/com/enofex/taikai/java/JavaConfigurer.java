@@ -34,6 +34,50 @@ import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+/**
+ * Configures and enforces general Java code quality and design rules using
+ * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ *
+ * <p>This configurer provides a rich set of predefined rules that validate
+ * Java-specific conventions, patterns, and constraints — ensuring
+ * maintainability, consistency, and adherence to best practices across the codebase.</p>
+ *
+ * <p>Common validations include:</p>
+ * <ul>
+ *   <li>Utility class design (must be {@code final} with a private constructor)</li>
+ *   <li>Method and field modifier enforcement</li>
+ *   <li>Annotation consistency and exclusivity checks</li>
+ *   <li>Prohibition of generic exception declarations</li>
+ *   <li>Restriction of deprecated API and {@code System.out}/{@code System.err} usage</li>
+ *   <li>Package and dependency restrictions</li>
+ *   <li>Ensuring {@code serialVersionUID} correctness</li>
+ * </ul>
+ *
+ * <h2>Example Usage</h2>
+ * <pre>{@code
+ * Taikai.builder()
+ *     .namespace("com.example.project")
+ *     .java(java -> java
+ *         .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+ *         .methodsShouldNotDeclareGenericExceptions()
+ *         .noUsageOfDeprecatedAPIs()
+ *         .classesShouldImplementHashCodeAndEquals()
+ *         .fieldsShouldNotBePublic()
+ *         .finalClassesShouldNotHaveProtectedMembers()
+ *     );
+ * }</pre>
+ *
+ * <p>Each rule can be customized via {@link com.enofex.taikai.TaikaiRule.Configuration}
+ * or composed through {@link com.enofex.taikai.configures.Customizer} for finer control.
+ * The {@link com.enofex.taikai.configures.ConfigurerContext} manages the shared configuration
+ * between related configurers (such as {@link ImportsConfigurer} and {@link NamingConfigurer}).</p>
+ *
+ * @see com.enofex.taikai.TaikaiRule
+ * @see com.enofex.taikai.configures.AbstractConfigurer
+ * @see com.enofex.taikai.configures.Customizer
+ * @see com.enofex.taikai.configures.ConfigurerContext
+ * @see com.tngtech.archunit.lang.ArchRule
+ */
 public class JavaConfigurer extends AbstractConfigurer {
 
   JavaConfigurer(ConfigurerContext configurerContext) {
@@ -48,10 +92,23 @@ public class JavaConfigurer extends AbstractConfigurer {
     return customizer(customizer, () -> new NamingConfigurer.Disableable(configurerContext()));
   }
 
+  /**
+   * Adds a rule enforcing that utility classes must be {@code final}
+   * and have a private constructor.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor() {
     return utilityClassesShouldBeFinalAndHavePrivateConstructor(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that utility classes must be {@code final}
+   * and have a private constructor, using a custom {@link Configuration}.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor(
       Configuration configuration) {
     return addRule(TaikaiRule.of(utilityClasses()
@@ -60,10 +117,23 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("Utility classes should be final and have a private constructor"), configuration));
   }
 
+  /**
+   * Adds a rule preventing methods from declaring {@code Exception}
+   * or {@code RuntimeException}.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions() {
     return methodsShouldNotDeclareGenericExceptions(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule preventing methods from declaring {@code Exception}
+   * or {@code RuntimeException}, using a custom {@link Configuration}.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
         .should().notDeclareThrowableOfType(Exception.class)
@@ -71,20 +141,54 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("Methods should not declare generic Exception or RuntimeException"), configuration));
   }
 
+  /**
+   * Adds a rule preventing methods whose names match the given regex
+   * from declaring a specific exception type.
+   *
+   * @param regex a regex for matching method names
+   * @param clazz the exception type
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldNotDeclareException(String regex,
       Class<? extends Throwable> clazz) {
     return methodsShouldNotDeclareException(regex, clazz.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule preventing methods whose names match the given regex
+   * from declaring a specific exception type, with a custom configuration.
+   *
+   * @param regex a regex for matching method names
+   * @param clazz the exception type
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldNotDeclareException(String regex,
       Class<? extends Throwable> clazz, Configuration configuration) {
     return methodsShouldNotDeclareException(regex, clazz.getName(), configuration);
   }
 
+  /**
+   * Adds a rule preventing methods whose names match the given regex
+   * from declaring a specific exception type by name.
+   *
+   * @param regex a regex for matching method names
+   * @param typeName the exception type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName) {
     return methodsShouldNotDeclareException(regex, typeName, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule preventing methods whose names match the given regex
+   * from declaring a specific exception type by name, with a custom configuration.
+   *
+   * @param regex a regex for matching method names
+   * @param typeName the exception type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName,
       Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
@@ -94,20 +198,54 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule enforcing that methods with names matching a regex
+   * must be annotated with a specific annotation.
+   *
+   * @param regex the regex for method names
+   * @param annotationType the required annotation class
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType) {
     return methodsShouldBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that methods with names matching a regex
+   * must be annotated with a specific annotation, with custom configuration.
+   *
+   * @param regex the regex for method names
+   * @param annotationType the required annotation class
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType, Configuration configuration) {
     return methodsShouldBeAnnotatedWith(regex, annotationType.getName(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that methods with names matching a regex
+   * must be annotated with a specific annotation by name.
+   *
+   * @param regex the regex for method names
+   * @param annotationType the required annotation type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWith(String regex, String annotationType) {
     return methodsShouldBeAnnotatedWith(regex, annotationType, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that methods with names matching a regex
+   * must be annotated with a specific annotation by name, using a custom configuration.
+   *
+   * @param regex the regex for method names
+   * @param annotationType the required annotation type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWith(String regex, String annotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
@@ -117,12 +255,29 @@ public class JavaConfigurer extends AbstractConfigurer {
             annotationType)), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with a specific annotation
+   * must also be annotated with all given annotations.
+   *
+   * @param annotationType the base annotation type
+   * @param requiredAnnotationTypes the required annotations that must coexist
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
       Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
     return methodsShouldBeAnnotatedWithAll(annotationType.getName(),
         requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with a specific annotation
+   * must also be annotated with all given annotations, using a custom configuration.
+   *
+   * @param annotationType the base annotation type
+   * @param requiredAnnotationTypes the required annotations that must coexist
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
       Collection<Class<? extends Annotation>> requiredAnnotationTypes,
       Configuration configuration) {
@@ -130,12 +285,29 @@ public class JavaConfigurer extends AbstractConfigurer {
         requiredAnnotationTypes.stream().map(Class::getName).toList(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with a specific annotation (by name)
+   * must also be annotated with all given annotations.
+   *
+   * @param annotationType the base annotation type name
+   * @param requiredAnnotationTypes a collection of required annotation type names
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWithAll(String annotationType,
       Collection<String> requiredAnnotationTypes) {
     return methodsShouldBeAnnotatedWithAll(annotationType, requiredAnnotationTypes,
         defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with a specific annotation (by name)
+   * must also be annotated with all given annotations, using a custom configuration.
+   *
+   * @param annotationType the base annotation type name
+   * @param requiredAnnotationTypes a collection of required annotation type names
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldBeAnnotatedWithAll(String annotationType,
       Collection<String> requiredAnnotationTypes, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
@@ -146,20 +318,54 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with one annotation
+   * must not be annotated with another conflicting annotation.
+   *
+   * @param annotationType the base annotation
+   * @param notAnnotationType the disallowed annotation
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
       Class<? extends Annotation> notAnnotationType) {
     return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with one annotation
+   * must not be annotated with another conflicting annotation, using a custom configuration.
+   *
+   * @param annotationType the base annotation
+   * @param notAnnotationType the disallowed annotation
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
       Class<? extends Annotation> notAnnotationType, Configuration configuration) {
     return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with one annotation (by name)
+   * must not be annotated with another.
+   *
+   * @param annotationType the base annotation type name
+   * @param notAnnotationType the disallowed annotation type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType) {
     return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType, notAnnotationType, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that methods annotated with one annotation (by name)
+   * must not be annotated with another, using a custom configuration.
+   *
+   * @param annotationType the base annotation type name
+   * @param notAnnotationType the disallowed annotation type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
@@ -169,11 +375,28 @@ public class JavaConfigurer extends AbstractConfigurer {
             notAnnotationType)), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that methods whose names match a regex
+   * must have the specified modifiers.
+   *
+   * @param regex the regex for method names
+   * @param requiredModifiers the required modifiers
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldHaveModifiers(String regex,
       Collection<JavaModifier> requiredModifiers) {
     return methodsShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that methods whose names match a regex
+   * must have the specified modifiers, using a custom configuration.
+   *
+   * @param regex the regex for method names
+   * @param requiredModifiers the required modifiers
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldHaveModifiers(String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
@@ -185,11 +408,28 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule enforcing that all methods declared in a specific class (by regex)
+   * must have the specified modifiers.
+   *
+   * @param regex regex for class name
+   * @param requiredModifiers required modifiers for methods
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldHaveModifiersForClass(String regex,
       Collection<JavaModifier> requiredModifiers) {
     return methodsShouldHaveModifiersForClass(regex, requiredModifiers, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that all methods declared in a specific class (by regex)
+   * must have the specified modifiers, using a custom configuration.
+   *
+   * @param regex regex for class name
+   * @param requiredModifiers required modifiers for methods
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer methodsShouldHaveModifiersForClass(String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
@@ -201,30 +441,69 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-    public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters) {
-        return methodsShouldNotExceedMaxParameters(maxMethodParameters, defaultConfiguration());
-    }
+  /**
+   * Adds a rule ensuring methods do not exceed a specific number of parameters.
+   *
+   * @param maxMethodParameters maximum number of allowed parameters
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters) {
+    return methodsShouldNotExceedMaxParameters(maxMethodParameters, defaultConfiguration());
+  }
 
-    public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters, Configuration configuration) {
-        return addRule(TaikaiRule.of(methods()
-            .should(notExceedMaxParameters(maxMethodParameters))
-            .as("Methods should not have more than %d parameters".formatted(maxMethodParameters)), configuration));
-    }
+  /**
+   * Adds a rule ensuring methods do not exceed a specific number of parameters,
+   * using a custom configuration.
+   *
+   * @param maxMethodParameters maximum number of allowed parameters
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .should(notExceedMaxParameters(maxMethodParameters))
+        .as("Methods should not have more than %d parameters".formatted(maxMethodParameters)), configuration));
+  }
 
+  /**
+   * Adds a rule prohibiting usage of deprecated APIs.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOfDeprecatedAPIs() {
     return noUsageOfDeprecatedAPIs(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule prohibiting usage of deprecated APIs, using a custom configuration.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOfDeprecatedAPIs(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(notUseDeprecatedAPIs())
         .as("Classes should not use deprecated APIs"), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that all classes reside in a specific package.
+   *
+   * @param packageIdentifier the expected package pattern
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldResideInPackage(String packageIdentifier) {
     return classesShouldResideInPackage(packageIdentifier, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that all classes reside in a specific package,
+   * using a custom configuration.
+   *
+   * @param packageIdentifier the expected package pattern
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldResideInPackage(String packageIdentifier,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -233,10 +512,27 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule enforcing that classes with names matching a regex
+   * must reside in a specific package.
+   *
+   * @param regex the regex for class names
+   * @param packageIdentifier the required package
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier) {
     return classesShouldResideInPackage(regex, packageIdentifier, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes with names matching a regex
+   * must reside in a specific package, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param packageIdentifier the required package
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -246,10 +542,28 @@ public class JavaConfigurer extends AbstractConfigurer {
             regex, packageIdentifier)), configuration));
   }
 
+
+  /**
+   * Adds a rule enforcing that classes with names matching a regex
+   * must reside outside a specific package.
+   *
+   * @param regex the regex for class names
+   * @param packageIdentifier the forbidden package
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier) {
     return classesShouldResideOutsidePackage(regex, packageIdentifier, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes with names matching a regex
+   * must reside outside a specific package, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param packageIdentifier the forbidden package
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -259,12 +573,29 @@ public class JavaConfigurer extends AbstractConfigurer {
             regex, packageIdentifier)), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation
+   * must also be annotated with all required annotations.
+   *
+   * @param annotationType the base annotation type
+   * @param requiredAnnotationTypes the required annotation types
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
       Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
     return classesShouldBeAnnotatedWithAll(annotationType.getName(),
         requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation
+   * must also be annotated with all required annotations, using a custom configuration.
+   *
+   * @param annotationType the base annotation type
+   * @param requiredAnnotationTypes the required annotation types
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
       Collection<Class<? extends Annotation>> requiredAnnotationTypes,
       Configuration configuration) {
@@ -272,12 +603,29 @@ public class JavaConfigurer extends AbstractConfigurer {
         requiredAnnotationTypes.stream().map(Class::getName).toList(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
+   * must also be annotated with all required annotations.
+   *
+   * @param annotationType the base annotation type name
+   * @param requiredAnnotationTypes the required annotation type names
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWithAll(String annotationType,
       Collection<String> requiredAnnotationTypes) {
     return classesShouldBeAnnotatedWithAll(annotationType, requiredAnnotationTypes,
         defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
+   * must also be annotated with all required annotations, using a custom configuration.
+   *
+   * @param annotationType the base annotation type name
+   * @param requiredAnnotationTypes the required annotation type names
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWithAll(String annotationType,
       Collection<String> requiredAnnotationTypes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -288,20 +636,54 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must be annotated with a specific annotation.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the required annotation
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType) {
     return classesShouldBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must be annotated with a specific annotation, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the required annotation
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType, Configuration configuration) {
     return classesShouldBeAnnotatedWith(regex, annotationType.getName(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must be annotated with a specific annotation by name.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the required annotation type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType) {
     return classesShouldBeAnnotatedWith(regex, annotationType, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must be annotated with a specific annotation by name, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the required annotation type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -311,20 +693,54 @@ public class JavaConfigurer extends AbstractConfigurer {
             annotationType)), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must not be annotated with a specific annotation.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the forbidden annotation
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType) {
     return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must not be annotated with a specific annotation, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the forbidden annotation
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
       Class<? extends Annotation> annotationType, Configuration configuration) {
     return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must not be annotated with a specific annotation by name.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the forbidden annotation type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType) {
     return classesShouldNotBeAnnotatedWith(regex, annotationType, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must not be annotated with a specific annotation by name, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param annotationType the forbidden annotation type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -333,21 +749,55 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("Classes have name matching %s should not be annotated with %s".formatted(regex,
             annotationType)), configuration));
   }
-  
+
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation
+   * must not also be annotated with another conflicting annotation.
+   *
+   * @param annotationType the base annotation
+   * @param notAnnotationType the disallowed annotation
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
       Class<? extends Annotation> notAnnotationType) {
     return classesAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation
+   * must not also be annotated with another conflicting annotation, using a custom configuration.
+   *
+   * @param annotationType the base annotation
+   * @param notAnnotationType the disallowed annotation
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
       Class<? extends Annotation> notAnnotationType, Configuration configuration) {
     return classesAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
+   * must not also be annotated with another annotation.
+   *
+   * @param annotationType the base annotation type name
+   * @param notAnnotationType the disallowed annotation type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType) {
     return classesAnnotatedWithShouldNotBeAnnotatedWith(annotationType, notAnnotationType, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
+   * must not also be annotated with another annotation, using a custom configuration.
+   *
+   * @param annotationType the base annotation type name
+   * @param notAnnotationType the disallowed annotation type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -357,12 +807,29 @@ public class JavaConfigurer extends AbstractConfigurer {
             notAnnotationType)), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation
+   * must reside within a specific package.
+   *
+   * @param annotationType the annotation the classes must have
+   * @param packageIdentifier the package they must reside in
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       Class<? extends Annotation> annotationType, String packageIdentifier) {
     return classesAnnotatedWithShouldResideInPackage(annotationType.getName(), packageIdentifier,
         defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation
+   * must reside within a specific package, using a custom configuration.
+   *
+   * @param annotationType the annotation the classes must have
+   * @param packageIdentifier the package they must reside in
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       Class<? extends Annotation> annotationType, String packageIdentifier,
       Configuration configuration) {
@@ -370,12 +837,29 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration);
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
+   * must reside within a specific package.
+   *
+   * @param annotationType the annotation type name
+   * @param packageIdentifier the required package
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       String annotationType, String packageIdentifier) {
     return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier,
         defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
+   * must reside within a specific package, using a custom configuration.
+   *
+   * @param annotationType the annotation type name
+   * @param packageIdentifier the required package
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
       String annotationType, String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -385,29 +869,75 @@ public class JavaConfigurer extends AbstractConfigurer {
             annotationType, packageIdentifier)), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that all classes implement both {@code hashCode()} and {@code equals()}.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
     return classesShouldImplementHashCodeAndEquals(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that all classes implement both {@code hashCode()} and {@code equals()},
+   * using a custom configuration.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(implementHashCodeAndEquals())
         .as("Classes should implement hashCode and equals"), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should be assignable to a specific class type.
+   *
+   * @param regex the regex for class names
+   * @param clazz the target class type
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz) {
     return classesShouldBeAssignableTo(regex, clazz.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should be assignable to a specific class type, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param clazz the target class type
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz,
       Configuration configuration) {
     return classesShouldBeAssignableTo(regex, clazz.getName(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should be assignable to a specific type by name.
+   *
+   * @param regex the regex for class names
+   * @param typeName the target type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName) {
     return classesShouldBeAssignableTo(regex, typeName, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should be assignable to a specific type by name, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param typeName the target type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -417,19 +947,53 @@ public class JavaConfigurer extends AbstractConfigurer {
             regex, typeName)), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should implement a specific interface type.
+   *
+   * @param regex the regex for class names
+   * @param clazz the interface class
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldImplement(String regex, Class<?> clazz) {
     return classesShouldImplement(regex, clazz.getName(), defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should implement a specific interface type, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param clazz the interface class
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldImplement(String regex, Class<?> clazz,
       Configuration configuration) {
     return classesShouldImplement(regex, clazz.getName(), configuration);
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should implement a specific interface type by name.
+   *
+   * @param regex the regex for class names
+   * @param typeName the interface type name
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldImplement(String regex, String typeName) {
     return classesShouldImplement(regex, typeName, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * should implement a specific interface type by name, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param typeName the interface type name
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldImplement(String regex, String typeName,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -438,12 +1002,28 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("Classes have name matching %s should implement %s".formatted(
             regex, typeName)), configuration));
   }
-
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must have all specified modifiers.
+   *
+   * @param regex the regex for class names
+   * @param requiredModifiers the required modifiers
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldHaveModifiers(String regex,
       Collection<JavaModifier> requiredModifiers) {
     return classesShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must have all specified modifiers, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param requiredModifiers the required modifiers
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer classesShouldHaveModifiers(String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -455,21 +1035,51 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule enforcing that fields should not be {@code public}
+   * unless they are also {@code static}.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer fieldsShouldNotBePublic() {
     return fieldsShouldNotBePublic(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that fields should not be {@code public}
+   * unless they are also {@code static}, using a custom configuration.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
         .should(notBePublicUnlessStatic())
         .as("Fields should not be public unless they are static"), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that fields whose names match a regex
+   * must have all specified modifiers.
+   *
+   * @param regex the regex for field names
+   * @param requiredModifiers the required modifiers
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer fieldsShouldHaveModifiers(String regex,
       Collection<JavaModifier> requiredModifiers) {
     return fieldsShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that fields whose names match a regex
+   * must have all specified modifiers, using a custom configuration.
+   *
+   * @param regex the regex for field names
+   * @param requiredModifiers the required modifiers
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer fieldsShouldHaveModifiers(String regex,
       Collection<JavaModifier> requiredModifiers,
       Configuration configuration) {
@@ -482,35 +1092,96 @@ public class JavaConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific class.
+   *
+   * @param clazz the class type that must not be used
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(Class<?> clazz) {
     return noUsageOf(clazz.getName(), null, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific class
+   * within a given package.
+   *
+   * @param clazz the class type that must not be used
+   * @param packageIdentifier the package where it is disallowed
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier) {
     return noUsageOf(clazz.getName(), packageIdentifier, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific class
+   * within a given package, using a custom configuration.
+   *
+   * @param clazz the class type that must not be used
+   * @param packageIdentifier the package where it is disallowed
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier,
       Configuration configuration) {
     return noUsageOf(clazz.getName(), packageIdentifier, configuration);
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific class, with a custom configuration.
+   *
+   * @param clazz the class type that must not be used
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
     return noUsageOf(clazz.getName(), null, configuration);
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific type by name.
+   *
+   * @param typeName the fully qualified class name that must not be used
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(String typeName) {
     return noUsageOf(typeName, null, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific type by name
+   * within a given package.
+   *
+   * @param typeName the fully qualified class name that must not be used
+   * @param packageIdentifier the package where it is disallowed
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(String typeName, String packageIdentifier) {
     return noUsageOf(typeName, packageIdentifier, defaultConfiguration());
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific type by name,
+   * using a custom configuration.
+   *
+   * @param typeName the fully qualified class name that must not be used
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(String typeName, Configuration configuration) {
     return noUsageOf(typeName, null, configuration);
   }
 
+  /**
+   * Adds a rule prohibiting usage of a specific type by name
+   * within a given package, using a custom configuration.
+   *
+   * @param typeName the fully qualified class name that must not be used
+   * @param packageIdentifier the package where it is disallowed
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOf(String typeName, String packageIdentifier,
       Configuration configuration) {
     if (packageIdentifier != null) {
@@ -526,20 +1197,44 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("Classes %s should not be used".formatted(typeName)), configuration));
   }
 
+  /**
+   * Adds a rule prohibiting the usage of {@code System.out} and {@code System.err}.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOfSystemOutOrErr() {
     return noUsageOfSystemOutOrErr(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule prohibiting the usage of {@code System.out} and {@code System.err},
+   * using a custom configuration.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(notUseSystemOutOrErr())
         .as("Classes should not use System.out or System.err"), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that {@code final} classes must not have any protected members.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers() {
     return finalClassesShouldNotHaveProtectedMembers(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that {@code final} classes must not have any protected members,
+   * using a custom configuration.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(areFinal())
@@ -547,10 +1242,23 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("Final classes should not have protected members"), configuration));
   }
 
+  /**
+   * Adds a rule enforcing that {@code serialVersionUID} fields
+   * must be {@code static final long}.
+   *
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong() {
     return serialVersionUIDFieldsShouldBeStaticFinalLong(defaultConfiguration());
   }
 
+  /**
+   * Adds a rule enforcing that {@code serialVersionUID} fields
+   * must be {@code static final long}, using a custom configuration.
+   *
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
         .that(namedSerialVersionUID())

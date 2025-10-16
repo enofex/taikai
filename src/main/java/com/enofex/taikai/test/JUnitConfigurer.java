@@ -20,6 +20,35 @@ import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
+/**
+ * Configures and enforces best practices for JUnit tests using {@link com.tngtech.archunit ArchUnit}
+ * through the Taikai framework.
+ *
+ * <p>This configurer helps ensure that test classes and methods follow consistent standards,
+ * including naming, visibility, annotation usage, and content (assertions or verifications).
+ * It applies to both {@code @Test} and {@code @ParameterizedTest} methods.</p>
+ *
+ * <h2>Example Usage</h2>
+ * <pre>{@code
+ * Taikai.builder()
+ *     .namespace("com.example.project")
+ *     .test(test -> test
+ *         .junit(junit -> junit
+ *             .methodsShouldMatch("should[A-Z].*")
+ *             .methodsShouldNotDeclareExceptions()
+ *             .methodsShouldBeAnnotatedWithDisplayName()
+ *             .methodsShouldBePackagePrivate()
+ *             .methodsShouldContainAssertionsOrVerifications()
+ *             .methodsShouldNotBeAnnotatedWithDisabled()
+ *             .classesShouldBePackagePrivate(".*Test")
+ *             .classesShouldNotBeAnnotatedWithDisabled()
+ *         )
+ *     );
+ * }</pre>
+ *
+ * <p>Each rule is internally wrapped in a {@link TaikaiRule}, allowing you to customize
+ * configurations such as namespaces or import scopes.</p>
+ */
 public class JUnitConfigurer extends AbstractConfigurer {
 
   private static final Configuration CONFIGURATION = Configuration.of(IMPORT.ONLY_TESTS);
@@ -28,10 +57,24 @@ public class JUnitConfigurer extends AbstractConfigurer {
     super(configurerContext);
   }
 
+  /**
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
+   * should have names matching the given regex.
+   *
+   * @param regex the regex pattern for valid test method names
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldMatch(String regex) {
     return methodsShouldMatch(regex, CONFIGURATION);
   }
 
+  /**
+   * See {@link #methodsShouldMatch(String)}, but with {@link Configuration} for customization.
+   *
+   * @param regex the regex pattern for valid test method names
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
@@ -41,10 +84,22 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
+   * should not declare any thrown exceptions.
+   *
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldNotDeclareExceptions() {
     return methodsShouldNotDeclareExceptions(CONFIGURATION);
   }
 
+  /**
+   * See {@link #methodsShouldNotDeclareExceptions()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldNotDeclareExceptions(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
@@ -54,10 +109,22 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
+   * should also be annotated with {@code @DisplayName}.
+   *
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldBeAnnotatedWithDisplayName() {
     return methodsShouldBeAnnotatedWithDisplayName(CONFIGURATION);
   }
 
+  /**
+   * See {@link #methodsShouldBeAnnotatedWithDisplayName()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldBeAnnotatedWithDisplayName(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
@@ -67,10 +134,22 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
+   * should have package-private visibility.
+   *
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldBePackagePrivate() {
     return methodsShouldBePackagePrivate(CONFIGURATION);
   }
 
+  /**
+   * See {@link #methodsShouldBePackagePrivate()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldBePackagePrivate(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
@@ -80,10 +159,21 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule that no test methods should be annotated with {@code @Disabled}.
+   *
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldNotBeAnnotatedWithDisabled() {
     return methodsShouldNotBeAnnotatedWithDisabled(CONFIGURATION);
   }
 
+  /**
+   * See {@link #methodsShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
     return addRule(TaikaiRule.of(noMethods()
             .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
@@ -91,12 +181,23 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
+   * should contain at least one assertion or verification.
+   *
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer methodsShouldContainAssertionsOrVerifications() {
     return methodsShouldContainAssertionsOrVerifications(CONFIGURATION);
   }
 
-  public JUnitConfigurer methodsShouldContainAssertionsOrVerifications(
-      Configuration configuration) {
+  /**
+   * See {@link #methodsShouldContainAssertionsOrVerifications()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public JUnitConfigurer methodsShouldContainAssertionsOrVerifications(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .should(containAssertionsOrVerifications())
@@ -105,14 +206,32 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
+  /**
+   * Adds a rule that no test classes should be annotated with {@code @Disabled}.
+   *
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer classesShouldNotBeAnnotatedWithDisabled() {
     return classesShouldNotBeAnnotatedWithDisabled(CONFIGURATION);
   }
 
+  /**
+   * Adds a rule that classes with names matching the given regex should be package-private.
+   *
+   * @param regex the regex pattern for class names
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer classesShouldBePackagePrivate(String regex) {
     return classesShouldBePackagePrivate(regex, CONFIGURATION);
   }
 
+  /**
+   * See {@link #classesShouldBePackagePrivate(String)}, but with {@link Configuration} for customization.
+   *
+   * @param regex the regex pattern for class names
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer classesShouldBePackagePrivate(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and().haveNameMatching(regex)
@@ -121,7 +240,12 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-
+  /**
+   * See {@link #classesShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
   public JUnitConfigurer classesShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
             .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
@@ -138,7 +262,6 @@ public class JUnitConfigurer extends AbstractConfigurer {
     @Override
     public JUnitConfigurer disable() {
       disable(JUnitConfigurer.class);
-
       return this;
     }
   }
