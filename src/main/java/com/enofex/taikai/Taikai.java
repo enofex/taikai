@@ -1,8 +1,6 @@
 package com.enofex.taikai;
 
-import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
-import static java.util.Objects.requireNonNullElse;
 
 import com.enofex.taikai.configures.Configurer;
 import com.enofex.taikai.configures.ConfigurerContext;
@@ -22,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Central entry point for defining and executing Taikai architectural rules.
@@ -46,8 +45,8 @@ import java.util.stream.Stream;
 public final class Taikai {
 
   private final boolean failOnEmpty;
-  private final String namespace;
-  private final JavaClasses classes;
+  @Nullable private final String namespace;
+  @Nullable private final JavaClasses classes;
   private final Collection<String> excludedClasses;
   private final Collection<TaikaiRule> rules;
 
@@ -55,7 +54,7 @@ public final class Taikai {
     this.failOnEmpty = builder.failOnEmpty;
     this.namespace = builder.namespace;
     this.classes = builder.classes;
-    this.excludedClasses = requireNonNullElse(builder.excludedClasses, emptyList());
+    this.excludedClasses = builder.excludedClasses;
     this.rules = Stream.concat(
             builder.configurers.all().stream().flatMap(configurer -> configurer.rules().stream()),
             builder.rules.stream())
@@ -83,7 +82,7 @@ public final class Taikai {
    *
    * @return the package namespace, or {@code null} if {@link #classes()} is used instead
    */
-  public String namespace() {
+  public @Nullable String namespace() {
     return this.namespace;
   }
 
@@ -92,7 +91,7 @@ public final class Taikai {
    *
    * @return the imported Java classes, or {@code null} if {@link #namespace()} is used instead
    */
-  public JavaClasses classes() {
+  public @Nullable JavaClasses classes() {
     return this.classes;
   }
 
@@ -164,8 +163,8 @@ public final class Taikai {
     private final Collection<TaikaiRule> rules;
     private final Collection<String> excludedClasses;
     private boolean failOnEmpty;
-    private String namespace;
-    private JavaClasses classes;
+    private @Nullable String namespace;
+    private @Nullable JavaClasses classes;
 
     public Builder() {
       this.configurers = new Configurers();
@@ -197,12 +196,12 @@ public final class Taikai {
       return this;
     }
 
-    public Builder namespace(String namespace) {
+    public Builder namespace(@Nullable String namespace) {
       this.namespace = namespace;
       return this;
     }
 
-    public Builder classes(JavaClasses classes) {
+    public Builder classes(@Nullable JavaClasses classes) {
       this.classes = classes;
       return this;
     }

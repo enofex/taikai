@@ -33,6 +33,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Configures and enforces general Java code quality and design rules using
@@ -1182,7 +1183,7 @@ public class JavaConfigurer extends AbstractConfigurer {
    * @param configuration the configuration to use
    * @return this {@link JavaConfigurer} for fluent chaining
    */
-  public JavaConfigurer noUsageOf(String typeName, String packageIdentifier,
+  public JavaConfigurer noUsageOf(String typeName, @Nullable String packageIdentifier,
       Configuration configuration) {
     if (packageIdentifier != null) {
       return addRule(TaikaiRule.of(noClasses()

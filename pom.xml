@@ -31,6 +31,7 @@
     <junit-jupiter.version>6.0.0</junit-jupiter.version>
     <mockito.version>5.20.0</mockito.version>
     <archunit.version>1.4.1</archunit.version>
+    <jspecify.version>1.0.0</jspecify.version>
 
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
@@ -85,6 +86,12 @@
       <artifactId>archunit-junit5-api</artifactId>
       <version>${archunit.version}</version>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
+      <version>${jspecify.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 

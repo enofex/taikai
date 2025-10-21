@@ -11,6 +11,8 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Configures and enforces import-related rules using {@link com.tngtech.archunit ArchUnit} through
@@ -150,10 +152,12 @@ public class ImportsConfigurer extends AbstractConfigurer {
    * @throws TaikaiException if the namespace is not set
    * @see #shouldHaveNoCycles()
    */
-  public ImportsConfigurer shouldHaveNoCycles(Configuration configuration) {
+  public ImportsConfigurer shouldHaveNoCycles(@Nullable Configuration configuration) {
     String namespace = configuration != null
         ? configuration.namespace()
-        : (configurerContext() != null ? configurerContext().namespace() : null);
+        : Optional.ofNullable(configurerContext())
+            .map(ConfigurerContext::namespace)
+            .orElse(null);
 
     if (namespace == null) {
       throw new TaikaiException("Namespace is not set");

@@ -22,17 +22,19 @@ public abstract class AbstractConfigurer implements Configurer {
   }
 
   protected <T extends Configurer> T addRule(TaikaiRule rule) {
+    requireNonNull(rule);
+
     this.rules.add(rule);
     return (T) this;
   }
 
   protected <T extends Configurer> void disable(Class<T> clazz) {
-    if (clazz != null) {
-      Configurer configurer = this.configurerContext.configurers().get(clazz);
+    requireNonNull(clazz);
 
-      if (configurer != null) {
-        configurer.clear();
-      }
+    Configurer configurer = this.configurerContext.configurers().get(clazz);
+
+    if (configurer != null) {
+      configurer.clear();
     }
   }
 

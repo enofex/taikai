@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.jspecify.annotations.NonNull;
 
 public final class Configurers implements Iterable<Configurer> {
 
@@ -41,7 +42,7 @@ public final class Configurers implements Iterable<Configurer> {
   }
 
   @Override
-  public Iterator<Configurer> iterator() {
+  public @NonNull Iterator<Configurer>  iterator() {
     return this.configurers.values().iterator();
   }
 }

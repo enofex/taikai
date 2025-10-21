@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a single executable Taikai architectural rule wrapping an ArchUnit {@link ArchRule}.
@@ -33,7 +34,7 @@ public final class TaikaiRule {
   private final ArchRule archRule;
   private final Configuration configuration;
 
-  private TaikaiRule(ArchRule archRule, Configuration configuration) {
+  private TaikaiRule(ArchRule archRule, @Nullable Configuration configuration) {
     this.archRule = requireNonNull(archRule);
     this.configuration = requireNonNullElse(configuration, defaultConfiguration());
   }
@@ -73,7 +74,7 @@ public final class TaikaiRule {
    * @param configuration the rule configuration
    * @return a new TaikaiRule instance
    */
-  public static TaikaiRule of(ArchRule archRule, Configuration configuration) {
+  public static TaikaiRule of(ArchRule archRule, @Nullable Configuration configuration) {
     return new TaikaiRule(archRule, configuration);
   }
 
@@ -93,13 +94,13 @@ public final class TaikaiRule {
    * @param classes optional pre-imported Java classes to analyze
    * @param excludedClasses optional list of fully qualified class names to exclude
    */
-  public void check(String globalNamespace, JavaClasses classes,
+  public void check(@Nullable String globalNamespace, @Nullable JavaClasses classes,
       Collection<String> excludedClasses) {
     this.archRule.check(javaClasses(globalNamespace, classes, excludedClasses));
   }
 
-  JavaClasses javaClasses(String globalNamespace, JavaClasses classes,
-      Collection<String> excludedClasses) {
+  JavaClasses javaClasses(@Nullable String globalNamespace, @Nullable JavaClasses classes,
+      @Nullable Collection<String> excludedClasses) {
     if (this.configuration.javaClasses() != null) {
       return this.configuration.javaClasses();
     }
@@ -124,10 +125,9 @@ public final class TaikaiRule {
         : javaClasses.that(new ExcludeJavaClassDescribedPredicate(allExcludedClasses));
   }
 
-  private Collection<String> allExcludedClasses(Collection<String> excludedClasses) {
+  private Collection<String> allExcludedClasses(@Nullable Collection<String> excludedClasses) {
     return Stream.concat(
-        this.configuration.excludedClasses != null
-            ? this.configuration.excludedClasses.stream() : Stream.empty(),
+        this.configuration.excludedClasses.stream(),
         excludedClasses != null
             ? excludedClasses.stream() : Stream.empty()
     ).toList();
@@ -135,13 +135,13 @@ public final class TaikaiRule {
 
   public static final class Configuration {
 
-    private final String namespace;
+    private final @Nullable String namespace;
     private final Namespace.IMPORT namespaceImport;
-    private final JavaClasses javaClasses;
+    private final @Nullable JavaClasses javaClasses;
     private final Collection<String> excludedClasses;
 
-    private Configuration(String namespace, Namespace.IMPORT namespaceImport,
-        JavaClasses javaClasses, Collection<?> excludedClasses) {
+    private Configuration(@Nullable String namespace, Namespace.@Nullable IMPORT namespaceImport,
+        @Nullable JavaClasses javaClasses, @Nullable Collection<?> excludedClasses) {
       this.namespace = namespace;
       this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.IMPORT.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
@@ -167,7 +167,7 @@ public final class TaikaiRule {
       }
     }
 
-    public String namespace() {
+    public @Nullable String namespace() {
       return this.namespace;
     }
 
@@ -175,7 +175,7 @@ public final class TaikaiRule {
       return this.namespaceImport;
     }
 
-    public JavaClasses javaClasses() {
+    public @Nullable JavaClasses javaClasses() {
       return this.javaClasses;
     }
 
