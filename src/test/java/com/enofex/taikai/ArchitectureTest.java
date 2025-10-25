@@ -31,6 +31,10 @@ class ArchitectureTest {
             .classesShouldResideInPackage("com.enofex.taikai..")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
+                .shouldNotImport("org.springframework.core.annotation..")
+                .shouldNotImport("jakarta.annotation..")
+                .shouldNotImport("javax.annotation..")
+                .shouldNotImport("org.jetbrains.annotations..")
                 .shouldNotImport("..shaded..")
                 .shouldNotImport("..lombok..")
                 .shouldNotImport("org.junit.."))
