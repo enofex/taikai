@@ -97,7 +97,7 @@ modifiedTaikai.check();
 ```
 ### 3.6 Check Method Usage
 
-#### 3.6.1  Check with Fail Fast
+#### 3.6.1 Check with Fail Fast
 The `check()` method performs the rule checks and fails immediately when the first violation is encountered. This is the default behavior, ensuring that the process halts as soon as a failure occurs.
 
 ```java
@@ -147,8 +147,12 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `methodsShouldBeAnnotatedWith`                         | Methods matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `methodsShouldBeAnnotatedWithAll`                      | Methods annotated with a specific annotation should be annotated with a specified annotations.               |
 | General  | `methodsAnnotatedWithShouldNotBeAnnotatedWith`         | Methods annotated with a specific annotation should not be annotated with a specified annotation.            |
+| General  | `methodsAnnotatedWithShouldHaveModifiers`              | Methods annotated with a specific annotation should have specified modifiers.                                |
+| General  | `methodsAnnotatedWithShouldNotHaveModifiers`           | Methods annotated with a specific annotation should not have specified modifiers.                            |
 | General  | `methodsShouldHaveModifiers`                           | Methods matching specific naming patterns should have specified modifiers.                                   |
+| General  | `methodsShouldNotHaveModifiers`                        | Methods matching specific naming patterns should not have specified modifiers.                               |
 | General  | `methodsShouldHaveModifiersForClass`                   | Methods in a class matching specific naming patterns should have specified modifiers.                        |
+| General  | `methodsShouldNotHaveModifiersForClass`                | Methods in a class matching specific naming patterns should not have specified modifiers.                    |
 | General  | `methodsShouldNotExceedMaxParameters`                  | Methods in a class should not have more than the specified maximum number of parameters.                     |
 | General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
 | General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
@@ -322,7 +326,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that classes annotated with a specific annotations should be annotated with the specified annotations.
+- **Classes Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that classes annotated with a specific annotation should be annotated with the specified annotations.
 
 ```java
 Taikai.builder()
@@ -346,7 +350,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Be Assignable to a Specified Type**: Ensure that classes matching a specific regex pattern assignable to a certain type.
+- **Classes Should Be Assignable to a Specified Type**: Ensure that classes are matching a specific regex pattern assignable to a certain type.
 
 ```java
 Taikai.builder()
@@ -370,13 +374,12 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Have a Specified Modifiers**: Ensure that classes matching a specific regex pattern have a certain modifier.
+- **Classes Should Have Specified Modifiers**: Ensure that classes matching a specific regex pattern have a certain modifier.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesShouldHaveModifiers(".*Repository", List.of(PUBLIC))
         .classesShouldHaveModifiers(".*Repository", List.of(PUBLIC)))
     .build()
     .check();
@@ -417,7 +420,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that methods annotated with a specific annotations should be annotated with the specified annotations.
+- **Methods Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that methods annotated with a specific annotation should be annotated with the specified annotations.
 
 ```java
 Taikai.builder()
@@ -429,7 +432,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Annotated with a Specified Annotation Should not be annotated with a Specified Annotation.**: Ensure that methods annotated with a specific not also be annotated with another specified annotation.
+- **Methods Annotated with a Specified Annotation Should not be annotated with a Specified Annotation.**: Ensure that methods annotated with a specific annotation not also be annotated with another specified annotation.
 
 ```java
 Taikai.builder()
@@ -441,26 +444,70 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Should Have a Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+- **Methods Annotated with a Specified Annotation Should Have a Specified Modifiers.**: Ensure that methods annotated with a specific annotation have a certain modifier.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .methodsShouldHaveModifiers(".*methodRegex", List.of(PUBLIC))
+        .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
+        .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Methods Annotated with a Specified Annotation Should Not Have a Specified Modifiers.**: Ensure that methods annotated with a specific annotation not have a certain modifier.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
+        .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Methods Should Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
         .methodsShouldHaveModifiers(".*methodRegex", List.of(PUBLIC)))
     .build()
     .check();
 ```
 
-- **Methods Should Have a Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+- **Methods Should Not Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have not a certain modifier.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .methodsShouldHaveModifiersForClass(".*classRegex", List.of(PUBLIC))
+        .methodsShouldNotHaveModifiers(".*methodRegex", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Methods Should Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
         .methodsShouldHaveModifiersForClass(".*classRegex", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Methods Should Not Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have not certain modifier.
+- 
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .methodsShouldNotHaveModifiersForClass(".*classRegex", List.of(PUBLIC)))
     .build()
     .check();
 ```
@@ -710,7 +757,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Ensure Test Methods Contain Assertions or Verifications**: : Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification.
+- **Ensure Test Methods Contain Assertions or Verifications**: Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification.
 
     - **JUnit**: Ensure the use of assertions from `org.junit.jupiter.api.Assertions`.
     - **Mockito**: Ensure the use of verification methods from `org.mockito.Mockito` like `verify`, `inOrder`, or `capture`.

@@ -5,6 +5,7 @@ import static com.enofex.taikai.internal.ArchConditions.hasClassModifiers;
 import static com.enofex.taikai.internal.ArchConditions.hasFieldModifiers;
 import static com.enofex.taikai.internal.ArchConditions.hasMethodsModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notBePublicUnlessStatic;
+import static com.enofex.taikai.internal.ArchConditions.notHasMethodModifiers;
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
@@ -18,6 +19,8 @@ import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beFinal;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.haveNameMatching;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -377,6 +380,136 @@ public class JavaConfigurer extends AbstractConfigurer {
   }
 
   /**
+   * Adds a rule enforcing that methods annotated with a given annotation type
+   * must have all the specified modifiers.
+   *
+   * @param annotationType the annotation type to check
+   * @param requiredModifiers the required {@link JavaModifier}s
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(
+      Class<? extends Annotation> annotationType,
+      Collection<JavaModifier> requiredModifiers) {
+    return methodsAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
+        defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with a given annotation type
+   * must have all the specified modifiers, using a custom configuration.
+   *
+   * @param annotationType the annotation type to check
+   * @param requiredModifiers the required {@link JavaModifier}s
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(
+      Class<? extends Annotation> annotationType,
+      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+    return methodsAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
+        configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with an annotation whose name matches
+   * the given type name must have all the specified modifiers.
+   *
+   * @param annotationType the annotation type name to check
+   * @param requiredModifiers the required {@link JavaModifier}s
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(String annotationType,
+      Collection<JavaModifier> requiredModifiers) {
+    return methodsAnnotatedWithShouldHaveModifiers(annotationType, requiredModifiers,
+        defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with an annotation whose name matches
+   * the given type name must have all the specified modifiers, using a custom configuration.
+   *
+   * @param annotationType the annotation type name to check
+   * @param requiredModifiers the required {@link JavaModifier}s
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(String annotationType,
+      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areAnnotatedWith(annotationType)
+            .should(hasMethodsModifiers(requiredModifiers))
+            .as("Methods annotated with %s should have all of this modifiers %s".formatted(
+                annotationType,
+                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with a given annotation type
+   * must not have all the specified modifiers.
+   *
+   * @param annotationType the annotation type to check
+   * @param notRequiredModifiers the not required {@link JavaModifier}s
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(
+      Class<? extends Annotation> annotationType,
+      Collection<JavaModifier> notRequiredModifiers) {
+    return methodsAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
+        defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with a given annotation type
+   * must not have all the specified modifiers, using a custom configuration.
+   *
+   * @param annotationType the annotation type to check
+   * @param notRequiredModifiers the not required {@link JavaModifier}s
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(
+      Class<? extends Annotation> annotationType,
+      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+    return methodsAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
+        configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with an annotation whose name matches
+   * the given type name must have all the specified modifiers.
+   *
+   * @param annotationType the annotation type name to check
+   * @param notRequiredModifiers the required {@link JavaModifier}s
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(String annotationType,
+      Collection<JavaModifier> notRequiredModifiers) {
+    return methodsAnnotatedWithShouldNotHaveModifiers(annotationType, notRequiredModifiers,
+        defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with an annotation whose name matches
+   * the given type name must not have all the specified modifiers, using a custom configuration.
+   *
+   * @param annotationType the annotation type name to check
+   * @param notRequiredModifiers the not required {@link JavaModifier}s
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(String annotationType,
+      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areAnnotatedWith(annotationType)
+            .should(notHasMethodModifiers(notRequiredModifiers))
+            .as("Methods annotated with %s should not have all of this modifiers %s".formatted(
+                annotationType,
+                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
    * Adds a rule enforcing that methods whose names match a regex
    * must have the specified modifiers.
    *
@@ -410,6 +543,39 @@ public class JavaConfigurer extends AbstractConfigurer {
   }
 
   /**
+   * Adds a rule enforcing that methods whose names match a regex
+   * must not have the specified modifiers.
+   *
+   * @param regex the regex for method names
+   * @param notRequiredModifiers the not required modifiers
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotHaveModifiers(String regex,
+      Collection<JavaModifier> notRequiredModifiers) {
+    return methodsShouldNotHaveModifiers(regex, notRequiredModifiers, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that methods whose names match a regex
+   * must not have the specified modifiers, using a custom configuration.
+   *
+   * @param regex the regex for method names
+   * @param notRequiredModifiers the not required modifiers
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotHaveModifiers(String regex,
+      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().haveNameMatching(regex)
+            .should(notHasMethodModifiers(notRequiredModifiers))
+            .as("Methods have name matching %s should not have all of this modifiers %s".formatted(
+                regex,
+                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
    * Adds a rule enforcing that all methods declared in a specific class (by regex)
    * must have the specified modifiers.
    *
@@ -434,11 +600,44 @@ public class JavaConfigurer extends AbstractConfigurer {
   public JavaConfigurer methodsShouldHaveModifiersForClass(String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-            .that().areDeclaredIn(regex)
+            .that().areDeclaredInClassesThat().haveNameMatching(regex)
             .should(hasMethodsModifiers(requiredModifiers))
             .as("Methods in class %s should have all of this modifiers %s".formatted(
                 regex,
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that all methods declared in a specific class (by regex)
+   * must not have the specified modifiers.
+   *
+   * @param regex regex for class name
+   * @param notRequiredModifiers not required modifiers for methods
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotHaveModifiersForClass(String regex,
+      Collection<JavaModifier> notRequiredModifiers) {
+    return methodsShouldNotHaveModifiersForClass(regex, notRequiredModifiers, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that all methods declared in a specific class (by regex)
+   * must not have the specified modifiers, using a custom configuration.
+   *
+   * @param regex regex for class name
+   * @param notRequiredModifiers not required modifiers for methods
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotHaveModifiersForClass(String regex,
+      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areDeclaredInClassesThat().haveNameMatching(regex)
+            .should(notHasMethodModifiers(notRequiredModifiers))
+            .as("Methods in class %s should not have all of this modifiers %s".formatted(
+                regex,
+                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
@@ -542,7 +741,6 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("Classes have name matching %s should reside in package %s".formatted(
             regex, packageIdentifier)), configuration));
   }
-
 
   /**
    * Adds a rule enforcing that classes with names matching a regex

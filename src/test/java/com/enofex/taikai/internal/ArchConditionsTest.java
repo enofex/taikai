@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -172,6 +173,28 @@ class ArchConditionsTest {
   }
 
   @Test
+  void shouldNotAddEventWhenMethodDoesNotHaveForbiddenModifiers() {
+    Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.STATIC);
+    when(this.mockMethod.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
+
+    ArchConditions.notHasMethodModifiers(forbiddenModifiers).check(this.mockMethod, this.events);
+
+    verify(this.events, never()).add(any(SimpleConditionEvent.class));
+  }
+
+  @Test
+  void shouldAddEventWhenMethodHasForbiddenModifiers() {
+    Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.STATIC);
+    when(this.mockMethod.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC));
+    when(this.mockMethod.getName()).thenReturn("forbiddenMethod");
+    when(this.mockMethod.getOwner()).thenReturn(this.mockClass);
+
+    ArchConditions.notHasMethodModifiers(forbiddenModifiers).check(this.mockMethod, this.events);
+
+    verify(this.events, times(1)).add(any(SimpleConditionEvent.class));
+  }
+
+  @Test
   void shouldNotHaveRequiredClassModifiers() {
     Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL);
     when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
@@ -186,5 +209,4 @@ class ArchConditionsTest {
             "PUBLIC, FINAL"),
         eventCaptor.getValue().getDescriptionLines().get(0));
   }
-
 }
