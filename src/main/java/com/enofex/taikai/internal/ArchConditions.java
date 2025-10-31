@@ -129,6 +129,32 @@ public final class ArchConditions {
   }
 
   /**
+   * Creates a condition that checks if a method does <strong>not</strong> contain
+   * any of the specified modifiers.
+   *
+   * @param notAllowedModifiers the collection of modifiers that the method must not have
+   * @return an architectural condition for checking that a method does not have the given modifiers
+   */
+  public static ArchCondition<JavaMethod> notHasMethodModifiers(
+      Collection<JavaModifier> notAllowedModifiers) {
+    return new ArchCondition<>("does not have method modifiers") {
+      @Override
+      public void check(JavaMethod method, ConditionEvents events) {
+        boolean hasForbiddenModifier = method.getModifiers().stream()
+            .anyMatch(notAllowedModifiers::contains);
+
+        if (hasForbiddenModifier) {
+          events.add(SimpleConditionEvent.violated(method,
+              "Method %s in class %s has forbidden modifier(s): %s".formatted(
+                  method.getName(),
+                  method.getOwner().getFullName(),
+                  notAllowedModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+        }
+      }
+    };
+  }
+
+  /**
    * Creates a condition that checks if a class contains all the specified modifiers.
    *
    * @param requiredModifiers the collection of modifiers that the class is required to have

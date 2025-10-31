@@ -3,6 +3,7 @@ package com.enofex.taikai;
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
+import static com.tngtech.archunit.core.domain.JavaModifier.PROTECTED;
 import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 
 import com.enofex.taikai.configures.AbstractConfigurer;
@@ -113,11 +114,27 @@ class Usage {
             .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled")
             .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled", defaultConfiguration())
 
+            .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
+            .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE), defaultConfiguration())
+            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC))
+            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC), defaultConfiguration())
+
+            .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
+            .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE), defaultConfiguration())
+            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC))
+            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC), defaultConfiguration())
+
             .methodsShouldHaveModifiers("regex", List.of(PRIVATE))
             .methodsShouldHaveModifiers("regex", List.of(PRIVATE), defaultConfiguration())
 
+            .methodsShouldNotHaveModifiers("regex", List.of(PRIVATE))
+            .methodsShouldNotHaveModifiers("regex", List.of(PRIVATE), defaultConfiguration())
+
             .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE))
             .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE), defaultConfiguration())
+
+            .methodsShouldNotHaveModifiersForClass("regex", List.of(PRIVATE))
+            .methodsShouldNotHaveModifiersForClass("regex", List.of(PRIVATE), defaultConfiguration())
 
             .methodsShouldNotExceedMaxParameters(10)
             .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
@@ -149,6 +166,7 @@ class Usage {
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
                 .packagesShouldMatchDefault(defaultConfiguration())
+
                 .packagesShouldMatch("regex")
                 .packagesShouldMatch("regex", defaultConfiguration())
 
