@@ -49,7 +49,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * <p>Each rule is internally wrapped in a {@link TaikaiRule}, allowing you to customize
  * configurations such as namespaces or import scopes.</p>
  */
-public class JUnitConfigurer extends AbstractConfigurer {
+public final class JUnitConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final Configuration CONFIGURATION = Configuration.of(IMPORT.ONLY_TESTS);
 
@@ -253,16 +253,11 @@ public class JUnitConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-  public static final class Disableable extends JUnitConfigurer implements DisableableConfigurer {
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
+  @Override
+  public JUnitConfigurer disable() {
+    disable(JUnitConfigurer.class);
 
-    @Override
-    public JUnitConfigurer disable() {
-      disable(JUnitConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

@@ -34,9 +34,9 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * <p>By default, this rule ensures that your {@code @SpringBootApplication}-annotated class
  * is located in the defined root package or a designated boot package.</p>
  */
-public class BootConfigurer extends AbstractConfigurer {
+public final class BootConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
-  BootConfigurer(ConfigurerContext configurerContext) {
+  public BootConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -69,16 +69,10 @@ public class BootConfigurer extends AbstractConfigurer {
             ANNOTATION_SPRING_BOOT_APPLICATION, packageIdentifier)), configuration));
   }
 
-  public static final class Disableable extends BootConfigurer implements DisableableConfigurer {
+  @Override
+  public BootConfigurer disable() {
+    disable(BootConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public BootConfigurer disable() {
-      disable(BootConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

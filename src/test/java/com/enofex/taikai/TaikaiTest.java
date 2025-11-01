@@ -15,7 +15,7 @@ import static org.mockito.Mockito.verify;
 
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
-import com.enofex.taikai.spring.SpringConfigurer.Disableable;
+import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
@@ -81,38 +81,38 @@ class TaikaiTest {
 
   @Test
   void shouldConfigureJavaCustomizer() {
-    Customizer<JavaConfigurer.Disableable> customizer = mock(Customizer.class);
+    Customizer<JavaConfigurer> customizer = mock(Customizer.class);
 
     Taikai.builder()
         .namespace(VALID_NAMESPACE)
         .java(customizer)
         .build();
 
-    verify(customizer, times(1)).customize(any(JavaConfigurer.Disableable.class));
+    verify(customizer, times(1)).customize(any(JavaConfigurer.class));
   }
 
   @Test
   void shouldConfigureSpringCustomizer() {
-    Customizer<Disableable> customizer = mock(Customizer.class);
+    Customizer<SpringConfigurer> customizer = mock(Customizer.class);
 
     Taikai.builder()
         .namespace(VALID_NAMESPACE)
         .spring(customizer)
         .build();
 
-    verify(customizer, times(1)).customize(any(Disableable.class));
+    verify(customizer, times(1)).customize(any(SpringConfigurer.class));
   }
 
   @Test
   void shouldConfigureTestCustomizer() {
-    Customizer<TestConfigurer.Disableable> customizer = mock(Customizer.class);
+    Customizer<TestConfigurer> customizer = mock(Customizer.class);
 
     Taikai.builder()
         .namespace(VALID_NAMESPACE)
         .test(customizer)
         .build();
 
-    verify(customizer, times(1)).customize(any(TestConfigurer.Disableable.class));
+    verify(customizer, times(1)).customize(any(TestConfigurer.class));
   }
 
   @Test

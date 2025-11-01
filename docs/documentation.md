@@ -881,7 +881,44 @@ Taikai.builder()
     .check();
 ```
 
-## 9. Customization
+## 9. Using Default Rule Profiles
+
+Taikai allows you to define reusable rule profiles – preconfigured sets of rules that can be applied to a project with a single call. This is useful if you want to enforce the same architecture rules across multiple modules or repositories while keeping the rule configuration readable and maintainable.
+
+A profile is implemented as a `Customizer<T>`, where `T` is the corresponding configurer type (e.g. `JavaConfigurer`, `TestConfigurer`, …). Profiles can be reused as-is or combined with additional project-specific rules.
+
+```java
+public static void main(String[] args) {
+
+  Taikai.builder()
+      .namespace("com.enofex.taikai")
+      .java(java -> {
+        DEFAULT_JAVA_PROFILE.customize(java); // apply predefined profile
+        java.classesShouldHaveModifiers(".*", List.of(PRIVATE, FINAL)); // add project-specific rule
+      })
+      .test(DEFAULT_TEST_PROFILE) // use profile directly
+      .build()
+      .checkAll();
+}
+
+private static final Customizer<JavaConfigurer> DEFAULT_JAVA_PROFILE = java -> {
+  java.noUsageOf(Date.class)
+      .fieldsShouldNotBePublic();
+  // … more rules …
+};
+
+private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> {
+  test.junit(junit -> junit
+      .methodsShouldBePackagePrivate()
+      .methodsShouldMatch("should.*")
+      .methodsShouldContainAssertionsOrVerifications()
+      .classesShouldBePackagePrivate(".*Test")
+      .classesShouldNotBeAnnotatedWithDisabled());
+  // … more rules …
+};
+```
+
+## 10. Customization
 
 ### Custom Configuration for Import Rules
 
@@ -926,7 +963,7 @@ Taikai.builder()
 ```
 By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
 
-## 10. Examples
+## 11. Examples
 
 Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
 

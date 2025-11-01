@@ -34,11 +34,11 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * <p>By default, this enforces that all classes annotated with {@code @Configuration}
  * (but not {@code @SpringBootApplication}) end with the suffix {@code Configuration}.</p>
  */
-public class ConfigurationsConfigurer extends AbstractConfigurer {
+public final class ConfigurationsConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_CONFIGURATION_NAME_MATCHING = ".+Configuration";
 
-  ConfigurationsConfigurer(ConfigurerContext configurerContext) {
+  public ConfigurationsConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -89,17 +89,10 @@ public class ConfigurationsConfigurer extends AbstractConfigurer {
         .as("Configurations should have name ending %s".formatted(regex)), configuration));
   }
 
-  public static final class Disableable extends ConfigurationsConfigurer implements
-      DisableableConfigurer {
+  @Override
+  public ConfigurationsConfigurer disable() {
+    disable(ConfigurationsConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public ConfigurationsConfigurer disable() {
-      disable(ConfigurationsConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

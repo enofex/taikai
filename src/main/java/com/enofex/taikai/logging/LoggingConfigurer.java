@@ -31,9 +31,9 @@ import java.util.List;
  *     );
  * }</pre>
  */
-public class LoggingConfigurer extends AbstractConfigurer {
+public final class LoggingConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
-  LoggingConfigurer(ConfigurerContext configurerContext) {
+  public LoggingConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -207,16 +207,10 @@ public class LoggingConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-  public static final class Disableable extends LoggingConfigurer implements DisableableConfigurer {
+  @Override
+  public LoggingConfigurer disable() {
+    disable(LoggingConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public LoggingConfigurer disable() {
-      disable(LoggingConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

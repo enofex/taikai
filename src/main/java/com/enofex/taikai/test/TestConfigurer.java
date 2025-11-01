@@ -5,9 +5,9 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
-public class TestConfigurer extends AbstractConfigurer {
+public final class TestConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
-  TestConfigurer(ConfigurerContext configurerContext) {
+  public TestConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -17,26 +17,19 @@ public class TestConfigurer extends AbstractConfigurer {
    * {@link #junit(Customizer)}.
    */
   @Deprecated(since = "1.3.9", forRemoval = true)
-  public Disableable junit5(Customizer<JUnitConfigurer.Disableable> customizer) {
+  public TestConfigurer junit5(Customizer<JUnitConfigurer> customizer) {
     return junit(customizer);
   }
 
-  public Disableable junit(Customizer<JUnitConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new JUnitConfigurer.Disableable(configurerContext()));
+  public TestConfigurer junit(Customizer<JUnitConfigurer> customizer) {
+    return customizer(customizer, () -> new JUnitConfigurer(configurerContext()));
   }
 
-  public static final class Disableable extends TestConfigurer implements DisableableConfigurer {
+  @Override
+  public TestConfigurer disable() {
+    disable(TestConfigurer.class);
+    disable(JUnitConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public TestConfigurer disable() {
-      disable(TestConfigurer.class);
-      disable(JUnitConfigurer.class);
-
-      return this;
-    }
+    return this;
   }
 }

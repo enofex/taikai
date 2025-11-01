@@ -36,7 +36,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *
  * <p>By default, this configurer applies to classes annotated with {@code @ConfigurationProperties}.</p>
  */
-public class PropertiesConfigurer extends AbstractConfigurer {
+public final class PropertiesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_PROPERTIES_NAME_MATCHING = ".+Properties";
 
@@ -162,17 +162,10 @@ public class PropertiesConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-  public static final class Disableable extends PropertiesConfigurer implements
-      DisableableConfigurer {
+  @Override
+  public PropertiesConfigurer disable() {
+    disable(PropertiesConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public PropertiesConfigurer disable() {
-      disable(PropertiesConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

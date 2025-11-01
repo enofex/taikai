@@ -216,20 +216,20 @@ public final class Taikai {
       return this;
     }
 
-    public Builder java(Customizer<JavaConfigurer.Disableable> customizer) {
-      return configure(customizer, JavaConfigurer.Disableable::new);
+    public Builder java(Customizer<JavaConfigurer> customizer) {
+      return configure(customizer, JavaConfigurer::new);
     }
 
-    public Builder logging(Customizer<LoggingConfigurer.Disableable> customizer) {
-      return configure(customizer, LoggingConfigurer.Disableable::new);
+    public Builder logging(Customizer<LoggingConfigurer> customizer) {
+      return configure(customizer, LoggingConfigurer::new);
     }
 
-    public Builder test(Customizer<TestConfigurer.Disableable> customizer) {
-      return configure(customizer, TestConfigurer.Disableable::new);
+    public Builder test(Customizer<TestConfigurer> customizer) {
+      return configure(customizer, TestConfigurer::new);
     }
 
-    public Builder spring(Customizer<SpringConfigurer.Disableable> customizer) {
-      return configure(customizer, SpringConfigurer.Disableable::new);
+    public Builder spring(Customizer<SpringConfigurer> customizer) {
+      return configure(customizer, SpringConfigurer::new);
     }
 
     private <T extends Configurer> Builder configure(Customizer<T> customizer,

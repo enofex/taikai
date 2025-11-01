@@ -3,11 +3,13 @@ package com.enofex.taikai;
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
-import static com.tngtech.archunit.core.domain.JavaModifier.PROTECTED;
 import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.Configurer;
+import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.java.JavaConfigurer;
+import com.enofex.taikai.test.TestConfigurer;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
@@ -56,22 +58,30 @@ class Usage {
             .classesShouldBeAnnotatedWith("regex", DisplayName.class)
             .classesShouldBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
             .classesShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
-            .classesShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName", defaultConfiguration())
+            .classesShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName",
+                defaultConfiguration())
 
             .classesShouldNotBeAnnotatedWith("regex", DisplayName.class)
             .classesShouldNotBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
             .classesShouldNotBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
-            .classesShouldNotBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName", defaultConfiguration())
+            .classesShouldNotBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName",
+                defaultConfiguration())
 
             .classesAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class)
-            .classesAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class, defaultConfiguration())
-            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled")
-            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled", defaultConfiguration())
+            .classesAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class,
+                defaultConfiguration())
+            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
+                "org.junit.jupiter.api.Disabled")
+            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
+                "org.junit.jupiter.api.Disabled", defaultConfiguration())
 
             .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai")
-            .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai", defaultConfiguration())
-            .classesAnnotatedWithShouldResideInPackage("org.junit.jupiter.api.DisplayName", "com.enofex.taikai")
-            .classesAnnotatedWithShouldResideInPackage("org.junit.jupiter.api.DisplayName", "com.enofex.taikai", defaultConfiguration())
+            .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai",
+                defaultConfiguration())
+            .classesAnnotatedWithShouldResideInPackage("org.junit.jupiter.api.DisplayName",
+                "com.enofex.taikai")
+            .classesAnnotatedWithShouldResideInPackage("org.junit.jupiter.api.DisplayName",
+                "com.enofex.taikai", defaultConfiguration())
 
             .classesShouldBeAssignableTo("regex", LocalDate.class)
             .classesShouldBeAssignableTo("regex", LocalDate.class, defaultConfiguration())
@@ -86,7 +96,8 @@ class Usage {
             .classesShouldBeAnnotatedWithAll(DisplayName.class, List.of())
             .classesShouldBeAnnotatedWithAll(DisplayName.class, List.of(), defaultConfiguration())
             .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
-            .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(), defaultConfiguration())
+            .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(),
+                defaultConfiguration())
 
             .classesShouldHaveModifiers("regex", List.of(PUBLIC))
             .classesShouldHaveModifiers("regex", List.of(PUBLIC), defaultConfiguration())
@@ -94,35 +105,48 @@ class Usage {
             .methodsShouldBeAnnotatedWith("regex", DisplayName.class)
             .methodsShouldBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
             .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
-            .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName", defaultConfiguration())
+            .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName",
+                defaultConfiguration())
 
             .methodsShouldNotDeclareGenericExceptions()
             .methodsShouldNotDeclareGenericExceptions(defaultConfiguration())
 
             .methodsShouldNotDeclareException("regex", RuntimeException.class)
-            .methodsShouldNotDeclareException("regex", RuntimeException.class, defaultConfiguration())
+            .methodsShouldNotDeclareException("regex", RuntimeException.class,
+                defaultConfiguration())
             .methodsShouldNotDeclareException("regex", "java.lang.RuntimeException")
-            .methodsShouldNotDeclareException("regex", "java.lang.RuntimeException", defaultConfiguration())
+            .methodsShouldNotDeclareException("regex", "java.lang.RuntimeException",
+                defaultConfiguration())
 
             .methodsShouldBeAnnotatedWithAll(DisplayName.class, List.of())
             .methodsShouldBeAnnotatedWithAll(DisplayName.class, List.of(), defaultConfiguration())
             .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
-            .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(), defaultConfiguration())
+            .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(),
+                defaultConfiguration())
 
             .methodsAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class)
-            .methodsAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class, defaultConfiguration())
-            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled")
-            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName", "org.junit.jupiter.api.Disabled", defaultConfiguration())
+            .methodsAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class,
+                defaultConfiguration())
+            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
+                "org.junit.jupiter.api.Disabled")
+            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
+                "org.junit.jupiter.api.Disabled", defaultConfiguration())
 
             .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE), defaultConfiguration())
-            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC))
-            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC), defaultConfiguration())
+            .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE),
+                defaultConfiguration())
+            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC))
+            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC), defaultConfiguration())
 
             .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE), defaultConfiguration())
-            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC))
-            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC), defaultConfiguration())
+            .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE),
+                defaultConfiguration())
+            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC))
+            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC), defaultConfiguration())
 
             .methodsShouldHaveModifiers("regex", List.of(PRIVATE))
             .methodsShouldHaveModifiers("regex", List.of(PRIVATE), defaultConfiguration())
@@ -134,7 +158,8 @@ class Usage {
             .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE), defaultConfiguration())
 
             .methodsShouldNotHaveModifiersForClass("regex", List.of(PRIVATE))
-            .methodsShouldNotHaveModifiersForClass("regex", List.of(PRIVATE), defaultConfiguration())
+            .methodsShouldNotHaveModifiersForClass("regex", List.of(PRIVATE),
+                defaultConfiguration())
 
             .methodsShouldNotExceedMaxParameters(10)
             .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
@@ -156,13 +181,15 @@ class Usage {
                 .shouldHaveNoCycles(defaultConfiguration())
 
                 .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
-                .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException", defaultConfiguration())
+                .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException",
+                    defaultConfiguration())
 
                 .shouldNotImport("..shaded..")
                 .shouldNotImport("..shaded..", defaultConfiguration())
 
                 .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
-                .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException", defaultConfiguration()))
+                .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException",
+                    defaultConfiguration()))
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
                 .packagesShouldMatchDefault(defaultConfiguration())
@@ -171,14 +198,20 @@ class Usage {
                 .packagesShouldMatch("regex", defaultConfiguration())
 
                 .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
-                .classesImplementingShouldMatch(Configurer.class, ".*Configurer", defaultConfiguration())
-                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer", ".*Configurer")
-                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer", ".*Configurer", defaultConfiguration())
+                .classesImplementingShouldMatch(Configurer.class, ".*Configurer",
+                    defaultConfiguration())
+                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer",
+                    ".*Configurer")
+                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer",
+                    ".*Configurer", defaultConfiguration())
 
                 .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")
-                .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer", defaultConfiguration())
-                .classesAssignableToShouldMatch("com.enofex.taikai.configures.AbstractConfigurer", ".*Configurer")
-                .classesAssignableToShouldMatch("com.enofex.taikai.configures.AbstractConfigurer", ".*Configurer", defaultConfiguration())
+                .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer",
+                    defaultConfiguration())
+                .classesAssignableToShouldMatch("com.enofex.taikai.configures.AbstractConfigurer",
+                    ".*Configurer")
+                .classesAssignableToShouldMatch("com.enofex.taikai.configures.AbstractConfigurer",
+                    ".*Configurer", defaultConfiguration())
 
                 .classesShouldNotMatch(".*Impl")
                 .classesShouldNotMatch(".*Impl", defaultConfiguration())
@@ -186,12 +219,14 @@ class Usage {
                 .classesAnnotatedWithShouldMatch(DisplayName.class, "regex")
                 .classesAnnotatedWithShouldMatch(DisplayName.class, "regex", defaultConfiguration())
                 .classesAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex")
-                .classesAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex", defaultConfiguration())
+                .classesAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex",
+                    defaultConfiguration())
 
                 .methodsAnnotatedWithShouldMatch(DisplayName.class, "regex")
                 .methodsAnnotatedWithShouldMatch(DisplayName.class, "regex", defaultConfiguration())
                 .methodsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex")
-                .methodsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex", defaultConfiguration())
+                .methodsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex",
+                    defaultConfiguration())
 
                 .methodsShouldNotMatch("regex")
                 .methodsShouldNotMatch("regex", defaultConfiguration())
@@ -199,7 +234,8 @@ class Usage {
                 .fieldsAnnotatedWithShouldMatch(DisplayName.class, "regex")
                 .fieldsAnnotatedWithShouldMatch(DisplayName.class, "regex", defaultConfiguration())
                 .fieldsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex")
-                .fieldsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex", defaultConfiguration())
+                .fieldsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex",
+                    defaultConfiguration())
 
                 .fieldsShouldNotMatch("regex")
                 .fieldsShouldNotMatch("regex", defaultConfiguration())
@@ -223,12 +259,16 @@ class Usage {
             .loggersShouldFollowConventions(Logger.class, "logger")
             .loggersShouldFollowConventions(Logger.class, "logger", defaultConfiguration())
             .loggersShouldFollowConventions("java.util.logging.Logger", "logger")
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", defaultConfiguration())
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
+                defaultConfiguration())
 
             .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL))
-            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL), defaultConfiguration())
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(PRIVATE, FINAL))
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(PRIVATE, FINAL), defaultConfiguration())
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL),
+                defaultConfiguration())
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
+                List.of(PRIVATE, FINAL))
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
+                List.of(PRIVATE, FINAL), defaultConfiguration())
 
         )
         .test(test -> test
@@ -352,5 +392,31 @@ class Usage {
                 .namesShouldEndWithRepository(defaultConfiguration())))
         .build()
         .check();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .java(java -> {
+          DEFAULT_JAVA_PROFILE.customize(java);
+          java.classesShouldHaveModifiers(".*", List.of(PRIVATE, FINAL));
+        })
+        .test(DEFAULT_TEST_PROFILE)
+        .build()
+        .checkAll();
   }
+
+  private static final Customizer<JavaConfigurer> DEFAULT_JAVA_PROFILE = java -> {
+    java.noUsageOf(Date.class)
+        .fieldsShouldNotBePublic();
+    // … more rules …
+  };
+
+  private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> {
+    test.junit(junit -> junit
+        .methodsShouldBePackagePrivate()
+        .methodsShouldMatch("should.*")
+        .methodsShouldContainAssertionsOrVerifications()
+        .classesShouldBePackagePrivate(".*Test")
+        .classesShouldNotBeAnnotatedWithDisabled());
+    // … more rules …
+  };
 }

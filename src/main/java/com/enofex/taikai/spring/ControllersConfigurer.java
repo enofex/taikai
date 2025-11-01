@@ -45,11 +45,11 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * <p>By default, this configurer checks classes annotated with {@code @Controller}
  * or {@code @RestController}.</p>
  */
-public class ControllersConfigurer extends AbstractConfigurer {
+public final class ControllersConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".+Controller";
 
-  ControllersConfigurer(ConfigurerContext configurerContext) {
+  public ControllersConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -287,17 +287,10 @@ public class ControllersConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-  public static final class Disableable extends ControllersConfigurer implements
-      DisableableConfigurer {
+  @Override
+  public ControllersConfigurer disable() {
+    disable(ControllersConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public ControllersConfigurer disable() {
-      disable(ControllersConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

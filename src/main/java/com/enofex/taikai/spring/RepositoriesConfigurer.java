@@ -39,7 +39,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *
  * <p>By default, this configurer applies to classes annotated with {@code @Repository}.</p>
  */
-public class RepositoriesConfigurer extends AbstractConfigurer {
+public final class RepositoriesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_REPOSITORY_NAME_MATCHING = ".+Repository";
 
@@ -163,17 +163,10 @@ public class RepositoriesConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-  public static final class Disableable extends RepositoriesConfigurer implements
-      DisableableConfigurer {
+  @Override
+  public RepositoriesConfigurer disable() {
+    disable(RepositoriesConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public RepositoriesConfigurer disable() {
-      disable(RepositoriesConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

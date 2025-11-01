@@ -39,11 +39,11 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *
  * <p>By default, this configurer applies to classes annotated with {@code @Service}.</p>
  */
-public class ServicesConfigurer extends AbstractConfigurer {
+public final class ServicesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_SERVICE_NAME_MATCHING = ".+Service";
 
-  ServicesConfigurer(ConfigurerContext configurerContext) {
+  public ServicesConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -162,17 +162,10 @@ public class ServicesConfigurer extends AbstractConfigurer {
         configuration));
   }
 
-  public static final class Disableable extends ServicesConfigurer implements
-      DisableableConfigurer {
+  @Override
+  public ServicesConfigurer disable() {
+    disable(ServicesConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public ServicesConfigurer disable() {
-      disable(ServicesConfigurer.class);
-      return this;
-    }
+    return this;
   }
 }

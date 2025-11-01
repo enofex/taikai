@@ -19,8 +19,6 @@ import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beFinal;
-import static com.tngtech.archunit.lang.conditions.ArchConditions.haveNameMatching;
-import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -82,18 +80,18 @@ import org.jspecify.annotations.Nullable;
  * @see com.enofex.taikai.configures.ConfigurerContext
  * @see com.tngtech.archunit.lang.ArchRule
  */
-public class JavaConfigurer extends AbstractConfigurer {
+public final class JavaConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
-  JavaConfigurer(ConfigurerContext configurerContext) {
+  public JavaConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
-  public Disableable imports(Customizer<ImportsConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new ImportsConfigurer.Disableable(configurerContext()));
+  public JavaConfigurer imports(Customizer<ImportsConfigurer> customizer) {
+    return customizer(customizer, () -> new ImportsConfigurer(configurerContext()));
   }
 
-  public Disableable naming(Customizer<NamingConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new NamingConfigurer.Disableable(configurerContext()));
+  public JavaConfigurer naming(Customizer<NamingConfigurer> customizer) {
+    return customizer(customizer, () -> new NamingConfigurer(configurerContext()));
   }
 
   /**
@@ -1465,19 +1463,12 @@ public class JavaConfigurer extends AbstractConfigurer {
         .as("serialVersionUID should be static final long"), configuration));
   }
 
-  public static final class Disableable extends JavaConfigurer implements DisableableConfigurer {
+  @Override
+  public JavaConfigurer disable() {
+    disable(JavaConfigurer.class);
+    disable(ImportsConfigurer.class);
+    disable(NamingConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public JavaConfigurer disable() {
-      disable(JavaConfigurer.class);
-      disable(ImportsConfigurer.class);
-      disable(NamingConfigurer.class);
-
-      return this;
-    }
+    return this;
   }
 }

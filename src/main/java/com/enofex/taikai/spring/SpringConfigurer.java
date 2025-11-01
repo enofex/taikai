@@ -13,37 +13,37 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
-public class SpringConfigurer extends AbstractConfigurer {
+public final class SpringConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
-  SpringConfigurer(ConfigurerContext configurerContext) {
+  public SpringConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
-  public Disableable properties(Customizer<PropertiesConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new PropertiesConfigurer.Disableable(configurerContext()));
+  public SpringConfigurer properties(Customizer<PropertiesConfigurer> customizer) {
+    return customizer(customizer, () -> new PropertiesConfigurer(configurerContext()));
   }
 
-  public Disableable configurations(
-      Customizer<ConfigurationsConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new ConfigurationsConfigurer.Disableable(configurerContext()));
+  public SpringConfigurer configurations(
+      Customizer<ConfigurationsConfigurer> customizer) {
+    return customizer(customizer, () -> new ConfigurationsConfigurer(configurerContext()));
   }
 
-  public Disableable controllers(
-      Customizer<ControllersConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new ControllersConfigurer.Disableable(configurerContext()));
+  public SpringConfigurer controllers(
+      Customizer<ControllersConfigurer> customizer) {
+    return customizer(customizer, () -> new ControllersConfigurer(configurerContext()));
   }
 
-  public Disableable services(Customizer<ServicesConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new ServicesConfigurer.Disableable(configurerContext()));
+  public SpringConfigurer services(Customizer<ServicesConfigurer> customizer) {
+    return customizer(customizer, () -> new ServicesConfigurer(configurerContext()));
   }
 
-  public Disableable repositories(
-      Customizer<RepositoriesConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new RepositoriesConfigurer.Disableable(configurerContext()));
+  public SpringConfigurer repositories(
+      Customizer<RepositoriesConfigurer> customizer) {
+    return customizer(customizer, () -> new RepositoriesConfigurer(configurerContext()));
   }
 
-  public Disableable boot(Customizer<BootConfigurer.Disableable> customizer) {
-    return customizer(customizer, () -> new BootConfigurer.Disableable(configurerContext()));
+  public SpringConfigurer boot(Customizer<BootConfigurer> customizer) {
+    return customizer(customizer, () -> new BootConfigurer(configurerContext()));
   }
 
   public SpringConfigurer noAutowiredFields() {
@@ -57,24 +57,16 @@ public class SpringConfigurer extends AbstractConfigurer {
             ANNOTATION_AUTOWIRED)), configuration));
   }
 
-  public static final class Disableable extends SpringConfigurer implements DisableableConfigurer {
+  @Override
+  public SpringConfigurer disable() {
+    disable(SpringConfigurer.class);
+    disable(PropertiesConfigurer.class);
+    disable(ConfigurationsConfigurer.class);
+    disable(ControllersConfigurer.class);
+    disable(ServicesConfigurer.class);
+    disable(RepositoriesConfigurer.class);
+    disable(BootConfigurer.class);
 
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public SpringConfigurer disable() {
-      disable(SpringConfigurer.class);
-      disable(PropertiesConfigurer.class);
-      disable(ConfigurationsConfigurer.class);
-      disable(ControllersConfigurer.class);
-      disable(ServicesConfigurer.class);
-      disable(RepositoriesConfigurer.class);
-      disable(BootConfigurer.class);
-
-      return this;
-    }
+    return this;
   }
-
 }
