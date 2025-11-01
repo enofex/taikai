@@ -888,9 +888,7 @@ Taikai allows you to define reusable rule profiles – preconfigured sets of rul
 A profile is implemented as a `Customizer<T>`, where `T` is the corresponding configurer type (e.g. `JavaConfigurer`, `TestConfigurer`, …). Profiles can be reused as-is or combined with additional project-specific rules.
 
 ```java
-public static void main(String[] args) {
-
-  Taikai.builder()
+Taikai.builder()
       .namespace("com.enofex.taikai")
       .java(java -> {
         DEFAULT_JAVA_PROFILE.customize(java); // apply predefined profile
@@ -899,12 +897,11 @@ public static void main(String[] args) {
       .test(DEFAULT_TEST_PROFILE) // use profile directly
       .build()
       .checkAll();
-}
 
 private static final Customizer<JavaConfigurer> DEFAULT_JAVA_PROFILE = java -> {
   java.noUsageOf(Date.class)
       .fieldsShouldNotBePublic();
-  // … more rules …
+      // … more rules …
 };
 
 private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> {
@@ -914,7 +911,7 @@ private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> {
       .methodsShouldContainAssertionsOrVerifications()
       .classesShouldBePackagePrivate(".*Test")
       .classesShouldNotBeAnnotatedWithDisabled());
-  // … more rules …
+      // … more rules …
 };
 ```
 
