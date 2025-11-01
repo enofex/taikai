@@ -153,7 +153,7 @@ public class ImportsConfigurer extends AbstractConfigurer {
    * @see #shouldHaveNoCycles()
    */
   public ImportsConfigurer shouldHaveNoCycles(@Nullable Configuration configuration) {
-    String namespace = configuration != null
+    String namespace = (configuration != null && configuration.namespace() != null)
         ? configuration.namespace()
         : Optional.ofNullable(configurerContext())
             .map(ConfigurerContext::namespace)
