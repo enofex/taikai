@@ -502,7 +502,7 @@ Taikai.builder()
 ```
 
 - **Methods Should Not Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have not certain modifier.
-- 
+
 ```java
 Taikai.builder()
     .namespace("com.company.project")
