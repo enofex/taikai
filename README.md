@@ -89,7 +89,7 @@ void shouldFulfillConstraints() {
               .namesShouldEndWithRepository()))      
       .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
       .build()
-      .check();
+      .checkAll();
 }
 ```
 
