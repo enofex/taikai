@@ -592,18 +592,4 @@ public class NamingConfigurer extends AbstractConfigurer {
         .should(shouldFollowConstantNamingConventions(excludedFields))
         .as("Constants should follow constant naming conventions"), configuration));
   }
-
-  public static final class Disableable extends NamingConfigurer implements DisableableConfigurer {
-
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public NamingConfigurer disable() {
-      disable(NamingConfigurer.class);
-
-      return this;
-    }
-  }
 }

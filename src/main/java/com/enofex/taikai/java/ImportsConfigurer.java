@@ -168,19 +168,4 @@ public class ImportsConfigurer extends AbstractConfigurer {
         .should().beFreeOfCycles()
         .as("Namespace %s should be free of cycles".formatted(namespace)), configuration));
   }
-
-
-  public static final class Disableable extends ImportsConfigurer implements DisableableConfigurer {
-
-    public Disableable(ConfigurerContext configurerContext) {
-      super(configurerContext);
-    }
-
-    @Override
-    public ImportsConfigurer disable() {
-      disable(ImportsConfigurer.class);
-
-      return this;
-    }
-  }
 }
