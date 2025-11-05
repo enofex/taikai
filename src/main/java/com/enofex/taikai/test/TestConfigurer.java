@@ -16,7 +16,7 @@ public final class TestConfigurer extends AbstractConfigurer implements Disablea
    * This method was retained for backward compatibility and delegates directly to
    * {@link #junit(Customizer)}.
    */
-  @Deprecated(since = "1.3.9", forRemoval = true)
+  @Deprecated(forRemoval = true)
   public TestConfigurer junit5(Customizer<JUnitConfigurer> customizer) {
     return junit(customizer);
   }

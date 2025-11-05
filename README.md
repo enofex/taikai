@@ -71,7 +71,7 @@ void shouldFulfillConstraints() {
       .spring(spring -> spring
           .noAutowiredFields()
           .boot(boot -> boot
-              .springBootApplicationShouldBeIn("com.enofex.taikai"))
+              .applicationClassShouldResideInPackage("com.enofex.taikai"))
           .configurations(configuration -> configuration
               .namesShouldEndWithConfiguration())
           .controllers(controllers -> controllers

@@ -190,16 +190,16 @@ The default mode is `WITHOUT_TESTS`, which checks only test classes.
 
 The default mode is `ONLY_TESTS`, which checks only test classes.
 
-| Category | Method Name                                      | Rule Description                                                                                                        | 
-|----------|--------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| JUnit  | `classesShouldBePackagePrivate`                  | Ensure that classes whose names match a specific naming pattern are declared as package-private.                        |
-| JUnit  | `classesShouldNotBeAnnotatedWithDisabled`        | Ensure classes are not annotated with `@Disabled`.                                                                      |
-| JUnit  | `methodsShouldBePackagePrivate`                  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                            |
-| JUnit  | `methodsShouldNotBeAnnotatedWithDisabled`        | Ensure methods are not annotated with `@Disabled`.                                                                      |
-| JUnit  | `methodsShouldBeAnnotatedWithDisplayName`        | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.              |
-| JUnit  | `methodsShouldMatch`                             | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.   |
-| JUnit  | `methodsShouldNotDeclareExceptions`              | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.           |
-| JUnit  | `methodsShouldContainAssertionsOrVerifications`  | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification. |
+| Category | Method Name                                     | Rule Description                                                                                                        | 
+|----------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| JUnit    | `classesShouldBePackagePrivate`                 | Ensure that classes whose names match a specific naming pattern are declared as package-private.                        |
+| JUnit    | `classesShouldNotBeAnnotatedWithDisabled`       | Ensure classes are not annotated with `@Disabled`.                                                                      |
+| JUnit    | `methodsShouldBePackagePrivate`                 | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                            |
+| JUnit    | `methodsShouldNotBeAnnotatedWithDisabled`       | Ensure methods are not annotated with `@Disabled`.                                                                      |
+| JUnit    | `methodsShouldBeAnnotatedWithDisplayName`       | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.              |
+| JUnit    | `methodsShouldMatch`                            | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.   |
+| JUnit    | `methodsShouldNotDeclareExceptions`             | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.           |
+| JUnit    | `methodsShouldContainAssertionsOrVerifications` | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification. |
 
 ### Spring Rules
 
@@ -208,7 +208,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Category       | Method Name                                    | Rule Description                                                                                                                                                                                                                                                                         |
 |----------------|------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | General        | `noAutowiredFields`                            | Fields should not be annotated with `@Autowired`, prefer constructor injection.                                                                                                                                                                                                          |
-| Boot           | `springBootApplicationShouldBeIn`              | Ensure `@SpringBootApplication` is in the default package.                                                                                                                                                                                                                               |
+| Boot           | `applicationClassShouldResideInPackage`        | Ensure `@SpringBootApplication` is in the default package.                                                                                                                                                                                                                               |
 | Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`.                                                                                                                                                                                                       |
 | Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern.                                                                                                                                                                                                       |
 | Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`.                                                                                                                                                                                              |
@@ -801,7 +801,7 @@ Taikai.builder()
     .namespace("com.company.project")
     .spring(spring -> spring
         .boot(boot -> boot
-            .springBootApplicationShouldBeIn("com.company.project")))
+            .applicationClassShouldResideInPackage("com.company.project")))
     .build()
     .check();
 ```
