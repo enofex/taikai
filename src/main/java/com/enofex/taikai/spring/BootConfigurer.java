@@ -14,8 +14,8 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
- * Configures and enforces conventions for Spring Boot application classes
- * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Configures and enforces conventions for Spring Boot application classes using
+ * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that the class annotated with {@code @SpringBootApplication}
  * resides in the correct package, maintaining a clear and predictable project structure.</p>
@@ -26,7 +26,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *     .namespace("com.example.project")
  *     .spring(spring -> spring
  *         .boot(boot -> boot
- *             .springBootApplicationShouldBeIn("com.example.project")
+ *             .applicationClassShouldResideInPackage("com.example.project")
  *         )
  *     );
  * }</pre>
@@ -41,33 +41,67 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule that classes annotated with {@code @SpringBootApplication}
-   * should reside in the specified package.
+   * Adds a rule that classes annotated with {@code @SpringBootApplication} must reside in the
+   * project's root package (i.e., the namespace configured via
+   * {@link com.enofex.taikai.Taikai.Builder#namespace(String)}).
    *
-   * @param packageIdentifier the target package identifier (e.g., {@code "com.example.project"})
+   * <p>This variant uses the namespace provided in the Taikai configuration
+   * and applies the rule without requiring an explicit package argument.</p>
+   *
    * @return this configurer instance for fluent chaining
-   * @throws NullPointerException if {@code packageIdentifier} is null
+   * @throws NullPointerException if no namespace is configured
    */
-  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier) {
-    requireNonNull(packageIdentifier);
-    return springBootApplicationShouldBeIn(packageIdentifier, defaultConfiguration());
+  public BootConfigurer applicationClassShouldResideInPackage() {
+    String namespace = configurerContext().namespace();
+    requireNonNull(namespace, "Namespace must not be null");
+
+    return applicationClassShouldResideInPackage(namespace, defaultConfiguration());
   }
 
   /**
-   * See {@link #springBootApplicationShouldBeIn(String)}, but with {@link Configuration} for customization.
+   * @deprecated Use {@link #applicationClassShouldResideInPackage(String)} instead.
+   */
+  @Deprecated(forRemoval = true)
+  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier) {
+    return applicationClassShouldResideInPackage(packageIdentifier);
+  }
+
+  /**
+   * @deprecated Use {@link #applicationClassShouldResideInPackage(String, Configuration)}
+   * instead.
+   */
+  @Deprecated(forRemoval = true)
+  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier,
+      Configuration configuration) {
+    return applicationClassShouldResideInPackage(packageIdentifier, configuration);
+  }
+
+  /**
+   * Adds a rule that classes annotated with {@code @SpringBootApplication} should reside in the
+   * specified package.
    *
    * @param packageIdentifier the target package identifier (e.g., {@code "com.example.project"})
-   * @param configuration the configuration for rule customization
    * @return this configurer instance for fluent chaining
    */
-  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier, Configuration configuration) {
+  public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier) {
+    requireNonNull(packageIdentifier);
+    return applicationClassShouldResideInPackage(packageIdentifier, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #applicationClassShouldResideInPackage(String)}, but with {@link Configuration}
+   * for customization.
+   */
+  public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithSpringBootApplication(true)))
         .should().resideInAPackage(packageIdentifier)
         .allowEmptyShould(false)
-        .as("Classes annotated with %s should be located in %s".formatted(
+        .as("Classes annotated with %s should reside in package %s".formatted(
             ANNOTATION_SPRING_BOOT_APPLICATION, packageIdentifier)), configuration));
   }
+
 
   @Override
   public BootConfigurer disable() {

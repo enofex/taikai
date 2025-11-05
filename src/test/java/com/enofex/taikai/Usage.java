@@ -302,8 +302,9 @@ class Usage {
             .noAutowiredFields(defaultConfiguration())
 
             .boot(boot -> boot
-                .springBootApplicationShouldBeIn("com.enofex.taikai")
-                .springBootApplicationShouldBeIn("com.enofex.taikai", defaultConfiguration()))
+                .applicationClassShouldResideInPackage()
+                .applicationClassShouldResideInPackage("com.enofex.taikai")
+                .applicationClassShouldResideInPackage("com.enofex.taikai", defaultConfiguration()))
 
             .properties(properties -> properties
                 .namesShouldEndWithProperties()
