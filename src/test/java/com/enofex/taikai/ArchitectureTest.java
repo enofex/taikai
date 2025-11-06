@@ -1,8 +1,10 @@
 package com.enofex.taikai;
 
+import static com.enofex.taikai.java.ImportPatterns.*;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
+import com.enofex.taikai.java.ImportPatterns;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -35,9 +37,9 @@ class ArchitectureTest {
                 .shouldNotImport("jakarta.annotation..")
                 .shouldNotImport("javax.annotation..")
                 .shouldNotImport("org.jetbrains.annotations..")
-                .shouldNotImport("..shaded..")
-                .shouldNotImport("..lombok..")
-                .shouldNotImport("org.junit.."))
+                .shouldNotImport(shaded())
+                .shouldNotImport(lombok())
+                .shouldNotImport(junit4()))
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
                 .fieldsShouldNotMatch(".*(List|Set|Map)$")
