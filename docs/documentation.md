@@ -577,8 +577,8 @@ Taikai.builder()
         .imports(imports -> imports
             .shouldHaveNoCycles()
             .shouldImport(".*Service", "com.company.project.BusinessException")
-            .shouldNotImport("..shaded..")
-            .shouldNotImport("..lombok..")
+            .shouldNotImport("..internal..")
+            .shouldNotImport(lombok())
             .shouldNotImport(".*Service", "com.company.project.SpecificException")))
     .build()
     .check();
@@ -939,8 +939,8 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .imports(imports -> imports
-            .shouldNotImport("..shaded..", Configuration.of("com.company.project.different", Namespace.IMPORT.WITHOUT_TESTS))
-            .shouldNotImport("..lombok..", Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
+            .shouldNotImport("..internal..", Configuration.of("com.company.project.different", Namespace.IMPORT.WITHOUT_TESTS))
+            .shouldNotImport(lombok(), Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
     .build()
     .check();
 ```
