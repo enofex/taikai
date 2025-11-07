@@ -206,6 +206,13 @@ public final class Taikai {
       return this;
     }
 
+    public Builder excludeClasses(Class<?>... classes) {
+      for (Class<?> clazz : classes) {
+        this.excludedClasses.add(clazz.getName());
+      }
+      return this;
+    }
+
     public Builder excludeClasses(Collection<String> classNames) {
       this.excludedClasses.addAll(classNames);
       return this;
