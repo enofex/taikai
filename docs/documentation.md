@@ -144,6 +144,8 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldHaveModifiers`                           | Classes matching specific naming patterns should have specified modifiers.                                   |
 | General  | `fieldsShouldHaveModifiers`                            | Fields matching specific naming patterns should have specified modifiers.                                    |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
+| General  | `fieldsAnnotatedWithShouldHaveModifiers`               | Fields annotated with a specific annotation should have specified modifiers.                                |
+| General  | `fieldsAnnotatedWithShouldNotHaveModifiers`            | Fields annotated with a specific annotation should not have specified modifiers.                            |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
 | General  | `methodsShouldBeAnnotatedWith`                         | Methods matching specific naming patterns should be annotated with a specified annotation.                   |
@@ -312,7 +314,7 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .classesAnnotatedWithShouldHaveModifiers(PublicApi.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL))
-        .classesAnnotatedWithShouldHaveModifiers("com.company.project.PublicApi", EnumListSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+        .classesAnnotatedWithShouldHaveModifiers("com.company.project.PublicApi", List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
     .build()
     .check();
 ```
@@ -324,7 +326,7 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .classesAnnotatedWithShouldNotHaveModifiers(PublicApi.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL))
-        .classesAnnotatedWithShouldNotHaveModifiers("com.company.project.PublicApi", EnumListSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+        .classesAnnotatedWithShouldNotHaveModifiers("com.company.project.PublicApi", List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
     .build()
     .check();
 ```
@@ -568,6 +570,30 @@ Taikai.builder()
     .namespace("com.enofex.taikai")
     .java(java -> java
         .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL)))
+    .build()
+    .check();
+```
+
+- **Fields Annotated with a Specified Annotation Must Have Specified Modifiers.**: Ensure that any fields annotated with a given annotation must have all required modifiers.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .fieldsAnnotatedWithShouldHaveModifiers(Constant.class, List.of(JavaModifier.PUBLIC, JavaModifier.STATIC, JavaModifier.FINAL))
+        .fieldsAnnotatedWithShouldHaveModifiers("com.company.project.annotations.Constant", List.of(JavaModifier.PUBLIC, JavaModifier.STATIC, JavaModifier.FINAL)))
+    .build()
+    .check();
+```
+
+- **Fields Annotated with a Specified Annotation Must Not Have Specified Modifiers.**: Ensure that any fields annotated does not have one or more forbidden modifiers.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .fieldsAnnotatedWithShouldNotHaveModifiers(Autowired.class, List.of(JavaModifier.STATIC))
+        .fieldsAnnotatedWithShouldNotHaveModifiers("org.springframework.beans.factory.annotation.Autowired", List.of(JavaModifier.STATIC)))
     .build()
     .check();
 ```

@@ -47,6 +47,22 @@ class Usage {
             .fieldsShouldHaveModifiers("regex", List.of(PRIVATE, FINAL))
             .fieldsShouldHaveModifiers("regex", List.of(PRIVATE, FINAL), defaultConfiguration())
 
+            .fieldsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
+            .fieldsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE),
+                defaultConfiguration())
+            .fieldsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC))
+            .fieldsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC), defaultConfiguration())
+
+            .fieldsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
+            .fieldsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE),
+                defaultConfiguration())
+            .fieldsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC))
+            .fieldsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC), defaultConfiguration())
+
             .classesShouldImplementHashCodeAndEquals()
             .classesShouldImplementHashCodeAndEquals(defaultConfiguration())
 
