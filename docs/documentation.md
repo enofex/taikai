@@ -133,6 +133,8 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldResideInPackage`                         | Classes should reside in a specified package.  (e.g., `com.company.project..`).                              |
 | General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package.                           |
 | General  | `classesAnnotatedWithShouldNotBeAnnotatedWith`         | Classes annotated with a specific annotation should not be annotated with a specified annotation.            |
+| General  | `classesAnnotatedWithShouldHaveModifiers`              | Classes annotated with a specific annotation should have specified modifiers.                                |
+| General  | `classesAnnotatedWithShouldNotHaveModifiers`           | Classes annotated with a specific annotation should not have specified modifiers.                            |
 | General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                         |
 | General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `classesShouldBeAnnotatedWithAll`                      | Classes annotated with a specific annotation should be annotated with a specified annotations.               |
@@ -299,6 +301,30 @@ Taikai.builder()
     .java(java -> java
         .classesAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class)    
         .classesAnnotatedWithShouldNotBeAnnotatedWith("com.company.project.PublicApi", "com.company.project.InternalApi"))
+    .build()
+    .check();
+```
+
+- **Classes Annotated with a Specified Annotation Must Have Specified Modifiers.**: Ensure that any class annotated with a given annotation must have all required modifiers.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesAnnotatedWithShouldHaveModifiers(PublicApi.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL))
+        .classesAnnotatedWithShouldHaveModifiers("com.company.project.PublicApi", EnumListSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+    .build()
+    .check();
+```
+
+- **Classes Annotated with a Specified Annotation Must Not Have Specified Modifiers.**: Ensure that any class annotated does not have one or more forbidden modifiers.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesAnnotatedWithShouldNotHaveModifiers(PublicApi.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL))
+        .classesAnnotatedWithShouldNotHaveModifiers("com.company.project.PublicApi", EnumListSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
     .build()
     .check();
 ```

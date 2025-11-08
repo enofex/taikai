@@ -209,4 +209,25 @@ class ArchConditionsTest {
             "PUBLIC, FINAL"),
         eventCaptor.getValue().getDescriptionLines().get(0));
   }
+
+  @Test
+  void shouldNotAddEventWhenClassDoesNotHaveForbiddenModifiers() {
+    Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.ABSTRACT);
+    when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
+
+    ArchConditions.notHasClassModifiers(forbiddenModifiers).check(this.mockClass, this.events);
+
+    verify(this.events, never()).add(any(SimpleConditionEvent.class));
+  }
+
+  @Test
+  void shouldAddEventWhenClassHasForbiddenModifiers() {
+    Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.ABSTRACT);
+    when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC, JavaModifier.ABSTRACT));
+    when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
+
+    ArchConditions.notHasClassModifiers(forbiddenModifiers).check(this.mockClass, this.events);
+
+    verify(this.events, times(1)).add(any(SimpleConditionEvent.class));
+  }
 }

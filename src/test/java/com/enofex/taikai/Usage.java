@@ -103,6 +103,22 @@ class Usage {
             .classesShouldHaveModifiers("regex", List.of(PUBLIC))
             .classesShouldHaveModifiers("regex", List.of(PUBLIC), defaultConfiguration())
 
+            .classesAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
+            .classesAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE),
+                defaultConfiguration())
+            .classesAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC))
+            .classesAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC), defaultConfiguration())
+
+            .classesAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
+            .classesAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE),
+                defaultConfiguration())
+            .classesAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC))
+            .classesAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
+                List.of(PUBLIC), defaultConfiguration())
+
             .methodsShouldBeAnnotatedWith("regex", DisplayName.class)
             .methodsShouldBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
             .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
