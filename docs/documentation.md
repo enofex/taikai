@@ -313,8 +313,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesAnnotatedWithShouldHaveModifiers(PublicApi.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL))
-        .classesAnnotatedWithShouldHaveModifiers("com.company.project.PublicApi", List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+        .classesAnnotatedWithShouldHaveModifiers(PublicApi.class, List.of(PUBLIC, FINAL))
+        .classesAnnotatedWithShouldHaveModifiers("com.company.project.PublicApi", List.of(PUBLIC, FINAL)))
     .build()
     .check();
 ```
@@ -325,8 +325,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesAnnotatedWithShouldNotHaveModifiers(PublicApi.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL))
-        .classesAnnotatedWithShouldNotHaveModifiers("com.company.project.PublicApi", List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+        .classesAnnotatedWithShouldNotHaveModifiers(PublicApi.class, List.of(PUBLIC, FINAL))
+        .classesAnnotatedWithShouldNotHaveModifiers("com.company.project.PublicApi", List.of(PUBLIC, FINAL)))
     .build()
     .check();
 ```
@@ -580,8 +580,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .fieldsAnnotatedWithShouldHaveModifiers(Constant.class, List.of(JavaModifier.PUBLIC, JavaModifier.STATIC, JavaModifier.FINAL))
-        .fieldsAnnotatedWithShouldHaveModifiers("com.company.project.annotations.Constant", List.of(JavaModifier.PUBLIC, JavaModifier.STATIC, JavaModifier.FINAL)))
+        .fieldsAnnotatedWithShouldHaveModifiers(Constant.class, List.of(PUBLIC, STATIC, FINAL))
+        .fieldsAnnotatedWithShouldHaveModifiers("com.company.project.annotations.Constant", List.of(PUBLIC, STATIC, FINAL)))
     .build()
     .check();
 ```
@@ -592,8 +592,8 @@ Taikai.builder()
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .fieldsAnnotatedWithShouldNotHaveModifiers(Autowired.class, List.of(JavaModifier.STATIC))
-        .fieldsAnnotatedWithShouldNotHaveModifiers("org.springframework.beans.factory.annotation.Autowired", List.of(JavaModifier.STATIC)))
+        .fieldsAnnotatedWithShouldNotHaveModifiers(Autowired.class, List.of(STATIC))
+        .fieldsAnnotatedWithShouldNotHaveModifiers("org.springframework.beans.factory.annotation.Autowired", List.of(STATIC)))
     .build()
     .check();
 ```
