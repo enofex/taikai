@@ -141,7 +141,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
         .should().notDeclareThrowableOfType(Exception.class)
-        .orShould().notDeclareThrowableOfType(RuntimeException.class)
+         .andShould().notDeclareThrowableOfType(RuntimeException.class)
         .as("Methods should not declare generic Exception or RuntimeException"), configuration));
   }
 
@@ -1410,6 +1410,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
         .as("Classes have name matching %s should implement %s".formatted(
             regex, typeName)), configuration));
   }
+
   /**
    * Adds a rule enforcing that classes whose names match a regex
    * must have all specified modifiers.
