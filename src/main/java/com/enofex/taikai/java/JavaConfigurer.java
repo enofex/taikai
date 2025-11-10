@@ -773,6 +773,33 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
+   * Adds a rule enforcing that classes whose names match the given regular expression
+   * must be declared as Java records.
+   *
+   * @param regex the regular expression used to match class names
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeRecords(String regex) {
+    return classesShouldBeRecords(regex, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes whose names match the given regular expression
+   * must be declared as Java records, using a custom configuration.
+   *
+   * @param regex the regular expression used to match class names
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeRecords(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().haveNameMatching(regex)
+            .should().beRecords()
+            .as("Classes with names matching %s should be records".formatted(regex)),
+        configuration));
+  }
+
+  /**
    * Adds a rule enforcing that classes annotated with a specific annotation
    * must also be annotated with all required annotations.
    *
@@ -1195,6 +1222,58 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .as("Classes annotated with %s should not have all of these modifiers %s".formatted(
                 annotationType,
                 notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with a given annotation type
+   * must be declared as Java records.
+   *
+   * @param annotationType the annotation type to check
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBeRecords(Class<? extends Annotation> annotationType) {
+    return classesAnnotatedWithShouldBeRecords(annotationType.getName(), defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with a given annotation type
+   * must be declared as Java records, using a custom configuration.
+   *
+   * @param annotationType the annotation type to check
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBeRecords(
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return classesAnnotatedWithShouldBeRecords(annotationType.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with an annotation whose name matches
+   * the given type name must be declared as Java records.
+   *
+   * @param annotationType the fully qualified name of the annotation type to check
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBeRecords(String annotationType) {
+    return classesAnnotatedWithShouldBeRecords(annotationType, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with an annotation whose name matches
+   * the given type name must be declared as Java records, using a custom configuration.
+   *
+   * @param annotationType the fully qualified name of the annotation type to check
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBeRecords(String annotationType,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().areAnnotatedWith(annotationType)
+            .should().beRecords()
+            .as("Classes annotated with %s should be records".formatted(annotationType)),
         configuration));
   }
 

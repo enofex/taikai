@@ -135,6 +135,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesAnnotatedWithShouldNotBeAnnotatedWith`         | Classes annotated with a specific annotation should not be annotated with a specified annotation.            |
 | General  | `classesAnnotatedWithShouldHaveModifiers`              | Classes annotated with a specific annotation should have specified modifiers.                                |
 | General  | `classesAnnotatedWithShouldNotHaveModifiers`           | Classes annotated with a specific annotation should not have specified modifiers.                            |
+| General  | `classesAnnotatedWithShouldBeRecords`                  | Classes annotated with a specific annotation should be records.                                              |
 | General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                         |
 | General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
 | General  | `classesShouldBeAnnotatedWithAll`                      | Classes annotated with a specific annotation should be annotated with a specified annotations.               |
@@ -142,10 +143,11 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
 | General  | `classesShouldImplement`                               | Classes matching specific naming patterns should implement to a interface.                                   |
 | General  | `classesShouldHaveModifiers`                           | Classes matching specific naming patterns should have specified modifiers.                                   |
+| General  | `classesShouldBeRecords`                               | Classes matching specific naming patterns should be records.                                                 |
 | General  | `fieldsShouldHaveModifiers`                            | Fields matching specific naming patterns should have specified modifiers.                                    |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
-| General  | `fieldsAnnotatedWithShouldHaveModifiers`               | Fields annotated with a specific annotation should have specified modifiers.                                |
-| General  | `fieldsAnnotatedWithShouldNotHaveModifiers`            | Fields annotated with a specific annotation should not have specified modifiers.                            |
+| General  | `fieldsAnnotatedWithShouldHaveModifiers`               | Fields annotated with a specific annotation should have specified modifiers.                                 |
+| General  | `fieldsAnnotatedWithShouldNotHaveModifiers`            | Fields annotated with a specific annotation should not have specified modifiers.                             |
 | General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
 | General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
 | General  | `methodsShouldBeAnnotatedWith`                         | Methods matching specific naming patterns should be annotated with a specified annotation.                   |
@@ -209,31 +211,31 @@ The default mode is `ONLY_TESTS`, which checks only test classes.
 
 The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
 
-| Category       | Method Name                                    | Rule Description                                                                                                                                                                                                                                                                         |
-|----------------|------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| General        | `noAutowiredFields`                            | Fields should not be annotated with `@Autowired`, prefer constructor injection.                                                                                                                                                                                                          |
-| Boot           | `applicationClassShouldResideInPackage`        | Ensure `@SpringBootApplication` is in the default package.                                                                                                                                                                                                                               |
-| Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`.                                                                                                                                                                                                       |
-| Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern.                                                                                                                                                                                                       |
-| Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`.                                                                                                                                                                                              |
-| Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties ending with `Properties` should be annotated with `@ConfigurationProperties`.                                                                                                                                                                                                 |
-| Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`.                                                                                                                                                                                                          |
-| Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern.                                                                                                                                                                                                             |
-| Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`.                                                                                                                                                                                              |
-| Controllers    | `namesShouldMatch`                             | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern.                                                                                                                                                                                              |
-| Controllers    | `shouldBeAnnotatedWithController`              | Controllers ending with `Controller` should be annotated with `@Controller`.                                                                                                                                                                                                             |
-| Controllers    | `shouldBeAnnotatedWithRestController`          | Controllers ending with `Controller` should be annotated with `@RestController`.                                                                                                                                                                                                         |
-| Controllers    | `shouldBeAnnotatedWithValidated`               | Controllers annotated with `@Controller` or `@RestController` or match a regex pattern, containing methods having a parameter annotated with `@PathVariable` or `@RequestParam` and a validation annotation (e.g., `@Min`, `@NotNull`, etc.), must also be annotated with `@Validated`.  |
-| Controllers    | `shouldBePackagePrivate`                       | Controllers annotated with `@Controller` or `@RestController` should be package-private.                                                                                                                                                                                                 |
-| Controllers    | `shouldNotDependOnOtherControllers`            | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController`.                                                                                                                                  |
-| Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`.                                                                                                                                                                                                                  |
-| Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern.                                                                                                                                                                                                                  |
-| Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories ending with `Repository` should be annotated with `@Repository`.                                                                                                                                                                                                            |
-| Repositories   | `shouldNotDependOnServices`                    | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service`.                                                                                                                                                                                |
-| Services       | `namesShouldEndWithService`                    | Services annotated with `@Service` should end with `Service`.                                                                                                                                                                                                                            |
-| Services       | `namesShouldMatch`                             | Services annotated with `@Service` should match a regex pattern.                                                                                                                                                                                                                         |
-| Services       | `shouldBeAnnotatedWithService`                 | Services ending with `Service` should be annotated with `@Service`.                                                                                                                                                                                                                      |
-| Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                                   |
+| Category       | Method Name                                    | Rule Description                                                                                                                                                                                                                                                                          |
+|----------------|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| General        | `noAutowiredFields`                            | Fields should not be annotated with `@Autowired`, prefer constructor injection.                                                                                                                                                                                                           |
+| Boot           | `applicationClassShouldResideInPackage`        | Ensure `@SpringBootApplication` is in the default package.                                                                                                                                                                                                                                |
+| Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`.                                                                                                                                                                                                        |
+| Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern.                                                                                                                                                                                                        |
+| Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`.                                                                                                                                                                                               |
+| Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties ending with `Properties` should be annotated with `@ConfigurationProperties`.                                                                                                                                                                                                  |
+| Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`.                                                                                                                                                                                                           |
+| Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern.                                                                                                                                                                                                              |
+| Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`.                                                                                                                                                                                               |
+| Controllers    | `namesShouldMatch`                             | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern.                                                                                                                                                                                               |
+| Controllers    | `shouldBeAnnotatedWithController`              | Controllers ending with `Controller` should be annotated with `@Controller`.                                                                                                                                                                                                              |
+| Controllers    | `shouldBeAnnotatedWithRestController`          | Controllers ending with `Controller` should be annotated with `@RestController`.                                                                                                                                                                                                          |
+| Controllers    | `shouldBeAnnotatedWithValidated`               | Controllers annotated with `@Controller` or `@RestController` or match a regex pattern, containing methods having a parameter annotated with `@PathVariable` or `@RequestParam` and a validation annotation (e.g., `@Min`, `@NotNull`, etc.), should also be annotated with `@Validated`. |
+| Controllers    | `shouldBePackagePrivate`                       | Controllers annotated with `@Controller` or `@RestController` should be package-private.                                                                                                                                                                                                  |
+| Controllers    | `shouldNotDependOnOtherControllers`            | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController`.                                                                                                                                   |
+| Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`.                                                                                                                                                                                                                   |
+| Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern.                                                                                                                                                                                                                   |
+| Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories ending with `Repository` should be annotated with `@Repository`.                                                                                                                                                                                                             |
+| Repositories   | `shouldNotDependOnServices`                    | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service`.                                                                                                                                                                                 |
+| Services       | `namesShouldEndWithService`                    | Services annotated with `@Service` should end with `Service`.                                                                                                                                                                                                                             |
+| Services       | `namesShouldMatch`                             | Services annotated with `@Service` should match a regex pattern.                                                                                                                                                                                                                          |
+| Services       | `shouldBeAnnotatedWithService`                 | Services ending with `Service` should be annotated with `@Service`.                                                                                                                                                                                                                       |
+| Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                                    |
 
 ## 5. Java Rules
 
@@ -307,7 +309,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Annotated with a Specified Annotation Must Have Specified Modifiers.**: Ensure that any class annotated with a given annotation must have all required modifiers.
+- **Classes Annotated with a Specified Annotation Should Have Specified Modifiers.**: Ensure that any class annotated with a given annotation should have all required modifiers.
 
 ```java
 Taikai.builder()
@@ -319,7 +321,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Annotated with a Specified Annotation Must Not Have Specified Modifiers.**: Ensure that any class annotated does not have one or more forbidden modifiers.
+- **Classes Annotated with a Specified Annotation Should Not Have Specified Modifiers.**: Ensure that any class annotated does not have one or more forbidden modifiers.
 
 ```java
 Taikai.builder()
@@ -327,6 +329,17 @@ Taikai.builder()
     .java(java -> java
         .classesAnnotatedWithShouldNotHaveModifiers(PublicApi.class, List.of(PUBLIC, FINAL))
         .classesAnnotatedWithShouldNotHaveModifiers("com.company.project.PublicApi", List.of(PUBLIC, FINAL)))
+    .build()
+    .check();
+```
+
+- **Classes annotated with a Specified Annotation Should Be Records**: Ensure that any class annotated with a given annotation are records.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldBeRecords(Configuration.class))
     .build()
     .check();
 ```
@@ -409,6 +422,17 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .classesShouldHaveModifiers(".*Repository", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Classes Should Be Records**: Ensure that classes matching a specific regex pattern a records.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldBeRecords(".*DTO"))
     .build()
     .check();
 ```
@@ -574,7 +598,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Fields Annotated with a Specified Annotation Must Have Specified Modifiers.**: Ensure that any fields annotated with a given annotation must have all required modifiers.
+- **Fields Annotated with a Specified Annotation Should Have Specified Modifiers.**: Ensure that any fields annotated with a given annotation should have all required modifiers.
 
 ```java
 Taikai.builder()
@@ -586,7 +610,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Fields Annotated with a Specified Annotation Must Not Have Specified Modifiers.**: Ensure that any fields annotated does not have one or more forbidden modifiers.
+- **Fields Annotated with a Specified Annotation Should Not Have Specified Modifiers.**: Ensure that any fields annotated does not have one or more forbidden modifiers.
 
 ```java
 Taikai.builder()
