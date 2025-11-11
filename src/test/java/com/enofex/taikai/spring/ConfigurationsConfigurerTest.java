@@ -48,40 +48,6 @@ class ConfigurationsConfigurerTest {
     }
   }
 
-  @Nested
-  class ShouldBeRecords {
-
-    @Test
-    void shouldNotThrowWhenConfigurationIsRecord() {
-      Taikai taikai = Taikai.builder()
-          .classes(RecordAppConfiguration.class)
-          .spring(spring -> spring.configurations(ConfigurationsConfigurer::shouldBeRecords))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenConfigurationIsNotRecord() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidAppConfig.class)
-          .spring(spring -> spring.configurations(ConfigurationsConfigurer::shouldBeRecords))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldIgnoreSpringBootApplicationClasses() {
-      Taikai taikai = Taikai.builder()
-          .classes(DemoApplication.class)
-          .spring(spring -> spring.configurations(ConfigurationsConfigurer::shouldBeRecords))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
   @Configuration
   static class ValidAppConfiguration {
 

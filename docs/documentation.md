@@ -227,7 +227,6 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties ending with `Properties` should be annotated with `@ConfigurationProperties`.                                                                                                                                                                                                  |
 | Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`.                                                                                                                                                                                                           |
 | Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern.                                                                                                                                                                                                              |
-| Configurations | `shouldBeRecords`                              | Configurations annotated with `@Configuration` should be records.                                                                                                                                                                                                                         |
 | Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`.                                                                                                                                                                                               |
 | Controllers    | `namesShouldMatch`                             | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern.                                                                                                                                                                                               |
 | Controllers    | `shouldBeAnnotatedWithController`              | Controllers ending with `Controller` should be annotated with `@Controller`.                                                                                                                                                                                                              |
@@ -913,18 +912,6 @@ Taikai.builder()
         .configurations(configuration -> configuration
             .namesShouldEndWithConfiguration()
             .namesShouldMatch("regex")))
-    .build()
-    .check();
-```
-
-- **Configurations Configuration**: Ensure that configuration classes end with `Configuration` are records.
-
-```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .configurations(configuration -> configuration
-            .shouldBeRecords()))
     .build()
     .check();
 ```

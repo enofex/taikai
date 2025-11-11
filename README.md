@@ -73,8 +73,7 @@ void shouldFulfillConstraints() {
           .boot(boot -> boot
               .applicationClassShouldResideInPackage("com.enofex.taikai"))
           .configurations(configuration -> configuration
-              .namesShouldEndWithConfiguration()
-              .shouldBeRecords())
+              .namesShouldEndWithConfiguration())
           .controllers(controllers -> controllers
               .shouldBeAnnotatedWithRestController()
               .namesShouldEndWithController()
