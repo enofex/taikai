@@ -10,7 +10,6 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
-import com.enofex.taikai.configures.DisableableConfigurer;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 

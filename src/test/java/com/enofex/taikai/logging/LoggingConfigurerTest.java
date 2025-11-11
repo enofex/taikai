@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.util.List;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
@@ -16,7 +15,7 @@ class LoggingConfigurerTest {
   @Test
   void shouldApplyLoggerConventionsWithClass() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(LoggerConventionsFollowed.class))
+        .classes(LoggerConventionsFollowed.class)
         .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger",
             List.of(PRIVATE, FINAL)))
         .build();
@@ -27,7 +26,7 @@ class LoggingConfigurerTest {
   @Test
   void shouldApplyLoggerConventionsWithTypeName() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(LoggerConventionsFollowed.class))
+        .classes(LoggerConventionsFollowed.class)
         .logging(logging -> logging
             .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
                 List.of(PRIVATE, FINAL)))
@@ -43,7 +42,7 @@ class LoggingConfigurerTest {
   @Test
   void shouldApplyLoggerConventionsEvenIfLoggerInBaseClassDoesNotFollowConventions() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(SubClassNotViolatingConventions.class))
+        .classes(SubClassNotViolatingConventions.class)
         .logging(logging -> logging
             .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
                 List.of(PRIVATE, FINAL)))
@@ -55,7 +54,7 @@ class LoggingConfigurerTest {
   @Test
   void shouldThrowLoggerConventionsWithClassNaming() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(LoggerConventionsNotFollowedNaming.class))
+        .classes(LoggerConventionsNotFollowedNaming.class)
         .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger",
             List.of(PRIVATE, FINAL)))
         .build();
@@ -66,7 +65,7 @@ class LoggingConfigurerTest {
   @Test
   void shouldThrowLoggerConventionsWithClassModifier() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(LoggerConventionsPartiallyModifier.class))
+        .classes(LoggerConventionsPartiallyModifier.class)
         .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger",
             List.of(PRIVATE, FINAL)))
         .build();

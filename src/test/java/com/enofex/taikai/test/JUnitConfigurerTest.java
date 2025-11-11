@@ -1,7 +1,6 @@
 package com.enofex.taikai.test;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyMethodNameConvention() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidTestMethodName.class))
+                .classes(ValidTestMethodName.class)
                 .test(test -> test.junit(
                         junit -> junit.methodsShouldMatch("should[A-Z].*")
                 ))
@@ -27,7 +26,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowOnInvalidMethodNameConvention() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidTestMethodName.class))
+                .classes(InvalidTestMethodName.class)
                 .test(test -> test.junit(
                         junit -> junit.methodsShouldMatch("should[A-Z].*")
                 ))
@@ -39,7 +38,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyNoDeclaredExceptionsRule() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidNoExceptionTest.class))
+                .classes(ValidNoExceptionTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldNotDeclareExceptions
                 ))
@@ -51,7 +50,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowWhenMethodDeclaresException() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidExceptionTest.class))
+                .classes(InvalidExceptionTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldNotDeclareExceptions
                 ))
@@ -63,7 +62,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyDisplayNameAnnotationRule() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidDisplayNameTest.class))
+                .classes(ValidDisplayNameTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldBeAnnotatedWithDisplayName
                 ))
@@ -75,7 +74,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowWhenMissingDisplayNameAnnotation() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidDisplayNameTest.class))
+                .classes(InvalidDisplayNameTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldBeAnnotatedWithDisplayName
                 ))
@@ -87,7 +86,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyPackagePrivateMethodRule() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidPackagePrivateMethodTest.class))
+                .classes(ValidPackagePrivateMethodTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldBePackagePrivate
                 ))
@@ -99,7 +98,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowWhenMethodIsNotPackagePrivate() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidPackagePrivateMethodTest.class))
+                .classes(InvalidPackagePrivateMethodTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldBePackagePrivate
                 ))
@@ -111,7 +110,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyNoDisabledMethodRule() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidNoDisabledTest.class))
+                .classes(ValidNoDisabledTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldNotBeAnnotatedWithDisabled
                 ))
@@ -123,7 +122,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowWhenMethodIsDisabled() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidDisabledTest.class))
+                .classes(InvalidDisabledTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldNotBeAnnotatedWithDisabled
                 ))
@@ -135,7 +134,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyNoDisabledClassRule() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidNoDisabledTest.class))
+                .classes(ValidNoDisabledTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::classesShouldNotBeAnnotatedWithDisabled
                 ))
@@ -147,7 +146,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowWhenClassIsDisabled() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidDisabledClass.class))
+                .classes(InvalidDisabledClass.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::classesShouldNotBeAnnotatedWithDisabled
                 ))
@@ -159,7 +158,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyPackagePrivateClassRule() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(PackagePrivateTestClass.class))
+                .classes(PackagePrivateTestClass.class)
                 .test(test -> test.junit(
                         junit -> junit.classesShouldBePackagePrivate(".*PackagePrivateTestClass")
                 ))
@@ -171,7 +170,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowWhenClassIsNotPackagePrivate() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(PublicTestClass.class))
+                .classes(PublicTestClass.class)
                 .test(test -> test.junit(
                         junit -> junit.classesShouldBePackagePrivate(".*PublicTestClass")
                 ))
@@ -183,7 +182,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldApplyMethodsContainAssertionsOrVerificationsRule() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidAssertionTest.class))
+                .classes(ValidAssertionTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
                 ))
@@ -195,7 +194,7 @@ class JUnitConfigurerTest {
     @Test
     void shouldThrowWhenMethodDoesNotContainAssertionsOrVerifications() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidAssertionTest.class))
+                .classes(InvalidAssertionTest.class)
                 .test(test -> test.junit(
                         JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
                 ))

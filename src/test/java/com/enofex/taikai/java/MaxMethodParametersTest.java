@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class MaxMethodParametersTest {
@@ -12,7 +11,7 @@ class MaxMethodParametersTest {
     @Test
     void shouldNotThrowWhenMethodsDoNotExceedMaxParameters() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ValidMethods.class))
+                .classes(ValidMethods.class)
                 .java(java -> java.methodsShouldNotExceedMaxParameters(3))
                 .build();
 
@@ -22,7 +21,7 @@ class MaxMethodParametersTest {
     @Test
     void shouldThrowWhenMethodExceedsMaxParameters() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(InvalidMethods.class))
+                .classes(InvalidMethods.class)
                 .java(java -> java.methodsShouldNotExceedMaxParameters(2))
                 .build();
 
@@ -32,7 +31,7 @@ class MaxMethodParametersTest {
     @Test
     void shouldAllowExactlyMaxParameters() {
         Taikai taikai = Taikai.builder()
-                .classes(new ClassFileImporter().importClasses(ExactlyMaxMethods.class))
+                .classes(ExactlyMaxMethods.class)
                 .java(java -> java.methodsShouldNotExceedMaxParameters(3))
                 .build();
 

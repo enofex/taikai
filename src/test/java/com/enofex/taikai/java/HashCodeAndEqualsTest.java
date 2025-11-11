@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class HashCodeAndEqualsTest {
@@ -12,7 +11,7 @@ class HashCodeAndEqualsTest {
   @Test
   void shouldPassWhenClassImplementsBothEqualsAndHashCode() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidClass.class))
+        .classes(ValidClass.class)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 
@@ -22,7 +21,7 @@ class HashCodeAndEqualsTest {
   @Test
   void shouldFailWhenClassImplementsEqualsButNotHashCode() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(EqualsOnlyClass.class))
+        .classes(EqualsOnlyClass.class)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 
@@ -32,7 +31,7 @@ class HashCodeAndEqualsTest {
   @Test
   void shouldFailWhenClassImplementsHashCodeButNotEquals() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(HashCodeOnlyClass.class))
+        .classes(HashCodeOnlyClass.class)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 
@@ -42,7 +41,7 @@ class HashCodeAndEqualsTest {
   @Test
   void shouldPassWhenClassImplementsNeitherEqualsNorHashCode() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(PlainClass.class))
+        .classes(PlainClass.class)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 

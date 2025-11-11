@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class UtilityClassesTest {
@@ -12,7 +11,7 @@ class UtilityClassesTest {
   @Test
   void shouldApplyFinalUtilityClassWithPrivateConstructor() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidUtilityClass.class))
+        .classes(ValidUtilityClass.class)
         .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
         .build();
 
@@ -22,7 +21,7 @@ class UtilityClassesTest {
   @Test
   void shouldApplyExceptionClassWithFactoryMethods() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ExceptionClassWithFactoryMethod.class))
+        .classes(ExceptionClassWithFactoryMethod.class)
         .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
         .build();
 
@@ -32,7 +31,7 @@ class UtilityClassesTest {
   @Test
   void shouldThrowUtilityClassThatIsNotFinal() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(NonFinalUtilityClass.class))
+        .classes(NonFinalUtilityClass.class)
         .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
         .build();
 
@@ -42,8 +41,8 @@ class UtilityClassesTest {
   @Test
   void shouldThrowUtilityClassWithImplicitPublicConstructor() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(
-            FinalUtilityClassWithImplicitPublicConstructor.class))
+        .classes(
+            FinalUtilityClassWithImplicitPublicConstructor.class)
         .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
         .build();
 
@@ -53,8 +52,8 @@ class UtilityClassesTest {
   @Test
   void shouldThrowUtilityClassWithExplicitPublicConstructor() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(
-            FinalUtilityClassWithExplicitPublicConstructor.class))
+        .classes(
+            FinalUtilityClassWithExplicitPublicConstructor.class)
         .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
         .build();
 

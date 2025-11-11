@@ -18,7 +18,6 @@ import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +51,7 @@ class TaikaiTest {
     Collection<TaikaiRule> rules = Collections.singletonList(mockRule);
 
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(TaikaiTest.class))
+        .classes(TaikaiTest.class)
         .excludeClasses("com.enofex.taikai.foo.ClassToExclude", "com.enofex.taikai.bar.ClassToExclude")
         .failOnEmpty(true)
         .addRules(rules)
@@ -167,7 +166,7 @@ class TaikaiTest {
   void shouldThrowExceptionIfNamespaceAndClasses() {
     assertThrows(IllegalArgumentException.class, () -> Taikai.builder()
         .namespace(VALID_NAMESPACE)
-        .classes(new ClassFileImporter().importClasses(TaikaiTest.class))
+        .classes(TaikaiTest.class)
         .build());
   }
 }

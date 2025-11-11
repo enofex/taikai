@@ -4,7 +4,6 @@ import static com.enofex.taikai.java.ImportPatterns.*;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
-import com.enofex.taikai.java.ImportPatterns;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;

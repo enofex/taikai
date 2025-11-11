@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +16,7 @@ class ConstantNamingTest {
   @Test
   void shouldApplyConstantNamingConvention() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidConstants.class))
+        .classes(ValidConstants.class)
         .java(java -> java.naming(NamingConfigurer::constantsShouldFollowConventions))
         .build();
 
@@ -27,7 +26,7 @@ class ConstantNamingTest {
   @Test
   void shouldThrowWhenConstantDoesNotFollowConvention() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(InvalidConstants.class))
+        .classes(InvalidConstants.class)
         .java(java -> java.naming(NamingConfigurer::constantsShouldFollowConventions))
         .build();
 
@@ -37,7 +36,7 @@ class ConstantNamingTest {
   @Test
   void shouldIgnoreSerialVersionUID() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(SerialVersionUIDClass.class))
+        .classes(SerialVersionUIDClass.class)
         .java(java -> java.naming(NamingConfigurer::constantsShouldFollowConventions))
         .build();
 
@@ -47,7 +46,7 @@ class ConstantNamingTest {
   @Test
   void shouldIgnoreExcludedFields() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(LoggerField.class))
+        .classes(LoggerField.class)
         .java(
             java -> java.naming(naming -> naming.constantsShouldFollowConventions(List.of("log"))))
         .build();
@@ -58,7 +57,7 @@ class ConstantNamingTest {
   @Test
   void shouldIgnoreExcludedFieldsIfMultipleFieldNamesAreProvided() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(LoggerField.class))
+        .classes(LoggerField.class)
         .java(
             java -> java.naming(
                 naming -> naming.constantsShouldFollowConventions(List.of("log", "logger"))))
@@ -70,7 +69,7 @@ class ConstantNamingTest {
   @Test
   void shouldThrowOnSerialVersionUIDWhenNoFieldsAreExcluded() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(SerialVersionUIDClass.class))
+        .classes(SerialVersionUIDClass.class)
         .java(
             java -> java.naming(
                 naming -> naming.constantsShouldFollowConventions(Collections.emptyList())))

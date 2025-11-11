@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class ProtectedMembersTest {
@@ -12,7 +11,7 @@ class ProtectedMembersTest {
   @Test
   void shouldPassWhenFinalClassHasNoProtectedMembers() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidFinalClass.class))
+        .classes(ValidFinalClass.class)
         .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
         .build();
 
@@ -22,7 +21,7 @@ class ProtectedMembersTest {
   @Test
   void shouldFailWhenFinalClassHasProtectedField() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(FinalClassWithProtectedField.class))
+        .classes(FinalClassWithProtectedField.class)
         .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
         .build();
 
@@ -32,7 +31,7 @@ class ProtectedMembersTest {
   @Test
   void shouldFailWhenFinalClassHasProtectedMethod() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(FinalClassWithProtectedMethod.class))
+        .classes(FinalClassWithProtectedMethod.class)
         .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
         .build();
 

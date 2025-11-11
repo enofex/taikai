@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.junit.jupiter.api.Nested;
@@ -18,7 +17,7 @@ class ClassRecordTest {
     @Test
     void shouldNotThrowWhenAnnotatedClassesAreRecords_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ValidRecord.class))
+          .classes(ValidRecord.class)
           .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class))
           .build();
 
@@ -28,7 +27,7 @@ class ClassRecordTest {
     @Test
     void shouldThrowWhenAnnotatedClassesAreNotRecords_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(InvalidNonRecord.class))
+          .classes(InvalidNonRecord.class)
           .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class))
           .build();
 
@@ -38,7 +37,7 @@ class ClassRecordTest {
     @Test
     void shouldNotThrowWhenAnnotatedClassesAreRecords_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ValidRecord.class))
+          .classes(ValidRecord.class)
           .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class.getName()))
           .build();
 
@@ -48,7 +47,7 @@ class ClassRecordTest {
     @Test
     void shouldThrowWhenAnnotatedClassesAreNotRecords_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(InvalidNonRecord.class))
+          .classes(InvalidNonRecord.class)
           .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class.getName()))
           .build();
 
@@ -62,7 +61,7 @@ class ClassRecordTest {
     @Test
     void shouldNotThrowWhenClassNameMatchesAndIsRecord() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ValidRecord.class))
+          .classes(ValidRecord.class)
           .java(java -> java.classesShouldBeRecords(".*ValidRecord"))
           .build();
 
@@ -72,7 +71,7 @@ class ClassRecordTest {
     @Test
     void shouldThrowWhenClassNameMatchesAndIsNotRecord() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(InvalidNonRecord.class))
+          .classes(InvalidNonRecord.class)
           .java(java -> java.classesShouldBeRecords(".*InvalidNonRecord"))
           .build();
 
@@ -82,7 +81,7 @@ class ClassRecordTest {
     @Test
     void shouldNotThrowWhenNoClassNameMatches() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ValidRecord.class))
+          .classes(ValidRecord.class)
           .java(java -> java.classesShouldBeRecords(".*DoesNotExist"))
           .build();
 

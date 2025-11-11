@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.domain.JavaModifier;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,9 +21,9 @@ class ClassModifierTest {
     @Test
     void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(PublicFinalClass.class))
+          .classes(PublicFinalClass.class)
           .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class, EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+              TestAnnotation.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -32,9 +32,9 @@ class ClassModifierTest {
     @Test
     void shouldThrowWhenAnnotatedClassesLackRequiredModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(PublicNonFinalClass.class))
+          .classes(PublicNonFinalClass.class)
           .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class, EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+              TestAnnotation.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -43,9 +43,9 @@ class ClassModifierTest {
     @Test
     void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(PublicFinalClass.class))
+          .classes(PublicFinalClass.class)
           .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class.getName(), EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+              TestAnnotation.class.getName(), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -54,9 +54,9 @@ class ClassModifierTest {
     @Test
     void shouldThrowWhenAnnotatedClassesLackRequiredModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(PublicNonFinalClass.class))
+          .classes(PublicNonFinalClass.class)
           .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class.getName(), EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+              TestAnnotation.class.getName(), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -69,9 +69,9 @@ class ClassModifierTest {
     @Test
     void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(PublicNonFinalClass.class))
+          .classes(PublicNonFinalClass.class)
           .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class, EnumSet.of(JavaModifier.ABSTRACT)))
+              TestAnnotation.class, List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -80,9 +80,9 @@ class ClassModifierTest {
     @Test
     void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(AbstractClass.class))
+          .classes(AbstractClass.class)
           .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class, EnumSet.of(JavaModifier.ABSTRACT)))
+              TestAnnotation.class, List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -91,9 +91,9 @@ class ClassModifierTest {
     @Test
     void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(PublicNonFinalClass.class))
+          .classes(PublicNonFinalClass.class)
           .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class.getName(), EnumSet.of(JavaModifier.ABSTRACT)))
+              TestAnnotation.class.getName(), List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -102,9 +102,9 @@ class ClassModifierTest {
     @Test
     void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(AbstractClass.class))
+          .classes(AbstractClass.class)
           .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class.getName(), EnumSet.of(JavaModifier.ABSTRACT)))
+              TestAnnotation.class.getName(), List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -114,7 +114,7 @@ class ClassModifierTest {
   @Test
   void shouldSupportEmptyModifierCollections() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(PublicFinalClass.class))
+        .classes(PublicFinalClass.class)
         .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
             TestAnnotation.class, Set.of()))
         .build();

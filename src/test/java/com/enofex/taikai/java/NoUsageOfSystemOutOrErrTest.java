@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +15,7 @@ class NoUsageOfSystemOutOrErrTest {
     @Test
     void shouldThrowWhenClassUsesSystemOut() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(UsesSystemOut.class))
+          .classes(UsesSystemOut.class)
           .java(JavaConfigurer::noUsageOfSystemOutOrErr)
           .build();
 
@@ -26,7 +25,7 @@ class NoUsageOfSystemOutOrErrTest {
     @Test
     void shouldThrowWhenClassUsesSystemErr() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(UsesSystemErr.class))
+          .classes(UsesSystemErr.class)
           .java(JavaConfigurer::noUsageOfSystemOutOrErr)
           .build();
 
@@ -36,7 +35,7 @@ class NoUsageOfSystemOutOrErrTest {
     @Test
     void shouldThrowWhenClassUsesBothSystemOutAndErr() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(UsesSystemOutAndErr.class))
+          .classes(UsesSystemOutAndErr.class)
           .java(JavaConfigurer::noUsageOfSystemOutOrErr)
           .build();
 
@@ -46,7 +45,7 @@ class NoUsageOfSystemOutOrErrTest {
     @Test
     void shouldNotThrowWhenClassDoesNotUseSystemOutOrErr() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(DoesNotUseSystemStreams.class))
+          .classes(DoesNotUseSystemStreams.class)
           .java(JavaConfigurer::noUsageOfSystemOutOrErr)
           .build();
 

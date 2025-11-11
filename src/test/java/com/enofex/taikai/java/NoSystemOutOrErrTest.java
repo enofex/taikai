@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class NoSystemOutOrErrTest {
@@ -12,7 +11,7 @@ class NoSystemOutOrErrTest {
   @Test
   void shouldApplyNoSystemOutOrErrRule() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidSystemUsage.class))
+        .classes(ValidSystemUsage.class)
         .java(JavaConfigurer::noUsageOfSystemOutOrErr)
         .build();
 
@@ -22,7 +21,7 @@ class NoSystemOutOrErrTest {
   @Test
   void shouldThrowWhenSystemOutOrErrIsUsed() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(InvalidSystemUsage.class))
+        .classes(InvalidSystemUsage.class)
         .java(JavaConfigurer::noUsageOfSystemOutOrErr)
         .build();
 
