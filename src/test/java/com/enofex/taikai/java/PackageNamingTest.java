@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class PackageNamingTest {
@@ -12,7 +11,7 @@ class PackageNamingTest {
   @Test
   void shouldApplyPackageNamingConvention() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidPackageClass.class))
+        .classes(ValidPackageClass.class)
         .java(java -> java.naming(naming -> naming.packagesShouldMatch("com\\.enofex\\..*")))
         .build();
 
@@ -22,7 +21,7 @@ class PackageNamingTest {
   @Test
   void shouldThrowWhenPackageDoesNotMatchConvention() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidPackageClass.class))
+        .classes(ValidPackageClass.class)
         .java(java -> java.naming(naming -> naming.packagesShouldMatch("org\\.enofex\\..*")))
         .build();
 

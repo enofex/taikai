@@ -368,7 +368,9 @@ class Usage {
                 .namesShouldEndWithConfiguration(defaultConfiguration())
 
                 .namesShouldMatch("regex")
-                .namesShouldMatch("regex", defaultConfiguration()))
+                .namesShouldMatch("regex", defaultConfiguration())
+                .shouldBeRecords()
+                .shouldBeRecords(defaultConfiguration()))
 
             .controllers(controllers -> controllers
                 .shouldBeAnnotatedWithController()

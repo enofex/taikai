@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +15,7 @@ class ClassesShouldImplementTest {
     @Test
     void shouldNotThrowWhenClassImplementsInterface() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ServiceImpl.class, MyService.class))
+          .classes(ServiceImpl.class, MyService.class)
           .java(java -> java.classesShouldImplement("ServiceImpl", MyService.class))
           .build();
 
@@ -26,7 +25,7 @@ class ClassesShouldImplementTest {
     @Test
     void shouldThrowWhenClassDoesNotImplementInterface() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ServiceWithoutInterface.class, MyService.class))
+          .classes(ServiceWithoutInterface.class, MyService.class)
           .java(java -> java.classesShouldImplement("ServiceWithoutInterface", MyService.class))
           .build();
 
@@ -36,7 +35,7 @@ class ClassesShouldImplementTest {
     @Test
     void shouldNotThrowWhenRegexDoesNotMatchAnyClass() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ServiceImpl.class, MyService.class))
+          .classes(ServiceImpl.class, MyService.class)
           .java(java -> java.classesShouldImplement("NonExistent", MyService.class))
           .build();
 
@@ -50,7 +49,7 @@ class ClassesShouldImplementTest {
     @Test
     void shouldNotThrowWhenClassImplementsInterface() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ServiceImpl.class, MyService.class))
+          .classes(ServiceImpl.class, MyService.class)
           .java(java -> java.classesShouldImplement("ServiceImpl", MyService.class.getName()))
           .build();
 
@@ -60,7 +59,7 @@ class ClassesShouldImplementTest {
     @Test
     void shouldThrowWhenClassDoesNotImplementInterface() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ServiceWithoutInterface.class, MyService.class))
+          .classes(ServiceWithoutInterface.class, MyService.class)
           .java(java -> java.classesShouldImplement("ServiceWithoutInterface", MyService.class.getName()))
           .build();
 
@@ -70,7 +69,7 @@ class ClassesShouldImplementTest {
     @Test
     void shouldNotThrowWhenRegexDoesNotMatchAnyClass() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ServiceImpl.class, MyService.class))
+          .classes(ServiceImpl.class, MyService.class)
           .java(java -> java.classesShouldImplement("NonExistent", MyService.class.getName()))
           .build();
 

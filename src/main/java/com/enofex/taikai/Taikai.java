@@ -12,6 +12,7 @@ import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.EvaluationResult;
 import com.tngtech.archunit.lang.FailureReport;
 import com.tngtech.archunit.lang.Priority;
@@ -203,6 +204,11 @@ public final class Taikai {
 
     public Builder classes(@Nullable JavaClasses classes) {
       this.classes = classes;
+      return this;
+    }
+
+    public Builder classes(Class<?>... classes) {
+      this.classes = new ClassFileImporter().importClasses(classes);
       return this;
     }
 

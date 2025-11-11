@@ -14,7 +14,6 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
-import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -27,10 +26,11 @@ import java.util.List;
  * Configures and enforces naming conventions for packages, classes, methods, fields, and constants
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
- * <p>This configurer ensures that naming across a Java codebase remains consistent and predictable,
- * enforcing rules for package naming patterns, class prefixes/suffixes, method naming styles,
- * field names, and constant conventions. It allows customization for specific naming schemes
- * and integrates with the Taikai builder to apply these checks automatically.</p>
+ * <p>This configurer ensures that naming across a Java codebase remains consistent and
+ * predictable,
+ * enforcing rules for package naming patterns, class prefixes/suffixes, method naming styles, field
+ * names, and constant conventions. It allows customization for specific naming schemes and
+ * integrates with the Taikai builder to apply these checks automatically.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -98,7 +98,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces that packages match the given regular expression using a custom configuration.
    *
-   * @param regex the regular expression packages must match
+   * @param regex         the regular expression packages must match
    * @param configuration the rule configuration to use
    * @return this configurer for fluent chaining
    */
@@ -121,7 +121,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Prohibits classes whose names match the given regular expression using a custom configuration.
    *
-   * @param regex a forbidden class-name pattern
+   * @param regex         a forbidden class-name pattern
    * @param configuration the rule configuration to use
    * @return this configurer for fluent chaining
    */
@@ -158,8 +158,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires classes annotated with the given annotation (by fully qualified name)
-   * to match the specified name pattern.
+   * Requires classes annotated with the given annotation (by fully qualified name) to match the
+   * specified name pattern.
    *
    * @param annotationType the fully qualified annotation type name
    * @param regex          the required class-name pattern
@@ -170,8 +170,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires classes annotated with the given annotation (by fully qualified name)
-   * to match the specified name pattern using a custom configuration.
+   * Requires classes annotated with the given annotation (by fully qualified name) to match the
+   * specified name pattern using a custom configuration.
    *
    * @param annotationType the fully qualified annotation type name
    * @param regex          the required class-name pattern
@@ -199,8 +199,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires classes that implement the given type to match the specified name pattern
-   * using a custom configuration.
+   * Requires classes that implement the given type to match the specified name pattern using a
+   * custom configuration.
    *
    * @param clazz         the implemented type
    * @param regex         the required class-name pattern
@@ -253,8 +253,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires classes assignable to the given type to match the specified name pattern
-   * using a custom configuration.
+   * Requires classes assignable to the given type to match the specified name pattern using a
+   * custom configuration.
    *
    * @param clazz         the supertype or interface
    * @param regex         the required class-name pattern
@@ -322,7 +322,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires methods annotated with the given annotation (by name) to match the specified name pattern.
+   * Requires methods annotated with the given annotation (by name) to match the specified name
+   * pattern.
    *
    * @param annotationType the fully qualified annotation type name
    * @param regex          the required method-name pattern
@@ -334,8 +335,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires methods annotated with the given annotation (by name) to match the specified name pattern
-   * using a custom configuration.
+   * Requires methods annotated with the given annotation (by name) to match the specified name
+   * pattern using a custom configuration.
    *
    * @param annotationType the fully qualified annotation type name
    * @param regex          the required method-name pattern
@@ -401,7 +402,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires fields annotated with the given annotation (by name) to match the specified name pattern.
+   * Requires fields annotated with the given annotation (by name) to match the specified name
+   * pattern.
    *
    * @param annotationType the fully qualified annotation type name
    * @param regex          the required field-name pattern
@@ -412,8 +414,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires fields annotated with the given annotation (by name) to match the specified name pattern
-   * using a custom configuration.
+   * Requires fields annotated with the given annotation (by name) to match the specified name
+   * pattern using a custom configuration.
    *
    * @param annotationType the fully qualified annotation type name
    * @param regex          the required field-name pattern
@@ -452,7 +454,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires fields of the given raw type to match the specified name pattern using a custom configuration.
+   * Requires fields of the given raw type to match the specified name pattern using a custom
+   * configuration.
    *
    * @param clazz         the field raw type
    * @param regex         the required field-name pattern
@@ -465,8 +468,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires fields of the given raw type (by name) to match the specified name pattern
-   * using a custom configuration.
+   * Requires fields of the given raw type (by name) to match the specified name pattern using a
+   * custom configuration.
    *
    * @param typeName      the fully qualified field type name
    * @param regex         the required field-name pattern
@@ -515,7 +518,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Enforces that interfaces are not prefixed with an upper-case {@code I} using a custom configuration.
+   * Enforces that interfaces are not prefixed with an upper-case {@code I} using a custom
+   * configuration.
    *
    * @param configuration the rule configuration to use
    * @return this configurer for fluent chaining
@@ -528,8 +532,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Creates an {@link ArchCondition} that fails if an interface name starts with {@code I}
-   * followed by an uppercase character (e.g., {@code ICustomer}).
+   * Creates an {@link ArchCondition} that fails if an interface name starts with {@code I} followed
+   * by an uppercase character (e.g., {@code ICustomer}).
    *
    * @return the condition that detects {@code I}-prefixed interfaces
    */
@@ -546,8 +550,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Enforces that constants (static final fields) follow conventional constant naming
-   * (e.g., {@code UPPER_SNAKE_CASE}), excluding a default set of fields like {@code serialVersionUID}.
+   * Enforces that constants (static final fields) follow conventional constant naming (e.g.,
+   * {@code UPPER_SNAKE_CASE}), excluding a default set of fields like {@code serialVersionUID}.
    *
    * @return this configurer for fluent chaining
    */
@@ -559,7 +563,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces constant naming conventions while excluding the specified field names.
    *
-   * @param excludedFields field names to exclude from validation (e.g., {@code "serialVersionUID"})
+   * @param excludedFields field names to exclude from validation (e.g.,
+   *                       {@code "serialVersionUID"})
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields) {
@@ -567,8 +572,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Enforces constant naming conventions using a custom configuration,
-   * excluding a default field list.
+   * Enforces constant naming conventions using a custom configuration, excluding a default field
+   * list.
    *
    * @param configuration the rule configuration to use
    * @return this configurer for fluent chaining

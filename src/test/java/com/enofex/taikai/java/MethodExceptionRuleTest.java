@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.IOException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ class MethodExceptionRuleTest {
     @Test
     void shouldNotThrowWhenNoMethodsDeclareGenericExceptions() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(NoGenericExceptions.class))
+          .classes(NoGenericExceptions.class)
           .java(JavaConfigurer::methodsShouldNotDeclareGenericExceptions)
           .build();
 
@@ -27,7 +26,7 @@ class MethodExceptionRuleTest {
     @Test
     void shouldThrowWhenMethodsDeclareExceptionOrRuntimeException() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(DeclaresGenericExceptions.class))
+          .classes(DeclaresGenericExceptions.class)
           .java(JavaConfigurer::methodsShouldNotDeclareGenericExceptions)
           .build();
 
@@ -41,7 +40,7 @@ class MethodExceptionRuleTest {
     @Test
     void shouldNotThrowWhenMethodsDoNotDeclareGivenException_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(NoIOExceptionDeclared.class))
+          .classes(NoIOExceptionDeclared.class)
           .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class))
           .build();
 
@@ -51,7 +50,7 @@ class MethodExceptionRuleTest {
     @Test
     void shouldThrowWhenMethodsDeclareGivenException_ClassVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(DeclaresIOException.class))
+          .classes(DeclaresIOException.class)
           .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class))
           .build();
 
@@ -61,7 +60,7 @@ class MethodExceptionRuleTest {
     @Test
     void shouldNotThrowWhenMethodsDoNotDeclareGivenException_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(NoIOExceptionDeclared.class))
+          .classes(NoIOExceptionDeclared.class)
           .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class.getName()))
           .build();
 
@@ -71,7 +70,7 @@ class MethodExceptionRuleTest {
     @Test
     void shouldThrowWhenMethodsDeclareGivenException_StringVersion() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(DeclaresIOException.class))
+          .classes(DeclaresIOException.class)
           .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class.getName()))
           .build();
 
@@ -81,7 +80,7 @@ class MethodExceptionRuleTest {
     @Test
     void shouldNotThrowWhenRegexDoesNotMatchAnyMethod() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(DeclaresIOException.class))
+          .classes(DeclaresIOException.class)
           .java(java -> java.methodsShouldNotDeclareException("nonExistingMethod", IOException.class))
           .build();
 

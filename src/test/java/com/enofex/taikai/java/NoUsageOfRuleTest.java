@@ -18,7 +18,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldThrowWhenClassUsesForbiddenType() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(UsesArrayList.class))
+          .classes(UsesArrayList.class)
           .java(java -> java.noUsageOf(ArrayList.class))
           .build();
 
@@ -28,7 +28,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldNotThrowWhenClassDoesNotUseForbiddenType() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(DoesNotUseArrayList.class))
+          .classes(DoesNotUseArrayList.class)
           .java(java -> java.noUsageOf(ArrayList.class))
           .build();
 
@@ -62,7 +62,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldThrowWhenClassUsesForbiddenTypeByName() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(UsesArrayList.class))
+          .classes(UsesArrayList.class)
           .java(java -> java.noUsageOf("java.util.ArrayList"))
           .build();
 
@@ -72,7 +72,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldNotThrowWhenClassDoesNotUseForbiddenTypeByName() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(DoesNotUseArrayList.class))
+          .classes(DoesNotUseArrayList.class)
           .java(java -> java.noUsageOf("java.util.ArrayList"))
           .build();
 

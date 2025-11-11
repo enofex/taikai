@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiException;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class ImportsConfigurerTest {
@@ -13,7 +12,7 @@ class ImportsConfigurerTest {
   @Test
   void shouldImportByRegex() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ClassUsingAllowedImport.class))
+        .classes(ClassUsingAllowedImport.class)
         .java(java -> java.imports(
             imports -> imports.shouldImport(".*ClassUsingAllowedImport", "java\\.lang\\..*")))
         .build();
@@ -24,7 +23,7 @@ class ImportsConfigurerTest {
   @Test
   void shouldThrowExceptionForImportByRegex() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ClassUsingAllowedImport.class))
+        .classes(ClassUsingAllowedImport.class)
         .java(java -> java.imports(
             imports -> imports.shouldImport(".*ClassUsingAllowedImport", "java\\.not\\.found..*")))
         .build();
@@ -35,7 +34,7 @@ class ImportsConfigurerTest {
   @Test
   void shouldNotImportSpecificPackage() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ClassUsingDisallowedImport.class))
+        .classes(ClassUsingDisallowedImport.class)
         .java(java -> java.imports(imports -> imports.shouldNotImport("java.util")))
         .build();
 
@@ -45,7 +44,7 @@ class ImportsConfigurerTest {
   @Test
   void shouldNotImportByRegex() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ClassUsingDisallowedImport.class))
+        .classes(ClassUsingDisallowedImport.class)
         .java(java -> java.imports(
             imports -> imports.shouldNotImport(".*ClassUsingDisallowedImport", "java\\.util\\..*")))
         .build();
@@ -56,7 +55,7 @@ class ImportsConfigurerTest {
   @Test
   void shouldThrowWhenNamespaceNotSetForCycles() {
     assertThrows(TaikaiException.class, () -> Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ClassUsingAllowedImport.class))
+        .classes(ClassUsingAllowedImport.class)
         .java(java -> java.imports(ImportsConfigurer::shouldHaveNoCycles)) // no namespace configured
         .build());
   }
@@ -64,7 +63,7 @@ class ImportsConfigurerTest {
   @Test
   void shouldAllowValidImports() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ClassUsingAllowedImport.class))
+        .classes(ClassUsingAllowedImport.class)
         .java(java -> java.imports(imports -> imports.shouldNotImport("java.sql")))
         .build();
 

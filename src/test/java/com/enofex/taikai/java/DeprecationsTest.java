@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
 
 class DeprecationsTest {
@@ -12,7 +11,7 @@ class DeprecationsTest {
   @Test
   void shouldPassWhenNoDeprecatedApisAreUsed() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(SafeClass.class))
+        .classes(SafeClass.class)
         .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
         .build();
 
@@ -22,7 +21,7 @@ class DeprecationsTest {
   @Test
   void shouldFailWhenCallingDeprecatedMethod() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(UsesDeprecatedMethod.class))
+        .classes(UsesDeprecatedMethod.class)
         .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
         .build();
 
@@ -32,7 +31,7 @@ class DeprecationsTest {
   @Test
   void shouldFailWhenInstantiatingDeprecatedConstructor() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(UsesDeprecatedConstructor.class))
+        .classes(UsesDeprecatedConstructor.class)
         .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
         .build();
 
@@ -42,7 +41,7 @@ class DeprecationsTest {
   @Test
   void shouldFailWhenDependingOnDeprecatedClass() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(DependsOnDeprecatedClass.class))
+        .classes(DependsOnDeprecatedClass.class)
         .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
         .build();
 

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.Serializable;
 import org.junit.jupiter.api.Test;
 
@@ -13,7 +12,7 @@ class SerialVersionUIDTest {
   @Test
   void shouldApplySerialVersionUIDNamingRule() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ValidSerialVersionUID.class))
+        .classes(ValidSerialVersionUID.class)
         .java(JavaConfigurer::serialVersionUIDFieldsShouldBeStaticFinalLong)
         .build();
 
@@ -23,7 +22,7 @@ class SerialVersionUIDTest {
   @Test
   void shouldThrowWhenSerialVersionUIDIsNotStaticFinalLong() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(InvalidSerialVersionUID.class))
+        .classes(InvalidSerialVersionUID.class)
         .java(JavaConfigurer::serialVersionUIDFieldsShouldBeStaticFinalLong)
         .build();
 
@@ -33,7 +32,7 @@ class SerialVersionUIDTest {
   @Test
   void shouldIgnoreFieldsNotNamedSerialVersionUID() {
     Taikai taikai = Taikai.builder()
-        .classes(new ClassFileImporter().importClasses(ClassWithOtherConstant.class))
+        .classes(ClassWithOtherConstant.class)
         .java(JavaConfigurer::serialVersionUIDFieldsShouldBeStaticFinalLong)
         .build();
 

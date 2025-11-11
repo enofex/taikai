@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import org.junit.jupiter.api.Nested;
@@ -18,7 +17,7 @@ class MethodsAnnotatedWithShouldNotBeAnnotatedWithTest {
     @Test
     void shouldThrowWhenMethodHasBothConflictingAnnotations() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ConflictingAnnotationsService.class))
+          .classes(ConflictingAnnotationsService.class)
           .java(java -> java.methodsAnnotatedWithShouldNotBeAnnotatedWith(
               PrimaryAnnotation.class, ConflictingAnnotation.class))
           .build();
@@ -29,7 +28,7 @@ class MethodsAnnotatedWithShouldNotBeAnnotatedWithTest {
     @Test
     void shouldNotThrowWhenMethodHasOnlyPrimaryAnnotation() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(SafeAnnotatedService.class))
+          .classes(SafeAnnotatedService.class)
           .java(java -> java.methodsAnnotatedWithShouldNotBeAnnotatedWith(
               PrimaryAnnotation.class, ConflictingAnnotation.class))
           .build();
@@ -40,7 +39,7 @@ class MethodsAnnotatedWithShouldNotBeAnnotatedWithTest {
     @Test
     void shouldNotThrowWhenMethodHasOnlyConflictingAnnotation() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(OnlyConflictingService.class))
+          .classes(OnlyConflictingService.class)
           .java(java -> java.methodsAnnotatedWithShouldNotBeAnnotatedWith(
               PrimaryAnnotation.class, ConflictingAnnotation.class))
           .build();
@@ -55,7 +54,7 @@ class MethodsAnnotatedWithShouldNotBeAnnotatedWithTest {
     @Test
     void shouldThrowWhenMethodHasBothConflictingAnnotations() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(ConflictingAnnotationsService.class))
+          .classes(ConflictingAnnotationsService.class)
           .java(java -> java.methodsAnnotatedWithShouldNotBeAnnotatedWith(
               PrimaryAnnotation.class.getName(), ConflictingAnnotation.class.getName()))
           .build();
@@ -66,7 +65,7 @@ class MethodsAnnotatedWithShouldNotBeAnnotatedWithTest {
     @Test
     void shouldNotThrowWhenMethodHasOnlyPrimaryAnnotation() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(SafeAnnotatedService.class))
+          .classes(SafeAnnotatedService.class)
           .java(java -> java.methodsAnnotatedWithShouldNotBeAnnotatedWith(
               PrimaryAnnotation.class.getName(), ConflictingAnnotation.class.getName()))
           .build();
@@ -77,7 +76,7 @@ class MethodsAnnotatedWithShouldNotBeAnnotatedWithTest {
     @Test
     void shouldNotThrowWhenMethodHasOnlyConflictingAnnotation() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importClasses(OnlyConflictingService.class))
+          .classes(OnlyConflictingService.class)
           .java(java -> java.methodsAnnotatedWithShouldNotBeAnnotatedWith(
               PrimaryAnnotation.class.getName(), ConflictingAnnotation.class.getName()))
           .build();
