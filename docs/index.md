@@ -20,7 +20,17 @@ class ArchitectureTest {
             .noUsageOfDeprecatedAPIs()
             .classesShouldImplementHashCodeAndEquals()
             .methodsShouldNotDeclareGenericExceptions()
-            .utilityClassesShouldBeFinalAndHavePrivateConstructor())
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .imports(imports -> imports
+                .shouldHaveNoCycles()
+                .shouldNotImport("..internal..")
+                .shouldNotImport(junit4()))
+            .naming(naming -> naming
+                .classesShouldNotMatch(".*Impl")
+                .methodsShouldNotMatch("^(foo$|bar$).*")
+                .fieldsShouldNotMatch(".*(List|Set|Map)$")
+                .constantsShouldFollowConventions()
+                .interfacesShouldNotHavePrefixI()))            
         .test(test -> test
             .junit(junit -> junit
                 .classesShouldNotBeAnnotatedWithDisabled()
@@ -30,7 +40,7 @@ class ArchitectureTest {
         .spring(spring -> spring
             .noAutowiredFields()
             .boot(boot -> boot
-                .shouldBeAnnotatedWithSpringBootApplication())
+                .applicationClassShouldResideInPackage())
             .configurations(configuration -> configuration
                 .namesShouldEndWithConfiguration()
                 .namesShouldMatch("regex"))

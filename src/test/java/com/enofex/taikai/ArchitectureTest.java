@@ -4,6 +4,8 @@ import static com.enofex.taikai.java.ImportPatterns.*;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
+import com.enofex.taikai.configures.AbstractConfigurer;
+import com.enofex.taikai.configures.Configurer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,6 +45,8 @@ class ArchitectureTest {
                 .packagesShouldMatchDefault()
                 .fieldsShouldNotMatch(".*(List|Set|Map)$")
                 .classesShouldNotMatch(".*Impl")
+                .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")
+                .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))
         .build()

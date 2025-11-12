@@ -361,7 +361,10 @@ class Usage {
                 .shouldBeAnnotatedWithConfigurationProperties("regex", defaultConfiguration())
 
                 .shouldBeAnnotatedWithValidated()
-                .shouldBeAnnotatedWithValidated(defaultConfiguration()))
+                .shouldBeAnnotatedWithValidated(defaultConfiguration())
+
+                .shouldBeRecords()
+                .shouldBeRecords(defaultConfiguration()))
 
             .configurations(configuration -> configuration
                 .namesShouldEndWithConfiguration()

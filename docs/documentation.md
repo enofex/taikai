@@ -225,6 +225,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern.                                                                                                                                                                                                        |
 | Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`.                                                                                                                                                                                               |
 | Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties ending with `Properties` should be annotated with `@ConfigurationProperties`.                                                                                                                                                                                                  |
+| Properties     | `shouldBeRecords`                              | Properties annotated with `@ConfigurationProperties` should be records.                                                                                                                                                                                                                   |
 | Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`.                                                                                                                                                                                                           |
 | Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern.                                                                                                                                                                                                              |
 | Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`.                                                                                                                                                                                               |
@@ -888,7 +889,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Properties Configuration**: Ensure that configuration property classes end with `Properties` or match a specific regex pattern, are annotated with `@ConfigurationProperties` or annotated with `@Validated`.
+- **Properties Configuration**: Ensure that configuration property classes end with `Properties` or match a specific regex pattern, are annotated with `@ConfigurationProperties`, annotated with `@Validated` or are records.
 
 ```java
 Taikai.builder()
@@ -898,6 +899,7 @@ Taikai.builder()
             .shouldBeAnnotatedWithConfigurationProperties()
             .namesShouldEndWithProperties()
             .namesShouldMatch("regex")
+            .shouldBeRecords()
             .shouldBeAnnotatedWithValidated()))
     .build()
     .check();
@@ -1067,7 +1069,7 @@ class ArchitectureTest {
         .spring(spring -> spring
             .noAutowiredFields()
             .boot(boot -> boot
-                .shouldBeAnnotatedWithSpringBootApplication())
+                .applicationClassShouldResideInPackage())
             .configurations(configuration -> configuration
                 .namesShouldEndWithConfiguration()
                 .namesShouldMatch("regex"))

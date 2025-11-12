@@ -116,6 +116,40 @@ class PropertiesConfigurerTest {
     }
   }
 
+  @Nested
+  class ShouldBeRecords {
+
+    @Test
+    void shouldNotThrowWhenConfigurationPropertiesIsRecord() {
+      Taikai taikai = Taikai.builder()
+          .classes(RecordApplicationProperties.class)
+          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeRecords))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenConfigurationPropertiesIsNotRecord() {
+      Taikai taikai = Taikai.builder()
+          .classes(ApplicationProperties.class)
+          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeRecords))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenNonConfigurationPropertiesClassIsNotRecord() {
+      Taikai taikai = Taikai.builder()
+          .classes(RandomUtility.class)
+          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeRecords))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   @ConfigurationProperties(prefix = "app")
   static class ApplicationProperties {
 
@@ -144,5 +178,9 @@ class PropertiesConfigurerTest {
 
     static void doSomething() {
     }
+  }
+
+  @ConfigurationProperties(prefix = "record")
+  record RecordApplicationProperties(String name, int port) {
   }
 }

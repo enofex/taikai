@@ -30,6 +30,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *             .namesShouldEndWithProperties()
  *             .shouldBeAnnotatedWithValidated()
  *             .shouldBeAnnotatedWithConfigurationProperties()
+ *             .shouldBeRecords()
  *         )
  *     );
  * }</pre>
@@ -161,6 +162,34 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
                 ANNOTATION_CONFIGURATION_PROPERTIES)),
         configuration));
   }
+
+  /**
+   * Adds a rule enforcing that all {@code @ConfigurationProperties}-annotated classes
+   * should be implemented as Java {@code record}s.
+   *
+   * <p>This promotes immutability, thread-safety, and consistency in configuration design.</p>
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public PropertiesConfigurer shouldBeRecords() {
+    return shouldBeRecords(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldBeRecords()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public PropertiesConfigurer shouldBeRecords(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that(are(annotatedWithConfigurationProperties(true)))
+            .should().beRecords()
+            .as("Configuration properties annotated with %s should be records"
+                .formatted(ANNOTATION_CONFIGURATION_PROPERTIES)),
+        configuration));
+  }
+
 
   @Override
   public PropertiesConfigurer disable() {
