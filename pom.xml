@@ -27,6 +27,10 @@
     <mockito.version>5.20.0</mockito.version>
     <archunit.version>1.4.1</archunit.version>
     <jspecify.version>1.0.0</jspecify.version>
+    <errorprone.version>2.42.0</errorprone.version>
+    <nullaway.version>0.12.12</nullaway.version>
+    <spring.version>7.0.0-RC3</spring.version>
+    <spring-boot.version>4.0.0-RC2</spring-boot.version>
 
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
@@ -37,8 +41,6 @@
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
     <jreleaser-maven-plugin.version>1.21.0</jreleaser-maven-plugin.version>
-    <spring.version>7.0.0-RC3</spring.version>
-    <spring-boot.version>4.0.0-RC2</spring-boot.version>
   </properties>
 
   <dependencies>
@@ -130,6 +132,36 @@
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <parameters>true</parameters>
+          <release>${java.version}</release>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <fork>true</fork>
+          <compilerArgs>
+            <arg>-XDcompilePolicy=simple</arg>
+            <arg>--should-stop=ifError=FLOW</arg>
+            <arg>-Xplugin:ErrorProne -XepAllErrorsAsWarnings -Xep:NullAway:WARN -XepOpt:NullAway:OnlyNullMarked -XepOpt:NullAway:JSpecifyMode=true</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
+            <arg>-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+            <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
+          </compilerArgs>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>com.google.errorprone</groupId>
+              <artifactId>error_prone_core</artifactId>
+              <version>${errorprone.version}</version>
+            </path>
+            <path>
+              <groupId>com.uber.nullaway</groupId>
+              <artifactId>nullaway</artifactId>
+              <version>${nullaway.version}</version>
+            </path>
+          </annotationProcessorPaths>
         </configuration>
       </plugin>
       <plugin>
