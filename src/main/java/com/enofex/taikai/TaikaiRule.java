@@ -12,6 +12,8 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -145,22 +147,22 @@ public final class TaikaiRule {
       this.namespace = namespace;
       this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.IMPORT.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
-      this.excludedClasses = excludedClasses != null ? toClassNames(excludedClasses) : emptyList();
+      this.excludedClasses = toClassNames(excludedClasses);
     }
 
-    private static <T> Collection<String> toClassNames(Collection<T> excludedClasses) {
-      if (excludedClasses.isEmpty()) {
-        return emptyList();
+    private static <T> Collection<String> toClassNames(@Nullable Collection<T> excludedClasses) {
+      if (excludedClasses == null || excludedClasses.isEmpty()) {
+        return List.of();
       }
 
       T firstElement = excludedClasses.iterator().next();
 
       if (firstElement instanceof String) {
-        return new ArrayList<>((Collection<String>) excludedClasses);
+        return List.copyOf((Collection<String>) excludedClasses);
       } else if (firstElement instanceof Class<?>) {
         return excludedClasses.stream()
             .map(clazz -> ((Class<?>) clazz).getName())
-            .collect(Collectors.toList());
+            .toList();
       } else {
         throw new IllegalArgumentException(
             "Unsupported collection type, only String and Class<?> are supported");
