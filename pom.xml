@@ -29,7 +29,7 @@
     <jspecify.version>1.0.0</jspecify.version>
 
     <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
-    <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+    <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
     <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
     <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
