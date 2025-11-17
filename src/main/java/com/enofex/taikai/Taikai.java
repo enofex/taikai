@@ -27,8 +27,8 @@ import org.jspecify.annotations.Nullable;
  * Central entry point for defining and executing Taikai architectural rules.
  *
  * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration
- * through various {@code Configurer} implementations (Java, Spring, Logging, Test),
- * and executes rules against the imported {@link JavaClasses} for a given namespace.</p>
+ * through various {@code Configurer} implementations (Java, Spring, Logging, Test), and executes
+ * rules against the imported {@link JavaClasses} for a given namespace.</p>
  *
  * <p>Rules can be executed in two modes:
  * <ul>
@@ -46,8 +46,10 @@ import org.jspecify.annotations.Nullable;
 public final class Taikai {
 
   private final boolean failOnEmpty;
-  @Nullable private final String namespace;
-  @Nullable private final JavaClasses classes;
+  @Nullable
+  private final String namespace;
+  @Nullable
+  private final JavaClasses classes;
   private final Collection<String> excludedClasses;
   private final Collection<TaikaiRule> rules;
 
@@ -136,17 +138,37 @@ public final class Taikai {
    * @throws AssertionError if any rule violations are found.
    */
   public void checkAll() {
-    EvaluationResult result = new EvaluationResult(() -> "All Taikai rules", Priority.MEDIUM);
+    StringBuilder report = new StringBuilder();
+    int allViolations = 0;
+    int rulesViolated = 0;
 
     for (TaikaiRule rule : this.rules) {
-      result.add(rule.archRule()
-          .evaluate(rule.javaClasses(this.namespace, this.classes, this.excludedClasses)));
+      FailureReport ruleReport = rule
+          .archRule()
+          .evaluate(rule.javaClasses(this.namespace, this.classes, this.excludedClasses))
+          .getFailureReport();
+
+      if (!ruleReport.isEmpty()) {
+        rulesViolated++;
+
+        report.append(System.lineSeparator())
+            .append("Rule: ")
+            .append(rule.archRule().getDescription())
+            .append(System.lineSeparator());
+
+        for (String detail : ruleReport.getDetails()) {
+          allViolations++;
+
+          report.append("\t")
+              .append(detail)
+              .append(System.lineSeparator());
+        }
+      }
     }
 
-    FailureReport report = result.getFailureReport();
-
-    if (!report.isEmpty()) {
-      throw new AssertionError(report.toString());
+    if (allViolations > 0) {
+      throw new AssertionError(String.format("Found %d Taikai violations for %d rules!%n%s",
+          allViolations, rulesViolated, report));
     }
   }
 
