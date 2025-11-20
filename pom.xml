@@ -37,7 +37,7 @@
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
     <jreleaser-maven-plugin.version>1.21.0</jreleaser-maven-plugin.version>
-    <spring.version>7.0.0</spring.version>
+    <spring.version>7.0.1</spring.version>
     <spring-boot.version>4.0.0-RC2</spring-boot.version>
   </properties>
 
