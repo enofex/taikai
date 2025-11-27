@@ -111,6 +111,111 @@ class ClassModifierTest {
     }
   }
 
+  @Nested
+  class ClassesShouldHaveModifiers {
+
+    @Test
+    void shouldNotThrowWhenClassHasAllRequiredModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicFinalClass.class)
+          .java(java -> java.classesShouldHaveModifiers(
+              ".*PublicFinalClass",
+              List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenClassMissingOneOrMoreRequiredModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicNonFinalClass.class)
+          .java(java -> java.classesShouldHaveModifiers(
+              ".*PublicNonFinalClass",
+              List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenClassNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicNonFinalClass.class)
+          .java(java -> java.classesShouldHaveModifiers(
+              ".*DoesNotMatch",
+              List.of(JavaModifier.PUBLIC)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenModifiersListIsEmpty() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicFinalClass.class)
+          .java(java -> java.classesShouldHaveModifiers(
+              ".*PublicFinalClass",
+              List.of())) // empty list → always allowed
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportCustomConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicFinalClass.class)
+          .java(java -> java.classesShouldHaveModifiers(
+              ".*PublicFinalClass",
+              List.of(JavaModifier.PUBLIC, JavaModifier.FINAL),
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class ClassesShouldNotHaveModifiers {
+
+    @Test
+    void shouldNotThrowWhenClassDoesNotHaveDisallowedModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PackagePrivateClass.class)
+          .java(java -> java.classesShouldNotHaveModifiers(
+              ".*PackagePrivateClass",
+              EnumSet.of(JavaModifier.PUBLIC)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenClassHasAllDisallowedModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicFinalClass.class)
+          .java(java -> java.classesShouldNotHaveModifiers(
+              ".*PublicFinalClass",
+              EnumSet.of(JavaModifier.PUBLIC)))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenClassNameDoesNotMatchPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicFinalClass.class)
+          .java(java -> java.classesShouldNotHaveModifiers(
+              ".*DoesNotMatch",
+              EnumSet.of(JavaModifier.PUBLIC)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   @Test
   void shouldSupportEmptyModifierCollections() {
     Taikai taikai = Taikai.builder()
@@ -133,4 +238,6 @@ class ClassModifierTest {
 
   @TestAnnotation
   abstract class AbstractClass {}
+
+  static class PackagePrivateClass {}
 }

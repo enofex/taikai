@@ -1445,6 +1445,39 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must not have all specified modifiers.
+   *
+   * @param regex the regex for class names
+   * @param notRequiredModifiers not the required modifiers
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldNotHaveModifiers(String regex,
+      Collection<JavaModifier> notRequiredModifiers) {
+    return classesShouldNotHaveModifiers(regex, notRequiredModifiers, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes whose names match a regex
+   * must not have all specified modifiers, using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param notRequiredModifiers not the required modifiers
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldNotHaveModifiers(String regex,
+      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().haveNameMatching(regex)
+            .should(notHasClassModifiers(notRequiredModifiers))
+            .as("Classes have name matching %s should not have all of this modifiers %s".formatted(
+                regex,
+                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
    * Adds a rule enforcing that fields should not be {@code public}
    * unless they are also {@code static}.
    *
