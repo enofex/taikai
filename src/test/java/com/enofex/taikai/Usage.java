@@ -119,6 +119,9 @@ class Usage {
             .classesShouldHaveModifiers("regex", List.of(PUBLIC))
             .classesShouldHaveModifiers("regex", List.of(PUBLIC), defaultConfiguration())
 
+            .classesShouldNotHaveModifiers("regex", List.of(PUBLIC))
+            .classesShouldNotHaveModifiers("regex", List.of(PUBLIC), defaultConfiguration())
+
             .classesAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
             .classesAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE),
                 defaultConfiguration())

@@ -149,6 +149,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
 | General  | `classesShouldImplement`                               | Classes matching specific naming patterns should implement to a interface.                                   |
 | General  | `classesShouldHaveModifiers`                           | Classes matching specific naming patterns should have specified modifiers.                                   |
+| General  | `classesShouldNotHaveModifiers`                        | Classes matching specific naming patterns should not have specified modifiers.                               |
 | General  | `classesShouldBeRecords`                               | Classes matching specific naming patterns should be records.                                                 |
 | General  | `fieldsShouldHaveModifiers`                            | Fields matching specific naming patterns should have specified modifiers.                                    |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
@@ -429,6 +430,17 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .classesShouldHaveModifiers(".*Repository", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
+- **Classes Should Not Have Specified Modifiers**: Ensure that classes matching a specific regex pattern have not a certain modifier.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldNotHaveModifiers(".*Repository", List.of(PUBLIC)))
     .build()
     .check();
 ```
