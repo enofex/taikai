@@ -7,7 +7,7 @@
 
   <groupId>com.enofex</groupId>
   <artifactId>taikai</artifactId>
-  <version>1.48.0</version>
+  <version>1.48.1-SNAPSHOT</version>
   <name>Taikai</name>
   <inceptionYear>2024</inceptionYear>
 
