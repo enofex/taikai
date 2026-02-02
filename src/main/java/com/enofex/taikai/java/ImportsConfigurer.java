@@ -61,7 +61,7 @@ public class ImportsConfigurer extends AbstractConfigurer {
    */
   public ImportsConfigurer shouldNotImport(String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
-            .should().accessClassesThat()
+            .should().dependOnClassesThat()
             .resideInAPackage(packageIdentifier)
             .as("No classes should have imports from package %s".formatted(packageIdentifier)),
         configuration));
@@ -94,7 +94,7 @@ public class ImportsConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
         .that().haveNameMatching(regex)
-        .should().accessClassesThat()
+        .should().dependOnClassesThat()
         .haveNameMatching(notImportClassesRegex)
         .as("No classes that have name matching %s should have imports %s".formatted(
             regex, notImportClassesRegex)), configuration));
@@ -126,7 +126,7 @@ public class ImportsConfigurer extends AbstractConfigurer {
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that().haveNameMatching(regex)
-        .should().accessClassesThat()
+        .should().dependOnClassesThat()
         .haveNameMatching(importClassesRegex)
         .as("Classes that have name matching %s should have imports %s".formatted(
             regex, importClassesRegex)), configuration));
