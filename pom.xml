@@ -28,7 +28,7 @@
     <archunit.version>1.4.1</archunit.version>
     <jspecify.version>1.0.0</jspecify.version>
 
-    <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+    <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
     <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
     <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
