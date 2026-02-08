@@ -1,7 +1,6 @@
 package com.enofex.taikai;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
@@ -10,12 +9,9 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
@@ -236,7 +232,7 @@ public final class TaikaiRule {
     ExcludeJavaClassDescribedPredicate(Collection<String> allExcludedClasses) {
       super("exclude classes");
       this.allExcludedClassPatterns = allExcludedClasses.stream()
-          .map(Pattern::quote)
+          .map(ExcludeJavaClassDescribedPredicate::toRegex)
           .map(Pattern::compile)
           .toList();
     }
@@ -245,6 +241,37 @@ public final class TaikaiRule {
     public boolean test(JavaClass javaClass) {
       return this.allExcludedClassPatterns.stream()
           .noneMatch(pattern -> pattern.matcher(javaClass.getFullName()).matches());
+    }
+
+    private static String toRegex(String value) {
+      if (isArchUnitRecursivePackage(value)) {
+        String base = value.substring(0, value.length() - 2);
+        return "^" + Pattern.quote(base) + "(\\..+)?$";
+      }
+
+      if (isArchUnitSinglePackage(value)) {
+        String base = value.substring(0, value.length() - 2);
+        return "^" + Pattern.quote(base) + "\\.[^.]+$";
+      }
+
+      if (isFullyQualifiedClass(value)) {
+        return "^" + Pattern.quote(value) + "$";
+      }
+
+      return value;
+    }
+
+    private static boolean isArchUnitRecursivePackage(String value) {
+      return value.endsWith("..");
+    }
+
+    private static boolean isArchUnitSinglePackage(String value) {
+      return value.endsWith(".*");
+    }
+
+
+    private static boolean isFullyQualifiedClass(String value) {
+      return !value.contains("*") && !value.contains("..");
     }
   }
 }

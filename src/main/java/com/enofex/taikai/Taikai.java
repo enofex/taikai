@@ -99,9 +99,24 @@ public final class Taikai {
   }
 
   /**
-   * Returns the list of excluded class names that should not be validated by any rule.
+   * Returns the list of class exclusion patterns that should not be validated by any rule.
    *
-   * @return collection of fully qualified class names to exclude
+   * <p>The following patterns are supported:
+   * <ul>
+   *   <li><b>Fully qualified class name</b><br>
+   *       {@code com.enofex.taikai.internal.a.MyClass}</li>
+   *
+   *   <li><b>Package wildcard</b> (classes directly in a package)<br>
+   *       {@code com.enofex.taikai.internal.a.*}</li>
+   *
+   *   <li><b>Recursive package wildcard</b> (package and all subpackages)<br>
+   *       {@code com.enofex.taikai.internal.a..}</li>
+   * </ul>
+   *
+   * <p>Patterns are matched against the fully qualified class name
+   * (e.g. {@code com.enofex.taikai.internal.a.MyClass}).</p>
+   *
+   * @return collection of class exclusion patterns
    */
   public Collection<String> excludedClasses() {
     return this.excludedClasses;

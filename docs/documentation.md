@@ -67,12 +67,28 @@ Taikai.builder()
 
 ### 3.4 Excluding Classes Globally
 
-You can globally exclude specific classes from all rule checks by using the `excludeClasses` methods in the builder. This ensures that the specified classes are not checked by any rule.
+You can exclude classes from all rule checks using `excludeClasses(...)` on the `Taikai.Builder`.
+
+Supported patterns:
+
+- **Fully qualified class name**  
+  `com.company.project.foo.ClassToExclude`
+
+- **Package wildcard (`*`)** – classes directly in the package  
+  `com.company.project.foo.*`
+
+- **Recursive package wildcard (`..`)** – package and all subpackages  
+  `com.company.project.internal..`
+
+Example:
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
-    .excludeClasses("com.company.project.foo.ClassToExclude", "com.company.project.bar.AnotherClassToExclude")
+    .excludeClasses(
+        "com.company.project.foo.ClassToExclude",
+                "com.company.project.bar.*",
+                "com.company.project.internal..")
     .build()
     .check();
 ```
