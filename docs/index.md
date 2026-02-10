@@ -13,7 +13,7 @@
 class ArchitectureTest {
 
   @Test
-  void shouldFulfilConstrains() {
+  void shouldFulfilConstraints() {
     Taikai.builder()
         .namespace("com.company.project")
         .java(java -> java

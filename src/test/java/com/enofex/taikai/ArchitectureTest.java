@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class ArchitectureTest {
 
   @Test
-  void shouldFulfilConstrains() {
+  void shouldFulfilConstraints() {
     Taikai.builder()
         .namespace("com.enofex.taikai")
         .java(java -> java
