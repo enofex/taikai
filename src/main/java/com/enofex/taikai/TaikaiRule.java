@@ -245,13 +245,11 @@ public final class TaikaiRule {
 
     private static String toRegex(String value) {
       if (isArchUnitRecursivePackage(value)) {
-        String base = value.substring(0, value.length() - 2);
-        return "^" + Pattern.quote(base) + "(\\..+)?$";
+        return "^" + Pattern.quote(stripArchUnitSuffix(value)) + "(\\..+)?$";
       }
 
       if (isArchUnitSinglePackage(value)) {
-        String base = value.substring(0, value.length() - 2);
-        return "^" + Pattern.quote(base) + "\\.[^.]+$";
+        return "^" + Pattern.quote(stripArchUnitSuffix(value)) + "\\.[^.]+$";
       }
 
       if (isFullyQualifiedClass(value)) {
@@ -269,9 +267,12 @@ public final class TaikaiRule {
       return value.endsWith(".*");
     }
 
-
     private static boolean isFullyQualifiedClass(String value) {
       return !value.contains("*") && !value.contains("..");
+    }
+
+    private static String stripArchUnitSuffix(String value) {
+      return value.substring(0, value.length() - 2);
     }
   }
 }

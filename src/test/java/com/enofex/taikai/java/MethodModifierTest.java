@@ -7,7 +7,6 @@ import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Nested;
