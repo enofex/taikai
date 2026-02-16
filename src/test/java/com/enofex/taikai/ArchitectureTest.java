@@ -39,8 +39,7 @@ class ArchitectureTest {
                 .shouldNotImport("javax.annotation..")
                 .shouldNotImport("org.jetbrains.annotations..")
                 .shouldNotImport(shaded())
-                .shouldNotImport(lombok())
-                .shouldNotImport(junit4()))
+                .shouldNotImport(lombok()))
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
                 .fieldsShouldNotMatch(".*(List|Set|Map)$")

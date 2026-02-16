@@ -1,7 +1,6 @@
 package com.enofex.taikai;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
-import static com.enofex.taikai.java.ImportPatterns.junit4;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
@@ -227,9 +226,6 @@ class Usage {
                 .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
                 .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException",
                     defaultConfiguration())
-
-                .shouldNotImport(junit4())
-                .shouldNotImport(junit4(), defaultConfiguration())
 
                 .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
                 .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException",

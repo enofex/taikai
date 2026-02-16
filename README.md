@@ -53,8 +53,7 @@ void shouldFulfillConstraints() {
           .utilityClassesShouldBeFinalAndHavePrivateConstructor()
           .imports(imports -> imports
               .shouldHaveNoCycles()
-              .shouldNotImport("..internal..")
-              .shouldNotImport(junit4()))
+              .shouldNotImport("..internal.."))
           .naming(naming -> naming
               .classesShouldNotMatch(".*Impl")
               .methodsShouldNotMatch("^(foo$|bar$).*")

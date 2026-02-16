@@ -50,13 +50,6 @@ public final class ImportPatterns {
   }
 
   /**
-   * Matches imports under {@code org.junit} (JUnit 4).
-   */
-  public static String junit4() {
-    return "org.junit..";
-  }
-
-  /**
    * Matches imports under {@code org.junit.jupiter} (JUnit 5 and higher).
    */
   public static String junit() {
