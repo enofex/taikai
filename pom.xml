@@ -38,7 +38,7 @@
     <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
     <jreleaser-maven-plugin.version>1.22.0</jreleaser-maven-plugin.version>
     <spring.version>7.0.5</spring.version>
-    <spring-boot.version>4.0.2</spring-boot.version>
+    <spring-boot.version>4.0.3</spring-boot.version>
   </properties>
 
   <dependencies>
