@@ -8,6 +8,7 @@ import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.logging.LoggingConfigurer;
+import com.enofex.taikai.quarkus.QuarkusConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
@@ -278,6 +279,10 @@ public final class Taikai {
 
     public Builder spring(Customizer<SpringConfigurer> customizer) {
       return configure(customizer, SpringConfigurer::new);
+    }
+
+    public Builder quarkus(Customizer<QuarkusConfigurer> customizer) {
+      return configure(customizer, QuarkusConfigurer::new);
     }
 
     private <T extends Configurer> Builder configure(Customizer<T> customizer,

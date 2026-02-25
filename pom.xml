@@ -39,6 +39,7 @@
     <jreleaser-maven-plugin.version>1.22.0</jreleaser-maven-plugin.version>
     <spring.version>7.0.4</spring.version>
     <spring-boot.version>4.0.2</spring-boot.version>
+    <quarkus.version>3.31.2</quarkus.version>
   </properties>
 
   <dependencies>
@@ -94,6 +95,31 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-validation</artifactId>
       <version>${spring-boot.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-arc</artifactId>
+      <version>${quarkus.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest</artifactId>
+      <version>${quarkus.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-hibernate-orm-panache</artifactId>
+      <version>${quarkus.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkiverse.langchain4j</groupId>
+      <artifactId>quarkus-langchain4j-core</artifactId>
+      <version>1.7.2</version>
       <scope>test</scope>
     </dependency>
 
