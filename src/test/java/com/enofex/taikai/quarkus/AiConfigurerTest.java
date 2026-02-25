@@ -49,7 +49,7 @@ public class AiConfigurerTest {
   class AiServicesShouldBeAnnotatedWithApplicationScoped {
 
     @Test
-    public void shouldNotThrowWhenAiServiceIsAnnotatedWithApplicationScoped() {
+    void shouldNotThrowWhenAiServiceIsAnnotatedWithApplicationScoped() {
       Taikai taikai = Taikai.builder()
           .classes(HelloService.class)
           .quarkus(quarkus -> quarkus.ai(AiConfigurer::shouldBeAnnotatedWithApplicationScoped))
@@ -59,7 +59,7 @@ public class AiConfigurerTest {
     }
 
     @Test
-    public void shouldThrowWhenAiServiceIsAnnotatedWithApplicationScoped() {
+    void shouldThrowWhenAiServiceIsAnnotatedWithApplicationScoped() {
       Taikai taikai = Taikai.builder()
           .classes(Hello.class)
           .quarkus(quarkus -> quarkus.ai(AiConfigurer::shouldBeAnnotatedWithApplicationScoped))
@@ -72,7 +72,7 @@ public class AiConfigurerTest {
   @Nested
   class AiServicesShouldNotUseToolsToRegisterTools {
     @Test
-    public void shouldNotThrowWhenAiServiceIsNotUsingTools() {
+    void shouldNotThrowWhenAiServiceIsNotUsingTools() {
       Taikai taikai = Taikai.builder()
           .classes(HelloService.class)
           .quarkus(quarkus -> quarkus.ai(AiConfigurer::shouldNotUseToolsAttributeInAiService))
@@ -82,7 +82,7 @@ public class AiConfigurerTest {
     }
 
     @Test
-    public void shouldThrowWhenAiServiceIsUsingTools() {
+    void shouldThrowWhenAiServiceIsUsingTools() {
       Taikai taikai = Taikai.builder()
           .classes(Hello.class)
           .quarkus(quarkus -> quarkus.ai(AiConfigurer::shouldNotUseToolsAttributeInAiService))

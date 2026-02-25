@@ -93,7 +93,7 @@ public class ResourcesConfigurerTest {
   }
 
   @Path("/test")
-  static private class PrivateResource {
+  static public class PrivateResource {
   }
 
   static public class InvalidUserHandler {
