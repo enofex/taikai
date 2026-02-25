@@ -261,6 +261,26 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Services       | `shouldBeAnnotatedWithService`                 | Services ending with `Service` should be annotated with `@Service`.                                                                                                                                                                                                                       |
 | Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                                    |
 
+### Quarkus Rules
+
+The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
+
+| Category  | Method Name                                          | Rule Description                                                                                             |
+| --------- | ---------------------------------------------------- |--------------------------------------------------------------------------------------------------------------|
+| General   | `noInjectionFields`                                  | Fields must not be annotated with `@Inject`, use constructor injection.                                      |
+| Resources | `namesShouldEndWithResource`                         | Classes annotated with `@Path` should have names ending with `Resource`.                                     |
+| Resources | `namesShouldMatch`                                   | Resource classes annotated with `@Path` should match a given regex pattern.                                  |
+| Resources | `shouldBeAnnotatedWithPath`                          | Classes matching a resource naming pattern should be annotated with `@Path`.                                 |
+| Resources | `shouldBePublic`                                     | Resource classes annotated with `@Path` should be public.                                                    |
+| Resources | `shouldNotDependOnOtherResources`                    | Resource classes annotated with `@Path` should not depend on other resource classes.                         |
+| Panache   | `shouldBeAnnotatedWithEntityWhenActiveRecordPattern` | Classes extending `PanacheEntity` (Active Record pattern) must be annotated with `@Entity`.                  |
+| Panache   | `namesShouldEndWithRepository`                       | Classes implementing `PanacheRepository` should have names ending with `Repository`.                         |
+| Panache   | `namesShouldMatch`                                   | Classes implementing `PanacheRepository` should match a given regex pattern.                                 |
+| AI        | `namesShouldEndWithAssistantOrResource`              | AI services annotated with `@RegisterAiService` should have names ending with `Assistant` or `Service`.      |
+| AI        | `namesShouldMatch`                                   | AI services annotated with `@RegisterAiService` should match a given regex pattern.                          |
+| AI        | `shouldBeAnnotatedWithApplicationScoped`             | AI services annotated with `@RegisterAiService` must also be annotated with `@ApplicationScoped`.            |
+| AI        | `shouldNotUseToolsAttributeInAiService`              | AI services must not define tools via the `tools` attribute of `@RegisterAiService`; use `@Toolbox` instead. |
+
 ## 5. Java Rules
 
 Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns.
@@ -993,7 +1013,68 @@ Taikai.builder()
     .check();
 ```
 
-## 9. Using Default Rule Profiles
+
+## 9. Quarkus Rules
+
+Quarkus configuration involves defining constraints specific to Quarkus usage.
+
+- **No Injection Fields Configuration**: Ensure that fields are not annotated with `@Inject` and constructor injection is preferred.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .quarkus(quarkus -> quarkus
+        .noInjectionFields())
+    .build()
+    .check();
+```
+
+- **Resources Configuration**: Ensure that REST resource classes follow naming, visibility, annotation, and dependency rules.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .quarkus(quarkus -> quarkus
+        .resources(resources -> resources
+            .namesShouldEndWithResource()
+            .namesShouldMatch("regex")
+            .shouldBeAnnotatedWithPath()
+            .shouldBePublic()
+            .shouldNotDependOnOtherResources()))
+    .build()
+    .check();
+```
+
+- **Panache Configuration**: Ensure that Panache entities and repositories follow naming and annotation conventions.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .quarkus(quarkus -> quarkus
+        .panache(panache -> panache
+            .shouldBeAnnotatedWithEntityWhenActiveRecordPattern()
+            .namesShouldEndWithRepository()
+            .namesShouldMatch("regex")))
+    .build()
+    .check();
+```
+
+- **AI Services Configuration**: Ensure that AI services using LangChain4j follow naming, scoping, and tool registration conventions.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .quarkus(quarkus -> quarkus
+        .ai(ai -> ai
+            .namesShouldEndWithAssistantOrResource()
+            .namesShouldMatch("regex")
+            .shouldBeAnnotatedWithApplicationScoped()
+            .shouldNotUseToolsAttributeInAiService()))
+    .build()
+    .check();
+```
+
+## 10. Using Default Rule Profiles
 
 Taikai allows you to define reusable rule profiles – preconfigured sets of rules that can be applied to a project with a single call. This is useful if you want to enforce the same architecture rules across multiple modules or repositories while keeping the rule configuration readable and maintainable.
 
@@ -1027,7 +1108,7 @@ private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> {
 };
 ```
 
-## 10. Customization
+## 11. Customization
 
 ### Custom Configuration for Import Rules
 
@@ -1072,7 +1153,7 @@ Taikai.builder()
 ```
 By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
 
-## 11. Examples
+## 12. Examples
 
 Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
 
