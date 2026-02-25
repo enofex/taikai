@@ -103,3 +103,6 @@ nav:
   - Home: index.md
   - Documentation: documentation.md
   - Contributing: contributing.md
+
+extra_css:
+  - css/extra.css
