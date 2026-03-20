@@ -40,7 +40,7 @@
     <spring.version>7.0.6</spring.version>
     <spring-boot.version>4.0.4</spring-boot.version>
     <quarkus.version>3.34.0</quarkus.version>
-    <langchain4j.version>1.8.1</langchain4j.version>
+    <langchain4j.version>1.8.2</langchain4j.version>
   </properties>
 
   <dependencies>
