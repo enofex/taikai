@@ -99,7 +99,7 @@ class ArchConditionsTest {
     ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(
         SimpleConditionEvent.class);
     verify(this.events).add(eventCaptor.capture());
-    assertEquals("Field %s in class %s is missing one of this %s modifier".formatted(
+    assertEquals("Field %s in class %s is missing one of these modifiers: %s".formatted(
             this.mockField.getName(),
             this.mockClass.getFullName(),
             "PRIVATE, FINAL"),
@@ -155,7 +155,7 @@ class ArchConditionsTest {
 
     ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
     verify(this.events).add(eventCaptor.capture());
-    assertEquals("Method %s in class %s is missing one of this %s modifier".formatted(
+    assertEquals("Method %s in class %s is missing one of these modifiers: %s".formatted(
             this.mockMethod.getName(),
             this.mockClass.getFullName(),
             "PUBLIC, STATIC"),
@@ -204,7 +204,7 @@ class ArchConditionsTest {
 
     ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
     verify(this.events).add(eventCaptor.capture());
-    assertEquals("Class %s is missing one of this %s modifier".formatted(
+    assertEquals("Class %s is missing one of these modifiers: %s".formatted(
             this.mockClass.getName(),
             "PUBLIC, FINAL"),
         eventCaptor.getValue().getDescriptionLines().get(0));

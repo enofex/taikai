@@ -97,7 +97,7 @@ public final class ArchConditions {
       public void check(JavaField field, ConditionEvents events) {
         if (!field.getModifiers().containsAll(requiredModifiers)) {
           events.add(SimpleConditionEvent.violated(field,
-              "Field %s in class %s is missing one of this %s modifier".formatted(
+              "Field %s in class %s is missing one of these modifiers: %s".formatted(
                   field.getName(),
                   field.getOwner().getFullName(),
                   requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
@@ -145,7 +145,7 @@ public final class ArchConditions {
       public void check(JavaMethod method, ConditionEvents events) {
         if (!method.getModifiers().containsAll(requiredModifiers)) {
           events.add(SimpleConditionEvent.violated(method,
-              "Method %s in class %s is missing one of this %s modifier".formatted(
+              "Method %s in class %s is missing one of these modifiers: %s".formatted(
                   method.getName(),
                   method.getOwner().getFullName(),
                   requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
@@ -193,7 +193,7 @@ public final class ArchConditions {
       public void check(JavaClass clazz, ConditionEvents events) {
         if (!clazz.getModifiers().containsAll(requiredModifiers)) {
           events.add(SimpleConditionEvent.violated(clazz,
-              "Class %s is missing one of this %s modifier".formatted(
+              "Class %s is missing one of these modifiers: %s".formatted(
                   clazz.getName(),
                   requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
         }
