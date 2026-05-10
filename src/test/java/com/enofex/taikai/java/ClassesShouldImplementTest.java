@@ -77,6 +77,21 @@ class ClassesShouldImplementTest {
     }
   }
 
+  @Nested
+  class ClassBasedAPIWithConfiguration {
+
+    @Test
+    void shouldNotThrowWhenClassImplementsInterfaceWithConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceImpl.class, MyService.class)
+          .java(java -> java.classesShouldImplement("ServiceImpl", MyService.class,
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   interface MyService {
     void execute();
   }

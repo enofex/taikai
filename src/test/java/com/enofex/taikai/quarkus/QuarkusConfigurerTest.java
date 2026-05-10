@@ -75,4 +75,36 @@ public class QuarkusConfigurerTest {
 
   }
 
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNoInjectionFields() {
+      Taikai taikai = Taikai.builder()
+          .classes(NoInjection.class)
+          .quarkus(quarkus -> quarkus.noInjectionFields(
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableQuarkusConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(Injection.class)
+          .quarkus(quarkus -> {
+            quarkus.noInjectionFields();
+            quarkus.disable();
+          })
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
 }

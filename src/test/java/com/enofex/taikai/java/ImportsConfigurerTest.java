@@ -3,8 +3,10 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiException;
+import com.enofex.taikai.TaikaiRule;
 import org.junit.jupiter.api.Test;
 
 class ImportsConfigurerTest {
@@ -58,6 +60,28 @@ class ImportsConfigurerTest {
         .classes(ClassUsingAllowedImport.class)
         .java(java -> java.imports(ImportsConfigurer::shouldHaveNoCycles)) // no namespace configured
         .build());
+  }
+
+  @Test
+  void shouldThrowWhenNamespaceNotSetForCyclesWithConfiguration() {
+    assertThrows(TaikaiException.class, () -> Taikai.builder()
+        .classes(ClassUsingAllowedImport.class)
+        .java(java -> java.imports(
+            imports -> imports.shouldHaveNoCycles(
+                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+        .build());
+  }
+
+  @Test
+  void shouldNotThrowWhenNamespaceSetInConfigurationForCycles() {
+    Taikai taikai = Taikai.builder()
+        .classes(ClassUsingAllowedImport.class)
+        .java(java -> java.imports(
+            imports -> imports.shouldHaveNoCycles(
+                TaikaiRule.Configuration.of("com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS))))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
   }
 
   @Test

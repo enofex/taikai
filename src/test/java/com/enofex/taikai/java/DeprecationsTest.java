@@ -48,6 +48,16 @@ class DeprecationsTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
+  @Test
+  void shouldFailWhenAccessingDeprecatedField() {
+    Taikai taikai = Taikai.builder()
+        .classes(AccessesDeprecatedField.class)
+        .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
   static class SafeClass {
 
     String value;
@@ -61,6 +71,9 @@ class DeprecationsTest {
 
     @Deprecated
     public static final String DEPRECATED_FIELD = "bad";
+
+    @Deprecated
+    public static Object DEPRECATED_OBJECT = new Object();
 
     @Deprecated
     public void deprecatedMethod() {
@@ -93,5 +106,10 @@ class DeprecationsTest {
   static class DependsOnDeprecatedClass {
 
     DeprecatedClass reference;
+  }
+
+  static class AccessesDeprecatedField {
+
+    Object value = DeprecatedHolder.DEPRECATED_OBJECT;
   }
 }

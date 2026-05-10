@@ -2,6 +2,7 @@
 package com.enofex.taikai;
 
 import static java.util.Collections.emptyList;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -168,5 +169,54 @@ class TaikaiTest {
         .namespace(VALID_NAMESPACE)
         .classes(TaikaiTest.class)
         .build());
+  }
+
+  @Test
+  void shouldCheckAllRulesAndPassWhenNoViolations() {
+    Taikai taikai = Taikai.builder()
+        .classes(TaikaiTest.class)
+        .java(java -> java.naming(naming -> naming.classesShouldMatch(".*")))
+        .build();
+
+    assertDoesNotThrow(taikai::checkAll);
+  }
+
+  @Test
+  void shouldCheckAllRulesAndCollectAllViolations() {
+    Taikai taikai = Taikai.builder()
+        .classes(ViolatingClass.class)
+        .java(java -> java
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .methodsShouldNotDeclareGenericExceptions())
+        .build();
+
+    assertThrows(AssertionError.class, taikai::checkAll);
+  }
+
+  @Test
+  void shouldExcludeClassesUsingCollectionOverload() {
+    Taikai taikai = Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .excludeClasses(java.util.List.of("com.enofex.taikai.Excluded1",
+            "com.enofex.taikai.Excluded2"))
+        .build();
+
+    assertEquals(2, taikai.excludedClasses().size());
+  }
+
+  @Test
+  void shouldExcludeClassesUsingClassArrayOverload() {
+    Taikai taikai = Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .excludeClasses(String.class, Integer.class)
+        .build();
+
+    assertEquals(2, taikai.excludedClasses().size());
+  }
+
+  static class ViolatingClass {
+
+    public void method() throws Exception {
+    }
   }
 }

@@ -48,6 +48,32 @@ class ConfigurationsConfigurerTest {
     }
   }
 
+  @Nested
+  class NamesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenConfigurationClassNameMatchesRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidAppConfiguration.class)
+          .spring(spring -> spring.configurations(
+              cfg -> cfg.namesShouldMatch(".+Configuration")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenConfigurationClassNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidAppConfig.class)
+          .spring(spring -> spring.configurations(
+              cfg -> cfg.namesShouldMatch(".+Configuration")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
   @Configuration
   static class ValidAppConfiguration {
 
@@ -66,5 +92,38 @@ class ConfigurationsConfigurerTest {
   @SpringBootApplication
   static class DemoApplication {
 
+  }
+
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNamesShouldEndWithConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidAppConfiguration.class)
+          .spring(spring -> spring.configurations(
+              cfg -> cfg.namesShouldEndWithConfiguration(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableConfigurationsConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidAppConfig.class)
+          .spring(spring -> spring.configurations(cfg -> {
+            cfg.namesShouldEndWithConfiguration();
+            cfg.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 }

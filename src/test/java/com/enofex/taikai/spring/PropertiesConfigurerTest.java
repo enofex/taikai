@@ -183,4 +183,137 @@ class PropertiesConfigurerTest {
   @ConfigurationProperties(prefix = "record")
   record RecordApplicationProperties(String name, int port) {
   }
+
+  @Nested
+  class NamesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenPropertiesNameMatchesRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(ApplicationProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.namesShouldMatch(".+Properties")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenPropertiesNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidConfig.class)
+          .spring(spring -> spring.properties(
+              props -> props.namesShouldMatch(".+Properties")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ShouldBeAnnotatedWithConfigurationPropertiesByRegex {
+
+    @Test
+    void shouldNotThrowWhenMatchingClassIsAnnotatedWithConfigurationProperties() {
+      Taikai taikai = Taikai.builder()
+          .classes(ApplicationProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMatchingClassMissingConfigurationPropertiesAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingAnnotationProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNamesShouldEndWithProperties() {
+      Taikai taikai = Taikai.builder()
+          .classes(ApplicationProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.namesShouldEndWithProperties(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidatedProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.shouldBeAnnotatedWithValidated(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithConfigurationProperties() {
+      Taikai taikai = Taikai.builder()
+          .classes(ApplicationProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportRegexAndConfigurationForShouldBeAnnotatedWithConfigurationProperties() {
+      Taikai taikai = Taikai.builder()
+          .classes(ApplicationProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties",
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeRecords() {
+      Taikai taikai = Taikai.builder()
+          .classes(RecordApplicationProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.shouldBeRecords(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisablePropertiesConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidConfig.class)
+          .spring(spring -> spring.properties(props -> {
+            props.namesShouldEndWithProperties();
+            props.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
 }

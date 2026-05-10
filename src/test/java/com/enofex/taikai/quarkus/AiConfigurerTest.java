@@ -70,6 +70,30 @@ public class AiConfigurerTest {
   }
 
   @Nested
+  class AnnotatedWithApplicationScoped {
+
+    @Test
+    void shouldNotThrowWhenAiServiceIsAnnotatedWithApplicationScoped() {
+      Taikai taikai = Taikai.builder()
+          .classes(HelloService.class)
+          .quarkus(quarkus -> quarkus.ai(AiConfigurer::annotatedWithApplicationScoped))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenAiServiceIsNotAnnotatedWithApplicationScoped() {
+      Taikai taikai = Taikai.builder()
+          .classes(Hello.class)
+          .quarkus(quarkus -> quarkus.ai(AiConfigurer::annotatedWithApplicationScoped))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
   class AiServicesShouldNotUseToolsToRegisterTools {
     @Test
     void shouldNotThrowWhenAiServiceIsNotUsingTools() {
@@ -91,6 +115,113 @@ public class AiConfigurerTest {
       assertThrows(AssertionError.class, taikai::check);
     }
 
+  }
+
+  @Nested
+  class NamesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenAiServiceNameMatchesRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(HelloService.class)
+          .quarkus(quarkus -> quarkus.ai(
+              ai -> ai.namesShouldMatch(".+(Service|Assistant)")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenAiServiceNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(Hello.class)
+          .quarkus(quarkus -> quarkus.ai(
+              ai -> ai.namesShouldMatch(".+(Service|Assistant)")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class NotUseRegisterAiServiceToDefineTools {
+
+    @Test
+    void shouldNotThrowWhenAiServiceNotUsingTools() {
+      Taikai taikai = Taikai.builder()
+          .classes(HelloService.class)
+          .quarkus(quarkus -> quarkus.ai(AiConfigurer::notUseRegisterAiServiceToDefineTools))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenAiServiceUsingToolsAttribute() {
+      Taikai taikai = Taikai.builder()
+          .classes(Hello.class)
+          .quarkus(quarkus -> quarkus.ai(AiConfigurer::notUseRegisterAiServiceToDefineTools))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNamesShouldEndWithAssistantOrResource() {
+      Taikai taikai = Taikai.builder()
+          .classes(HelloService.class)
+          .quarkus(quarkus -> quarkus.ai(
+              ai -> ai.namesShouldEndWithAssistantOrResource(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithApplicationScoped() {
+      Taikai taikai = Taikai.builder()
+          .classes(HelloService.class)
+          .quarkus(quarkus -> quarkus.ai(
+              ai -> ai.shouldBeAnnotatedWithApplicationScoped(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForAnnotatedWithApplicationScoped() {
+      Taikai taikai = Taikai.builder()
+          .classes(HelloService.class)
+          .quarkus(quarkus -> quarkus.ai(
+              ai -> ai.annotatedWithApplicationScoped(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableAiConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(Hello.class)
+          .quarkus(quarkus -> quarkus.ai(ai -> {
+            ai.namesShouldEndWithAssistantOrResource();
+            ai.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @RegisterAiService

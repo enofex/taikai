@@ -1,9 +1,13 @@
 package com.enofex.taikai.test;
 
 import com.enofex.taikai.Taikai;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -203,6 +207,43 @@ class JUnitConfigurerTest {
         assertThrows(AssertionError.class, taikai::check);
     }
 
+    @Test
+    void shouldDisableJUnitConfigurer() {
+        Taikai taikai = Taikai.builder()
+                .classes(InvalidDisplayNameTest.class)
+                .test(test -> test.junit(junit -> {
+                    junit.methodsShouldBeAnnotatedWithDisplayName();
+                    junit.disable();
+                }))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldApplyMethodsContainAssertionsOrVerificationsWithMockitoInOrder() {
+        Taikai taikai = Taikai.builder()
+                .classes(MockitoInOrderTest.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldApplyMethodsContainAssertionsOrVerificationsWithArchRuleCheck() {
+        Taikai taikai = Taikai.builder()
+                .classes(ArchRuleCheckTest.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
    static class ValidAssertionTest {
         @Test
         void shouldContainAssertion() {
@@ -283,5 +324,23 @@ class JUnitConfigurerTest {
     public static class InvalidDisabledClass {
         @Test
         void shouldNotRun() {}
+    }
+
+    static class MockitoInOrderTest {
+        Object mock = Mockito.mock(Object.class);
+
+        @Test
+        void shouldVerifyWithInOrder() {
+            Mockito.inOrder(mock);
+        }
+    }
+
+    static class ArchRuleCheckTest {
+        ArchRule rule = ArchRuleDefinition.classes().should().bePublic();
+
+        @Test
+        void shouldVerifyArchRule() {
+            rule.check(new ClassFileImporter().importClasses(Object.class));
+        }
     }
 }

@@ -59,6 +59,113 @@ public class PanacheConfigurerTest {
   }
 
 
+  @Nested
+  class NamesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenRepositoryNameMatchesRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(PersonRepository.class)
+          .quarkus(quarkus -> quarkus.panache(
+              panache -> panache.namesShouldMatch(".+Repository")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenRepositoryNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(PersonDAO.class)
+          .quarkus(quarkus -> quarkus.panache(
+              panache -> panache.namesShouldMatch(".+Repository")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class AnnotatedWithEntityWhenActiveRecordPattern {
+
+    @Test
+    void shouldNotThrowWhenActiveRecordPatternIsAnnotatedViaAlias() {
+      Taikai taikai = Taikai.builder()
+          .classes(Person.class)
+          .quarkus(quarkus -> quarkus.panache(PanacheConfigurer::annotatedWithEntityWhenActiveRecordPattern))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenActiveRecordPatternIsNotAnnotatedViaAlias() {
+      Taikai taikai = Taikai.builder()
+          .classes(PersonNoEntity.class)
+          .quarkus(quarkus -> quarkus.panache(PanacheConfigurer::annotatedWithEntityWhenActiveRecordPattern))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNamesShouldEndWithRepository() {
+      Taikai taikai = Taikai.builder()
+          .classes(PersonRepository.class)
+          .quarkus(quarkus -> quarkus.panache(
+              panache -> panache.namesShouldEndWithRepository(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithEntityWhenActiveRecordPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(Person.class)
+          .quarkus(quarkus -> quarkus.panache(
+              panache -> panache.shouldBeAnnotatedWithEntityWhenActiveRecordPattern(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForAnnotatedWithEntityWhenActiveRecordPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(Person.class)
+          .quarkus(quarkus -> quarkus.panache(
+              panache -> panache.annotatedWithEntityWhenActiveRecordPattern(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisablePanacheConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(PersonDAO.class)
+          .quarkus(quarkus -> quarkus.panache(panache -> {
+            panache.namesShouldEndWithRepository();
+            panache.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   @Entity
   static class Person extends PanacheEntity {
   }

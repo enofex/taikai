@@ -140,6 +140,58 @@ class ServicesConfigurerTest {
     }
   }
 
+  @Nested
+  class NamesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenServiceNameMatchesRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserService.class)
+          .spring(spring -> spring.services(
+              svc -> svc.namesShouldMatch(".+Service")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenServiceNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidNaming.class)
+          .spring(spring -> spring.services(
+              svc -> svc.namesShouldMatch(".+Service")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ShouldBeAnnotatedWithServiceByRegex {
+
+    @Test
+    void shouldNotThrowWhenMatchingClassIsAnnotatedWithService() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserService.class)
+          .spring(spring -> spring.services(
+              svc -> svc.shouldBeAnnotatedWithService(".+Service")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMatchingClassMissingServiceAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingAnnotationService.class)
+          .spring(spring -> spring.services(
+              svc -> svc.shouldBeAnnotatedWithService(".+Service")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
   @Service
   static class UserService {
     // valid service
@@ -195,6 +247,51 @@ class ServicesConfigurerTest {
 
     ServiceDependingOnOtherService(UserService userService) {
       this.userService = userService;
+    }
+  }
+
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNamesShouldEndWithService() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserService.class)
+          .spring(spring -> spring.services(
+              svc -> svc.namesShouldEndWithService(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithService() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserService.class)
+          .spring(spring -> spring.services(
+              svc -> svc.shouldBeAnnotatedWithService(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableServicesConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidNaming.class)
+          .spring(spring -> spring.services(svc -> {
+            svc.namesShouldEndWithService();
+            svc.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
     }
   }
 }

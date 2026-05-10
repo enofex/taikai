@@ -53,6 +53,17 @@ class ClassRecordTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenAnnotatedClassesAreRecords_ClassWithConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidRecord.class)
+          .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class,
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested

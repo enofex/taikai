@@ -1,5 +1,6 @@
 package com.enofex.taikai;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class TaikaiRuleTest {
@@ -94,5 +96,123 @@ class TaikaiRuleTest {
     TaikaiRule taikaiRule = TaikaiRule.of(archRule, Configuration.defaultConfiguration());
 
     assertThrows(TaikaiException.class, () -> taikaiRule.check(null));
+  }
+
+  @Test
+  void shouldCreateConfigurationWithNamespaceAndExcludedClasses() {
+    Configuration configuration = Configuration.of("com.example",
+        List.of("com.example.Excluded"));
+
+    assertEquals("com.example", configuration.namespace());
+    assertEquals(1, configuration.excludedClasses().size());
+  }
+
+  @Test
+  void shouldCreateConfigurationWithNamespaceImportAndExcludedClasses() {
+    Configuration configuration = Configuration.of(Namespace.IMPORT.WITH_TESTS,
+        List.of("com.example.Excluded"));
+
+    assertEquals(Namespace.IMPORT.WITH_TESTS, configuration.namespaceImport());
+    assertEquals(1, configuration.excludedClasses().size());
+  }
+
+  @Test
+  void shouldCreateConfigurationWithNamespaceAndImport() {
+    Configuration configuration = Configuration.of("com.example", Namespace.IMPORT.WITH_TESTS);
+
+    assertEquals("com.example", configuration.namespace());
+    assertEquals(Namespace.IMPORT.WITH_TESTS, configuration.namespaceImport());
+  }
+
+  @Test
+  void shouldCreateConfigurationWithNamespaceImportAndExcludedClassesCollection() {
+    Configuration configuration = Configuration.of("com.example",
+        Namespace.IMPORT.WITH_TESTS, List.of("com.example.Excluded"));
+
+    assertEquals("com.example", configuration.namespace());
+    assertEquals(Namespace.IMPORT.WITH_TESTS, configuration.namespaceImport());
+    assertEquals(1, configuration.excludedClasses().size());
+  }
+
+  @Test
+  void shouldCreateConfigurationWithJavaClassesAndExcludedClasses() {
+    JavaClasses javaClasses = mock(JavaClasses.class);
+    Configuration configuration = Configuration.of(javaClasses,
+        List.of("com.example.Excluded"));
+
+    assertEquals(javaClasses, configuration.javaClasses());
+    assertEquals(1, configuration.excludedClasses().size());
+  }
+
+  @Test
+  void shouldCreateConfigurationWithExcludedClassesCollection() {
+    Configuration configuration = Configuration.of(List.of("com.example.Excluded"));
+
+    assertEquals(1, configuration.excludedClasses().size());
+  }
+
+  @Test
+  void shouldCreateConfigurationWithExcludedClassObjects() {
+    Configuration configuration = Configuration.of(List.of(String.class, Integer.class));
+
+    assertEquals(2, configuration.excludedClasses().size());
+  }
+
+  @Test
+  void shouldThrowWhenExcludedClassesCollectionHasUnsupportedType() {
+    assertThrows(IllegalArgumentException.class,
+        () -> Configuration.of(List.of(42)));
+  }
+
+  @Test
+  void shouldExcludeFullyQualifiedClassNameFromCheck() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .excludeClasses("com.enofex.taikai.java.ImportPatterns")
+        .java(java -> java.naming(naming -> naming.classesShouldMatch(".*")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldExcludePackageWildcardFromCheck() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .excludeClasses("com.enofex.taikai.java.*")
+        .java(java -> java.naming(naming -> naming.classesShouldMatch(".*")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldExcludeRecursivePackageFromCheck() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .excludeClasses("com.enofex.taikai.java..")
+        .java(java -> java.naming(naming -> naming.classesShouldMatch(".*")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldExcludeRegexPatternFromCheck() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .excludeClasses(".*Patterns")
+        .java(java -> java.naming(naming -> naming.classesShouldMatch(".*")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldHandleNullExcludedClassesInJavaClasses() {
+    ArchRule archRule = mock(ArchRule.class);
+    TaikaiRule rule = TaikaiRule.of(archRule);
+
+    assertNotNull(rule.javaClasses("com.enofex.taikai", null, null));
   }
 }

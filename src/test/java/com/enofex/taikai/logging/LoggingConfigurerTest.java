@@ -90,4 +90,120 @@ class LoggingConfigurerTest {
 
   private static class SubClassNotViolatingConventions extends LoggerConventionsNotFollowedNaming {
   }
+
+  @Test
+  void shouldApplyClassesShouldUseLoggerWithTypeName() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging.classesShouldUseLogger("java.util.logging.Logger", ".*LoggerConventionsFollowed"))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldThrowWhenClassShouldUseLoggerButDoesNot() {
+    Taikai taikai = Taikai.builder()
+        .classes(NoLoggerClass.class)
+        .logging(logging -> logging.classesShouldUseLogger("java.util.logging.Logger", ".*NoLoggerClass"))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  @Test
+  void shouldApplyClassesShouldUseLoggerWithClass() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging.classesShouldUseLogger(Logger.class, ".*LoggerConventionsFollowed"))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldApplyLoggerConventionsWithClassWithoutModifiers() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger"))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldApplyLoggerConventionsWithTypeNameWithoutModifiers() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging.loggersShouldFollowConventions("java.util.logging.Logger", "logger"))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldApplyClassesShouldUseLoggerWithClassAndConfiguration() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging.classesShouldUseLogger(Logger.class,
+            ".*LoggerConventionsFollowed",
+            com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldApplyLoggerConventionsWithTypeNameAndConfiguration() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
+                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldApplyLoggerConventionsWithClassAndConfiguration() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging
+            .loggersShouldFollowConventions(Logger.class, "logger",
+                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldApplyLoggerConventionsWithClassAndModifiersAndConfiguration() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging
+            .loggersShouldFollowConventions(Logger.class, "logger",
+                List.of(PRIVATE, FINAL),
+                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldDisableLoggingConfigurer() {
+    Taikai taikai = Taikai.builder()
+        .classes(NoLoggerClass.class)
+        .logging(logging -> {
+          logging.classesShouldUseLogger("java.util.logging.Logger", ".*NoLoggerClass");
+          logging.disable();
+        })
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  private static class NoLoggerClass {
+    private String name = "hello";
+  }
 }

@@ -4,7 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Controller;
@@ -152,6 +157,17 @@ class ControllersConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldThrowWhenControllerHasMinAndSizeValidationAnnotationsButMissingValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ControllerWithMinAndSizeAnnotations.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldBeAnnotatedWithValidated))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
   @RestController
@@ -208,5 +224,234 @@ class ControllersConfigurerTest {
 
   static class UnannotatedController {
 
+  }
+
+  @Nested
+  class NamesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenControllerNameMatchesRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.namesShouldMatch(".+Controller")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenControllerNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.namesShouldMatch(".+Handler")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ShouldBeAnnotatedWithRestControllerByRegex {
+
+    @Test
+    void shouldNotThrowWhenMatchingClassHasRestControllerAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(".+Controller")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMatchingClassMissingRestControllerAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingRestController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(".+Controller")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ShouldBeAnnotatedWithControllerByRegex {
+
+    @Test
+    void shouldNotThrowWhenMatchingClassHasControllerAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(BasicController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithController(".+Controller")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMatchingClassMissingControllerAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnannotatedController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithController(".+Controller")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ShouldNotDependOnOtherControllers {
+
+    @Test
+    void shouldNotThrowWhenControllerDoesNotDependOnOtherController() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotDependOnOtherControllers))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenControllerDependsOnOtherController() {
+      Taikai taikai = Taikai.builder()
+          .classes(ControllerDependingOnAnotherController.class, ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotDependOnOtherControllers))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ShouldBeAnnotatedWithValidatedByRegex {
+
+    @Test
+    void shouldThrowWhenMatchingControllerHasValidationAnnotationsButMissingValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnvalidatedApiController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithValidated(".+Controller")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenMatchingControllerIsValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidatedUserController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithValidated(".+Controller")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @RestController
+  static class UnvalidatedApiController {
+
+    public String getUser(@RequestParam @NotNull String id) {
+      return id;
+    }
+  }
+
+  @RestController
+  static class ControllerWithMinAndSizeAnnotations {
+
+    public String getById(@PathVariable @Min(1) long id) {
+      return String.valueOf(id);
+    }
+
+    public String getByName(@PathVariable @Size(min = 1) String name) {
+      return name;
+    }
+
+    public String getByMaxId(@PathVariable @Max(100) long maxId) {
+      return String.valueOf(maxId);
+    }
+
+    public String getByTitle(@RequestParam @NotBlank String title) {
+      return title;
+    }
+
+    public String getByPattern(@RequestParam @Pattern(regexp = ".*") String pattern) {
+      return pattern;
+    }
+  }
+
+  @RestController
+  static class ControllerDependingOnAnotherController {
+
+    private final ValidUserController other;
+
+    ControllerDependingOnAnotherController(ValidUserController other) {
+      this.other = other;
+    }
+  }
+
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNamesShouldEndWithController() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.namesShouldEndWithController(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithRestController() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithController() {
+      Taikai taikai = Taikai.builder()
+          .classes(BasicController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithController(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableControllersConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingRestController.class)
+          .spring(spring -> spring.controllers(ctrl -> {
+            ctrl.shouldBeAnnotatedWithRestController();
+            ctrl.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 }

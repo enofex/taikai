@@ -227,6 +227,30 @@ class ClassModifierTest {
     assertDoesNotThrow(taikai::check);
   }
 
+  @Test
+  void shouldSupportConfigurationForClassesAnnotatedWithShouldHaveModifiers() {
+    Taikai taikai = Taikai.builder()
+        .classes(PublicFinalClass.class)
+        .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
+            TestAnnotation.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL),
+            com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldSupportConfigurationForClassesAnnotatedWithShouldNotHaveModifiers() {
+    Taikai taikai = Taikai.builder()
+        .classes(PublicNonFinalClass.class)
+        .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
+            TestAnnotation.class, List.of(JavaModifier.ABSTRACT),
+            com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
   @Retention(RetentionPolicy.RUNTIME)
   @interface TestAnnotation {}
 

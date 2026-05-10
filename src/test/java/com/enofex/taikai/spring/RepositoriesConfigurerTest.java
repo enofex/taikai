@@ -149,6 +149,58 @@ class RepositoriesConfigurerTest {
     }
   }
 
+  @Nested
+  class NamesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenRepositoryNameMatchesRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserRepository.class)
+          .spring(spring -> spring.repositories(
+              repo -> repo.namesShouldMatch(".+Repository")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenRepositoryNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidRepoName.class)
+          .spring(spring -> spring.repositories(
+              repo -> repo.namesShouldMatch(".+Repository")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
+  class ShouldBeAnnotatedWithRepositoryByRegex {
+
+    @Test
+    void shouldNotThrowWhenMatchingClassIsAnnotatedWithRepository() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserRepository.class)
+          .spring(spring -> spring.repositories(
+              repo -> repo.shouldBeAnnotatedWithRepository(".+Repository")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMatchingClassMissingRepositoryAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingAnnotationRepository.class)
+          .spring(spring -> spring.repositories(
+              repo -> repo.shouldBeAnnotatedWithRepository(".+Repository")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
   @Repository
   static class UserRepository {
     // valid repository
@@ -209,6 +261,51 @@ class RepositoriesConfigurerTest {
 
     RepositoryDependingOnRestController(ApiController apiController) {
       this.apiController = apiController;
+    }
+  }
+
+  @Nested
+  class ConfigurationOverloads {
+
+    @Test
+    void shouldSupportConfigurationForNamesShouldEndWithRepository() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserRepository.class)
+          .spring(spring -> spring.repositories(
+              repo -> repo.namesShouldEndWithRepository(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForShouldBeAnnotatedWithRepository() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserRepository.class)
+          .spring(spring -> spring.repositories(
+              repo -> repo.shouldBeAnnotatedWithRepository(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableRepositoriesConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidRepoName.class)
+          .spring(spring -> spring.repositories(repo -> {
+            repo.namesShouldEndWithRepository();
+            repo.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
     }
   }
 }
