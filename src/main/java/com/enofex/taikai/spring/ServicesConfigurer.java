@@ -140,6 +140,30 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
 
   /**
    * Adds a rule enforcing that service-layer classes should not depend on
+   * other service-layer classes annotated with {@code @Service}.
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public ServicesConfigurer shouldNotDependOnOtherServices() {
+    return shouldNotDependOnOtherServices(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldNotDependOnOtherServices()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public ServicesConfigurer shouldNotDependOnOtherServices(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that(are(annotatedWithService(true)))
+            .should(not(dependOnClassesThat(annotatedWithService(true))))
+            .as("Services should not depend on other Services"),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that service-layer classes should not depend on
    * controller or REST controller components.
    *
    * @return this configurer instance for fluent chaining

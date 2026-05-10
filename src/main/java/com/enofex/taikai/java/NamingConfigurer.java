@@ -109,6 +109,30 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
+   * Requires all classes to have names matching the given regular expression.
+   *
+   * @param regex the required class-name pattern
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer classesShouldMatch(String regex) {
+    return classesShouldMatch(regex, defaultConfiguration());
+  }
+
+  /**
+   * Requires all classes to have names matching the given regular expression using a custom
+   * configuration.
+   *
+   * @param regex         the required class-name pattern
+   * @param configuration the rule configuration to use
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer classesShouldMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .should().haveNameMatching(regex)
+        .as("Classes should have names matching %s".formatted(regex)), configuration));
+  }
+
+  /**
    * Prohibits classes whose names match the given regular expression.
    *
    * @param regex a forbidden class-name pattern
@@ -350,6 +374,29 @@ public class NamingConfigurer extends AbstractConfigurer {
         .should().haveNameMatching(regex)
         .as("Methods annotated with %s should have names matching %s".formatted(
             annotationType, regex)), configuration));
+  }
+
+  /**
+   * Requires all methods to have names matching the given pattern.
+   *
+   * @param regex the required method-name pattern
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer methodsShouldMatch(String regex) {
+    return methodsShouldMatch(regex, defaultConfiguration());
+  }
+
+  /**
+   * Requires all methods to have names matching the given pattern using a custom configuration.
+   *
+   * @param regex         the required method-name pattern
+   * @param configuration the rule configuration to use
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer methodsShouldMatch(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .should().haveNameMatching(regex)
+        .as("Methods should have names matching %s".formatted(regex)), configuration));
   }
 
   /**

@@ -81,6 +81,30 @@ class ServicesConfigurerTest {
   }
 
   @Nested
+  class ShouldNotDependOnOtherServices {
+
+    @Test
+    void shouldNotThrowWhenServiceDoesNotDependOnOtherService() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldNotDependOnOtherServices))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenServiceDependsOnOtherService() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceDependingOnOtherService.class, UserService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldNotDependOnOtherServices))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
   class ShouldNotDependOnControllers {
 
     @Test
@@ -161,6 +185,16 @@ class ServicesConfigurerTest {
 
     ServiceDependingOnRestController(ApiController apiController) {
       this.apiController = apiController;
+    }
+  }
+
+  @Service
+  static class ServiceDependingOnOtherService {
+
+    private final UserService userService;
+
+    ServiceDependingOnOtherService(UserService userService) {
+      this.userService = userService;
     }
   }
 }

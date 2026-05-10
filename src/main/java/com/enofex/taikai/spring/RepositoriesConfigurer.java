@@ -2,6 +2,7 @@ package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REPOSITORY;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRepository;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
@@ -136,6 +137,30 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
             .that().haveNameMatching(regex)
             .should(be(annotatedWithRepository(true)))
             .as("Repositories should be annotated with %s".formatted(ANNOTATION_REPOSITORY)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that repository classes should not depend on controller classes
+   * (annotated with {@code @Controller} or {@code @RestController}).
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public RepositoriesConfigurer shouldNotDependOnControllers() {
+    return shouldNotDependOnControllers(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldNotDependOnControllers()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public RepositoriesConfigurer shouldNotDependOnControllers(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that(are(annotatedWithRepository(true)))
+            .should(not(dependOnClassesThat(annotatedWithControllerOrRestController(true))))
+            .as("Repositories should not depend on Controllers or RestControllers"),
         configuration));
   }
 

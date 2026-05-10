@@ -800,6 +800,33 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
+   * Adds a rule enforcing that classes whose names match the given regular expression
+   * must be declared as Java interfaces.
+   *
+   * @param regex the regular expression used to match class names
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeInterfaces(String regex) {
+    return classesShouldBeInterfaces(regex, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes whose names match the given regular expression
+   * must be declared as Java interfaces, using a custom configuration.
+   *
+   * @param regex the regular expression used to match class names
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeInterfaces(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().haveNameMatching(regex)
+            .should().beInterfaces()
+            .as("Classes with names matching %s should be interfaces".formatted(regex)),
+        configuration));
+  }
+
+  /**
    * Adds a rule enforcing that classes annotated with a specific annotation
    * must also be annotated with all required annotations.
    *
@@ -1531,6 +1558,39 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .as("Fields have name matching %s should have all of this modifiers %s".formatted(
                 regex,
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that fields whose names match a regex
+   * must not have the specified modifiers.
+   *
+   * @param regex the regex for field names
+   * @param notRequiredModifiers the modifiers that the field must not have
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer fieldsShouldNotHaveModifiers(String regex,
+      Collection<JavaModifier> notRequiredModifiers) {
+    return fieldsShouldNotHaveModifiers(regex, notRequiredModifiers, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that fields whose names match a regex
+   * must not have the specified modifiers, using a custom configuration.
+   *
+   * @param regex the regex for field names
+   * @param notRequiredModifiers the modifiers that the field must not have
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer fieldsShouldNotHaveModifiers(String regex,
+      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+            .that().haveNameMatching(regex)
+            .should(notHasFieldModifiers(notRequiredModifiers))
+            .as("Fields have name matching %s should not have all of this modifiers %s".formatted(
+                regex,
+                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 

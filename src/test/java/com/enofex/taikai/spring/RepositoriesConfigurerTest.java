@@ -6,8 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RestController;
 
 class RepositoriesConfigurerTest {
 
@@ -86,6 +88,43 @@ class RepositoriesConfigurerTest {
   }
 
   @Nested
+  class ShouldNotDependOnControllers {
+
+    @Test
+    void shouldNotThrowWhenRepositoryDoesNotDependOnController() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserRepository.class)
+          .spring(spring -> spring.repositories(
+              RepositoriesConfigurer::shouldNotDependOnControllers))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenRepositoryDependsOnController() {
+      Taikai taikai = Taikai.builder()
+          .classes(RepositoryDependingOnController.class, UserController.class)
+          .spring(spring -> spring.repositories(
+              RepositoriesConfigurer::shouldNotDependOnControllers))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenRepositoryDependsOnRestController() {
+      Taikai taikai = Taikai.builder()
+          .classes(RepositoryDependingOnRestController.class, ApiController.class)
+          .spring(spring -> spring.repositories(
+              RepositoriesConfigurer::shouldNotDependOnControllers))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
   class ShouldNotDependOnServices {
 
     @Test
@@ -140,6 +179,36 @@ class RepositoriesConfigurerTest {
 
     RepositoryDependingOnService(UserService userService) {
       this.userService = userService;
+    }
+  }
+
+  @Controller
+  static class UserController {
+
+  }
+
+  @RestController
+  static class ApiController {
+
+  }
+
+  @Repository
+  static class RepositoryDependingOnController {
+
+    private final UserController userController;
+
+    RepositoryDependingOnController(UserController userController) {
+      this.userController = userController;
+    }
+  }
+
+  @Repository
+  static class RepositoryDependingOnRestController {
+
+    private final ApiController apiController;
+
+    RepositoryDependingOnRestController(ApiController apiController) {
+      this.apiController = apiController;
     }
   }
 }

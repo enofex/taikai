@@ -110,6 +110,85 @@ class FieldModifierTest {
     }
   }
 
+  @Nested
+  class FieldsShouldHaveModifiers {
+
+    @Test
+    void shouldNotThrowWhenFieldMatchingRegexHasRequiredModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicFinalFields.class)
+          .java(java -> java.fieldsShouldHaveModifiers("id", List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenFieldMatchingRegexLacksRequiredModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(NonPublicFields.class)
+          .java(java -> java.fieldsShouldHaveModifiers("value", List.of(JavaModifier.PUBLIC)))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenFieldNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(NonPublicFields.class)
+          .java(java -> java.fieldsShouldHaveModifiers("nonexistent", List.of(JavaModifier.PUBLIC)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class FieldsShouldNotHaveModifiers {
+
+    @Test
+    void shouldNotThrowWhenFieldMatchingRegexDoesNotHaveForbiddenModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(NonStaticFields.class)
+          .java(java -> java.fieldsShouldNotHaveModifiers("counter", List.of(JavaModifier.STATIC)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenFieldMatchingRegexHasForbiddenModifiers() {
+      Taikai taikai = Taikai.builder()
+          .classes(StaticFields.class)
+          .java(java -> java.fieldsShouldNotHaveModifiers("counter", List.of(JavaModifier.STATIC)))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenFieldNameDoesNotMatchRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(StaticFields.class)
+          .java(java -> java.fieldsShouldNotHaveModifiers("nonexistent", List.of(JavaModifier.STATIC)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportCustomConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(NonStaticFields.class)
+          .java(java -> java.fieldsShouldNotHaveModifiers("counter", List.of(JavaModifier.STATIC),
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   @Test
   void shouldSupportEmptyModifierCollections() {
     Taikai taikai = Taikai.builder()

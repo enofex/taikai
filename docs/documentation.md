@@ -169,7 +169,9 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | General  | `classesShouldHaveModifiers`                           | Classes matching specific naming patterns should have specified modifiers.                                   |
 | General  | `classesShouldNotHaveModifiers`                        | Classes matching specific naming patterns should not have specified modifiers.                               |
 | General  | `classesShouldBeRecords`                               | Classes matching specific naming patterns should be records.                                                 |
+| General  | `classesShouldBeInterfaces`                            | Classes matching specific naming patterns should be interfaces.                                              |
 | General  | `fieldsShouldHaveModifiers`                            | Fields matching specific naming patterns should have specified modifiers.                                    |
+| General  | `fieldsShouldNotHaveModifiers`                         | Fields matching specific naming patterns should not have specified modifiers.                                |
 | General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
 | General  | `fieldsAnnotatedWithShouldHaveModifiers`               | Fields annotated with a specific annotation should have specified modifiers.                                 |
 | General  | `fieldsAnnotatedWithShouldNotHaveModifiers`            | Fields annotated with a specific annotation should not have specified modifiers.                             |
@@ -196,10 +198,12 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..disallow..`).                                                            |
 | Naming   | `packagesShouldMatchDefault`                           | Packages should match `^[a-z_]+(\.[a-z_][a-z0-9_]*)*$` naming patterns.                                      |
 | Naming   | `packagesShouldMatch`                                  | Packages should match specific naming patterns.                                                              |
+| Naming   | `classesShouldMatch`                                   | Classes should match specific naming patterns.                                                               |
 | Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
 | Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
 | Naming   | `classesImplementingShouldMatch`                       | Classes implementing a specific interface should match specific naming patterns.                             |
 | Naming   | `classesAssignableToShouldMatch`                       | Classes assignable to a certain type should match specific naming patterns.                                  |
+| Naming   | `methodsShouldMatch`                                   | Methods should match specific naming patterns.                                                               |
 | Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
 | Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with a specific annotation should match specific naming patterns.                          |
 | Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns.                                                            |
@@ -257,11 +261,13 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`.                                                                                                                                                                                                                   |
 | Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern.                                                                                                                                                                                                                   |
 | Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories ending with `Repository` should be annotated with `@Repository`.                                                                                                                                                                                                             |
+| Repositories   | `shouldNotDependOnControllers`                 | Repositories annotated with `@Repository` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                             |
 | Repositories   | `shouldNotDependOnServices`                    | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service`.                                                                                                                                                                                 |
 | Services       | `namesShouldEndWithService`                    | Services annotated with `@Service` should end with `Service`.                                                                                                                                                                                                                             |
 | Services       | `namesShouldMatch`                             | Services annotated with `@Service` should match a regex pattern.                                                                                                                                                                                                                          |
 | Services       | `shouldBeAnnotatedWithService`                 | Services ending with `Service` should be annotated with `@Service`.                                                                                                                                                                                                                       |
 | Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                                    |
+| Services       | `shouldNotDependOnOtherServices`               | Services annotated with `@Service` should not depend on other services annotated with `@Service`.                                                                                                                                                                                         |
 
 ### Quarkus Rules
 
@@ -483,6 +489,17 @@ Taikai.builder()
     .check();
 ```
 
+- **Classes Should Be Interfaces**: Ensure that classes matching a specific regex pattern are interfaces.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .classesShouldBeInterfaces(".*Repository"))
+    .build()
+    .check();
+```
+
 - **Classes Should Be Records**: Ensure that classes matching a specific regex pattern a records.
 
 ```java
@@ -655,6 +672,17 @@ Taikai.builder()
     .check();
 ```
 
+- **Fields Should Not Have Modifiers**: Ensure that fields matching a specific naming pattern do not have certain modifiers.
+
+```java
+Taikai.builder()
+    .namespace("com.enofex.taikai")
+    .java(java -> java
+        .fieldsShouldNotHaveModifiers(".*transient.*", List.of(PUBLIC)))
+    .build()
+    .check();
+```
+
 - **Fields Annotated with a Specified Annotation Should Have Specified Modifiers.**: Ensure that any fields annotated with a given annotation should have all required modifiers.
 
 ```java
@@ -726,6 +754,7 @@ Taikai.builder()
         .naming(naming -> naming
             .packagesShouldMatchDefault()
             .packagesShouldMatch("regex")
+            .classesShouldMatch(".*Service")
             .classesShouldNotMatch(".*Impl")
             .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
             .classesAnnotatedWithShouldMatch("com.company.project.Annotation", "coolClass")   
@@ -733,6 +762,7 @@ Taikai.builder()
             .classesImplementingShouldMatch("com.company.project.Configurer", ".*Configurer")
             .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")
             .classesAssignableToShouldMatch("com.company.project.AbstractConfigurer", ".*Configurer")
+            .methodsShouldMatch("[a-z][a-zA-Z0-9]*")
             .methodsShouldNotMatch("coolMethod")
             .methodsAnnotatedWithShouldMatch(Annotation.class, "coolMethods")
             .methodsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolMethods")  
@@ -985,7 +1015,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Services Configuration**: Ensure that service classes end with `Service` or match a specific regex pattern and are annotated with `@Service` and do not depend on other controllers.
+- **Services Configuration**: Ensure that service classes end with `Service` or match a specific regex pattern and are annotated with `@Service` and do not depend on controllers or other services.
 
 ```java
 Taikai.builder()
@@ -994,13 +1024,14 @@ Taikai.builder()
         .services(services -> services
             .shouldBeAnnotatedWithService()    
             .shouldNotDependOnControllers()
+            .shouldNotDependOnOtherServices()
             .namesShouldMatch("regex")
             .namesShouldEndWithService()))
     .build()
     .check();
 ```
 
-- **Repositories Configuration**: Ensure that repository classes end with `Repository` or match a specific regex pattern and are annotated with `@Repository` and not depend on classes annotated with `@Service`.
+- **Repositories Configuration**: Ensure that repository classes end with `Repository` or match a specific regex pattern and are annotated with `@Repository` and not depend on classes annotated with `@Service` or controller components.
 
 ```java
 Taikai.builder()
@@ -1008,6 +1039,7 @@ Taikai.builder()
     .spring(spring -> spring
         .repositories(repositories -> repositories
             .shouldNotDependOnServices()
+            .shouldNotDependOnControllers()
             .shouldBeAnnotatedWithRepository()
             .namesShouldMatch("regex")
             .namesShouldEndWithRepository()))
