@@ -38,15 +38,17 @@ You can configure `classes` as well. This allows you to specify specific [Java c
 
 ```java
 JavaClasses classes = new ClassFileImporter()
-    .importClasses(ClassToCheck.class)
+    .importClasses(ClassToCheck.class);
 
 Taikai.builder()
     .classes(classes)
     .build()
     .check();
+```
 
 Or:
 
+```java
 Taikai.builder()
     .classes(ClassToCheck.class)
     .build()
@@ -87,8 +89,8 @@ Taikai.builder()
     .namespace("com.company.project")
     .excludeClasses(
         "com.company.project.foo.ClassToExclude",
-                "com.company.project.bar.*",
-                "com.company.project.internal..")
+        "com.company.project.bar.*",
+        "com.company.project.internal..")
     .build()
     .check();
 ```
@@ -418,7 +420,7 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .classesShouldBeAnnotatedWithAll(RestController.class, List.of(RequestMapping.class))
-        .classesShouldBeAnnotatedWithAll("org.springframework.web.bind.annotation.RestController", List.of("org.springframework.web.bind.annotation.RequestMapping"))
+        .classesShouldBeAnnotatedWithAll("org.springframework.web.bind.annotation.RestController", List.of("org.springframework.web.bind.annotation.RequestMapping")))
     .build()
     .check();
 ```
@@ -534,7 +536,7 @@ Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
         .methodsShouldBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class))
-        .methodsShouldBeAnnotatedWithAll("org.springframework.data.jpa.repository.Modifying", List.of("org.springframework.transaction.annotation.Transactional", "org.springframework.data.jpa.repository.Query"))
+        .methodsShouldBeAnnotatedWithAll("org.springframework.data.jpa.repository.Modifying", List.of("org.springframework.transaction.annotation.Transactional", "org.springframework.data.jpa.repository.Query")))
     .build()
     .check();
 ```
@@ -1178,7 +1180,7 @@ class ArchitectureTest {
         .spring(spring -> spring
             .noAutowiredFields()
             .boot(boot -> boot
-                .applicationClassShouldResideInPackage())
+                .applicationClassShouldResideInPackage("com.company.project"))
             .configurations(configuration -> configuration
                 .namesShouldEndWithConfiguration()
                 .namesShouldMatch("regex"))
@@ -1187,13 +1189,13 @@ class ArchitectureTest {
                 .namesShouldEndWithController()
                 .namesShouldMatch("regex")
                 .shouldNotDependOnOtherControllers()
-                .shouldBePackagePrivate()))
+                .shouldBePackagePrivate())
             .services(services -> services
                 .namesShouldEndWithService()
-                .shouldBeAnnotatedWithService())        
+                .shouldBeAnnotatedWithService())
             .repositories(repositories -> repositories
                 .namesShouldEndWithRepository()
-                .shouldBeAnnotatedWithRepository())
+                .shouldBeAnnotatedWithRepository()))
         .build()
         .check();
   }
