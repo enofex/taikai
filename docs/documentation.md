@@ -120,6 +120,7 @@ Taikai modifiedTaikai = taikai.toBuilder()
 // Perform the check with the modified configuration
 modifiedTaikai.check();
 ```
+
 ### 3.6 Check Method Usage
 
 #### 3.6.1 Check with Fail Fast
@@ -133,7 +134,7 @@ Taikai.builder()
 
 ```
 
-#### 3.6.2  Check without Fail Fast
+#### 3.6.2 Check without Fail Fast
 The `checkAll()` method allows you to evaluate all rules and collect all failures before throwing an exception. It aggregates all violations and throws an exception with a detailed failure report once all rules are processed. This is useful when you want to see all the issues without stopping at the first failure.
 
 ```java
@@ -214,7 +215,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 
 ### Logging Rules
 
-The default mode is `WITHOUT_TESTS`, which checks only test classes.
+The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
 
 | Category | Method Name                       | Rule Description                                                                                  | 
 |----------|-----------------------------------|---------------------------------------------------------------------------------------------------|
@@ -326,7 +327,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Reside in Specified Package**: Ensure that classes reside in the specified package.
+- **Classes Should Reside in Specified Package (Package Wildcard)**: Ensure that all classes reside within the specified package (supports `*` and `..` wildcards).
 
 ```java
 Taikai.builder()
@@ -349,7 +350,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Annotated with a Specified Annotation Should not be annotated with a Specified Annotation.**: Ensure that classes annotated with a specific not also be annotated with another specified annotation.
+- **Classes Annotated with a Specified Annotation Should Not Be Annotated with Another Specified Annotation**: Ensure that classes annotated with a specific annotation are not also annotated with another specified annotation.
 
 ```java
 Taikai.builder()
@@ -361,7 +362,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Annotated with a Specified Annotation Should Have Specified Modifiers.**: Ensure that any class annotated with a given annotation should have all required modifiers.
+- **Classes Annotated with a Specified Annotation Should Have Specified Modifiers**: Ensure that any class annotated with a given annotation has all required modifiers.
 
 ```java
 Taikai.builder()
@@ -373,7 +374,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Annotated with a Specified Annotation Should Not Have Specified Modifiers.**: Ensure that any class annotated does not have one or more forbidden modifiers.
+- **Classes Annotated with a Specified Annotation Should Not Have Specified Modifiers**: Ensure that any class annotated with a given annotation does not have one or more forbidden modifiers.
 
 ```java
 Taikai.builder()
@@ -385,13 +386,13 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes annotated with a Specified Annotation Should Be Records**: Ensure that any class annotated with a given annotation are records.
+- **Classes Annotated with a Specified Annotation Should Be Records**: Ensure that any class annotated with a given annotation is a record.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesShouldBeRecords(Configuration.class))
+        .classesAnnotatedWithShouldBeRecords(Configuration.class))
     .build()
     .check();
 ```
@@ -478,7 +479,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Not Have Specified Modifiers**: Ensure that classes matching a specific regex pattern have not a certain modifier.
+- **Classes Should Not Have Specified Modifiers**: Ensure that classes matching a specific regex pattern do not have certain modifiers.
 
 ```java
 Taikai.builder()
@@ -500,7 +501,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Classes Should Be Records**: Ensure that classes matching a specific regex pattern a records.
+- **Classes Should Be Records**: Ensure that classes matching a specific regex pattern are records.
 
 ```java
 Taikai.builder()
@@ -558,7 +559,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Annotated with a Specified Annotation Should not be annotated with a Specified Annotation.**: Ensure that methods annotated with a specific annotation not also be annotated with another specified annotation.
+- **Methods Annotated with a Specified Annotation Should Not Be Annotated with Another Specified Annotation**: Ensure that methods annotated with a specific annotation are not also annotated with another specified annotation.
 
 ```java
 Taikai.builder()
@@ -570,7 +571,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Annotated with a Specified Annotation Should Have a Specified Modifiers.**: Ensure that methods annotated with a specific annotation have a certain modifier.
+- **Methods Annotated with a Specified Annotation Should Have Specified Modifiers**: Ensure that methods annotated with a specific annotation have all required modifiers.
 
 ```java
 Taikai.builder()
@@ -582,14 +583,14 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Annotated with a Specified Annotation Should Not Have a Specified Modifiers.**: Ensure that methods annotated with a specific annotation not have a certain modifier.
+- **Methods Annotated with a Specified Annotation Should Not Have Specified Modifiers**: Ensure that methods annotated with a specific annotation do not have certain modifiers.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
-        .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC)))
+        .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
+        .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC)))
     .build()
     .check();
 ```
@@ -605,7 +606,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Should Not Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have not a certain modifier.
+- **Methods Should Not Have Specified Modifiers**: Ensure that methods matching a specific regex pattern do not have certain modifiers.
 
 ```java
 Taikai.builder()
@@ -616,7 +617,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Should Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+- **Methods in a Specific Class Should Have Specified Modifiers**: Ensure that methods in classes matching a specific regex pattern have the required modifiers.
 
 ```java
 Taikai.builder()
@@ -627,7 +628,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Should Not Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have not certain modifier.
+- **Methods in a Specific Class Should Not Have Specified Modifiers**: Ensure that methods in classes matching a specific regex pattern do not have certain modifiers.
 
 ```java
 Taikai.builder()
@@ -638,13 +639,13 @@ Taikai.builder()
     .check();
 ```
 
-- **Methods Should Not Exceed a Maximum Number of Parameters:**: Ensure that methods in classes do not have more than the specified maximum number of parameters.
+- **Methods Should Not Exceed a Maximum Number of Parameters**: Ensure that methods in classes do not have more than the specified maximum number of parameters.
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .methodsShouldNotExceedMaxParameters(10)
+        .methodsShouldNotExceedMaxParameters(10))
     .build()
     .check();
 ```
@@ -683,7 +684,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Fields Annotated with a Specified Annotation Should Have Specified Modifiers.**: Ensure that any fields annotated with a given annotation should have all required modifiers.
+- **Fields Annotated with a Specified Annotation Should Have Specified Modifiers**: Ensure that any field annotated with a given annotation has all required modifiers.
 
 ```java
 Taikai.builder()
@@ -695,7 +696,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Fields Annotated with a Specified Annotation Should Not Have Specified Modifiers.**: Ensure that any fields annotated does not have one or more forbidden modifiers.
+- **Fields Annotated with a Specified Annotation Should Not Have Specified Modifiers**: Ensure that any field annotated with a given annotation does not have one or more forbidden modifiers.
 
 ```java
 Taikai.builder()
