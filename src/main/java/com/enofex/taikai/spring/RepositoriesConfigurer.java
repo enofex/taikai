@@ -90,7 +90,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithRepository(true)))
         .should().haveNameMatching(regex)
-        .as("Repositories should have name ending %s".formatted(regex)), configuration));
+        .as("Repositories should have names matching %s".formatted(regex)), configuration));
   }
 
   /**

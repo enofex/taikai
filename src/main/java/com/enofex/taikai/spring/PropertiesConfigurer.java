@@ -87,7 +87,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithConfigurationProperties(true)))
         .should().haveNameMatching(regex)
-        .as("Properties should have name ending %s".formatted(regex)), configuration));
+        .as("Properties should have names matching %s".formatted(regex)), configuration));
   }
 
   /**

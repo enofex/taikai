@@ -88,7 +88,7 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer implement
             .and(not(annotatedWithSpringBootApplication(true))))
         )
         .should().haveNameMatching(regex)
-        .as("Configurations should have name ending %s".formatted(regex)), configuration));
+        .as("Configurations should have names matching %s".formatted(regex)), configuration));
   }
 
   @Override

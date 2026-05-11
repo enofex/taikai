@@ -85,7 +85,7 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithPath(true)))
         .should().haveNameMatching(regex)
-        .as("Resources should have name ending %s".formatted(regex)), configuration));
+        .as("Resources should have names matching %s".formatted(regex)), configuration));
   }
 
   /**
@@ -176,7 +176,7 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithPath(true)))
         .should(not(onlyHaveDependentClassesThat(are(annotatedWithPath(true)))))
-        .as("Resource should not be depend on other Resources"), configuration));
+        .as("Resources should not depend on other Resources"), configuration));
   }
 
   @Override

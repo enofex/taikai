@@ -13,25 +13,31 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 /**
- * Configures and enforces conventions for Quarkus (and Jakarta EE) Rest APIs
+ * Configures and enforces conventions for Quarkus Panache entities and repositories
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
- * <p>This configurer ensures that Panache classes follow consistent naming,
- * annotations, and dependency rules, promoting clarity and maintainability.</p>
+ * <p>This configurer ensures that Panache Active Record entities are annotated with
+ * {@code @Entity}, and that Panache Repository implementations follow consistent naming
+ * conventions.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.example.project")
  *     .quarkus(quarkus -> quarkus
- *         .panache(ctrl -> ctrl
+ *         .panache(panache -> panache
  *             .shouldBeAnnotatedWithEntityWhenActiveRecordPattern()
  *             .namesShouldEndWithRepository()
+ *             .namesShouldMatch(".*Repository")
  *         )
- *     );
+ *     )
+ *     .build()
+ *     .check();
  * }</pre>
  *
- * <p>By default, this configurer checks that classes implementing {@code PanacheRepository} ends with Repository or classes extending {@code PanacheEntity} are annotated with {@code @Entity}.</p>
+ * <p>By default, this configurer checks that classes extending {@code PanacheEntity}
+ * are annotated with {@code @Entity}, and that classes implementing {@code PanacheRepository}
+ * have names ending with {@code Repository}.</p>
  */
 public class PanacheConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -128,7 +134,7 @@ public class PanacheConfigurer extends AbstractConfigurer implements Disableable
     return addRule(TaikaiRule.of(classes()
         .that().implement(QuarkusDescribedPredicates.PANACHE_REPOSITORY_INTERFACE)
         .should().haveNameMatching(regex)
-        .as("Repositories should have name ending %s".formatted(regex)), configuration));
+        .as("Repositories should have names matching %s".formatted(regex)), configuration));
   }
 
   @Override

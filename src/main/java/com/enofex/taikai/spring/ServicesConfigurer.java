@@ -89,7 +89,7 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithService(true)))
         .should().haveNameMatching(regex)
-        .as("Services should have name ending %s".formatted(regex)), configuration));
+        .as("Services should have names matching %s".formatted(regex)), configuration));
   }
 
   /**

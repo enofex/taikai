@@ -13,6 +13,32 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
+/**
+ * Configures and enforces conventions for LangChain4j AI services annotated with
+ * {@code @RegisterAiService} using {@link com.tngtech.archunit ArchUnit} through the Taikai
+ * framework.
+ *
+ * <p>This configurer ensures that AI service interfaces follow consistent naming conventions,
+ * are scoped correctly with {@code @ApplicationScoped}, and do not use the deprecated
+ * {@code tools} attribute of {@code @RegisterAiService} (preferring {@code @Toolbox} instead).</p>
+ *
+ * <h2>Example Usage</h2>
+ * <pre>{@code
+ * Taikai.builder()
+ *     .namespace("com.example.project")
+ *     .quarkus(quarkus -> quarkus
+ *         .ai(ai -> ai
+ *             .namesShouldEndWithAssistantOrResource()
+ *             .shouldBeAnnotatedWithApplicationScoped()
+ *             .shouldNotUseToolsAttributeInAiService()
+ *         )
+ *     )
+ *     .build()
+ *     .check();
+ * }</pre>
+ *
+ * <p>By default, this configurer checks classes annotated with {@code @RegisterAiService}.</p>
+ */
 public class AiConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_ASSISTANT_NAME_MATCHING = ".+(Assistant|Service)";
@@ -61,11 +87,11 @@ public class AiConfigurer extends AbstractConfigurer implements DisableableConfi
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithRegisterAiService(true)))
         .should().haveNameMatching(regex)
-        .as("AI Services should have name ending %s".formatted(regex)), configuration));
+        .as("AI Services should have names matching %s".formatted(regex)), configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code RegisterAiServce}
+   * Adds a rule enforcing that classes annotated with {@code RegisterAiService}
    * are annotated with {@code ApplicationScope}.
    *
    * @return this configurer instance for fluent chaining
@@ -85,7 +111,7 @@ public class AiConfigurer extends AbstractConfigurer implements DisableableConfi
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code RegisterAiServce}
+   * Adds a rule enforcing that classes annotated with {@code RegisterAiService}
    * are annotated with {@code ApplicationScoped}.
    *
    * @return this configurer instance for fluent chaining
@@ -110,7 +136,7 @@ public class AiConfigurer extends AbstractConfigurer implements DisableableConfi
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code RegisterAiServce}
+   * Adds a rule enforcing that classes annotated with {@code RegisterAiService}
    * are not using {@code tools} attribute to define Tools.
    *
    * @return this configurer instance for fluent chaining
@@ -130,7 +156,7 @@ public class AiConfigurer extends AbstractConfigurer implements DisableableConfi
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code RegisterAiServce}
+   * Adds a rule enforcing that classes annotated with {@code RegisterAiService}
    * are not using {@code tools} attribute to define Tools.
    *
    * @return this configurer instance for fluent chaining

@@ -93,7 +93,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithControllerOrRestController(true)))
         .should().haveNameMatching(regex)
-        .as("Controllers should have name ending %s".formatted(regex)), configuration));
+        .as("Controllers should have names matching %s".formatted(regex)), configuration));
   }
 
   /**
@@ -231,7 +231,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithControllerOrRestController(true)))
         .should(not(onlyHaveDependentClassesThat(are(annotatedWithControllerOrRestController(true)))))
-        .as("Controllers should not be depend on other Controllers"), configuration));
+        .as("Controllers should not depend on other Controllers"), configuration));
   }
 
   /**
