@@ -1196,7 +1196,7 @@ Below are some examples demonstrating the usage of Taikai to define and enforce 
 class ArchitectureTest {
 
   @Test
-  void shouldFulfilConstraints() {
+  void shouldFulfillConstraints() {
     Taikai.builder()
         .namespace("com.company.project")
         .java(java -> java

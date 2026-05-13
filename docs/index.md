@@ -13,7 +13,7 @@
 class ArchitectureTest {
 
   @Test
-  void shouldFulfilConstraints() {
+  void shouldFulfillConstraints() {
     Taikai.builder()
         .namespace("com.company.project")
         .java(java -> java
@@ -49,11 +49,11 @@ class ArchitectureTest {
                 .namesShouldMatch("regex")
                 .shouldNotDependOnOtherControllers()
                 .shouldBePackagePrivate()))
-        .services(services -> services
-            .namesShouldEndWithService()
-            .shouldBeAnnotatedWithService())
-        .repositories(repositories -> repositories
-            .namesShouldEndWithRepository()
+            .services(services -> services
+                .namesShouldEndWithService()
+                .shouldBeAnnotatedWithService())
+            .repositories(repositories -> repositories
+                .namesShouldEndWithRepository()
             .shouldBeAnnotatedWithRepository())
         .build()
         .check();
