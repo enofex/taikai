@@ -61,9 +61,7 @@ final class QuarkusDescribedPredicates {
     return annotatedWith(ANNOTATION_INJECT, isMetaAnnotated);
   }
 
-  static DescribedPredicate<CanBeAnnotated> annotatedWithPath(
-      boolean isMetaAnnotated) {
-
+  static DescribedPredicate<CanBeAnnotated> annotatedWithPath(boolean isMetaAnnotated) {
     return annotatedWith(ANNOTATION_PATH, isMetaAnnotated);
   }
 }
