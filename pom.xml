@@ -39,7 +39,7 @@
     <jreleaser-maven-plugin.version>1.24.0</jreleaser-maven-plugin.version>
     <spring.version>7.0.7</spring.version>
     <spring-boot.version>4.0.6</spring-boot.version>
-    <quarkus.version>3.35.2</quarkus.version>
+    <quarkus.version>3.35.3</quarkus.version>
     <langchain4j.version>1.9.2</langchain4j.version>
   </properties>
 
