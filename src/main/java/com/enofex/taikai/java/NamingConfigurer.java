@@ -1,6 +1,8 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.java.BooleanMethodNaming.haveBooleanReturnType;
+import static com.enofex.taikai.java.BooleanMethodNaming.shouldStartWith;
 import static com.enofex.taikai.java.ConstantNaming.shouldFollowConstantNamingConventions;
 import static com.enofex.taikai.java.EnumConstantNaming.shouldFollowEnumConstantNamingConventions;
 import static com.enofex.taikai.java.PackageNaming.resideInPackageWithProperNamingConvention;
@@ -46,6 +48,7 @@ import java.util.List;
  *             .interfacesShouldNotHavePrefixI()
  *             .constantsShouldFollowConventions()
  *             .enumConstantsShouldFollowConventions()
+ *             .booleanMethodsShouldStartWith()
  *         )
  *     );
  * }</pre>
@@ -56,6 +59,10 @@ public class NamingConfigurer extends AbstractConfigurer {
 
   private static final Collection<String> DEFAULT_FIELDS_EXCLUDED_FROM_CONSTANT_NAMING = List.of(
       "serialVersionUID"
+  );
+
+  private static final Collection<String> DEFAULT_BOOLEAN_METHOD_PREFIXES = List.of(
+      "is", "has", "can", "should"
   );
 
   /**
@@ -668,5 +675,54 @@ public class NamingConfigurer extends AbstractConfigurer {
         .that().areDeclaredInClassesThat().areEnums()
         .should(shouldFollowEnumConstantNamingConventions())
         .as("Enum constants should follow constant naming conventions"), configuration));
+  }
+
+  /**
+   * Enforces that methods returning {@code boolean} or {@code Boolean} start with one of the
+   * default prefixes {@code is}, {@code has}, {@code can}, or {@code should}.
+   *
+   * <p>Synthetic methods, {@code equals(Object)} overrides, and record component accessors are
+   * excluded from this check.</p>
+   *
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer booleanMethodsShouldStartWith() {
+    return booleanMethodsShouldStartWith(DEFAULT_BOOLEAN_METHOD_PREFIXES, defaultConfiguration());
+  }
+
+  /**
+   * Enforces boolean method naming with the given prefixes.
+   *
+   * @param prefixes the allowed method name prefixes (e.g., {@code "is"}, {@code "has"})
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer booleanMethodsShouldStartWith(Collection<String> prefixes) {
+    return booleanMethodsShouldStartWith(prefixes, defaultConfiguration());
+  }
+
+  /**
+   * Enforces boolean method naming with the default prefixes using a custom configuration.
+   *
+   * @param configuration the rule configuration to use
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer booleanMethodsShouldStartWith(Configuration configuration) {
+    return booleanMethodsShouldStartWith(DEFAULT_BOOLEAN_METHOD_PREFIXES, configuration);
+  }
+
+  /**
+   * Enforces boolean method naming with the given prefixes using a custom configuration.
+   *
+   * @param prefixes      the allowed method name prefixes (e.g., {@code "is"}, {@code "has"})
+   * @param configuration the rule configuration to use
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer booleanMethodsShouldStartWith(Collection<String> prefixes,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that(haveBooleanReturnType())
+        .should(shouldStartWith(prefixes))
+        .as("Methods returning boolean or Boolean should start with one of %s".formatted(prefixes)),
+        configuration));
   }
 }

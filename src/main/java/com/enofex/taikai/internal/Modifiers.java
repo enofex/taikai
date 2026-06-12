@@ -106,4 +106,14 @@ public final class Modifiers {
   public static boolean isFieldSynthetic(JavaField field) {
     return field.getModifiers().contains(JavaModifier.SYNTHETIC);
   }
+
+  /**
+   * Checks if a method is synthetic.
+   *
+   * @param method the Java method to check
+   * @return true if the method is synthetic, false otherwise
+   */
+  public static boolean isMethodSynthetic(JavaMethod method) {
+    return method.getModifiers().contains(JavaModifier.SYNTHETIC);
+  }
 }

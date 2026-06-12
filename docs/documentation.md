@@ -212,6 +212,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with a specific annotation should match specific naming patterns.                           |
 | Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`.                                       |
 | Naming   | `enumConstantsShouldFollowConventions`                 | Enum constants should follow naming conventions, like `UPPER_SNAKE_CASE`.                                    |
+| Naming   | `booleanMethodsShouldStartWith`                        | Methods returning `boolean` or `Boolean` should start with a configurable set of prefixes, by default `is`, `has`, `can` or `should`. |
 | Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`.                                                                   |
 
 ### Logging Rules
@@ -775,6 +776,8 @@ Taikai.builder()
             .fieldsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolField")  
             .constantsShouldFollowConventions()
             .enumConstantsShouldFollowConventions()
+            .booleanMethodsShouldStartWith()
+            .booleanMethodsShouldStartWith(List.of("is", "was"))
             .interfacesShouldNotHavePrefixI())))
     .build()
     .check();

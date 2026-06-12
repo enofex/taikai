@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
+import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -439,6 +440,82 @@ class NamingConfigurerTest {
   }
 
   @Nested
+  class BooleanMethodsShouldStartWith {
+
+    @Test
+    void shouldNotThrowWhenBooleanMethodsStartWithDefaultPrefixes() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithProperBooleanMethods.class)
+          .java(java -> java.naming(NamingConfigurer::booleanMethodsShouldStartWith))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenBooleanMethodDoesNotStartWithDefaultPrefixes() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithImproperBooleanMethod.class)
+          .java(java -> java.naming(NamingConfigurer::booleanMethodsShouldStartWith))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenPrefixIsNotFollowedByUppercase() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithMisleadingPrefixBooleanMethod.class)
+          .java(java -> java.naming(NamingConfigurer::booleanMethodsShouldStartWith))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowForEqualsOverride() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithEqualsOverride.class)
+          .java(java -> java.naming(NamingConfigurer::booleanMethodsShouldStartWith))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowForRecordComponentAccessors() {
+      Taikai taikai = Taikai.builder()
+          .classes(RecordWithBooleanComponent.class)
+          .java(java -> java.naming(NamingConfigurer::booleanMethodsShouldStartWith))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenBooleanMethodStartsWithCustomPrefix() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithCustomPrefixBooleanMethod.class)
+          .java(java -> java.naming(naming -> naming.booleanMethodsShouldStartWith(
+              List.of("was"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationOverload() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithProperBooleanMethods.class)
+          .java(java -> java.naming(naming -> naming.booleanMethodsShouldStartWith(
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
   class ClassesAnnotatedWithShouldMatchStringOverloads {
 
     @Test
@@ -622,6 +699,62 @@ class NamingConfigurerTest {
     FIRST;
 
     private final String label = "first";
+  }
+
+  static class ClassWithProperBooleanMethods {
+
+    boolean isValid() {
+      return true;
+    }
+
+    Boolean hasItems() {
+      return true;
+    }
+
+    boolean canExecute() {
+      return true;
+    }
+
+    boolean shouldRetry() {
+      return true;
+    }
+  }
+
+  static class ClassWithImproperBooleanMethod {
+
+    boolean valid() {
+      return true;
+    }
+  }
+
+  static class ClassWithMisleadingPrefixBooleanMethod {
+
+    boolean island() {
+      return true;
+    }
+  }
+
+  static class ClassWithEqualsOverride {
+
+    @Override
+    public boolean equals(Object obj) {
+      return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+      return super.hashCode();
+    }
+  }
+
+  record RecordWithBooleanComponent(boolean active) {
+  }
+
+  static class ClassWithCustomPrefixBooleanMethod {
+
+    boolean wasProcessed() {
+      return true;
+    }
   }
 
   @Deprecated
