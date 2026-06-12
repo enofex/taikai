@@ -16,6 +16,8 @@ final class SpringDescribedPredicates {
   static final String ANNOTATION_SPRING_BOOT_APPLICATION = "org.springframework.boot.autoconfigure.SpringBootApplication";
   static final String ANNOTATION_AUTOWIRED = "org.springframework.beans.factory.annotation.Autowired";
   static final String ANNOTATION_VALIDATED = "org.springframework.validation.annotation.Validated";
+  static final String ANNOTATION_TRANSACTIONAL = "org.springframework.transaction.annotation.Transactional";
+  static final String ANNOTATION_JAKARTA_TRANSACTIONAL = "jakarta.transaction.Transactional";
 
   private SpringDescribedPredicates() {
   }
@@ -64,5 +66,10 @@ final class SpringDescribedPredicates {
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithValidated(boolean isMetaAnnotated) {
     return annotatedWith(ANNOTATION_VALIDATED, isMetaAnnotated);
+  }
+
+  static DescribedPredicate<CanBeAnnotated> annotatedWithTransactional(boolean isMetaAnnotated) {
+    return annotatedWith(ANNOTATION_TRANSACTIONAL, isMetaAnnotated)
+        .or(annotatedWith(ANNOTATION_JAKARTA_TRANSACTIONAL, isMetaAnnotated));
   }
 }

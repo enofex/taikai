@@ -86,7 +86,10 @@ void shouldFulfillConstraints() {
           .repositories(repositories -> repositories
               .shouldBeAnnotatedWithRepository()
               .shouldNotDependOnServices()
-              .namesShouldEndWithRepository()))      
+              .namesShouldEndWithRepository())
+          .transactional(transactional -> transactional
+              .methodsShouldBePublic()
+              .shouldNotBeUsedInControllers()))      
       .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
       .build()
       .checkAll();

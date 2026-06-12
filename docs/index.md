@@ -56,6 +56,9 @@ class ArchitectureTest {
             .repositories(repositories -> repositories
                 .namesShouldEndWithRepository()
             .shouldBeAnnotatedWithRepository())
+            .transactional(transactional -> transactional
+                .methodsShouldBePublic()
+                .shouldNotBeUsedInControllers())
         .build()
         .check();
   }

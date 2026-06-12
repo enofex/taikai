@@ -18,8 +18,8 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer groups sub-configurers for each Spring layer — properties, configurations,
- * controllers, services, repositories, and Spring Boot — and also enforces project-wide
- * Spring-specific rules such as prohibiting {@code @Autowired} field injection.</p>
+ * controllers, services, repositories, transactional code, and Spring Boot — and also enforces
+ * project-wide Spring-specific rules such as prohibiting {@code @Autowired} field injection.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -117,6 +117,17 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
+   * Configures {@code @Transactional} rules using the provided {@link Customizer}.
+   *
+   * @param customizer the customizer for {@link TransactionalConfigurer}
+   * @return this configurer instance for fluent chaining
+   */
+  public SpringConfigurer transactional(
+      Customizer<TransactionalConfigurer> customizer) {
+    return customizer(customizer, () -> new TransactionalConfigurer(configurerContext()));
+  }
+
+  /**
    * Adds a rule that no fields in the codebase should be annotated with {@code @Autowired}.
    * Constructor injection should be preferred instead.
    *
@@ -148,6 +159,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
     disable(ServicesConfigurer.class);
     disable(RepositoriesConfigurer.class);
     disable(BootConfigurer.class);
+    disable(TransactionalConfigurer.class);
 
     return this;
   }

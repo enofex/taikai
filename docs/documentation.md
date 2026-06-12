@@ -273,6 +273,8 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Services       | `shouldBeAnnotatedWithService`                 | Services ending with `Service` should be annotated with `@Service`.                                                                                                                                                                                                                       |
 | Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                                    |
 | Services       | `shouldNotDependOnOtherServices`               | Services annotated with `@Service` should not depend on other services annotated with `@Service`.                                                                                                                                                                                         |
+| Transactional  | `methodsShouldBePublic`                        | Methods annotated with `@Transactional` (Spring or Jakarta) should be public, since Spring's proxy-based transaction management silently ignores non-public methods.                                                                                                                      |
+| Transactional  | `shouldNotBeUsedInControllers`                 | Controllers annotated with `@Controller` or `@RestController` should not be annotated with `@Transactional` and should not declare `@Transactional` methods, transaction boundaries should be defined in the service layer.                                                               |
 
 ### Quarkus Rules
 
@@ -1064,6 +1066,19 @@ Taikai.builder()
             .shouldBeAnnotatedWithRepository()
             .namesShouldMatch("regex")
             .namesShouldEndWithRepository()))
+    .build()
+    .check();
+```
+
+- **Transactional Configuration**: Ensure that transaction boundaries are effective and reside in the correct layer. Spring's proxy-based transaction management only applies to public methods, so `@Transactional` on a non-public method is silently ignored at runtime. Both `org.springframework.transaction.annotation.Transactional` and `jakarta.transaction.Transactional` are taken into account.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .spring(spring -> spring
+        .transactional(transactional -> transactional
+            .methodsShouldBePublic()
+            .shouldNotBeUsedInControllers()))
     .build()
     .check();
 ```
