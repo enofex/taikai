@@ -2,6 +2,7 @@ package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.java.ConstantNaming.shouldFollowConstantNamingConventions;
+import static com.enofex.taikai.java.EnumConstantNaming.shouldFollowEnumConstantNamingConventions;
 import static com.enofex.taikai.java.PackageNaming.resideInPackageWithProperNamingConvention;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
@@ -44,6 +45,7 @@ import java.util.List;
  *             .fieldsShouldNotMatch("^debug.*")
  *             .interfacesShouldNotHavePrefixI()
  *             .constantsShouldFollowConventions()
+ *             .enumConstantsShouldFollowConventions()
  *         )
  *     );
  * }</pre>
@@ -643,5 +645,28 @@ public class NamingConfigurer extends AbstractConfigurer {
         .that().areFinal().and().areStatic()
         .should(shouldFollowConstantNamingConventions(excludedFields))
         .as("Constants should follow constant naming conventions"), configuration));
+  }
+
+  /**
+   * Enforces that enum constants follow conventional constant naming (e.g.,
+   * {@code UPPER_SNAKE_CASE}).
+   *
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer enumConstantsShouldFollowConventions() {
+    return enumConstantsShouldFollowConventions(defaultConfiguration());
+  }
+
+  /**
+   * Enforces enum constant naming conventions using a custom configuration.
+   *
+   * @param configuration the rule configuration to use
+   * @return this configurer for fluent chaining
+   */
+  public NamingConfigurer enumConstantsShouldFollowConventions(Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+        .that().areDeclaredInClassesThat().areEnums()
+        .should(shouldFollowEnumConstantNamingConventions())
+        .as("Enum constants should follow constant naming conventions"), configuration));
   }
 }

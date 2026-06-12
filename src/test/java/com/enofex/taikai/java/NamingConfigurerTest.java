@@ -394,6 +394,51 @@ class NamingConfigurerTest {
   }
 
   @Nested
+  class EnumConstantsShouldFollowConventions {
+
+    @Test
+    void shouldNotThrowWhenEnumConstantsFollowConventions() {
+      Taikai taikai = Taikai.builder()
+          .classes(EnumWithProperConstants.class)
+          .java(java -> java.naming(NamingConfigurer::enumConstantsShouldFollowConventions))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenEnumConstantDoesNotFollowConventions() {
+      Taikai taikai = Taikai.builder()
+          .classes(EnumWithImproperConstants.class)
+          .java(java -> java.naming(NamingConfigurer::enumConstantsShouldFollowConventions))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowForNonConstantEnumFields() {
+      Taikai taikai = Taikai.builder()
+          .classes(EnumWithInstanceField.class)
+          .java(java -> java.naming(NamingConfigurer::enumConstantsShouldFollowConventions))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationOverload() {
+      Taikai taikai = Taikai.builder()
+          .classes(EnumWithProperConstants.class)
+          .java(java -> java.naming(naming -> naming.enumConstantsShouldFollowConventions(
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
   class ClassesAnnotatedWithShouldMatchStringOverloads {
 
     @Test
@@ -563,6 +608,20 @@ class NamingConfigurerTest {
   static class ClassWithImproperConstant {
 
     static final String myConstant = "value";
+  }
+
+  enum EnumWithProperConstants {
+    FIRST_VALUE, SECOND
+  }
+
+  enum EnumWithImproperConstants {
+    firstValue
+  }
+
+  enum EnumWithInstanceField {
+    FIRST;
+
+    private final String label = "first";
   }
 
   @Deprecated

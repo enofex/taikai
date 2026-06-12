@@ -60,6 +60,7 @@ void shouldFulfillConstraints() {
               .fieldsShouldNotMatch(".*(List|Set|Map)$")
               .fieldsShouldMatch("com.enofex.taikai.Matcher", "matcher")
               .constantsShouldFollowConventions()
+              .enumConstantsShouldFollowConventions()
               .interfacesShouldNotHavePrefixI()))
       .logging(logging -> logging
           .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))      

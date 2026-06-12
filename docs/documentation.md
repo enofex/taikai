@@ -211,6 +211,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes.                                           |
 | Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with a specific annotation should match specific naming patterns.                           |
 | Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`.                                       |
+| Naming   | `enumConstantsShouldFollowConventions`                 | Enum constants should follow naming conventions, like `UPPER_SNAKE_CASE`.                                    |
 | Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`.                                                                   |
 
 ### Logging Rules
@@ -773,6 +774,7 @@ Taikai.builder()
             .fieldsAnnotatedWithShouldMatch(Annotation.class, "coolField")
             .fieldsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolField")  
             .constantsShouldFollowConventions()
+            .enumConstantsShouldFollowConventions()
             .interfacesShouldNotHavePrefixI())))
     .build()
     .check();

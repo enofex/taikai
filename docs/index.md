@@ -29,6 +29,7 @@ class ArchitectureTest {
                 .methodsShouldNotMatch("^(foo$|bar$).*")
                 .fieldsShouldNotMatch(".*(List|Set|Map)$")
                 .constantsShouldFollowConventions()
+                .enumConstantsShouldFollowConventions()
                 .interfacesShouldNotHavePrefixI()))            
         .test(test -> test
             .junit(junit -> junit
