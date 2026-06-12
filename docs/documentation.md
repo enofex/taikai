@@ -232,6 +232,8 @@ The default mode is `ONLY_TESTS`, which checks only test classes.
 |----------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
 | JUnit    | `classesShouldBePackagePrivate`                 | Ensure that classes whose names match a specific naming pattern are declared as package-private.                        |
 | JUnit    | `classesShouldNotBeAnnotatedWithDisabled`       | Ensure classes are not annotated with `@Disabled`.                                                                      |
+| JUnit    | `classesShouldEndWithTest`                      | Ensure that classes containing methods annotated with `@Test` or `@ParameterizedTest` have names ending with `Test`. For nested test classes the enclosing top-level class is checked. |
+| JUnit    | `classesShouldMatch`                            | Ensure that classes containing methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern. For nested test classes the enclosing top-level class is checked. |
 | JUnit    | `methodsShouldBePackagePrivate`                 | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                            |
 | JUnit    | `methodsShouldNotBeAnnotatedWithDisabled`       | Ensure methods are not annotated with `@Disabled`.                                                                      |
 | JUnit    | `methodsShouldBeAnnotatedWithDisplayName`       | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.              |
@@ -922,6 +924,19 @@ Taikai.builder()
     .test(test -> test
         .junit(junit -> junit
             .classesShouldBePackagePrivate(".*Test")))
+    .build()
+    .check();
+```
+
+- **Ensure Test Classes Follow Naming Convention**: Ensure that classes containing methods annotated with `@Test` or `@ParameterizedTest` have names ending with `Test` or matching a specific regex pattern. For nested test classes (e.g., `@Nested`), the enclosing top-level class is checked, so inner classes do not need to match themselves.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .test(test -> test
+        .junit(junit -> junit
+            .classesShouldEndWithTest()
+            .classesShouldMatch("regex")))
     .build()
     .check();
 ```

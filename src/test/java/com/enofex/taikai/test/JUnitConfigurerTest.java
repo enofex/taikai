@@ -258,9 +258,74 @@ class JUnitConfigurerTest {
         }
     }
 
+    @Test
+    void shouldApplyTestClassNameConvention() {
+        Taikai taikai = Taikai.builder()
+                .classes(ValidNoExceptionTest.class)
+                .test(test -> test.junit(
+                        junit -> junit.classesShouldMatch(".*Test")
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowOnInvalidTestClassNameConvention() {
+        Taikai taikai = Taikai.builder()
+                .classes(ValidNoExceptionTest.class)
+                .test(test -> test.junit(
+                        junit -> junit.classesShouldMatch(".*IT")
+                ))
+                .build();
+
+        assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldApplyClassesShouldEndWithTest() {
+        Taikai taikai = Taikai.builder()
+                .classes(ValidNoExceptionTest.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::classesShouldEndWithTest
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotApplyTestClassNameConventionToClassesWithoutTests() {
+        Taikai taikai = Taikai.builder()
+                .classes(HelperWithoutTests.class)
+                .test(test -> test.junit(
+                        junit -> junit.classesShouldMatch(".*IT")
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForClassesShouldEndWithTest() {
+        Taikai taikai = Taikai.builder()
+                .classes(ValidNoExceptionTest.class)
+                .test(test -> test.junit(
+                        junit -> junit.classesShouldEndWithTest(
+                                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
     static class ValidTestMethodName {
         @Test
         void shouldDoSomething() {}
+    }
+
+    static class HelperWithoutTests {
+        void doSomething() {}
     }
 
     static class InvalidTestMethodName {
