@@ -1,9 +1,14 @@
 package com.enofex.taikai.spring;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.Configurers;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -453,5 +458,109 @@ class ControllersConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void disable_returnsThisForChaining() {
+      Configurers configurers = new Configurers();
+      ConfigurerContext context = new ConfigurerContext("test", configurers);
+      ControllersConfigurer configurer = new ControllersConfigurer(context);
+      ControllersConfigurer result = configurer.disable();
+      assertNotNull(result);
+      assertSame(configurer, result);
+    }
+
+    @Test
+    void allFluentMethods_returnThisForChaining() {
+      Configurers configurers = new Configurers();
+      ConfigurerContext context = new ConfigurerContext("test", configurers);
+      ControllersConfigurer configurer = new ControllersConfigurer(context);
+
+      assertSame(configurer, configurer.namesShouldEndWithController());
+      assertSame(configurer, configurer.namesShouldEndWithController(Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.namesShouldMatch(".*"));
+      assertSame(configurer, configurer.namesShouldMatch(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController());
+      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(".*"));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithController());
+      assertSame(configurer, configurer.shouldBeAnnotatedWithController(Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithController(".*"));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithController(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBePackagePrivate());
+      assertSame(configurer, configurer.shouldBePackagePrivate(Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldNotDependOnOtherControllers());
+      assertSame(configurer, configurer.shouldNotDependOnOtherControllers(Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(".*"));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated());
+      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(Configuration.defaultConfiguration()));
+    }
+  }
+
+  // === Negative tests for delegation methods (kills NakedReceiverMutator) ===
+
+  @Nested
+  class NegativeTests {
+
+    @Test
+    void namesShouldEndWithController_whenNameViolates_thenThrows() {
+      Taikai taikai = Taikai.builder()
+          .classes(ViolatingHandler.class)
+          .spring(spring -> spring.controllers(ControllersConfigurer::namesShouldEndWithController))
+          .build();
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void namesShouldEndWithController_withConfig_whenNameViolates_thenThrows() {
+      Taikai taikai = Taikai.builder()
+          .classes(ViolatingHandler.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.namesShouldEndWithController(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldBeAnnotatedWithRestController_withConfig_whenNotAnnotated_thenThrows() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnannotatedController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldBeAnnotatedWithController_withConfig_whenNotAnnotated_thenThrows() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnannotatedController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithController(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldBePackagePrivate_withConfig_whenPublic_thenThrows() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBePackagePrivate(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  // === Test helper classes for negative tests ===
+
+  @RestController
+  static class ViolatingHandler {
+    public String get() { return "test"; }
   }
 }
