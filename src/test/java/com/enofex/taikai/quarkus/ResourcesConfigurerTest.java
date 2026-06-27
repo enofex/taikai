@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ResourcesConfigurerTest {
@@ -252,6 +253,195 @@ public class ResourcesConfigurerTest {
           .build();
 
       assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class FluentChaining {
+
+    @Test
+    void shouldSupportChainingAllMethods() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(r ->
+              r.namesShouldEndWithResource()
+                  .shouldBePublic()
+                  .shouldBeAnnotatedWithPath()
+                  .shouldNotDependOnOtherResources()))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportChainingWithConfigurationOverloads() {
+      var config = com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration();
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(r ->
+              r.namesShouldEndWithResource(config)
+                  .shouldBePublic(config)
+                  .shouldBeAnnotatedWithPath(config)
+                  .shouldNotDependOnOtherResources(config)))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldReturnNonNullFromNamesShouldMatchWithRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(r -> {
+            ResourcesConfigurer chained = r.namesShouldMatch(".+Resource");
+            assertNotNull(chained, "namesShouldMatch(String) must not return null");
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldReturnNonNullFromShouldBeAnnotatedWithPathWithRegex() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(r -> {
+            ResourcesConfigurer chained = r.shouldBeAnnotatedWithPath(".+Resource");
+            assertNotNull(chained, "shouldBeAnnotatedWithPath(String) must not return null");
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldReturnNonNullFromShouldNotDependOnOtherResourcesNoArg() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(r -> {
+            ResourcesConfigurer chained = r.shouldNotDependOnOtherResources();
+            assertNotNull(chained, "shouldNotDependOnOtherResources() must not return null");
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldReturnNonNullFromShouldNotDependOnOtherResourcesWithConfig() {
+      var config = com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration();
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(r -> {
+            ResourcesConfigurer chained = r.shouldNotDependOnOtherResources(config);
+            assertNotNull(chained, "shouldNotDependOnOtherResources(Configuration) must not return null");
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldReturnNonNullFromDisable() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(r -> {
+            ResourcesConfigurer chained = r.disable();
+            assertNotNull(chained, "disable() must not return null");
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Path("/test")
+  static public class BadController {
+  }
+
+  @Nested
+  class NegativeDelegation {
+
+    @Test
+    void shouldThrowWhenResourceNameDoesNotEndWithResource() {
+      Taikai taikai = Taikai.builder()
+          .classes(BadController.class)
+          .quarkus(quarkus -> quarkus.resources(ResourcesConfigurer::namesShouldEndWithResource))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenResourceNameDoesNotEndWithResourceWithConfig() {
+      Taikai taikai = Taikai.builder()
+          .classes(BadController.class)
+          .quarkus(quarkus -> quarkus.resources(
+              res -> res.namesShouldEndWithResource(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenResourceWithoutPathAnnotationWithConfig() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingRestResource.class)
+          .quarkus(quarkus -> quarkus.resources(
+              res -> res.shouldBeAnnotatedWithPath(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMatchingResourceMissingPathAnnotationWithConfig() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingRestResource.class)
+          .quarkus(quarkus -> quarkus.resources(
+              res -> res.shouldBeAnnotatedWithPath(".+Resource",
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenResourceIsPrivateWithConfig() {
+      Taikai taikai = Taikai.builder()
+          .classes(PrivateResource.class)
+          .quarkus(quarkus -> quarkus.resources(
+              res -> res.shouldBePublic(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenResourceDependsOnOtherResourceWithConfig() {
+      Taikai taikai = Taikai.builder()
+          .classes(DependentResource.class, UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(
+              res -> res.shouldNotDependOnOtherResources(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenResourceNameDoesNotMatchRegexWithConfig() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserResource.class)
+          .quarkus(quarkus -> quarkus.resources(
+              res -> res.namesShouldMatch(".+Handler",
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
     }
   }
 
