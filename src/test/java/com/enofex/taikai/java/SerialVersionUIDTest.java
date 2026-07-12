@@ -50,6 +50,21 @@ class SerialVersionUIDTest {
     private static long serialVersionUID = 2L;
   }
 
+  @Test
+  void shouldThrowWhenSerialVersionUIDIsWrongType() {
+    Taikai taikai = Taikai.builder()
+        .classes(SerialVersionUIDWithStringType.class)
+        .java(JavaConfigurer::serialVersionUIDFieldsShouldBeStaticFinalLong)
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  static class SerialVersionUIDWithStringType implements Serializable {
+
+    private static final String serialVersionUID = "wrong";
+  }
+
   static class ClassWithOtherConstant {
 
     private static final long SOME_CONSTANT = 42L;

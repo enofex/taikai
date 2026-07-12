@@ -214,6 +214,18 @@ class TaikaiTest {
     assertEquals(2, taikai.excludedClasses().size());
   }
 
+  @Test
+  void shouldThrowWhenMultipleIndependentRulesAreViolated() {
+    Taikai taikai = Taikai.builder()
+        .classes(ViolatingClass.class)
+        .java(java -> java
+            .methodsShouldNotDeclareGenericExceptions()
+            .naming(naming -> naming.methodsShouldMatch("#[A-Z].*")))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::checkAll);
+  }
+
   static class ViolatingClass {
 
     public void method() throws Exception {
