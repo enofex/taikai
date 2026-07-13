@@ -215,4 +215,21 @@ class TaikaiRuleTest {
 
     assertNotNull(rule.javaClasses("com.enofex.taikai", null, null));
   }
+
+  @Test
+  void shouldFilterExcludedClassesFromConfigurationInJavaClasses() {
+    ArchRule archRule = mock(ArchRule.class);
+    JavaClasses rawClasses = Namespace.from("com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS);
+    long rawCount = rawClasses.stream().count();
+
+    Configuration config = Configuration.of("com.enofex.taikai",
+        Namespace.IMPORT.WITHOUT_TESTS,
+        List.of("com.enofex.taikai.TaikaiException"));
+    TaikaiRule rule = TaikaiRule.of(archRule, config);
+
+    JavaClasses result = rule.javaClasses(null, null, null);
+    long filteredCount = result.stream().count();
+
+    assertEquals(rawCount - 1, filteredCount);
+  }
 }

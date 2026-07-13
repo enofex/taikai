@@ -155,4 +155,18 @@ class ModifiersTest {
 
     assertFalse(Modifiers.isFieldSynthetic(this.field));
   }
+
+  @Test
+  void shouldReturnTrueWhenMethodIsSynthetic() {
+    when(this.method.getModifiers()).thenReturn(Set.of(JavaModifier.SYNTHETIC));
+
+    assertTrue(Modifiers.isMethodSynthetic(this.method));
+  }
+
+  @Test
+  void shouldReturnFalseWhenMethodIsNotSynthetic() {
+    when(this.method.getModifiers()).thenReturn(Collections.emptySet());
+
+    assertFalse(Modifiers.isMethodSynthetic(this.method));
+  }
 }
