@@ -287,6 +287,50 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
         configuration));
   }
 
+  /**
+   * Adds a rule enforcing that controller classes matching the given regex
+   * should not be annotated with {@code @Validated}.
+   *
+   * @param regex the regex for controller class names
+   * @return this configurer instance for fluent chaining
+   */
+  public ControllersConfigurer shouldNotBeAnnotatedWithValidated(String regex) {
+    return shouldNotBeAnnotatedWithValidated(regex, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldNotBeAnnotatedWithValidated(String)}, but with {@link Configuration} for customization.
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public ControllersConfigurer shouldNotBeAnnotatedWithValidated(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().haveNameMatching(regex)
+            .should().notBeMetaAnnotatedWith(ANNOTATION_VALIDATED)
+            .as("Controllers should not be annotated with %s.".formatted(ANNOTATION_VALIDATED)), configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that all controllers should not be annotated with validation.
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public ControllersConfigurer shouldNotBeAnnotatedWithValidated() {
+    return shouldNotBeAnnotatedWithValidated(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldNotBeAnnotatedWithValidated()}, but with {@link Configuration} for customization.
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public ControllersConfigurer shouldNotBeAnnotatedWithValidated(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that(are(annotatedWithControllerOrRestController(true)))
+            .should().notBeMetaAnnotatedWith(ANNOTATION_VALIDATED)
+            .as("Controllers should not be annotated with %s.".formatted(ANNOTATION_VALIDATED)), configuration));
+  }
+
   @Override
   public ControllersConfigurer disable() {
     disable(ControllersConfigurer.class);
