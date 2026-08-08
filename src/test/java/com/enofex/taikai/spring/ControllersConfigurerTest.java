@@ -175,6 +175,54 @@ class ControllersConfigurerTest {
     }
   }
 
+  @Nested
+  class ShouldNotBeAnnotatedWithValidated {
+
+    @Test
+    void shouldThrowWhenControllerIsValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidatedUserController.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenControllerHasNoValidationAnnotations() {
+      Taikai taikai = Taikai.builder()
+              .classes(UnvalidatedUserController.class)
+              .spring(spring -> spring.controllers(
+                      ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
+              .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenControllerHasValidationAnnotationsButMissingValidatedAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnvalidatedControllerWithValidationAnnotations.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenControllerHasMinAndSizeValidationAnnotationsButMissingValidated() {
+      Taikai taikai = Taikai.builder()
+              .classes(ControllerWithMinAndSizeAnnotations.class)
+              .spring(spring -> spring.controllers(
+                      ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
+              .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   @RestController
   static class ValidUserController {
 
@@ -495,6 +543,10 @@ class ControllersConfigurerTest {
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(".*", Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated());
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(".*"));
+      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated());
+      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(Configuration.defaultConfiguration()));
     }
   }
 
