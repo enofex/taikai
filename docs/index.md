@@ -39,6 +39,7 @@ class ArchitectureTest {
             .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))
         .spring(spring -> spring
             .noAutowiredFields()
+            .noSelfInvocationOfProxiedMethods()
             .boot(boot -> boot
                 .applicationClassShouldResideInPackage())
             .configurations(configuration -> configuration
@@ -58,6 +59,7 @@ class ArchitectureTest {
             .shouldBeAnnotatedWithRepository())
             .transactional(transactional -> transactional
                 .methodsShouldBePublic()
+                .shouldNotBeSelfInvoked()
                 .shouldNotBeUsedInControllers())
         .build()
         .check();

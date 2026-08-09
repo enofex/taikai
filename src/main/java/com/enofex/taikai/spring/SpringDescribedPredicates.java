@@ -4,6 +4,8 @@ import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
+import java.util.Collection;
+import java.util.List;
 
 final class SpringDescribedPredicates {
 
@@ -18,6 +20,32 @@ final class SpringDescribedPredicates {
   static final String ANNOTATION_VALIDATED = "org.springframework.validation.annotation.Validated";
   static final String ANNOTATION_TRANSACTIONAL = "org.springframework.transaction.annotation.Transactional";
   static final String ANNOTATION_JAKARTA_TRANSACTIONAL = "jakarta.transaction.Transactional";
+  static final String ANNOTATION_ASYNC = "org.springframework.scheduling.annotation.Async";
+  static final String ANNOTATION_CACHEABLE = "org.springframework.cache.annotation.Cacheable";
+  static final String ANNOTATION_CACHE_EVICT = "org.springframework.cache.annotation.CacheEvict";
+  static final String ANNOTATION_CACHE_PUT = "org.springframework.cache.annotation.CachePut";
+  static final String ANNOTATION_PRE_AUTHORIZE = "org.springframework.security.access.prepost.PreAuthorize";
+  static final String ANNOTATION_POST_AUTHORIZE = "org.springframework.security.access.prepost.PostAuthorize";
+  static final String ANNOTATION_RETRYABLE = "org.springframework.retry.annotation.Retryable";
+
+  /**
+   * Annotations whose behaviour is applied by a Spring proxy and is therefore lost when the
+   * annotated method is invoked from within the same class.
+   */
+  static final Collection<String> ANNOTATIONS_APPLIED_BY_PROXY = List.of(
+      ANNOTATION_TRANSACTIONAL,
+      ANNOTATION_JAKARTA_TRANSACTIONAL,
+      ANNOTATION_ASYNC,
+      ANNOTATION_CACHEABLE,
+      ANNOTATION_CACHE_EVICT,
+      ANNOTATION_CACHE_PUT,
+      ANNOTATION_PRE_AUTHORIZE,
+      ANNOTATION_POST_AUTHORIZE,
+      ANNOTATION_RETRYABLE);
+
+  static final Collection<String> ANNOTATIONS_TRANSACTIONAL = List.of(
+      ANNOTATION_TRANSACTIONAL,
+      ANNOTATION_JAKARTA_TRANSACTIONAL);
 
   private SpringDescribedPredicates() {
   }

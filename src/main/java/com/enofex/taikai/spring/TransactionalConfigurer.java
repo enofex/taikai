@@ -1,6 +1,8 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.spring.SelfInvokedProxiedMethods.notSelfInvokeMethodsAnnotatedWith;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATIONS_TRANSACTIONAL;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_JAKARTA_TRANSACTIONAL;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_TRANSACTIONAL;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
@@ -34,6 +36,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *     .spring(spring -> spring
  *         .transactional(transactional -> transactional
  *             .methodsShouldBePublic()
+ *             .shouldNotBeSelfInvoked()
  *             .shouldNotBeUsedInControllers()
  *         )
  *     );
@@ -70,6 +73,39 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
         .that(are(annotatedWithTransactional(true)))
         .should().bePublic()
         .as("Methods annotated with %s or %s should be public, Spring's proxy-based transaction management ignores non-public methods".formatted(
+            ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that methods annotated with {@code @Transactional} are not invoked from
+   * within the class that declares them.
+   *
+   * <p>Spring applies transaction management through a proxy that wraps the bean. A call such as
+   * {@code this.save()} targets the bean instance directly instead of the proxy, so the
+   * {@code @Transactional} annotation on the called method is silently ignored and no transaction
+   * is created. The transaction boundary has to be crossed through another bean.</p>
+   *
+   * <p>Only annotations declared on the called method are taken into account. Since the receiver
+   * of a call cannot be determined statically, calls on another instance of the same class, such
+   * as the self injection workaround, are reported as well. Use {@link Configuration} to exclude
+   * those classes.</p>
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public TransactionalConfigurer shouldNotBeSelfInvoked() {
+    return shouldNotBeSelfInvoked(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldNotBeSelfInvoked()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public TransactionalConfigurer shouldNotBeSelfInvoked(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .should(notSelfInvokeMethodsAnnotatedWith(ANNOTATIONS_TRANSACTIONAL))
+        .as("Methods annotated with %s or %s should not be self invoked, the call bypasses Spring's proxy and no transaction is created".formatted(
             ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
   }
 

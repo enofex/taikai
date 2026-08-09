@@ -248,6 +248,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Category       | Method Name                                    | Rule Description                                                                                                                                                                                                                                                                          |
 |----------------|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | General        | `noAutowiredFields`                            | Fields should not be annotated with `@Autowired`, prefer constructor injection.                                                                                                                                                                                                           |
+| General        | `noSelfInvocationOfProxiedMethods`             | Methods carrying an annotation that Spring applies through a proxy (`@Transactional`, `@Async`, `@Cacheable`, `@CacheEvict`, `@CachePut`, `@PreAuthorize`, `@PostAuthorize`, `@Retryable`) should not be called from within the class that declares them, the call bypasses the proxy and the annotation has no effect. |
 | Boot           | `applicationClassShouldResideInPackage`        | Ensure `@SpringBootApplication` is in the default package.                                                                                                                                                                                                                                |
 | Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`.                                                                                                                                                                                                        |
 | Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern.                                                                                                                                                                                                        |
@@ -275,6 +276,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                                    |
 | Services       | `shouldNotDependOnOtherServices`               | Services annotated with `@Service` should not depend on other services annotated with `@Service`.                                                                                                                                                                                         |
 | Transactional  | `methodsShouldBePublic`                        | Methods annotated with `@Transactional` (Spring or Jakarta) should be public, since Spring's proxy-based transaction management silently ignores non-public methods.                                                                                                                      |
+| Transactional  | `shouldNotBeSelfInvoked`                       | Methods annotated with `@Transactional` (Spring or Jakarta) should not be called from within the class that declares them, the call bypasses Spring's proxy and no transaction is created.                                                                                                |
 | Transactional  | `shouldNotBeUsedInControllers`                 | Controllers annotated with `@Controller` or `@RestController` should not be annotated with `@Transactional` and should not declare `@Transactional` methods, transaction boundaries should be defined in the service layer.                                                               |
 
 ### Quarkus Rules
@@ -981,6 +983,70 @@ Taikai.builder()
     .check();
 ```
 
+- **No Self Invocation of Proxied Methods Configuration**: Ensure that methods carrying an annotation which Spring applies through a proxy are not called from within the class that declares them.
+
+Spring implements `@Transactional`, `@Async`, caching, method security and retries by wrapping the bean in a proxy. A call such as `this.send()` targets the bean instance directly instead of the proxy, so the annotation on the called method is silently ignored: no transaction is started, no thread is switched, no cache is consulted and no security check is performed. The proxy is only involved when the call comes from another bean.
+
+```java
+@Service
+class OrderService {
+
+  void process(Order order) {
+    save(order); // the proxy is bypassed, @Transactional has no effect
+  }
+
+  @Transactional
+  public void save(Order order) {
+  }
+}
+```
+
+By default the following annotations are checked, none of them has to be on the classpath:
+
+- `org.springframework.transaction.annotation.Transactional`
+- `jakarta.transaction.Transactional`
+- `org.springframework.scheduling.annotation.Async`
+- `org.springframework.cache.annotation.Cacheable`
+- `org.springframework.cache.annotation.CacheEvict`
+- `org.springframework.cache.annotation.CachePut`
+- `org.springframework.security.access.prepost.PreAuthorize`
+- `org.springframework.security.access.prepost.PostAuthorize`
+- `org.springframework.retry.annotation.Retryable`
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .spring(spring -> spring
+        .noSelfInvocationOfProxiedMethods())
+    .build()
+    .check();
+```
+
+A custom set of annotations can be passed instead of the default ones:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .spring(spring -> spring
+        .noSelfInvocationOfProxiedMethods(List.of(
+            "org.springframework.transaction.annotation.Transactional",
+            "org.springframework.scheduling.annotation.Async")))
+    .build()
+    .check();
+```
+
+Only annotations declared on the called method are taken into account, class level annotations are ignored. Since the receiver of a call cannot be determined statically, calls on another instance of the same class, such as the self injection workaround, are reported as well. Use `Configuration` to exclude those classes:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .spring(spring -> spring
+        .noSelfInvocationOfProxiedMethods(
+            Configuration.of(List.of(OrderService.class))))
+    .build()
+    .check();
+```
+
 - **Spring Boot Configuration**: Ensure that the main application class annotated with `@SpringBootApplication` is located in the default package.
 
 ```java
@@ -1071,7 +1137,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Transactional Configuration**: Ensure that transaction boundaries are effective and reside in the correct layer. Spring's proxy-based transaction management only applies to public methods, so `@Transactional` on a non-public method is silently ignored at runtime. Both `org.springframework.transaction.annotation.Transactional` and `jakarta.transaction.Transactional` are taken into account.
+- **Transactional Configuration**: Ensure that transaction boundaries are effective and reside in the correct layer. Spring's proxy-based transaction management only applies to public methods called from another bean, so `@Transactional` on a non-public method or on a self invoked method is silently ignored at runtime. Both `org.springframework.transaction.annotation.Transactional` and `jakarta.transaction.Transactional` are taken into account.
 
 ```java
 Taikai.builder()
@@ -1079,9 +1145,26 @@ Taikai.builder()
     .spring(spring -> spring
         .transactional(transactional -> transactional
             .methodsShouldBePublic()
+            .shouldNotBeSelfInvoked()
             .shouldNotBeUsedInControllers()))
     .build()
     .check();
+```
+
+`shouldNotBeSelfInvoked` is the `@Transactional` specific variant of `noSelfInvocationOfProxiedMethods` and reports calls like the following, including the line number of the call site:
+
+```java
+@Service
+class OrderService {
+
+  void process(Order order) {
+    save(order); // no transaction is created, the proxy is bypassed
+  }
+
+  @Transactional
+  public void save(Order order) {
+  }
+}
 ```
 
 
