@@ -70,6 +70,7 @@ void shouldFulfillConstraints() {
               .methodsShouldNotBeAnnotatedWithDisabled()))
       .spring(spring -> spring
           .noAutowiredFields()
+          .noSelfInvocationOfProxiedMethods()
           .boot(boot -> boot
               .applicationClassShouldResideInPackage("com.enofex.taikai"))
           .configurations(configuration -> configuration
@@ -89,6 +90,7 @@ void shouldFulfillConstraints() {
               .namesShouldEndWithRepository())
           .transactional(transactional -> transactional
               .methodsShouldBePublic()
+              .shouldNotBeSelfInvoked()
               .shouldNotBeUsedInControllers()))      
       .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
       .build()

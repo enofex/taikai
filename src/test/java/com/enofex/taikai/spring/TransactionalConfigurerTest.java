@@ -84,6 +84,76 @@ class TransactionalConfigurerTest {
   }
 
   @Nested
+  class ShouldNotBeSelfInvoked {
+
+    @Test
+    void shouldThrowWhenTransactionalMethodIsCalledFromSameClass() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceWithSelfInvokedTransactionalMethod.class)
+          .spring(spring -> spring.transactional(
+              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenJakartaTransactionalMethodIsCalledFromSameClass() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceWithSelfInvokedJakartaTransactionalMethod.class)
+          .spring(spring -> spring.transactional(
+              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenTransactionalMethodIsCalledFromConstructor() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceCallingTransactionalMethodFromConstructor.class)
+          .spring(spring -> spring.transactional(
+              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenTransactionalMethodIsCalledFromAnotherClass() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceCallingAnotherService.class, ServiceWithPublicTransactionalMethod.class)
+          .spring(spring -> spring.transactional(
+              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenSelfInvokedMethodIsNotTransactional() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceWithSelfInvokedPlainMethod.class)
+          .spring(spring -> spring.transactional(
+              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenTransactionalMethodIsNotSelfInvoked() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceWithPublicTransactionalMethod.class)
+          .spring(spring -> spring.transactional(
+              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
   class ShouldNotBeUsedInControllers {
 
     @Test
@@ -157,6 +227,18 @@ class TransactionalConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldSupportConfigurationForShouldNotBeSelfInvoked() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceWithPublicTransactionalMethod.class)
+          .spring(spring -> spring.transactional(
+              transactional -> transactional.shouldNotBeSelfInvoked(
+                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -220,6 +302,67 @@ class TransactionalConfigurerTest {
   static class ServiceWithoutTransactionalMethods {
 
     private void helper() {
+    }
+  }
+
+  @Service
+  static class ServiceWithSelfInvokedTransactionalMethod {
+
+    public void process() {
+      save();
+    }
+
+    @Transactional
+    public void save() {
+    }
+  }
+
+  @Service
+  static class ServiceWithSelfInvokedJakartaTransactionalMethod {
+
+    public void process() {
+      save();
+    }
+
+    @jakarta.transaction.Transactional
+    public void save() {
+    }
+  }
+
+  @Service
+  static class ServiceCallingTransactionalMethodFromConstructor {
+
+    ServiceCallingTransactionalMethodFromConstructor() {
+      save();
+    }
+
+    @Transactional
+    public void save() {
+    }
+  }
+
+  @Service
+  static class ServiceWithSelfInvokedPlainMethod {
+
+    public void process() {
+      save();
+    }
+
+    public void save() {
+    }
+  }
+
+  @Service
+  static class ServiceCallingAnotherService {
+
+    private final ServiceWithPublicTransactionalMethod delegate;
+
+    ServiceCallingAnotherService(ServiceWithPublicTransactionalMethod delegate) {
+      this.delegate = delegate;
+    }
+
+    public void process() {
+      this.delegate.save();
     }
   }
 
