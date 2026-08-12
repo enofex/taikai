@@ -7,8 +7,10 @@ import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRepository;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRestController;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.onlyHaveDependentClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
@@ -232,6 +234,30 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
         .that(are(annotatedWithControllerOrRestController(true)))
         .should(not(onlyHaveDependentClassesThat(are(annotatedWithControllerOrRestController(true)))))
         .as("Controllers should not depend on other Controllers"), configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that controller classes should not depend on repository classes
+   * (annotated with {@code @Repository}), so that the service layer is not bypassed.
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public ControllersConfigurer shouldNotDependOnRepositories() {
+    return shouldNotDependOnRepositories(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldNotDependOnRepositories()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public ControllersConfigurer shouldNotDependOnRepositories(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that(are(annotatedWithControllerOrRestController(true)))
+            .should(not(dependOnClassesThat(annotatedWithRepository(true))))
+            .as("Controllers should not depend on Repositories"),
+        configuration));
   }
 
   /**

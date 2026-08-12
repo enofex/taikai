@@ -265,6 +265,7 @@ The default mode is `WITHOUT_TESTS`, which excludes test classes from the import
 | Controllers    | `shouldNotBeAnnotatedWithValidated`            | Controllers annotated with `@Controller` or `@RestController` or match a regex pattern, should not be annotated with `@Validated`.                                                                                                                                                        |
 | Controllers    | `shouldBePackagePrivate`                       | Controllers annotated with `@Controller` or `@RestController` should be package-private.                                                                                                                                                                                                  |
 | Controllers    | `shouldNotDependOnOtherControllers`            | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController`.                                                                                                                                   |
+| Controllers    | `shouldNotDependOnRepositories`                | Controllers annotated with `@Controller` or `@RestController` should not depend on repositories annotated with `@Repository`, the service layer should not be bypassed.                                                                                                                   |
 | Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`.                                                                                                                                                                                                                   |
 | Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern.                                                                                                                                                                                                                   |
 | Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories ending with `Repository` should be annotated with `@Repository`.                                                                                                                                                                                                             |
@@ -1088,7 +1089,7 @@ Taikai.builder()
     .check();
 ```
 
-- **Controllers Configuration**: Ensure that controller classes end with `Controller` or match a specific regex pattern, are annotated with `@RestController`, do not depend on other controllers, has set `@Validated` correctly, or are package-private.
+- **Controllers Configuration**: Ensure that controller classes end with `Controller` or match a specific regex pattern, are annotated with `@RestController`, do not depend on other controllers or on repositories, has set `@Validated` correctly, or are package-private.
 
 ```java
 Taikai.builder()
@@ -1100,10 +1101,13 @@ Taikai.builder()
             .shouldBeAnnotatedWithValidated()
             .namesShouldMatch("regex")
             .shouldNotDependOnOtherControllers()
+            .shouldNotDependOnRepositories()
             .shouldBePackagePrivate()))
     .build()
     .check();
 ```
+
+`shouldNotDependOnRepositories` completes the layer dependency rules, together with `services.shouldNotDependOnControllers`, `repositories.shouldNotDependOnServices` and `repositories.shouldNotDependOnControllers`. It reports controllers that inject a `@Repository` directly and thereby bypass the service layer.
 
 - **Services Configuration**: Ensure that service classes end with `Service` or match a specific regex pattern and are annotated with `@Service` and do not depend on controllers or other services.
 

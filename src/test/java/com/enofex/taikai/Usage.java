@@ -394,6 +394,9 @@ class Usage {
                 .shouldNotDependOnOtherControllers()
                 .shouldNotDependOnOtherControllers(defaultConfiguration())
 
+                .shouldNotDependOnRepositories()
+                .shouldNotDependOnRepositories(defaultConfiguration())
+
                 .shouldBePackagePrivate()
                 .shouldBePackagePrivate(defaultConfiguration())
 
