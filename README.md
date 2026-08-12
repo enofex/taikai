@@ -79,6 +79,7 @@ void shouldFulfillConstraints() {
               .shouldBeAnnotatedWithRestController()
               .namesShouldEndWithController()
               .shouldNotDependOnOtherControllers()
+              .shouldNotDependOnRepositories()
               .shouldBePackagePrivate())
           .services(services -> services
               .shouldBeAnnotatedWithService()

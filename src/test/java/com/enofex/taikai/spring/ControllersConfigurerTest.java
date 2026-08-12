@@ -18,6 +18,8 @@ import jakarta.validation.constraints.Size;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -384,6 +386,76 @@ class ControllersConfigurerTest {
   }
 
   @Nested
+  class ShouldNotDependOnRepositories {
+
+    @Test
+    void shouldNotThrowWhenControllerDoesNotDependOnRepository() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidUserController.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotDependOnRepositories))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenControllerDependsOnService() {
+      Taikai taikai = Taikai.builder()
+          .classes(ControllerDependingOnService.class, OrderService.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotDependOnRepositories))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenClassIsNotControllerOrRestController() {
+      Taikai taikai = Taikai.builder()
+          .classes(HandlerDependingOnRepository.class, OrderRepository.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotDependOnRepositories))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenRestControllerDependsOnRepository() {
+      Taikai taikai = Taikai.builder()
+          .classes(RestControllerDependingOnRepository.class, OrderRepository.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotDependOnRepositories))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenControllerDependsOnRepository() {
+      Taikai taikai = Taikai.builder()
+          .classes(ControllerDependingOnRepository.class, OrderRepository.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotDependOnRepositories))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenControllerDependsOnRepositoryWithConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(RestControllerDependingOnRepository.class, OrderRepository.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldNotDependOnRepositories(Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
   class ShouldBeAnnotatedWithValidatedByRegex {
 
     @Test
@@ -448,6 +520,55 @@ class ControllersConfigurerTest {
 
     ControllerDependingOnAnotherController(ValidUserController other) {
       this.other = other;
+    }
+  }
+
+  @Repository
+  static class OrderRepository {
+
+  }
+
+  @Service
+  static class OrderService {
+
+  }
+
+  @RestController
+  static class RestControllerDependingOnRepository {
+
+    private final OrderRepository orderRepository;
+
+    RestControllerDependingOnRepository(OrderRepository orderRepository) {
+      this.orderRepository = orderRepository;
+    }
+  }
+
+  @Controller
+  static class ControllerDependingOnRepository {
+
+    private final OrderRepository orderRepository;
+
+    ControllerDependingOnRepository(OrderRepository orderRepository) {
+      this.orderRepository = orderRepository;
+    }
+  }
+
+  @RestController
+  static class ControllerDependingOnService {
+
+    private final OrderService orderService;
+
+    ControllerDependingOnService(OrderService orderService) {
+      this.orderService = orderService;
+    }
+  }
+
+  static class HandlerDependingOnRepository {
+
+    private final OrderRepository orderRepository;
+
+    HandlerDependingOnRepository(OrderRepository orderRepository) {
+      this.orderRepository = orderRepository;
     }
   }
 
@@ -539,6 +660,8 @@ class ControllersConfigurerTest {
       assertSame(configurer, configurer.shouldBePackagePrivate(Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldNotDependOnOtherControllers());
       assertSame(configurer, configurer.shouldNotDependOnOtherControllers(Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldNotDependOnRepositories());
+      assertSame(configurer, configurer.shouldNotDependOnRepositories(Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(".*"));
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(".*", Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated());
