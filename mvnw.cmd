@@ -8,7 +8,7 @@
 @REM "License"); you may not use this file except in compliance
 @REM with the License.  You may obtain a copy of the License at
 @REM
-@REM    https://www.apache.org/licenses/LICENSE-2.0
+@REM    http://www.apache.org/licenses/LICENSE-2.0
 @REM
 @REM Unless required by applicable law or agreed to in writing,
 @REM software distributed under the License is distributed on an
@@ -19,7 +19,7 @@
 @REM ----------------------------------------------------------------------------
 
 @REM ----------------------------------------------------------------------------
-@REM Apache Maven Wrapper startup batch script, version 3.3.1
+@REM Apache Maven Wrapper startup batch script, version 3.3.2
 @REM
 @REM Optional ENV vars
 @REM   MVNW_REPOURL - repo url base for downloading maven distribution
@@ -79,6 +79,9 @@ if ($env:MVNW_REPOURL) {
 $distributionUrlName = $distributionUrl -replace '^.*/',''
 $distributionUrlNameMain = $distributionUrlName -replace '\.[^.]*$','' -replace '-bin$',''
 $MAVEN_HOME_PARENT = "$HOME/.m2/wrapper/dists/$distributionUrlNameMain"
+if ($env:MAVEN_USER_HOME) {
+  $MAVEN_HOME_PARENT = "$env:MAVEN_USER_HOME/wrapper/dists/$distributionUrlNameMain"
+}
 $MAVEN_HOME_NAME = ([System.Security.Cryptography.MD5]::Create().ComputeHash([byte[]][char[]]$distributionUrl) | ForEach-Object {$_.ToString("x2")}) -join ''
 $MAVEN_HOME = "$MAVEN_HOME_PARENT/$MAVEN_HOME_NAME"
 
