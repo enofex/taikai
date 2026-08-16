@@ -37,7 +37,6 @@ theme:
   font:
     text: Roboto
     code: Roboto Mono
-  favicon: assets/favicon.ico
   logo: assets/images/taikai-logo-light.png
 
 # Plugins
