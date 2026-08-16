@@ -50,17 +50,17 @@ class ArchitectureTest {
                 .namesShouldEndWithController()
                 .namesShouldMatch("regex")
                 .shouldNotDependOnOtherControllers()
-                .shouldBePackagePrivate()))
+                .shouldBePackagePrivate())
             .services(services -> services
                 .namesShouldEndWithService()
                 .shouldBeAnnotatedWithService())
             .repositories(repositories -> repositories
                 .namesShouldEndWithRepository()
-            .shouldBeAnnotatedWithRepository())
+                .shouldBeAnnotatedWithRepository())
             .transactional(transactional -> transactional
                 .methodsShouldBePublic()
                 .shouldNotBeSelfInvoked()
-                .shouldNotBeUsedInControllers())
+                .shouldNotBeUsedInControllers()))
         .build()
         .check();
   }
