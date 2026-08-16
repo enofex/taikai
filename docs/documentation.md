@@ -2,28 +2,118 @@
 
 ## 1. Introduction
 
-Taikai is an automated architecture testing tool for Java projects designed to maintain clean and consistent architecture. It enforces predefined and custom architectural constraints, ensuring code quality, maintainability, and adherence to best practices.
+Taikai is an automated architecture testing tool for Java projects. It builds on
+[ArchUnit](https://www.archunit.org) and adds a large set of ready-made, fluently configurable
+architectural rules, so that enforcing conventions does not require writing ArchUnit predicates and
+conditions by hand.
 
-## 2. Getting Started
+A Taikai check is an ordinary unit test. It imports your compiled classes, evaluates every
+configured rule against them, and fails the build when a rule is violated.
 
-To use Taikai, include it as a dependency in your Maven `pom.xml`:
+```java
+class ArchitectureTest {
+
+  @Test
+  void shouldFulfillConstraints() {
+    Taikai.builder()
+        .namespace("com.company.project")
+        .java(java -> java
+            .noUsageOfDeprecatedAPIs()
+            .fieldsShouldNotBePublic())
+        .build()
+        .checkAll();
+  }
+}
+```
+
+## 2. Requirements
+
+| Requirement | Version      |
+|-------------|--------------|
+| Java        | 17 or higher |
+| ArchUnit    | 1.5.0        |
+
+ArchUnit is a regular (compile-scope) dependency of Taikai, so it arrives transitively and you do
+not need to declare it yourself. Taikai only relies on the stable ArchUnit core API, so a newer
+patch or minor ArchUnit release normally works unchanged. If you pin a different ArchUnit version
+in your own build, verify it after upgrading Taikai.
+
+## 3. Installation
+
+Taikai belongs on the test classpath only.
+
+### 3.1 Maven
 
 ```xml
 <dependency>
-    <groupId>com.enofex</groupId>
-    <artifactId>taikai</artifactId>
-    <version>${taikai.version}</version>
-    <scope>test</scope>
+  <groupId>com.enofex</groupId>
+  <artifactId>taikai</artifactId>
+  <version>${taikai.version}</version>
+  <scope>test</scope>
 </dependency>
 ```
 
-Ensure to configure `${taikai.version}` to the latest stable version compatible with your project's ArchUnit version.
+### 3.2 Gradle
 
-## 3. Usage
+```groovy
+testImplementation "com.enofex:taikai:${taikaiVersion}"
+```
 
-### 3.1 Setting the Namespace
+ArchUnit comes along transitively; no separate declaration is required.
 
-The `namespace` setting specifies the base package of your project. Taikai will analyze all classes within this namespace. The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
+## 4. Quick Start
+
+The example below is a complete, runnable test. Every other code sample in this document is a
+*fragment* that plugs into this same skeleton (see [Section 6](#6-how-to-read-the-rule-reference)).
+
+```java
+import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
+import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
+
+import com.enofex.taikai.Taikai;
+import java.util.List;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+
+class ArchitectureTest {
+
+  @Test
+  void shouldFulfillConstraints() {
+    Taikai.builder()
+        .namespace("com.company.project")
+        .failOnEmpty(true)
+        .java(java -> java
+            .noUsageOfDeprecatedAPIs()
+            .noUsageOfSystemOutOrErr()
+            .fieldsShouldNotBePublic()
+            .methodsShouldNotDeclareGenericExceptions()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .imports(imports -> imports
+                .shouldHaveNoCycles()
+                .shouldNotImport("..internal.."))
+            .naming(naming -> naming
+                .packagesShouldMatchDefault()
+                .classesShouldNotMatch(".*Impl")
+                .constantsShouldFollowConventions()
+                .interfacesShouldNotHavePrefixI()))
+        .logging(logging -> logging
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))
+        .test(test -> test
+            .junit(junit -> junit
+                .classesShouldEndWithTest()
+                .methodsShouldBePackagePrivate()
+                .methodsShouldContainAssertionsOrVerifications()))
+        .build()
+        .checkAll();
+  }
+}
+```
+
+## 5. Core Concepts
+
+### 5.1 Selecting Classes with a Namespace
+
+`namespace` is the base package Taikai imports and analyses.
 
 ```java
 Taikai.builder()
@@ -32,9 +122,11 @@ Taikai.builder()
     .check();
 ```
 
-### 3.2 Setting the JavaClasses
+### 5.2 Selecting Classes Directly
 
-You can configure `classes` as well. This allows you to specify specific [Java classes](https://www.archunit.org/userguide/html/000_Index.html#_importing_classes) to analyze. Note that setting both `namespace` and `classes` simultaneously is not supported and will result in an `IllegalArgumentException`.
+Instead of a namespace you can hand Taikai an explicit set of
+[JavaClasses](https://www.archunit.org/userguide/html/000_Index.html#_importing_classes), or a list
+of class literals.
 
 ```java
 JavaClasses classes = new ClassFileImporter()
@@ -46,43 +138,51 @@ Taikai.builder()
     .check();
 ```
 
-Or:
-
 ```java
 Taikai.builder()
-    .classes(ClassToCheck.class)
+    .classes(ClassToCheck.class, AnotherClassToCheck.class)
     .build()
     .check();
 ```
 
-### 3.3 Enforcing Rules on Empty Sets
+!!! warning
+    Setting both `namespace` and `classes` is not supported and throws an
+    `IllegalArgumentException` at `build()` time. Choose one.
 
-The `failOnEmpty` setting determines whether the build should fail if no classes match a given rule. This is useful to ensure that your rules are applied consistently and to avoid false positives. The default is `false`.
+### 5.3 Namespace Import Modes
+
+`Namespace.IMPORT` controls whether test classes take part in a check.
+
+| Mode             | Imports                              |
+|------------------|--------------------------------------|
+| `WITHOUT_TESTS`  | production classes only              |
+| `WITH_TESTS`     | production and test classes          |
+| `ONLY_TESTS`     | test classes only                    |
+
+Each rule group has a default mode, so in practice you rarely set this yourself:
+
+| Rule group                                                     | Default mode    |
+|----------------------------------------------------------------|-----------------|
+| `java(...)`, `logging(...)`, `spring(...)`, `quarkus(...)`      | `WITHOUT_TESTS` |
+| `test(...)` / `junit(...)`                                      | `ONLY_TESTS`    |
+
+Override it per rule through [`Configuration`](#58-per-rule-configuration):
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .failOnEmpty(true)
-    .build()
-    .check();
+.java(java -> java
+    .fieldsShouldNotBePublic(Configuration.of(Namespace.IMPORT.WITH_TESTS)))
 ```
 
-### 3.4 Excluding Classes Globally
+### 5.4 Excluding Classes Globally
 
-You can exclude classes from all rule checks using `excludeClasses(...)` on the `Taikai.Builder`.
+`excludeClasses(...)` removes classes from *every* rule. It accepts class literals or string
+patterns.
 
-Supported patterns:
+Supported string patterns:
 
-- **Fully qualified class name**  
-  `com.company.project.foo.ClassToExclude`
-
-- **Package wildcard (`*`)** – classes directly in the package  
-  `com.company.project.foo.*`
-
-- **Recursive package wildcard (`..`)** – package and all subpackages  
-  `com.company.project.internal..`
-
-Example:
+- **Fully qualified class name** — `com.company.project.foo.ClassToExclude`
+- **Package wildcard (`*`)** — classes directly in that package: `com.company.project.foo.*`
+- **Recursive package wildcard (`..`)** — the package and all subpackages: `com.company.project.internal..`
 
 ```java
 Taikai.builder()
@@ -91,15 +191,196 @@ Taikai.builder()
         "com.company.project.foo.ClassToExclude",
         "com.company.project.bar.*",
         "com.company.project.internal..")
+    .excludeClasses(GeneratedMapper.class, LegacyFacade.class)
     .build()
     .check();
 ```
 
-### 3.5 Modifying an Existing Configuration
-The `toBuilder` method allows you to create a new Builder instance from an existing Taikai configuration. This is useful if you need to modify an existing configuration.
+To exclude classes from a single rule only, use [`Configuration`](#58-per-rule-configuration) instead.
+
+!!! warning
+    Exclusions are only applied on the namespace path, so they take effect only when the classes
+    come from `namespace(...)`. If you supply the classes yourself — globally via
+    [`classes(...)`](#52-selecting-classes-directly) or per rule via
+    `Configuration.of(JavaClasses)` — that set is used verbatim and `excludeClasses(...)` is
+    silently ignored. Filter the `JavaClasses` before handing them over instead.
+
+### 5.5 Failing on Empty Rule Results
+
+By default an ArchUnit rule that matches no classes passes silently. That hides typos in regexes and
+rules that quietly stopped applying after a refactoring. `failOnEmpty(true)` turns those into
+failures.
 
 ```java
-Taikai taikai = Taikai.builder()
+Taikai.builder()
+    .namespace("com.company.project")
+    .failOnEmpty(true)
+    .build()
+    .check();
+```
+
+The default is `false`. Turning it on is recommended for any long-lived configuration.
+
+### 5.6 Running the Checks
+
+Both methods evaluate every configured rule; they differ in how they report.
+
+| Method       | Behaviour                                                                       |
+|--------------|----------------------------------------------------------------------------------|
+| `check()`    | Stops at the first violated rule and throws immediately.                        |
+| `checkAll()` | Evaluates all rules, aggregates every violation, then throws one combined report. |
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .build()
+    .check();      // fail fast
+```
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .build()
+    .checkAll();   // full report
+```
+
+Prefer `checkAll()` when introducing Taikai to an existing codebase, so you see the whole backlog in
+one run. `check()` gives a shorter, more focused failure once the codebase is clean.
+
+### 5.7 Reading the Failure Report
+
+`check()` propagates ArchUnit's own `AssertionError` for the first failing rule.
+
+`checkAll()` produces an aggregated report with a violation count, a rule count, and the individual
+violations grouped per rule:
+
+```text
+java.lang.AssertionError: Found 2 Taikai violations for 2 rules!
+
+Rule: Classes should not use System.out or System.err
+	Method com.company.project.OrderService.process() calls java.lang.System.out
+
+Rule: Fields should not be public unless they are static
+	Field total in class com.company.project.Order is public
+```
+
+The rule line is the rule's own description, which is also what you grep for when you want to find
+the configuration that produced a violation.
+
+Detail lines that come from stock ArchUnit conditions end with the source file and line number, so
+they are one click away in an IDE:
+
+```text
+Rule: Classes should not have names matching .*Service
+	Class <com.company.project.OrderService> has name matching '.*Service' in (OrderService.java:0)
+```
+
+Rules built on Taikai's own conditions — among them `noUsageOfSystemOutOrErr`,
+`fieldsShouldNotBePublic`, `classesShouldImplementHashCodeAndEquals` and the logger rules — name the
+offending element without a location, as in the report above.
+
+### 5.8 Per-Rule Configuration
+
+Every rule method has an overload taking a `TaikaiRule.Configuration`. It overrides the global
+settings for that one rule: a different namespace, a different import mode, an explicit class set, or
+additional excluded classes.
+
+| Factory                                                                | Purpose                                      |
+|------------------------------------------------------------------------|----------------------------------------------|
+| `Configuration.defaultConfiguration()`                                 | Global namespace, `WITHOUT_TESTS`            |
+| `Configuration.of(String namespace)`                                   | Different namespace                          |
+| `Configuration.of(Namespace.IMPORT namespaceImport)`                   | Different import mode                        |
+| `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` | Both                                         |
+| `Configuration.of(JavaClasses javaClasses)`                            | An explicit class set                        |
+| `Configuration.of(Collection<T> excludedClasses)`                      | Exclusions (`String` patterns or `Class<?>`) |
+| `Configuration.of(String, Collection<T>)`                              | Namespace plus exclusions                    |
+| `Configuration.of(Namespace.IMPORT, Collection<String>)`               | Import mode plus exclusions                  |
+| `Configuration.of(String, Namespace.IMPORT, Collection<T>)`            | Namespace, import mode and exclusions        |
+| `Configuration.of(JavaClasses, Collection<T>)`                         | Class set plus exclusions                    |
+
+`Collection<T>` accepts either `String` patterns or `Class<?>` literals, but not both in the same
+collection — the type is decided from the first element. The `Namespace.IMPORT` plus exclusions
+overload is the one exception: it takes `Collection<String>` only, so pass class *names* there
+rather than class literals.
+
+!!! warning
+    A `Configuration` that does not name an import mode always means `WITHOUT_TESTS`. It does *not*
+    inherit the rule group's default. This matters for the JUnit rules, which are the only ones
+    defaulting to `ONLY_TESTS`: attaching a `Configuration` for some unrelated reason silently
+    switches them to production classes, where they match nothing and pass.
+
+    ```java
+    // ONLY_TESTS - checks every test method
+    .test(test -> test
+        .junit(junit -> junit
+            .methodsShouldMatch("should.*")))
+
+    // WITHOUT_TESTS - silently checks nothing
+    .test(test -> test
+        .junit(junit -> junit
+            .methodsShouldMatch("should.*", Configuration.of(List.of("com.company.project.Legacy")))))
+
+    // ONLY_TESTS restored explicitly
+    .test(test -> test
+        .junit(junit -> junit
+            .methodsShouldMatch("should.*",
+                Configuration.of(Namespace.IMPORT.ONLY_TESTS, List.of("com.company.project.Legacy")))))
+    ```
+
+    Pairing this with [`failOnEmpty(true)`](#55-failing-on-empty-rule-results) turns such a silent
+    pass into a failure.
+
+```java
+.java(java -> java
+    .imports(imports -> imports
+        .shouldNotImport("..internal..",
+            Configuration.of("com.company.project.different", Namespace.IMPORT.WITHOUT_TESTS))
+        .shouldNotImport(lombok(),
+            Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
+```
+
+```java
+.spring(spring -> spring
+    .noSelfInvocationOfProxiedMethods(
+        Configuration.of(List.of(OrderService.class))))
+```
+
+### 5.9 Disabling a Rule Group
+
+Most configurers implement `disable()`, which clears all rules registered on that configurer. This
+is mainly useful when a shared [profile](#511-reusable-rule-profiles) enables a group that a
+particular module must not run.
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(DEFAULT_JAVA_PROFILE)
+    .spring(spring -> spring
+        .controllers(controllers -> controllers
+            .disable()))         // drop every controller rule the profile added
+    .build()
+    .checkAll();
+```
+
+`disable()` is available on `java`, `logging`, `test`, `junit`, `spring`, `boot`, `properties`,
+`configurations`, `controllers`, `services`, `repositories`, `transactional`, `quarkus`, `resources`,
+`panache` and `ai`.
+
+The two nested Java configurers, `naming(...)` and `imports(...)`, do **not** have `disable()` —
+they are the only rule groups without it.
+
+`disable()` cascades to nested configurers: `java(...)` also clears `naming` and `imports`,
+`spring(...)` clears all its sub-configurers, `quarkus(...)` clears `resources`, `panache` and `ai`,
+and `test(...)` clears `junit`. So disabling `java(...)` is how you drop naming and import rules a
+profile added.
+
+### 5.10 Modifying an Existing Configuration
+
+`toBuilder()` returns a builder pre-populated from an existing `Taikai` instance, so a shared base
+configuration can be adapted per module.
+
+```java
+Taikai base = Taikai.builder()
     .namespace("com.company.project")
     .excludeClasses("com.company.project.SomeClassToExclude")
     .failOnEmpty(true)
@@ -107,886 +388,1122 @@ Taikai taikai = Taikai.builder()
         .fieldsShouldNotBePublic())
     .build();
 
-// Modify the existing configuration
-Taikai modifiedTaikai = taikai.toBuilder()
+Taikai adapted = base.toBuilder()
     .namespace("com.company.newproject")
     .excludeClasses("com.company.project.AnotherClassToExclude")
-    .failOnEmpty(false)
     .java(java -> java
         .classesShouldImplementHashCodeAndEquals()
         .finalClassesShouldNotHaveProtectedMembers())
     .build();
 
-// Perform the check with the modified configuration
-modifiedTaikai.check();
+adapted.check();
 ```
 
-### 3.6 Check Method Usage
+Two sharp edges in the current implementation:
 
-#### 3.6.1 Check with Fail Fast
-The `check()` method performs the rule checks and fails immediately when the first violation is encountered. This is the default behavior, ensuring that the process halts as soon as a failure occurs.
+- The derived builder shares the exclusion list with the source instance, so `excludeClasses(...)`
+  on `adapted` also adds to `base`. Do not reuse `base` for a separate check afterwards.
+- `addRule(...)` and `addRules(...)` throw `UnsupportedOperationException` on a builder obtained
+  from `toBuilder()`, because the copied rule list is immutable. Register custom rules on the
+  original builder instead.
+
+### 5.11 Reusable Rule Profiles
+
+A profile is a `Customizer<T>`, where `T` is a configurer type such as `JavaConfigurer` or
+`TestConfigurer`. It packages a set of rules that can be applied to many modules or repositories,
+and it can be combined with project-specific rules.
+
+```java
+private static final Customizer<JavaConfigurer> DEFAULT_JAVA_PROFILE = java -> java
+    .noUsageOf(Date.class)
+    .fieldsShouldNotBePublic();
+
+private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> test
+    .junit(junit -> junit
+        .methodsShouldBePackagePrivate()
+        .methodsShouldMatch("should.*")
+        .methodsShouldContainAssertionsOrVerifications()
+        .classesShouldBePackagePrivate(".*Test")
+        .classesShouldNotBeAnnotatedWithDisabled());
+```
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
+    .java(java -> {
+      DEFAULT_JAVA_PROFILE.customize(java);          // apply the profile
+      java.classesShouldBeRecords(".*Dto");          // plus a local rule
+    })
+    .test(DEFAULT_TEST_PROFILE)                      // use the profile directly
     .build()
-    .check();  // Stops on the first failure
-
+    .checkAll();
 ```
 
-#### 3.6.2 Check without Fail Fast
-The `checkAll()` method allows you to evaluate all rules and collect all failures before throwing an exception. It aggregates all violations and throws an exception with a detailed failure report once all rules are processed. This is useful when you want to see all the issues without stopping at the first failure.
+### 5.12 Adding Custom ArchUnit Rules
+
+Anything Taikai does not cover can be expressed as a plain ArchUnit rule and registered with
+`addRule` or `addRules`. Custom rules participate in `check()` and `checkAll()` like built-in ones,
+and accept the same `Configuration`.
 
 ```java
+ArchRule rule = classes()
+    .that().resideInAPackage("..domain..")
+    .should().onlyBeAccessed().byAnyPackage("..domain..", "..application..");
+
 Taikai.builder()
     .namespace("com.company.project")
+    .addRule(TaikaiRule.of(rule))
+    .addRule(TaikaiRule.of(rule, Configuration.of(Namespace.IMPORT.WITH_TESTS)))
+    .addRules(List.of(TaikaiRule.of(rule), TaikaiRule.of(anotherRule)))
     .build()
-    .checkAll();  // Collects all errors before failing
+    .checkAll();
 ```
 
-## 4. Rules Overview
+## 6. How to Read the Rule Reference
 
-Taikai's architecture rules cover a wide range of categories to enforce best practices and maintain consistency.
+Sections 7 to 11 document every rule. To keep them readable, examples are shown as **fragments**
+rather than complete tests. A fragment such as
 
-### Java Rules
+```java
+.java(java -> java
+    .classesShouldBeRecords(".*Dto"))
+```
 
-The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
-
-| Category | Method Name                                            | Rule Description                                                                                             |
-|----------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
-| General  | `classesShouldImplementHashCodeAndEquals`              | Classes should implement `hashCode` and `equals` together.                                                   |
-| General  | `classesShouldResideInPackage`                         | Classes matching specific naming patterns should reside in a specified package.                              |
-| General  | `classesAnnotatedWithShouldResideInPackage`            | Classes annotated with a specific annotation should reside in a specified package.                           |
-| General  | `classesAnnotatedWithShouldNotBeAnnotatedWith`         | Classes annotated with a specific annotation should not be annotated with a specified annotation.            |
-| General  | `classesAnnotatedWithShouldHaveModifiers`              | Classes annotated with a specific annotation should have specified modifiers.                                |
-| General  | `classesAnnotatedWithShouldNotHaveModifiers`           | Classes annotated with a specific annotation should not have specified modifiers.                            |
-| General  | `classesAnnotatedWithShouldBeRecords`                  | Classes annotated with a specific annotation should be records.                                              |
-| General  | `classesShouldResideOutsidePackage`                    | Classes matching specific naming patterns should reside outside a specified package.                         |
-| General  | `classesShouldBeAnnotatedWith`                         | Classes matching specific naming patterns should be annotated with a specified annotation.                   |
-| General  | `classesShouldBeAnnotatedWithAll`                      | Classes annotated with a specific annotation should be annotated with a specified annotations.               |
-| General  | `classesShouldNotBeAnnotatedWith`                      | Classes matching specific naming patterns should not be annotated with a specified annotation.               |
-| General  | `classesShouldBeAssignableTo`                          | Classes matching specific naming patterns should be assignable to a certain type.                            |
-| General  | `classesShouldImplement`                               | Classes matching specific naming patterns should implement to a interface.                                   |
-| General  | `classesShouldHaveModifiers`                           | Classes matching specific naming patterns should have specified modifiers.                                   |
-| General  | `classesShouldNotHaveModifiers`                        | Classes matching specific naming patterns should not have specified modifiers.                               |
-| General  | `classesShouldBeRecords`                               | Classes matching specific naming patterns should be records.                                                 |
-| General  | `classesShouldBeInterfaces`                            | Classes matching specific naming patterns should be interfaces.                                              |
-| General  | `fieldsShouldHaveModifiers`                            | Fields matching specific naming patterns should have specified modifiers.                                    |
-| General  | `fieldsShouldNotHaveModifiers`                         | Fields matching specific naming patterns should not have specified modifiers.                                |
-| General  | `fieldsShouldNotBePublic`                              | Fields should not be `public`, except constants.                                                             |
-| General  | `fieldsAnnotatedWithShouldHaveModifiers`               | Fields annotated with a specific annotation should have specified modifiers.                                 |
-| General  | `fieldsAnnotatedWithShouldNotHaveModifiers`            | Fields annotated with a specific annotation should not have specified modifiers.                             |
-| General  | `methodsShouldNotDeclareGenericExceptions`             | Methods should not declare generic exceptions, like `Exception` or `RuntimeException`.                       |
-| General  | `methodsShouldNotDeclareException`                     | Methods with names matching a specified pattern should not declare a specified exception type.               |
-| General  | `methodsShouldBeAnnotatedWith`                         | Methods matching specific naming patterns should be annotated with a specified annotation.                   |
-| General  | `methodsShouldBeAnnotatedWithAll`                      | Methods annotated with a specific annotation should be annotated with a specified annotations.               |
-| General  | `methodsAnnotatedWithShouldNotBeAnnotatedWith`         | Methods annotated with a specific annotation should not be annotated with a specified annotation.            |
-| General  | `methodsAnnotatedWithShouldHaveModifiers`              | Methods annotated with a specific annotation should have specified modifiers.                                |
-| General  | `methodsAnnotatedWithShouldNotHaveModifiers`           | Methods annotated with a specific annotation should not have specified modifiers.                            |
-| General  | `methodsShouldHaveModifiers`                           | Methods matching specific naming patterns should have specified modifiers.                                   |
-| General  | `methodsShouldNotHaveModifiers`                        | Methods matching specific naming patterns should not have specified modifiers.                               |
-| General  | `methodsShouldHaveModifiersForClass`                   | Methods in a class matching specific naming patterns should have specified modifiers.                        |
-| General  | `methodsShouldNotHaveModifiersForClass`                | Methods in a class matching specific naming patterns should not have specified modifiers.                    |
-| General  | `methodsShouldNotExceedMaxParameters`                  | Methods in a class should not have more than the specified maximum number of parameters.                     |
-| General  | `noUsageOf`                                            | Disallow usage of specific classes.                                                                          |
-| General  | `noUsageOfDeprecatedAPIs`                              | No usage of deprecated APIs annotated with `@Deprecated`.                                                    |
-| General  | `noUsageOfSystemOutOrErr`                              | Disallow usage of `System.out` or `System.err`.                                                              |
-| General  | `utilityClassesShouldBeFinalAndHavePrivateConstructor` | Utility classes with only `static` methods (except `main`) should be `final` and have a private constructor. |
-| General  | `finalClassesShouldNotHaveProtectedMembers`            | Classes declared as `final` should not contain any `protected` members.                                      |
-| General  | `serialVersionUIDShouldBeStaticFinalLong`              | Fields named `serialVersionUID` should be declared as `static final long`.                                   |
-| Imports  | `shouldHaveNoCycles`                                   | No cyclic dependencies in imports.                                                                           |
-| Imports  | `shouldImport`                                         | Check for specific imports (e.g., `..allow..`).                                                              |
-| Imports  | `shouldNotImport`                                      | Disallow specific imports (e.g., `..disallow..`).                                                            |
-| Naming   | `packagesShouldMatchDefault`                           | Packages should match `^[a-z_]+(\.[a-z_][a-z0-9_]*)*$` naming patterns.                                      |
-| Naming   | `packagesShouldMatch`                                  | Packages should match specific naming patterns.                                                              |
-| Naming   | `classesShouldMatch`                                   | Classes should match specific naming patterns.                                                               |
-| Naming   | `classesShouldNotMatch`                                | Classes should not match specific naming patterns (e.g., `.*Impl`).                                          |
-| Naming   | `classesAnnotatedWithShouldMatch`                      | Classes annotated with a specific annotation should match specific naming patterns.                          |
-| Naming   | `classesImplementingShouldMatch`                       | Classes implementing a specific interface should match specific naming patterns.                             |
-| Naming   | `classesAssignableToShouldMatch`                       | Classes assignable to a certain type should match specific naming patterns.                                  |
-| Naming   | `methodsShouldMatch`                                   | Methods should match specific naming patterns.                                                               |
-| Naming   | `methodsShouldNotMatch`                                | Methods should not match specific naming patterns.                                                           |
-| Naming   | `methodsAnnotatedWithShouldMatch`                      | Methods annotated with a specific annotation should match specific naming patterns.                          |
-| Naming   | `fieldsShouldNotMatch`                                 | Fields should not match specific naming patterns.                                                            |
-| Naming   | `fieldsShouldMatch`                                    | Fields should match specific naming patterns for specific classes.                                           |
-| Naming   | `fieldsAnnotatedWithShouldMatch`                       | Fields annotated with a specific annotation should match specific naming patterns.                           |
-| Naming   | `constantsShouldFollowConventions`                     | Constants should follow naming conventions, except `serialVersionUID`.                                       |
-| Naming   | `enumConstantsShouldFollowConventions`                 | Enum constants should follow naming conventions, like `UPPER_SNAKE_CASE`.                                    |
-| Naming   | `booleanMethodsShouldStartWith`                        | Methods returning `boolean` or `Boolean` should start with a configurable set of prefixes, by default `is`, `has`, `can` or `should`. |
-| Naming   | `interfacesShouldNotHavePrefixI`                       | Interfaces should not have the prefix `I`.                                                                   |
-
-### Logging Rules
-
-The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
-
-| Category | Method Name                       | Rule Description                                                                                  | 
-|----------|-----------------------------------|---------------------------------------------------------------------------------------------------|
-| General  | `loggersShouldFollowConventions`  | Ensure that specified loggers follow specific naming patterns and have the required modifiers.    |
-| General  | `classesShouldUseLogger`          | Ensure that classes matching a given regex have a field of a specified logger type.               |
-
-### Test Rules
-
-The default mode is `ONLY_TESTS`, which checks only test classes.
-
-| Category | Method Name                                     | Rule Description                                                                                                        | 
-|----------|-------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| JUnit    | `classesShouldBePackagePrivate`                 | Ensure that classes whose names match a specific naming pattern are declared as package-private.                        |
-| JUnit    | `classesShouldNotBeAnnotatedWithDisabled`       | Ensure classes are not annotated with `@Disabled`.                                                                      |
-| JUnit    | `classesShouldEndWithTest`                      | Ensure that classes containing methods annotated with `@Test` or `@ParameterizedTest` have names ending with `Test`. For nested test classes the enclosing top-level class is checked. |
-| JUnit    | `classesShouldMatch`                            | Ensure that classes containing methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern. For nested test classes the enclosing top-level class is checked. |
-| JUnit    | `methodsShouldBePackagePrivate`                 | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are package-private.                            |
-| JUnit    | `methodsShouldNotBeAnnotatedWithDisabled`       | Ensure methods are not annotated with `@Disabled`.                                                                      |
-| JUnit    | `methodsShouldBeAnnotatedWithDisplayName`       | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` are annotated with `@DisplayName`.              |
-| JUnit    | `methodsShouldMatch`                            | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.   |
-| JUnit    | `methodsShouldNotDeclareExceptions`             | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.           |
-| JUnit    | `methodsShouldContainAssertionsOrVerifications` | Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification. |
-
-### Spring Rules
-
-The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
-
-| Category       | Method Name                                    | Rule Description                                                                                                                                                                                                                                                                          |
-|----------------|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| General        | `noAutowiredFields`                            | Fields should not be annotated with `@Autowired`, prefer constructor injection.                                                                                                                                                                                                           |
-| General        | `noSelfInvocationOfProxiedMethods`             | Methods carrying an annotation that Spring applies through a proxy (`@Transactional`, `@Async`, `@Cacheable`, `@CacheEvict`, `@CachePut`, `@PreAuthorize`, `@PostAuthorize`, `@Retryable`) should not be called from within the class that declares them, the call bypasses the proxy and the annotation has no effect. |
-| Boot           | `applicationClassShouldResideInPackage`        | Ensure `@SpringBootApplication` is in the default package.                                                                                                                                                                                                                                |
-| Properties     | `namesShouldEndWithProperties`                 | Properties annotated with `@ConfigurationProperties` should end with `Properties`.                                                                                                                                                                                                        |
-| Properties     | `namesShouldMatch`                             | Properties annotated with `@ConfigurationProperties` should match a regex pattern.                                                                                                                                                                                                        |
-| Properties     | `shouldBeAnnotatedWithValidated`               | Properties annotated with `@ConfigurationProperties` should be annotated with `@Validated`.                                                                                                                                                                                               |
-| Properties     | `shouldBeAnnotatedWithConfigurationProperties` | Properties ending with `Properties` should be annotated with `@ConfigurationProperties`.                                                                                                                                                                                                  |
-| Properties     | `shouldBeRecords`                              | Properties annotated with `@ConfigurationProperties` should be records.                                                                                                                                                                                                                   |
-| Configurations | `namesShouldEndWithConfiguration`              | Configurations annotated with `@Configuration` should end with `Configuration`.                                                                                                                                                                                                           |
-| Configurations | `namesShouldMatch`                             | Configurations annotated with `@Configuration` should match a regex pattern.                                                                                                                                                                                                              |
-| Controllers    | `namesShouldEndWithController`                 | Controllers annotated with `@Controller` or `@RestController` should end with `Controller`.                                                                                                                                                                                               |
-| Controllers    | `namesShouldMatch`                             | Controllers annotated with `@Controller` or `@RestController` should match a regex pattern.                                                                                                                                                                                               |
-| Controllers    | `shouldBeAnnotatedWithController`              | Controllers ending with `Controller` should be annotated with `@Controller`.                                                                                                                                                                                                              |
-| Controllers    | `shouldBeAnnotatedWithRestController`          | Controllers ending with `Controller` should be annotated with `@RestController`.                                                                                                                                                                                                          |
-| Controllers    | `shouldBeAnnotatedWithValidated`               | Controllers annotated with `@Controller` or `@RestController` or match a regex pattern, containing methods having a parameter annotated with `@PathVariable` or `@RequestParam` and a validation annotation (e.g., `@Min`, `@NotNull`, etc.), should also be annotated with `@Validated`. |
-| Controllers    | `shouldNotBeAnnotatedWithValidated`            | Controllers annotated with `@Controller` or `@RestController` or match a regex pattern, should not be annotated with `@Validated`.                                                                                                                                                        |
-| Controllers    | `shouldBePackagePrivate`                       | Controllers annotated with `@Controller` or `@RestController` should be package-private.                                                                                                                                                                                                  |
-| Controllers    | `shouldNotDependOnOtherControllers`            | Controllers annotated with `@Controller` or `@RestController` should not depend on other controllers annotated with `@Controller` or `@RestController`.                                                                                                                                   |
-| Controllers    | `shouldNotDependOnRepositories`                | Controllers annotated with `@Controller` or `@RestController` should not depend on repositories annotated with `@Repository`, the service layer should not be bypassed.                                                                                                                   |
-| Repositories   | `namesShouldEndWithRepository`                 | Repositories annotated with `@Repository` should end with `Repository`.                                                                                                                                                                                                                   |
-| Repositories   | `namesShouldMatch`                             | Repositories annotated with `@Repository` should match a regex pattern.                                                                                                                                                                                                                   |
-| Repositories   | `shouldBeAnnotatedWithRepository`              | Repositories ending with `Repository` should be annotated with `@Repository`.                                                                                                                                                                                                             |
-| Repositories   | `shouldNotDependOnControllers`                 | Repositories annotated with `@Repository` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                             |
-| Repositories   | `shouldNotDependOnServices`                    | Repositories annotated with `@Repository` should not depend on service classes annotated with `@Service`.                                                                                                                                                                                 |
-| Services       | `namesShouldEndWithService`                    | Services annotated with `@Service` should end with `Service`.                                                                                                                                                                                                                             |
-| Services       | `namesShouldMatch`                             | Services annotated with `@Service` should match a regex pattern.                                                                                                                                                                                                                          |
-| Services       | `shouldBeAnnotatedWithService`                 | Services ending with `Service` should be annotated with `@Service`.                                                                                                                                                                                                                       |
-| Services       | `shouldNotDependOnControllers`                 | Services annotated with `@Service` should not depend on controllers annotated with `@Controller` or `@RestController`.                                                                                                                                                                    |
-| Services       | `shouldNotDependOnOtherServices`               | Services annotated with `@Service` should not depend on other services annotated with `@Service`.                                                                                                                                                                                         |
-| Transactional  | `methodsShouldBePublic`                        | Methods annotated with `@Transactional` (Spring or Jakarta) should be public, since Spring's proxy-based transaction management silently ignores non-public methods.                                                                                                                      |
-| Transactional  | `shouldNotBeSelfInvoked`                       | Methods annotated with `@Transactional` (Spring or Jakarta) should not be called from within the class that declares them, the call bypasses Spring's proxy and no transaction is created.                                                                                                |
-| Transactional  | `shouldNotBeUsedInControllers`                 | Controllers annotated with `@Controller` or `@RestController` should not be annotated with `@Transactional` and should not declare `@Transactional` methods, transaction boundaries should be defined in the service layer.                                                               |
-
-### Quarkus Rules
-
-The default mode is `WITHOUT_TESTS`, which excludes test classes from the import check.
-
-| Category  | Method Name                                          | Rule Description                                                                                             |
-| --------- | ---------------------------------------------------- |--------------------------------------------------------------------------------------------------------------|
-| General   | `noInjectionFields`                                  | Fields must not be annotated with `@Inject`, use constructor injection.                                      |
-| Resources | `namesShouldEndWithResource`                         | Classes annotated with `@Path` should have names ending with `Resource`.                                     |
-| Resources | `namesShouldMatch`                                   | Resource classes annotated with `@Path` should match a given regex pattern.                                  |
-| Resources | `shouldBeAnnotatedWithPath`                          | Classes matching a resource naming pattern should be annotated with `@Path`.                                 |
-| Resources | `shouldBePublic`                                     | Resource classes annotated with `@Path` should be public.                                                    |
-| Resources | `shouldNotDependOnOtherResources`                    | Resource classes annotated with `@Path` should not depend on other resource classes.                         |
-| Panache   | `shouldBeAnnotatedWithEntityWhenActiveRecordPattern` | Classes extending `PanacheEntity` (Active Record pattern) must be annotated with `@Entity`.                  |
-| Panache   | `namesShouldEndWithRepository`                       | Classes implementing `PanacheRepository` should have names ending with `Repository`.                         |
-| Panache   | `namesShouldMatch`                                   | Classes implementing `PanacheRepository` should match a given regex pattern.                                 |
-| AI        | `namesShouldEndWithAssistantOrResource`              | AI services annotated with `@RegisterAiService` should have names ending with `Assistant` or `Service`.      |
-| AI        | `namesShouldMatch`                                   | AI services annotated with `@RegisterAiService` should match a given regex pattern.                          |
-| AI        | `shouldBeAnnotatedWithApplicationScoped`             | AI services annotated with `@RegisterAiService` must also be annotated with `@ApplicationScoped`.            |
-| AI        | `shouldNotUseToolsAttributeInAiService`              | AI services must not define tools via the `tools` attribute of `@RegisterAiService`; use `@Toolbox` instead. |
-
-## 5. Java Rules
-
-Java configuration involves defining constraints related to Java language features, coding standards, and architectural patterns.
-
-- **No Usage of Deprecated APIs**: Ensure that deprecated APIs annotated with `@Deprecated` not used in the codebase.
+belongs inside the builder chain from [Section 4](#4-quick-start):
 
 ```java
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .noUsageOfDeprecatedAPIs())
+        .classesShouldBeRecords(".*Dto"))
     .build()
     .check();
 ```
 
-- **Classes Should Implement `hashCode` and `equals` together**: Ensure that classes override the `hashCode` and `equals` methods together.
+Conventions used throughout the reference:
+
+- Rules are fluent and chainable; each returns its configurer.
+- Wherever a rule takes an annotation or a type, there are two overloads: one taking a
+  `Class<?>` literal and one taking a fully qualified name as a `String`. The `String` form exists so
+  you can reference types that are not on the test classpath. Only one form is shown per rule.
+- Every rule also has an overload with a trailing `TaikaiRule.Configuration` parameter
+  (see [5.8](#58-per-rule-configuration)). It is omitted from the signatures below.
+- `Collection<JavaModifier>` parameters take ArchUnit's
+  `com.tngtech.archunit.core.domain.JavaModifier` constants, for example
+  `List.of(PUBLIC, STATIC, FINAL)`.
+- A *regex* must match the **whole** name, not merely occur inside it.
+- For **classes**, a regex is matched against the **fully qualified** name, so anchor it with a
+  leading `.*`: `.*Dto` matches `com.company.project.OrderDto`, while `Dto` and `[A-Z].*` match
+  nothing at all.
+- For **methods and fields**, a regex is matched against the member's own name, without the
+  declaring class: `should.*`, `^[A-Z][A-Z0-9_]*$`.
+- A *packageIdentifier* is not a regex but an ArchUnit package identifier, matched against the
+  fully qualified name with `*` for one segment and `..` for any number:
+  `com.company.project..`, `..internal..`.
+
+!!! warning
+    Two rules break the pattern above: [`classesShouldBeAssignableTo`](#classesShouldBeAssignableTo)
+    and [`classesShouldImplement`](#classesShouldImplement) take a **literal simple-name suffix**,
+    not a regex, despite the parameter being named `regex`. Pass `"Repository"`, not
+    `".*Repository"` — the latter selects nothing and the rule passes silently.
+
+## 7. Java Rules
+
+Default import mode: `WITHOUT_TESTS`.
+
+| Rule | Enforces |
+|------|----------|
+| [`classesShouldImplementHashCodeAndEquals`](#classesShouldImplementHashCodeAndEquals) | `hashCode` and `equals` overridden together |
+| [`classesShouldResideInPackage`](#classesShouldResideInPackage) | classes live in a given package |
+| [`classesShouldResideOutsidePackage`](#classesShouldResideOutsidePackage) | classes stay out of a given package |
+| [`classesShouldBeRecords`](#classesShouldBeRecords) | matching classes are records |
+| [`classesShouldBeInterfaces`](#classesShouldBeInterfaces) | matching classes are interfaces |
+| [`classesShouldBeAssignableTo`](#classesShouldBeAssignableTo) | matching classes are assignable to a type |
+| [`classesShouldImplement`](#classesShouldImplement) | matching classes implement an interface |
+| [`classesShouldHaveModifiers`](#classesShouldHaveModifiers) | matching classes carry modifiers |
+| [`classesShouldNotHaveModifiers`](#classesShouldNotHaveModifiers) | matching classes lack modifiers |
+| [`classesShouldBeAnnotatedWith`](#classesShouldBeAnnotatedWith) | matching classes carry an annotation |
+| [`classesShouldNotBeAnnotatedWith`](#classesShouldNotBeAnnotatedWith) | matching classes lack an annotation |
+| [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) | annotated classes carry further annotations |
+| [`classesAnnotatedWithShouldResideInPackage`](#classesAnnotatedWithShouldResideInPackage) | annotated classes live in a package |
+| [`classesAnnotatedWithShouldNotBeAnnotatedWith`](#classesAnnotatedWithShouldNotBeAnnotatedWith) | annotations are mutually exclusive |
+| [`classesAnnotatedWithShouldHaveModifiers`](#classesAnnotatedWithShouldHaveModifiers) | annotated classes carry modifiers |
+| [`classesAnnotatedWithShouldNotHaveModifiers`](#classesAnnotatedWithShouldNotHaveModifiers) | annotated classes lack modifiers |
+| [`classesAnnotatedWithShouldBeRecords`](#classesAnnotatedWithShouldBeRecords) | annotated classes are records |
+| [`finalClassesShouldNotHaveProtectedMembers`](#finalClassesShouldNotHaveProtectedMembers) | `final` classes have no `protected` members |
+| [`utilityClassesShouldBeFinalAndHavePrivateConstructor`](#utilityClassesShouldBeFinalAndHavePrivateConstructor) | utility classes cannot be instantiated or extended |
+| [`fieldsShouldNotBePublic`](#fieldsShouldNotBePublic) | no `public` fields except `static` ones |
+| [`fieldsShouldHaveModifiers`](#fieldsShouldHaveModifiers) | matching fields carry modifiers |
+| [`fieldsShouldNotHaveModifiers`](#fieldsShouldNotHaveModifiers) | matching fields lack modifiers |
+| [`fieldsAnnotatedWithShouldHaveModifiers`](#fieldsAnnotatedWithShouldHaveModifiers) | annotated fields carry modifiers |
+| [`fieldsAnnotatedWithShouldNotHaveModifiers`](#fieldsAnnotatedWithShouldNotHaveModifiers) | annotated fields lack modifiers |
+| [`serialVersionUIDFieldsShouldBeStaticFinalLong`](#serialVersionUIDFieldsShouldBeStaticFinalLong) | `serialVersionUID` is `static final long` |
+| [`methodsShouldNotDeclareGenericExceptions`](#methodsShouldNotDeclareGenericExceptions) | no `throws Exception` / `RuntimeException` |
+| [`methodsShouldNotDeclareException`](#methodsShouldNotDeclareException) | matching methods do not declare a type |
+| [`methodsShouldBeAnnotatedWith`](#methodsShouldBeAnnotatedWith) | matching methods carry an annotation |
+| [`methodsShouldBeAnnotatedWithAll`](#methodsShouldBeAnnotatedWithAll) | annotated methods carry further annotations |
+| [`methodsAnnotatedWithShouldNotBeAnnotatedWith`](#methodsAnnotatedWithShouldNotBeAnnotatedWith) | annotations are mutually exclusive |
+| [`methodsAnnotatedWithShouldHaveModifiers`](#methodsAnnotatedWithShouldHaveModifiers) | annotated methods carry modifiers |
+| [`methodsAnnotatedWithShouldNotHaveModifiers`](#methodsAnnotatedWithShouldNotHaveModifiers) | annotated methods lack modifiers |
+| [`methodsShouldHaveModifiers`](#methodsShouldHaveModifiers) | matching methods carry modifiers |
+| [`methodsShouldNotHaveModifiers`](#methodsShouldNotHaveModifiers) | matching methods lack modifiers |
+| [`methodsShouldHaveModifiersForClass`](#methodsShouldHaveModifiersForClass) | methods of matching classes carry modifiers |
+| [`methodsShouldNotHaveModifiersForClass`](#methodsShouldNotHaveModifiersForClass) | methods of matching classes lack modifiers |
+| [`methodsShouldNotExceedMaxParameters`](#methodsShouldNotExceedMaxParameters) | parameter count stays under a limit |
+| [`noUsageOf`](#noUsageOf) | a type is not used |
+| [`noUsageOfDeprecatedAPIs`](#noUsageOfDeprecatedAPIs) | nothing `@Deprecated` is used |
+| [`noUsageOfSystemOutOrErr`](#noUsageOfSystemOutOrErr) | no `System.out` / `System.err` |
+
+Import and naming rules live in nested configurers, documented in [7.5](#75-imports) and
+[7.6](#76-naming).
+
+### 7.1 Classes
+
+#### `classesShouldImplementHashCodeAndEquals` { #classesShouldImplementHashCodeAndEquals }
+
+A class that overrides one of `hashCode` or `equals` must override both. Overriding only one breaks
+the contract and produces objects that misbehave in hash-based collections.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldImplementHashCodeAndEquals())
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldImplementHashCodeAndEquals())
 ```
 
-- **Classes Should Reside in Specified Package**: Ensure that classes matching a specific regex pattern reside in the specified package.
+#### `classesShouldResideInPackage` { #classesShouldResideInPackage }
+
+`classesShouldResideInPackage(String packageIdentifier)`
+`classesShouldResideInPackage(String regex, String packageIdentifier)`
+
+With one argument, *all* imported classes must reside in the given package identifier, which
+supports the `*` and `..` wildcards. With two arguments, only classes whose name matches the regex
+are constrained.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldResideInPackage(".*Utils", "com.company.project.utils"))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldResideInPackage("com.company.project..")
+    .classesShouldResideInPackage(".*Utils", "com.company.project.utils"))
 ```
 
-- **Classes Should Reside in Specified Package (Package Wildcard)**: Ensure that all classes reside within the specified package (supports `*` and `..` wildcards).
+#### `classesShouldResideOutsidePackage` { #classesShouldResideOutsidePackage }
+
+`classesShouldResideOutsidePackage(String regex, String packageIdentifier)`
+
+The inverse of the two-argument form above. Useful for keeping transport types out of the domain.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldResideInPackage("com.company.project.."))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldResideOutsidePackage(".*Dto", "com.company.project.domain"))
 ```
 
-- **Classes Annotated with a Specified Annotation Should Reside in Specified Package**: Ensure that classes annotated with a specific annotation reside in the specified package.
+#### `classesShouldBeRecords` { #classesShouldBeRecords }
+
+`classesShouldBeRecords(String regex)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesAnnotatedWithShouldResideInPackage(PublicApi.class, "com.company.project.api")    
-        .classesAnnotatedWithShouldResideInPackage("com.company.project.PublicApi", "com.company.project.api"))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldBeRecords(".*Dto"))
 ```
 
-- **Classes Annotated with a Specified Annotation Should Not Be Annotated with Another Specified Annotation**: Ensure that classes annotated with a specific annotation are not also annotated with another specified annotation.
+#### `classesShouldBeInterfaces` { #classesShouldBeInterfaces }
+
+`classesShouldBeInterfaces(String regex)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class)    
-        .classesAnnotatedWithShouldNotBeAnnotatedWith("com.company.project.PublicApi", "com.company.project.InternalApi"))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldBeInterfaces(".*Repository"))
 ```
 
-- **Classes Annotated with a Specified Annotation Should Have Specified Modifiers**: Ensure that any class annotated with a given annotation has all required modifiers.
+#### `classesShouldBeAssignableTo` { #classesShouldBeAssignableTo }
+
+`classesShouldBeAssignableTo(String suffix, Class<?> clazz)`
+
+Classes whose **simple name ends with** the given literal suffix must be assignable to the type,
+whether by extending a class or implementing an interface.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesAnnotatedWithShouldHaveModifiers(PublicApi.class, List.of(PUBLIC, FINAL))
-        .classesAnnotatedWithShouldHaveModifiers("com.company.project.PublicApi", List.of(PUBLIC, FINAL)))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldBeAssignableTo("Repository", BaseRepository.class))
 ```
 
-- **Classes Annotated with a Specified Annotation Should Not Have Specified Modifiers**: Ensure that any class annotated with a given annotation does not have one or more forbidden modifiers.
+!!! warning
+    The first parameter is declared as `regex` but is compared literally, as a simple-name suffix.
+    Passing `".*Repository"` selects no class at all and the rule passes without checking anything.
+
+#### `classesShouldImplement` { #classesShouldImplement }
+
+`classesShouldImplement(String suffix, Class<?> clazz)`
+
+Stricter than `classesShouldBeAssignableTo`: the class must implement the given interface directly.
+The first parameter is the same literal simple-name suffix, not a regex.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesAnnotatedWithShouldNotHaveModifiers(PublicApi.class, List.of(PUBLIC, FINAL))
-        .classesAnnotatedWithShouldNotHaveModifiers("com.company.project.PublicApi", List.of(PUBLIC, FINAL)))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldImplement("Repository", CrudRepository.class))
 ```
 
-- **Classes Annotated with a Specified Annotation Should Be Records**: Ensure that any class annotated with a given annotation is a record.
+#### `classesShouldHaveModifiers` { #classesShouldHaveModifiers }
+
+`classesShouldHaveModifiers(String regex, Collection<JavaModifier> requiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesAnnotatedWithShouldBeRecords(Configuration.class))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldHaveModifiers(".*Config", List.of(PUBLIC, FINAL)))
 ```
 
-- **Classes Should Reside outside Specified Package**: Ensure that classes matching a specific regex pattern reside outside the specified package.
+#### `classesShouldNotHaveModifiers` { #classesShouldNotHaveModifiers }
+
+`classesShouldNotHaveModifiers(String regex, Collection<JavaModifier> notRequiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldResideOutsidePackage(".*Dto", "com.company.project.domain"))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldNotHaveModifiers(".*Internal", List.of(PUBLIC)))
 ```
 
-- **Classes Should Be Annotated with Specified Annotation**: Ensure that classes matching a specific regex pattern are annotated with the specified annotation.
+#### `classesShouldBeAnnotatedWith` { #classesShouldBeAnnotatedWith }
+
+`classesShouldBeAnnotatedWith(String regex, Class<? extends Annotation> annotationType)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldBeAnnotatedWith(".*Api", PublicApi.class)
-        .classesShouldBeAnnotatedWith(".*Api", "com.company.project.PublicApi"))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldBeAnnotatedWith(".*Api", PublicApi.class)
+    .classesShouldBeAnnotatedWith(".*Api", "com.company.project.PublicApi"))
 ```
 
-- **Classes Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that classes annotated with a specific annotation should be annotated with the specified annotations.
+#### `classesShouldNotBeAnnotatedWith` { #classesShouldNotBeAnnotatedWith }
+
+`classesShouldNotBeAnnotatedWith(String regex, Class<? extends Annotation> annotationType)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldBeAnnotatedWithAll(RestController.class, List.of(RequestMapping.class))
-        .classesShouldBeAnnotatedWithAll("org.springframework.web.bind.annotation.RestController", List.of("org.springframework.web.bind.annotation.RequestMapping")))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldNotBeAnnotatedWith(".*Internal", PublicApi.class))
 ```
 
-- **Classes Should Not Be Annotated with Specified Annotation**: Ensure that classes matching a specific regex pattern are not annotated with the specified annotation.
+#### `classesShouldBeAnnotatedWithAll` { #classesShouldBeAnnotatedWithAll }
+
+`classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType, Collection<Class<? extends Annotation>> requiredAnnotationTypes)`
+
+Classes carrying the first annotation must also carry all the annotations in the collection.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldNotBeAnnotatedWith(".*Internal", PublicApi.class)
-        .classesShouldNotBeAnnotatedWith(".*Internal", "com.company.project.PublicApi"))
-    .build()
-    .check();
+.java(java -> java
+    .classesShouldBeAnnotatedWithAll(RestController.class, List.of(RequestMapping.class)))
 ```
 
-- **Classes Should Be Assignable to a Specified Type**: Ensure that classes are matching a specific regex pattern assignable to a certain type.
+#### `classesAnnotatedWithShouldResideInPackage` { #classesAnnotatedWithShouldResideInPackage }
+
+`classesAnnotatedWithShouldResideInPackage(Class<? extends Annotation> annotationType, String packageIdentifier)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldBeAssignableTo(".*Repository", BaseRepository.class)
-        .classesShouldBeAssignableTo(".*Repository", "com.company.project.BaseRepository"))
-    .build()
-    .check();
+.java(java -> java
+    .classesAnnotatedWithShouldResideInPackage(PublicApi.class, "com.company.project.api"))
 ```
 
-- **Classes Should Implement a Specified Interface**: Ensure that classes matching a specific regex pattern implement a certain interface.
+#### `classesAnnotatedWithShouldNotBeAnnotatedWith` { #classesAnnotatedWithShouldNotBeAnnotatedWith }
+
+`classesAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType, Class<? extends Annotation> notAnnotationType)`
+
+Declares two annotations mutually exclusive.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldImplement(".*Repository", CrudRepository.class)
-        .classesShouldImplement(".*Repository", "org.springframework.data.repository.CrudRepository"))
-    .build()
-    .check();
+.java(java -> java
+    .classesAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class))
 ```
 
-- **Classes Should Have Specified Modifiers**: Ensure that classes matching a specific regex pattern have a certain modifier.
+#### `classesAnnotatedWithShouldHaveModifiers` { #classesAnnotatedWithShouldHaveModifiers }
+
+`classesAnnotatedWithShouldHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> requiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldHaveModifiers(".*Repository", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .classesAnnotatedWithShouldHaveModifiers(PublicApi.class, List.of(PUBLIC, FINAL)))
 ```
 
-- **Classes Should Not Have Specified Modifiers**: Ensure that classes matching a specific regex pattern do not have certain modifiers.
+#### `classesAnnotatedWithShouldNotHaveModifiers` { #classesAnnotatedWithShouldNotHaveModifiers }
+
+`classesAnnotatedWithShouldNotHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> notRequiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldNotHaveModifiers(".*Repository", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .classesAnnotatedWithShouldNotHaveModifiers(InternalApi.class, List.of(PUBLIC)))
 ```
 
-- **Classes Should Be Interfaces**: Ensure that classes matching a specific regex pattern are interfaces.
+#### `classesAnnotatedWithShouldBeRecords` { #classesAnnotatedWithShouldBeRecords }
+
+`classesAnnotatedWithShouldBeRecords(Class<? extends Annotation> annotationType)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldBeInterfaces(".*Repository"))
-    .build()
-    .check();
+.java(java -> java
+    .classesAnnotatedWithShouldBeRecords(ConfigurationProperties.class))
 ```
 
-- **Classes Should Be Records**: Ensure that classes matching a specific regex pattern are records.
+#### `finalClassesShouldNotHaveProtectedMembers` { #finalClassesShouldNotHaveProtectedMembers }
+
+A `final` class cannot be subclassed, so `protected` members are misleading and should be `private`
+or package-private.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .classesShouldBeRecords(".*DTO"))
-    .build()
-    .check();
+.java(java -> java
+    .finalClassesShouldNotHaveProtectedMembers())
 ```
 
-- **Methods Should Not Throw Generic Exception**: Ensure that methods do not throw generic exceptions like `Exception` and `RuntimeException` and use specific exception types instead.
+#### `utilityClassesShouldBeFinalAndHavePrivateConstructor` { #utilityClassesShouldBeFinalAndHavePrivateConstructor }
+
+Classes whose methods are all `static` must be `final` and expose only a private constructor, so they
+can neither be extended nor instantiated.
+
+A class declaring a `main` method is not treated as a utility class and is left alone entirely, so
+application entry points do not need a private constructor.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldNotDeclareGenericExceptions())
-    .build()
-    .check();
+.java(java -> java
+    .utilityClassesShouldBeFinalAndHavePrivateConstructor())
 ```
 
-- **Methods Should Not Declare Specific Exception**: Ensure that methods with names matching a specified pattern do not declare a specified exception type.
+### 7.2 Fields
+
+#### `fieldsShouldNotBePublic` { #fieldsShouldNotBePublic }
+
+No instance field may be `public`. **Every** `static` field is exempt, whether or not it is `final`,
+so a mutable `public static` field passes this rule. Combine it with
+[`fieldsShouldHaveModifiers`](#fieldsShouldHaveModifiers) if you also want constants pinned down:
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldNotDeclareException("should*", SpecificException.class)
-        .methodsShouldNotDeclareException("should*", "com.company.project.SpecificException"))
-    .build()
-    .check();
+.java(java -> java
+    .fieldsShouldNotBePublic()
+    .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL)))
 ```
 
-- **Methods Should Be Annotated with Specified Annotation**: Ensure that methods matching a specific regex pattern are annotated with the specified annotation.
+#### `fieldsShouldHaveModifiers` { #fieldsShouldHaveModifiers }
+
+`fieldsShouldHaveModifiers(String regex, Collection<JavaModifier> requiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldBeAnnotatedWith(".*Api", PublicApi.class)
-        .methodsShouldBeAnnotatedWith(".*Api", "com.company.project.PublicApi"))
-    .build()
-    .check();
+.java(java -> java
+    .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL)))
 ```
 
-- **Methods Annotated with a Specified Annotation Should Be Annotated with Specified Annotations**: Ensure that methods annotated with a specific annotation should be annotated with the specified annotations.
+#### `fieldsShouldNotHaveModifiers` { #fieldsShouldNotHaveModifiers }
+
+`fieldsShouldNotHaveModifiers(String regex, Collection<JavaModifier> notRequiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class))
-        .methodsShouldBeAnnotatedWithAll("org.springframework.data.jpa.repository.Modifying", List.of("org.springframework.transaction.annotation.Transactional", "org.springframework.data.jpa.repository.Query")))
-    .build()
-    .check();
+.java(java -> java
+    .fieldsShouldNotHaveModifiers(".*Cache", List.of(PUBLIC)))
 ```
 
-- **Methods Annotated with a Specified Annotation Should Not Be Annotated with Another Specified Annotation**: Ensure that methods annotated with a specific annotation are not also annotated with another specified annotation.
+#### `fieldsAnnotatedWithShouldHaveModifiers` { #fieldsAnnotatedWithShouldHaveModifiers }
+
+`fieldsAnnotatedWithShouldHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> requiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class)    
-        .methodsAnnotatedWithShouldNotBeAnnotatedWith("com.company.project.PublicApi", "com.company.project.InternalApi"))
-    .build()
-    .check();
+.java(java -> java
+    .fieldsAnnotatedWithShouldHaveModifiers(Constant.class, List.of(PUBLIC, STATIC, FINAL)))
 ```
 
-- **Methods Annotated with a Specified Annotation Should Have Specified Modifiers**: Ensure that methods annotated with a specific annotation have all required modifiers.
+#### `fieldsAnnotatedWithShouldNotHaveModifiers` { #fieldsAnnotatedWithShouldNotHaveModifiers }
+
+`fieldsAnnotatedWithShouldNotHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> notRequiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
-        .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .fieldsAnnotatedWithShouldNotHaveModifiers(Autowired.class, List.of(STATIC)))
 ```
 
-- **Methods Annotated with a Specified Annotation Should Not Have Specified Modifiers**: Ensure that methods annotated with a specific annotation do not have certain modifiers.
+#### `serialVersionUIDFieldsShouldBeStaticFinalLong` { #serialVersionUIDFieldsShouldBeStaticFinalLong }
+
+Fields named `serialVersionUID` must be declared `static final long`. Any other declaration is
+ignored by Java serialization and silently fails to pin the class version.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
-        .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .serialVersionUIDFieldsShouldBeStaticFinalLong())
 ```
 
-- **Methods Should Have Specified Modifiers**: Ensure that methods matching a specific regex pattern have a certain modifier.
+### 7.3 Methods
+
+#### `methodsShouldNotDeclareGenericExceptions` { #methodsShouldNotDeclareGenericExceptions }
+
+Methods must not declare `Exception` or `RuntimeException`; use specific types instead.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldHaveModifiers(".*methodRegex", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldNotDeclareGenericExceptions())
 ```
 
-- **Methods Should Not Have Specified Modifiers**: Ensure that methods matching a specific regex pattern do not have certain modifiers.
+#### `methodsShouldNotDeclareException` { #methodsShouldNotDeclareException }
+
+`methodsShouldNotDeclareException(String regex, Class<? extends Throwable> clazz)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldNotHaveModifiers(".*methodRegex", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldNotDeclareException("should.*", SpecificException.class))
 ```
 
-- **Methods in a Specific Class Should Have Specified Modifiers**: Ensure that methods in classes matching a specific regex pattern have the required modifiers.
+#### `methodsShouldBeAnnotatedWith` { #methodsShouldBeAnnotatedWith }
+
+`methodsShouldBeAnnotatedWith(String regex, Class<? extends Annotation> annotationType)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldHaveModifiersForClass(".*classRegex", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldBeAnnotatedWith(".*Api", PublicApi.class))
 ```
 
-- **Methods in a Specific Class Should Not Have Specified Modifiers**: Ensure that methods in classes matching a specific regex pattern do not have certain modifiers.
+#### `methodsShouldBeAnnotatedWithAll` { #methodsShouldBeAnnotatedWithAll }
+
+`methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType, Collection<Class<? extends Annotation>> requiredAnnotationTypes)`
+
+Methods carrying the first annotation must also carry all the annotations in the collection. A
+classic use is Spring Data: `@Modifying` is only correct together with `@Transactional` and `@Query`.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldNotHaveModifiersForClass(".*classRegex", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class)))
 ```
 
-- **Methods Should Not Exceed a Maximum Number of Parameters**: Ensure that methods in classes do not have more than the specified maximum number of parameters.
+#### `methodsAnnotatedWithShouldNotBeAnnotatedWith` { #methodsAnnotatedWithShouldNotBeAnnotatedWith }
+
+`methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType, Class<? extends Annotation> notAnnotationType)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .methodsShouldNotExceedMaxParameters(10))
-    .build()
-    .check();
+.java(java -> java
+    .methodsAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class))
 ```
 
-- **Utility Classes Should Be Final and Have Private Constructor**: Ensure that utility classes with only `static` methods except `main` should be declared as `final` and have `private` constructors to prevent instantiation.
+#### `methodsAnnotatedWithShouldHaveModifiers` { #methodsAnnotatedWithShouldHaveModifiers }
+
+`methodsAnnotatedWithShouldHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> requiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .utilityClassesShouldBeFinalAndHavePrivateConstructor())
-    .build()
-    .check();
+.java(java -> java
+    .methodsAnnotatedWithShouldHaveModifiers(Transactional.class, List.of(PUBLIC)))
 ```
 
+#### `methodsAnnotatedWithShouldNotHaveModifiers` { #methodsAnnotatedWithShouldNotHaveModifiers }
 
-- **Fields Should Have Modifiers**: Ensure that fields matching a specific naming pattern have the required modifiers.
+`methodsAnnotatedWithShouldNotHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> notRequiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.enofex.taikai")
-    .java(java -> java
-        .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsAnnotatedWithShouldNotHaveModifiers(Test.class, List.of(PUBLIC)))
 ```
 
-- **Fields Should Not Have Modifiers**: Ensure that fields matching a specific naming pattern do not have certain modifiers.
+#### `methodsShouldHaveModifiers` { #methodsShouldHaveModifiers }
+
+`methodsShouldHaveModifiers(String regex, Collection<JavaModifier> requiredModifiers)`
+
+Selects methods by *method* name.
 
 ```java
-Taikai.builder()
-    .namespace("com.enofex.taikai")
-    .java(java -> java
-        .fieldsShouldNotHaveModifiers(".*transient.*", List.of(PUBLIC)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldHaveModifiers("create.*", List.of(PUBLIC)))
 ```
 
-- **Fields Annotated with a Specified Annotation Should Have Specified Modifiers**: Ensure that any field annotated with a given annotation has all required modifiers.
+#### `methodsShouldNotHaveModifiers` { #methodsShouldNotHaveModifiers }
+
+`methodsShouldNotHaveModifiers(String regex, Collection<JavaModifier> notRequiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .fieldsAnnotatedWithShouldHaveModifiers(Constant.class, List.of(PUBLIC, STATIC, FINAL))
-        .fieldsAnnotatedWithShouldHaveModifiers("com.company.project.annotations.Constant", List.of(PUBLIC, STATIC, FINAL)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldNotHaveModifiers("internal.*", List.of(PUBLIC)))
 ```
 
-- **Fields Annotated with a Specified Annotation Should Not Have Specified Modifiers**: Ensure that any field annotated with a given annotation does not have one or more forbidden modifiers.
+#### `methodsShouldHaveModifiersForClass` { #methodsShouldHaveModifiersForClass }
+
+`methodsShouldHaveModifiersForClass(String regex, Collection<JavaModifier> requiredModifiers)`
+
+Selects methods by the *declaring class* name, so every method of a matching class is constrained.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .fieldsAnnotatedWithShouldNotHaveModifiers(Autowired.class, List.of(STATIC))
-        .fieldsAnnotatedWithShouldNotHaveModifiers("org.springframework.beans.factory.annotation.Autowired", List.of(STATIC)))
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldHaveModifiersForClass(".*Controller", List.of(PUBLIC)))
 ```
 
-- **Fields Should Not Be Public**: Ensure that no fields in your Java classes are declared as `public`, except constants.
+#### `methodsShouldNotHaveModifiersForClass` { #methodsShouldNotHaveModifiersForClass }
+
+`methodsShouldNotHaveModifiersForClass(String regex, Collection<JavaModifier> notRequiredModifiers)`
 
 ```java
-Taikai.builder()
-    .namespace("com.enofex.taikai")
-    .java(java -> java
-        .fieldsShouldNotBePublic())
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldNotHaveModifiersForClass(".*Internal", List.of(PUBLIC)))
 ```
 
-- **Ensure `serialVersionUID` is `static final long`**: Ensure that fields named `serialVersionUID` are declared as `static final long`.
+#### `methodsShouldNotExceedMaxParameters` { #methodsShouldNotExceedMaxParameters }
+
+`methodsShouldNotExceedMaxParameters(int maxMethodParameters)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .serialVersionUIDShouldBeStaticFinalLong())
-    .build()
-    .check();
+.java(java -> java
+    .methodsShouldNotExceedMaxParameters(6))
 ```
 
-- **Imports Configuration**: Ensure that there are no cyclic dependencies in imports, check for imports or disallow specific imports.
+### 7.4 Usage Restrictions
+
+#### `noUsageOf` { #noUsageOf }
+
+`noUsageOf(Class<?> clazz)`
+`noUsageOf(Class<?> clazz, String packageIdentifier)`
+
+Forbids all usage of a type. The second parameter narrows the ban to classes inside a given package,
+which lets you retire an API layer by layer.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .imports(imports -> imports
-            .shouldHaveNoCycles()
-            .shouldImport(".*Service", "com.company.project.BusinessException")
-            .shouldNotImport("..internal..")
-            .shouldNotImport(lombok())
-            .shouldNotImport(".*Service", "com.company.project.SpecificException")))
-    .build()
-    .check();
+.java(java -> java
+    .noUsageOf(Date.class)
+    .noUsageOf(Calendar.class, "com.company.project.domain..")
+    .noUsageOf("com.company.legacy.UnwantedClass"))
 ```
 
-- **Naming Configuration**: Define naming conventions for packages, classes, methods, fields, constants and interfaces.
+#### `noUsageOfDeprecatedAPIs` { #noUsageOfDeprecatedAPIs }
+
+Nothing annotated `@Deprecated` may be used.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .naming(naming -> naming
-            .packagesShouldMatchDefault()
-            .packagesShouldMatch("regex")
-            .classesShouldMatch(".*Service")
-            .classesShouldNotMatch(".*Impl")
-            .classesAnnotatedWithShouldMatch(Annotation.class, "coolClass")   
-            .classesAnnotatedWithShouldMatch("com.company.project.Annotation", "coolClass")   
-            .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
-            .classesImplementingShouldMatch("com.company.project.Configurer", ".*Configurer")
-            .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")
-            .classesAssignableToShouldMatch("com.company.project.AbstractConfigurer", ".*Configurer")
-            .methodsShouldMatch("[a-z][a-zA-Z0-9]*")
-            .methodsShouldNotMatch("coolMethod")
-            .methodsAnnotatedWithShouldMatch(Annotation.class, "coolMethods")
-            .methodsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolMethods")  
-            .fieldsShouldNotMatch("coolField")
-            .fieldsShouldMatch(Annotation.class, "coolField")
-            .fieldsShouldMatch("com.company.project.Annotation", "coolField")
-            .fieldsAnnotatedWithShouldMatch(Annotation.class, "coolField")
-            .fieldsAnnotatedWithShouldMatch("com.company.project.Annotation", "coolField")  
-            .constantsShouldFollowConventions()
-            .enumConstantsShouldFollowConventions()
-            .booleanMethodsShouldStartWith()
-            .booleanMethodsShouldStartWith(List.of("is", "was"))
-            .interfacesShouldNotHavePrefixI())))
-    .build()
-    .check();
+.java(java -> java
+    .noUsageOfDeprecatedAPIs())
 ```
 
-- **No Usage of Specific Classes**: Ensure that certain classes are not used in your codebase.
+#### `noUsageOfSystemOutOrErr` { #noUsageOfSystemOutOrErr }
+
+Forbids `System.out` and `System.err` in favour of a logging framework.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .noUsageOf(UnwantedClass.class)
-        .noUsageOf(UnwantedClass.class, "in.specific.package")
-        .noUsageOf("com.example.UnwantedClass")
-        .noUsageOf("com.example.UnwantedClass", "in.specific.package"))
-    .build()
-    .check();
+.java(java -> java
+    .noUsageOfSystemOutOrErr())
 ```
 
-- **No Usage of `System.out` or `System.err`**: Enforce disallowing the use of `System.out` and `System.err` for logging, encouraging the use of proper logging frameworks instead.
+### 7.5 Imports
+
+Import rules live in the nested `imports(...)` configurer.
+
+| Rule | Enforces |
+|------|----------|
+| [`shouldHaveNoCycles`](#imports-shouldHaveNoCycles) | no cyclic package dependencies |
+| [`shouldImport`](#imports-shouldImport) | matching classes import something |
+| [`shouldNotImport`](#imports-shouldNotImport) | a package or import is forbidden |
+
+#### `shouldHaveNoCycles` { #imports-shouldHaveNoCycles }
+
+Fails on cyclic dependencies between the slices of your namespace.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .noUsageOfSystemOutOrErr())
-    .build()
-    .check();
+.java(java -> java
+    .imports(imports -> imports
+        .shouldHaveNoCycles()))
 ```
 
-- **Ensure Final Classes Do Not Have Protected Members**: Ensures that classes declared as `final` do not contain any `protected` members. Since `final` classes cannot be subclassed, having `protected` members is unnecessary.
+#### `shouldImport` { #imports-shouldImport }
+
+`shouldImport(String regex, String importClassesRegex)`
+
+Classes matching the first regex must import something matching the second.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .finalClassesShouldNotHaveProtectedMembers())
-    .build()
-    .check();
+.java(java -> java
+    .imports(imports -> imports
+        .shouldImport(".*Service", "com.company.project.BusinessException")))
 ```
 
-## 6. Logging Rules
+#### `shouldNotImport` { #imports-shouldNotImport }
 
-Logging configuration involves specifying constraints related to logging frameworks and practices.
+`shouldNotImport(String packageIdentifier)`
+`shouldNotImport(String regex, String notImportClassesRegex)`
 
-- **Ensure Logger Field Conforms to Standards**: Ensure that classes use a logger field of the specified type, with the correct name and optionally required modifiers.
+With one argument, nothing may import the given package identifier. With two, only classes matching
+the first regex are constrained.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .logging(logging -> logging
-        .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger")
-        .loggersShouldFollowConventions("org.slf4j.Logger", "logger")
-        .loggersShouldFollowConventions(org.slf4j.Logger.class, "logger", List.of(PRIVATE, FINAL))
-        .loggersShouldFollowConventions("org.slf4j.Logger", "logger", List.of(PRIVATE, FINAL)))
-    .build()
-    .check();
+.java(java -> java
+    .imports(imports -> imports
+        .shouldNotImport("..internal..")
+        .shouldNotImport(".*Service", "com.company.project.SpecificException")))
 ```
 
-- **Ensure Classes Use Specified Logger**: Ensure that classes matching a given regex have a field of a specified logger type.
+#### Predefined import patterns
+
+`com.enofex.taikai.java.ImportPatterns` provides constants for packages that are commonly banned
+from production code or from a particular layer. They are plain `String` package identifiers, so they
+work anywhere a package identifier is accepted.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .logging(logging -> logging
-        .classesShouldUseLogger(org.slf4j.Logger.class, ".*Service")
-        .classesShouldUseLogger("org.slf4j.Logger", ".*Service"))
-    .build()
-    .check();
+import static com.enofex.taikai.java.ImportPatterns.lombok;
+import static com.enofex.taikai.java.ImportPatterns.shaded;
 ```
-
-## 7. Test Rules
-
-Test configuration involves specifying constraints related to testing frameworks and practices.
-
-- **JUnit Configuration**: Ensure that JUnit test classes and methods are not annotated with `@Disabled`.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .classesShouldNotBeAnnotatedWithDisabled()
-            .methodsShouldNotBeAnnotatedWithDisabled()))
-    .build()
-    .check();
+.java(java -> java
+    .imports(imports -> imports
+        .shouldNotImport(lombok())
+        .shouldNotImport(shaded())))
 ```
 
-- **Ensure Test Methods are Package-Private**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` are package-private.
+| Method               | Package identifier          |
+|----------------------|-----------------------------|
+| `apacheCommons()`    | `org.apache.commons..`      |
+| `assertJ()`          | `org.assertj..`             |
+| `hamcrest()`         | `org.hamcrest..`            |
+| `hibernate()`        | `org.hibernate..`           |
+| `jspecify()`         | `org.jspecify..`            |
+| `junit()`            | `org.junit.jupiter..`       |
+| `logback()`          | `ch.qos.logback..`          |
+| `lombok()`           | `lombok..`                  |
+| `mockito()`          | `org.mockito..`             |
+| `shaded()`           | `..shaded..`                |
+| `springBoot()`       | `org.springframework.boot..` |
+| `springData()`       | `org.springframework.data..` |
+| `springFramework()`  | `org.springframework..`     |
+| `springSecurity()`   | `org.springframework.security..` |
+| `testcontainers()`   | `org.testcontainers..`      |
+
+### 7.6 Naming
+
+Naming rules live in the nested `naming(...)` configurer.
+
+| Rule | Enforces |
+|------|----------|
+| [`packagesShouldMatchDefault`](#naming-packagesShouldMatchDefault) | Taikai's default package convention |
+| [`packagesShouldMatch`](#naming-packagesShouldMatch) | packages match a regex |
+| [`classesShouldMatch`](#naming-classesShouldMatch) | class names match a regex |
+| [`classesShouldNotMatch`](#naming-classesShouldNotMatch) | class names do not match a regex |
+| [`classesAnnotatedWithShouldMatch`](#naming-classesAnnotatedWithShouldMatch) | annotated classes match a regex |
+| [`classesImplementingShouldMatch`](#naming-classesImplementingShouldMatch) | implementors match a regex |
+| [`classesAssignableToShouldMatch`](#naming-classesAssignableToShouldMatch) | subtypes match a regex |
+| [`methodsShouldMatch`](#naming-methodsShouldMatch) | method names match a regex |
+| [`methodsShouldNotMatch`](#naming-methodsShouldNotMatch) | method names do not match a regex |
+| [`methodsAnnotatedWithShouldMatch`](#naming-methodsAnnotatedWithShouldMatch) | annotated methods match a regex |
+| [`fieldsShouldMatch`](#naming-fieldsShouldMatch) | fields of a type match a regex |
+| [`fieldsShouldNotMatch`](#naming-fieldsShouldNotMatch) | field names do not match a regex |
+| [`fieldsAnnotatedWithShouldMatch`](#naming-fieldsAnnotatedWithShouldMatch) | annotated fields match a regex |
+| [`constantsShouldFollowConventions`](#naming-constantsShouldFollowConventions) | constants are `UPPER_SNAKE_CASE` |
+| [`enumConstantsShouldFollowConventions`](#naming-enumConstantsShouldFollowConventions) | enum constants are `UPPER_SNAKE_CASE` |
+| [`booleanMethodsShouldStartWith`](#naming-booleanMethodsShouldStartWith) | boolean getters use a prefix |
+| [`interfacesShouldNotHavePrefixI`](#naming-interfacesShouldNotHavePrefixI) | no `IFoo` interfaces |
+
+#### `packagesShouldMatchDefault` { #naming-packagesShouldMatchDefault }
+
+Applies Taikai's default package convention, `^[a-z_]+(\.[a-z_][a-z0-9_]*)*$`: lowercase segments,
+no digits in the first character of a segment, no camel case.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .methodsShouldBePackagePrivate()))
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .packagesShouldMatchDefault()))
 ```
 
-- **Ensure Test Methods are Annotated with `@DisplayName`**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` are also annotated with `@DisplayName` to provide descriptive test names.
+#### `packagesShouldMatch` { #naming-packagesShouldMatch }
+
+`packagesShouldMatch(String regex)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .methodsShouldBeAnnotatedWithDisplayName()))
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .packagesShouldMatch("^com\\.company\\.project(\\.[a-z]+)*$")))
 ```
 
-- **Ensure Test Methods Follow Naming Convention**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` have names matching a specific regex pattern.
+#### `classesShouldMatch` { #naming-classesShouldMatch }
+
+`classesShouldMatch(String regex)`
+
+Remember that the regex is matched against the fully qualified name, so it has to cover the package
+too.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .methodsShouldMatch("regex")))
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .classesShouldMatch("com\\.company\\.project\\..*")))
 ```
 
-- **Ensure Test Methods Do Not Declare Thrown Exceptions**: Ensure that JUnit test methods annotated with `@Test` or `@ParameterizedTest` do not declare any thrown exceptions.
+#### `classesShouldNotMatch` { #naming-classesShouldNotMatch }
+
+`classesShouldNotMatch(String regex)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .methodsShouldNotDeclareExceptions()))
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .classesShouldNotMatch(".*Impl")))
 ```
 
-- **Ensure Classes with Matching Names are Package-Private**: Ensure that classes whose names match a specified regex pattern are declared as package-private.
+#### `classesAnnotatedWithShouldMatch` { #naming-classesAnnotatedWithShouldMatch }
+
+`classesAnnotatedWithShouldMatch(Class<? extends Annotation> annotationType, String regex)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .classesShouldBePackagePrivate(".*Test")))
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .classesAnnotatedWithShouldMatch(Entity.class, ".*Entity")))
 ```
 
-- **Ensure Test Classes Follow Naming Convention**: Ensure that classes containing methods annotated with `@Test` or `@ParameterizedTest` have names ending with `Test` or matching a specific regex pattern. For nested test classes (e.g., `@Nested`), the enclosing top-level class is checked, so inner classes do not need to match themselves.
+#### `classesImplementingShouldMatch` { #naming-classesImplementingShouldMatch }
+
+`classesImplementingShouldMatch(Class<?> clazz, String regex)`
+
+Constrains the names of classes that implement the given interface directly.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .classesShouldEndWithTest()
-            .classesShouldMatch("regex")))
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .classesImplementingShouldMatch(Configurer.class, ".*Configurer")))
 ```
 
-- **Ensure Test Methods Contain Assertions or Verifications**: Ensure that test methods annotated with `@Test` or `@ParameterizedTest` contain at least one assertion or verification.
+#### `classesAssignableToShouldMatch` { #naming-classesAssignableToShouldMatch }
 
-    - **JUnit**: Ensure the use of assertions from `org.junit.jupiter.api.Assertions`.
-    - **Mockito**: Ensure the use of verification methods from `org.mockito.Mockito` like `verify`, `inOrder`, or `capture`.
-    - **Hamcrest**: Ensure the use of assertions from `org.hamcrest.MatcherAssert`.
-    - **AssertJ**: Ensure the use of assertions from `org.assertj.core.api.Assertions`.
-    - **Truth**: Ensure the use of assertions from `com.google.common.truth.Truth`.
-    - **Cucumber**: Ensure the use of assertions from `io.cucumber.java.en.Then` or `io.cucumber.java.en.Given`.
-    - **Spring MockMvc**: Ensure the use of assertions from `org.springframework.test.web.servlet.MockMvc` like `andExpect` or `andDo`.
-    - **ArchUnit**: Ensure the use of the `check` method from `com.tngtech.archunit.lang.ArchRule`.
-    - **Taikai**: Ensure the use of the `check` method from `com.enofex.taikai.Taikai`.
+`classesAssignableToShouldMatch(Class<?> clazz, String regex)`
+
+Same idea, but covers the whole subtype hierarchy rather than direct implementors.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .test(test -> test
-        .junit(junit -> junit
-            .methodsShouldContainAssertionsOrVerifications()))
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")))
 ```
 
-## 8. Spring Rules
+#### `methodsShouldMatch` { #naming-methodsShouldMatch }
 
-Spring configuration involves defining constraints specific to Spring Framework usage.
-
-- **No Autowired Fields Configuration**: Ensure that fields are not annotated with `@Autowired` and constructor injection is preferred.
+`methodsShouldMatch(String regex)`
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .noAutowiredFields())
-    .build()
-    .check();
+.java(java -> java
+    .naming(naming -> naming
+        .methodsShouldMatch("[a-z][a-zA-Z0-9]*")))
 ```
 
-- **No Self Invocation of Proxied Methods Configuration**: Ensure that methods carrying an annotation which Spring applies through a proxy are not called from within the class that declares them.
+#### `methodsShouldNotMatch` { #naming-methodsShouldNotMatch }
 
-Spring implements `@Transactional`, `@Async`, caching, method security and retries by wrapping the bean in a proxy. A call such as `this.send()` targets the bean instance directly instead of the proxy, so the annotation on the called method is silently ignored: no transaction is started, no thread is switched, no cache is consulted and no security check is performed. The proxy is only involved when the call comes from another bean.
+`methodsShouldNotMatch(String regex)`
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .methodsShouldNotMatch("^(foo|bar).*")))
+```
+
+#### `methodsAnnotatedWithShouldMatch` { #naming-methodsAnnotatedWithShouldMatch }
+
+`methodsAnnotatedWithShouldMatch(Class<? extends Annotation> annotationType, String regex)`
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .methodsAnnotatedWithShouldMatch(Scheduled.class, "^scheduled[A-Z].*")))
+```
+
+#### `fieldsShouldMatch` { #naming-fieldsShouldMatch }
+
+`fieldsShouldMatch(Class<?> clazz, String regex)`
+`fieldsShouldMatch(String typeName, String regex)`
+
+Constrains the *name* of fields whose declared **type** is the given class. The example below
+requires every field of type `Matcher` to be named `matcher`.
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .fieldsShouldMatch(Matcher.class, "matcher")))
+```
+
+#### `fieldsShouldNotMatch` { #naming-fieldsShouldNotMatch }
+
+`fieldsShouldNotMatch(String regex)`
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .fieldsShouldNotMatch(".*(List|Set|Map)$")))
+```
+
+#### `fieldsAnnotatedWithShouldMatch` { #naming-fieldsAnnotatedWithShouldMatch }
+
+`fieldsAnnotatedWithShouldMatch(Class<? extends Annotation> annotationType, String regex)`
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .fieldsAnnotatedWithShouldMatch(Value.class, "^[a-z][a-zA-Z0-9]*$")))
+```
+
+#### `constantsShouldFollowConventions` { #naming-constantsShouldFollowConventions }
+
+`constantsShouldFollowConventions()`
+`constantsShouldFollowConventions(Collection<String> excludedFields)`
+
+`static final` fields must match `^[A-Z][A-Z0-9_]*$`. `serialVersionUID` is excluded by default.
+Passing a collection **replaces** that default exclusion list, so include `serialVersionUID`
+yourself if you still want it exempt.
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .constantsShouldFollowConventions()))
+```
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .constantsShouldFollowConventions(List.of("serialVersionUID", "log"))))
+```
+
+#### `enumConstantsShouldFollowConventions` { #naming-enumConstantsShouldFollowConventions }
+
+Enum constants must match `^[A-Z][A-Z0-9_]*$`.
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .enumConstantsShouldFollowConventions()))
+```
+
+#### `booleanMethodsShouldStartWith` { #naming-booleanMethodsShouldStartWith }
+
+`booleanMethodsShouldStartWith()`
+`booleanMethodsShouldStartWith(Collection<String> prefixes)`
+
+Methods returning `boolean` or `Boolean` must start with one of the given prefixes. The default set
+is `is`, `has`, `can`, `should`; passing a collection replaces it. A prefix has to be followed by an
+uppercase letter or nothing at all, so `is` and `isValid` pass but `issue` does not.
+
+`equals(Object)`, record component accessors and synthetic methods are exempt.
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .booleanMethodsShouldStartWith()))
+```
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .booleanMethodsShouldStartWith(List.of("is", "was"))))
+```
+
+#### `interfacesShouldNotHavePrefixI` { #naming-interfacesShouldNotHavePrefixI }
+
+Rejects Hungarian-style interface names such as `IOrderService`.
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .interfacesShouldNotHavePrefixI()))
+```
+
+## 8. Logging Rules
+
+Default import mode: `WITHOUT_TESTS`.
+
+| Rule | Enforces |
+|------|----------|
+| [`loggersShouldFollowConventions`](#loggersShouldFollowConventions) | logger fields have a fixed name and modifiers |
+| [`classesShouldUseLogger`](#classesShouldUseLogger) | matching classes declare a logger |
+
+#### `loggersShouldFollowConventions` { #loggersShouldFollowConventions }
+
+`loggersShouldFollowConventions(Class<?> clazz, String regex)`
+`loggersShouldFollowConventions(Class<?> clazz, String regex, Collection<JavaModifier> requiredModifiers)`
+
+Fields of the given logger type must have a name matching the regex and, optionally, the listed
+modifiers.
+
+```java
+.logging(logging -> logging
+    .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, STATIC, FINAL)))
+```
+
+The `String` overload avoids a compile-time dependency on the logging API:
+
+```java
+.logging(logging -> logging
+    .loggersShouldFollowConventions("org.slf4j.Logger", "logger", List.of(PRIVATE, FINAL)))
+```
+
+#### `classesShouldUseLogger` { #classesShouldUseLogger }
+
+`classesShouldUseLogger(Class<?> clazz, String regex)`
+
+Classes matching the regex must declare a field of the given logger type. This is the complement of
+the rule above: one fixes *how* loggers are declared, the other *that* they are declared.
+
+```java
+.logging(logging -> logging
+    .classesShouldUseLogger(Logger.class, ".*Service"))
+```
+
+## 9. Test Rules
+
+Default import mode: `ONLY_TESTS`. All rules live in the nested `junit(...)` configurer.
+
+| Rule | Enforces |
+|------|----------|
+| [`classesShouldEndWithTest`](#junit-classesShouldEndWithTest) | test classes end with `Test` |
+| [`classesShouldMatch`](#junit-classesShouldMatch) | test class names match a regex |
+| [`classesShouldBePackagePrivate`](#junit-classesShouldBePackagePrivate) | matching classes are package-private |
+| [`classesShouldNotBeAnnotatedWithDisabled`](#junit-classesShouldNotBeAnnotatedWithDisabled) | no `@Disabled` classes |
+| [`methodsShouldMatch`](#junit-methodsShouldMatch) | test method names match a regex |
+| [`methodsShouldBePackagePrivate`](#junit-methodsShouldBePackagePrivate) | test methods are package-private |
+| [`methodsShouldBeAnnotatedWithDisplayName`](#junit-methodsShouldBeAnnotatedWithDisplayName) | test methods carry `@DisplayName` |
+| [`methodsShouldNotBeAnnotatedWithDisabled`](#junit-methodsShouldNotBeAnnotatedWithDisabled) | no `@Disabled` methods |
+| [`methodsShouldNotDeclareExceptions`](#junit-methodsShouldNotDeclareExceptions) | test methods declare no `throws` |
+| [`methodsShouldContainAssertionsOrVerifications`](#junit-methodsShouldContainAssertionsOrVerifications) | tests actually assert something |
+
+Throughout this section, "test method" means a method meta-annotated `@Test` or
+`@ParameterizedTest`, and "test class" a class containing such methods.
+
+Three rules select differently, and the difference matters because these rules run over the
+`ONLY_TESTS` import, where every imported class is a test class anyway:
+
+- `classesShouldBePackagePrivate(regex)` selects by name, and skips interfaces.
+- `classesShouldNotBeAnnotatedWithDisabled` applies to *all* imported classes.
+- `methodsShouldNotBeAnnotatedWithDisabled` applies to *all* imported methods, so it also catches
+  `@Disabled` on a `@BeforeEach` or a helper.
+
+#### `classesShouldEndWithTest` { #junit-classesShouldEndWithTest }
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .classesShouldEndWithTest()))
+```
+
+!!! note
+    For `@Nested` classes the enclosing top-level class is checked, so inner classes do not need to
+    match themselves.
+
+#### `classesShouldMatch` { #junit-classesShouldMatch }
+
+`classesShouldMatch(String regex)`
+
+Same selection as above, with your own pattern. The `@Nested` handling is identical.
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .classesShouldMatch(".*(Test|IT)")))
+```
+
+#### `classesShouldBePackagePrivate` { #junit-classesShouldBePackagePrivate }
+
+`classesShouldBePackagePrivate(String regex)`
+
+Unlike the rules above, this one selects purely by name, not by the presence of test methods.
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .classesShouldBePackagePrivate(".*Test")))
+```
+
+#### `classesShouldNotBeAnnotatedWithDisabled` { #junit-classesShouldNotBeAnnotatedWithDisabled }
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .classesShouldNotBeAnnotatedWithDisabled()))
+```
+
+#### `methodsShouldMatch` { #junit-methodsShouldMatch }
+
+`methodsShouldMatch(String regex)`
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .methodsShouldMatch("should[A-Z].*")))
+```
+
+#### `methodsShouldBePackagePrivate` { #junit-methodsShouldBePackagePrivate }
+
+JUnit 5 does not require `public` test methods, so `public` is noise.
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .methodsShouldBePackagePrivate()))
+```
+
+#### `methodsShouldBeAnnotatedWithDisplayName` { #junit-methodsShouldBeAnnotatedWithDisplayName }
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .methodsShouldBeAnnotatedWithDisplayName()))
+```
+
+#### `methodsShouldNotBeAnnotatedWithDisabled` { #junit-methodsShouldNotBeAnnotatedWithDisabled }
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .methodsShouldNotBeAnnotatedWithDisabled()))
+```
+
+#### `methodsShouldNotDeclareExceptions` { #junit-methodsShouldNotDeclareExceptions }
+
+Test methods must not declare `throws`; assert on the exception instead.
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .methodsShouldNotDeclareExceptions()))
+```
+
+#### `methodsShouldContainAssertionsOrVerifications` { #junit-methodsShouldContainAssertionsOrVerifications }
+
+Every test method must contain at least one assertion or verification. A call to any of the
+following counts:
+
+| Framework      | Recognised call                                                              |
+|----------------|-------------------------------------------------------------------------------|
+| JUnit          | any method on `org.junit.jupiter.api.Assertions`                             |
+| AssertJ        | any method on `org.assertj.core.api.Assertions`                              |
+| Hamcrest       | any method on `org.hamcrest.MatcherAssert`                                   |
+| Truth          | any method on `com.google.common.truth.Truth`                                |
+| Mockito        | `org.mockito.Mockito.verify*`, `inOrder`, `capture`                          |
+| Cucumber       | any method on `io.cucumber.java.en.Then` or `io.cucumber.java.en.Given`      |
+| Spring MockMvc | `org.springframework.test.web.servlet.ResultActions.andExpect` / `andExpectAll` |
+| ArchUnit       | `com.tngtech.archunit.lang.ArchRule.check`                                   |
+| Taikai         | `com.enofex.taikai.Taikai.check` / `checkAll`                                |
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .methodsShouldContainAssertionsOrVerifications()))
+```
+
+## 10. Spring Rules
+
+Default import mode: `WITHOUT_TESTS`.
+
+| Rule | Enforces |
+|------|----------|
+| [`noAutowiredFields`](#spring-noAutowiredFields) | constructor injection instead of `@Autowired` fields |
+| [`noSelfInvocationOfProxiedMethods`](#spring-noSelfInvocationOfProxiedMethods) | proxied annotations are not bypassed |
+| [`boot.applicationClassShouldResideInPackage`](#spring-boot-applicationClassShouldResideInPackage) | `@SpringBootApplication` sits in the base package |
+| [`properties.*`](#103-properties) | `@ConfigurationProperties` conventions |
+| [`configurations.*`](#104-configurations) | `@Configuration` naming |
+| [`controllers.*`](#105-controllers) | controller naming, visibility and dependencies |
+| [`services.*`](#106-services) | service naming and dependencies |
+| [`repositories.*`](#107-repositories) | repository naming and dependencies |
+| [`transactional.*`](#108-transactional) | `@Transactional` is actually effective |
+
+### 10.1 General
+
+#### `noAutowiredFields` { #spring-noAutowiredFields }
+
+Fields must not be annotated `@Autowired`; use constructor injection, which keeps dependencies
+explicit and objects testable without a container.
+
+```java
+.spring(spring -> spring
+    .noAutowiredFields())
+```
+
+#### `noSelfInvocationOfProxiedMethods` { #spring-noSelfInvocationOfProxiedMethods }
+
+`noSelfInvocationOfProxiedMethods()`
+`noSelfInvocationOfProxiedMethods(Collection<String> annotations)`
+
+Spring implements `@Transactional`, `@Async`, caching, method security and retries by wrapping the
+bean in a proxy. A call such as `this.save()` targets the bean instance directly rather than the
+proxy, so the annotation on the called method is silently ignored: no transaction is started, no
+thread is switched, no cache is consulted, no security check runs. The proxy is only involved when
+the call arrives from another bean.
 
 ```java
 @Service
@@ -1002,7 +1519,12 @@ class OrderService {
 }
 ```
 
-By default the following annotations are checked, none of them has to be on the classpath:
+```java
+.spring(spring -> spring
+    .noSelfInvocationOfProxiedMethods())
+```
+
+By default these annotations are checked. None of them has to be on the classpath:
 
 - `org.springframework.transaction.annotation.Transactional`
 - `jakarta.transaction.Transactional`
@@ -1014,148 +1536,208 @@ By default the following annotations are checked, none of them has to be on the 
 - `org.springframework.security.access.prepost.PostAuthorize`
 - `org.springframework.retry.annotation.Retryable`
 
+Pass a collection of fully qualified names to replace that list:
+
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .noSelfInvocationOfProxiedMethods())
-    .build()
-    .check();
+.spring(spring -> spring
+    .noSelfInvocationOfProxiedMethods(List.of(
+        "org.springframework.transaction.annotation.Transactional",
+        "org.springframework.scheduling.annotation.Async")))
 ```
 
-A custom set of annotations can be passed instead of the default ones:
+!!! note
+    Only annotations declared on the *called method* are considered; class-level annotations are
+    ignored. Because the receiver of a call cannot be resolved statically, calls on another instance
+    of the same class, such as the self-injection workaround, are reported too. Exclude those
+    classes with a `Configuration`:
 
-```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .noSelfInvocationOfProxiedMethods(List.of(
-            "org.springframework.transaction.annotation.Transactional",
-            "org.springframework.scheduling.annotation.Async")))
-    .build()
-    .check();
-```
-
-Only annotations declared on the called method are taken into account, class level annotations are ignored. Since the receiver of a call cannot be determined statically, calls on another instance of the same class, such as the self injection workaround, are reported as well. Use `Configuration` to exclude those classes:
-
-```java
-Taikai.builder()
-    .namespace("com.company.project")
+    ```java
     .spring(spring -> spring
         .noSelfInvocationOfProxiedMethods(
             Configuration.of(List.of(OrderService.class))))
-    .build()
-    .check();
-```
+    ```
 
-- **Spring Boot Configuration**: Ensure that the main application class annotated with `@SpringBootApplication` is located in the default package.
+### 10.2 Boot
 
-```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .boot(boot -> boot
-            .applicationClassShouldResideInPackage("com.company.project")))
-    .build()
-    .check();
-```
+#### `applicationClassShouldResideInPackage` { #spring-boot-applicationClassShouldResideInPackage }
 
-- **Properties Configuration**: Ensure that configuration property classes end with `Properties` or match a specific regex pattern, are annotated with `@ConfigurationProperties`, annotated with `@Validated` or are records.
+`applicationClassShouldResideInPackage()`
+`applicationClassShouldResideInPackage(String packageIdentifier)`
+
+The `@SpringBootApplication` class must reside in the given package. Component scanning starts from
+that package, so a misplaced application class silently changes which beans are discovered.
+
+The no-argument overload uses the configured `namespace`, which is what you want in almost every
+project:
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .properties(properties -> properties
-            .shouldBeAnnotatedWithConfigurationProperties()
-            .namesShouldEndWithProperties()
-            .namesShouldMatch("regex")
-            .shouldBeRecords()
-            .shouldBeAnnotatedWithValidated()))
-    .build()
-    .check();
+.spring(spring -> spring
+    .boot(boot -> boot
+        .applicationClassShouldResideInPackage()))
 ```
-
-- **Configurations Configuration**: Ensure that configuration classes end with `Configuration` or match a specific regex pattern.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .configurations(configuration -> configuration
-            .namesShouldEndWithConfiguration()
-            .namesShouldMatch("regex")))
-    .build()
-    .check();
+.spring(spring -> spring
+    .boot(boot -> boot
+        .applicationClassShouldResideInPackage("com.company.project")))
 ```
 
-- **Controllers Configuration**: Ensure that controller classes end with `Controller` or match a specific regex pattern, are annotated with `@RestController`, do not depend on other controllers or on repositories, has set `@Validated` correctly, or are package-private.
+### 10.3 Properties
+
+Applies to classes annotated `@ConfigurationProperties`, except
+`shouldBeAnnotatedWithConfigurationProperties`, which works the other way round.
+
+| Rule | Enforces |
+|------|----------|
+| `namesShouldEndWithProperties()` | name ends with `Properties` |
+| `namesShouldMatch(String regex)` | name matches a regex |
+| `shouldBeAnnotatedWithConfigurationProperties()` | classes ending in `Properties` carry the annotation |
+| `shouldBeAnnotatedWithConfigurationProperties(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithValidated()` | classes carry `@Validated` |
+| `shouldBeRecords()` | classes are records |
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .controllers(controllers -> controllers
-            .shouldBeAnnotatedWithRestController()
-            .namesShouldEndWithController()
-            .shouldBeAnnotatedWithValidated()
-            .namesShouldMatch("regex")
-            .shouldNotDependOnOtherControllers()
-            .shouldNotDependOnRepositories()
-            .shouldBePackagePrivate()))
-    .build()
-    .check();
+.spring(spring -> spring
+    .properties(properties -> properties
+        .namesShouldEndWithProperties()
+        .shouldBeAnnotatedWithConfigurationProperties()
+        .shouldBeAnnotatedWithValidated()
+        .shouldBeRecords()))
 ```
 
-`shouldNotDependOnRepositories` completes the layer dependency rules, together with `services.shouldNotDependOnControllers`, `repositories.shouldNotDependOnServices` and `repositories.shouldNotDependOnControllers`. It reports controllers that inject a `@Repository` directly and thereby bypass the service layer.
+### 10.4 Configurations
 
-- **Services Configuration**: Ensure that service classes end with `Service` or match a specific regex pattern and are annotated with `@Service` and do not depend on controllers or other services.
+Applies to classes annotated `@Configuration`.
+
+| Rule | Enforces |
+|------|----------|
+| `namesShouldEndWithConfiguration()` | name ends with `Configuration` |
+| `namesShouldMatch(String regex)` | name matches a regex |
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .services(services -> services
-            .shouldBeAnnotatedWithService()    
-            .shouldNotDependOnControllers()
-            .shouldNotDependOnOtherServices()
-            .namesShouldMatch("regex")
-            .namesShouldEndWithService()))
-    .build()
-    .check();
+.spring(spring -> spring
+    .configurations(configurations -> configurations
+        .namesShouldEndWithConfiguration()))
 ```
 
-- **Repositories Configuration**: Ensure that repository classes end with `Repository` or match a specific regex pattern and are annotated with `@Repository` and not depend on classes annotated with `@Service` or controller components.
+### 10.5 Controllers
+
+Applies to classes annotated `@Controller` or `@RestController`.
+
+| Rule | Enforces |
+|------|----------|
+| `namesShouldEndWithController()` | name ends with `Controller` |
+| `namesShouldMatch(String regex)` | name matches a regex |
+| `shouldBeAnnotatedWithController()` | classes ending in `Controller` carry `@Controller` |
+| `shouldBeAnnotatedWithController(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithRestController()` | classes ending in `Controller` carry `@RestController` |
+| `shouldBeAnnotatedWithRestController(String regex)` | same, for classes matching a regex |
+| `shouldBePackagePrivate()` | controllers are package-private |
+| `shouldNotDependOnOtherControllers()` | no controller-to-controller dependencies |
+| `shouldNotDependOnRepositories()` | the service layer is not bypassed |
+| `shouldBeAnnotatedWithValidated()` | controllers needing `@Validated` carry it |
+| `shouldBeAnnotatedWithValidated(String regex)` | same, for classes matching a regex |
+| `shouldNotBeAnnotatedWithValidated()` | controllers do not carry `@Validated` |
+| `shouldNotBeAnnotatedWithValidated(String regex)` | same, for classes matching a regex |
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .repositories(repositories -> repositories
-            .shouldNotDependOnServices()
-            .shouldNotDependOnControllers()
-            .shouldBeAnnotatedWithRepository()
-            .namesShouldMatch("regex")
-            .namesShouldEndWithRepository()))
-    .build()
-    .check();
+.spring(spring -> spring
+    .controllers(controllers -> controllers
+        .namesShouldEndWithController()
+        .shouldBeAnnotatedWithRestController()
+        .shouldBePackagePrivate()
+        .shouldNotDependOnOtherControllers()
+        .shouldNotDependOnRepositories()
+        .shouldBeAnnotatedWithValidated()))
 ```
 
-- **Transactional Configuration**: Ensure that transaction boundaries are effective and reside in the correct layer. Spring's proxy-based transaction management only applies to public methods called from another bean, so `@Transactional` on a non-public method or on a self invoked method is silently ignored at runtime. Both `org.springframework.transaction.annotation.Transactional` and `jakarta.transaction.Transactional` are taken into account.
+The `regex` overloads of `shouldBeAnnotatedWith...` select classes by name rather than by annotation,
+which is how you enforce the annotation on classes that do not carry it yet.
+
+`shouldBeAnnotatedWithValidated` only flags controllers that actually need it: those with a method
+parameter annotated `@PathVariable` or `@RequestParam` that also carries a validation constraint such
+as `@Min` or `@NotNull`. Without `@Validated` on the class, Spring never evaluates those constraints.
+Use `shouldNotBeAnnotatedWithValidated` for the opposite convention, where validation is handled
+elsewhere.
+
+`shouldNotDependOnRepositories` completes the layering rules together with
+`services.shouldNotDependOnControllers`, `repositories.shouldNotDependOnServices` and
+`repositories.shouldNotDependOnControllers`. It reports controllers that inject a `@Repository`
+directly and thereby skip the service layer.
+
+### 10.6 Services
+
+Applies to classes annotated `@Service`.
+
+| Rule | Enforces |
+|------|----------|
+| `namesShouldEndWithService()` | name ends with `Service` |
+| `namesShouldMatch(String regex)` | name matches a regex |
+| `shouldBeAnnotatedWithService()` | classes ending in `Service` carry `@Service` |
+| `shouldBeAnnotatedWithService(String regex)` | same, for classes matching a regex |
+| `shouldNotDependOnControllers()` | no service-to-controller dependencies |
+| `shouldNotDependOnOtherServices()` | no service-to-service dependencies |
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .spring(spring -> spring
-        .transactional(transactional -> transactional
-            .methodsShouldBePublic()
-            .shouldNotBeSelfInvoked()
-            .shouldNotBeUsedInControllers()))
-    .build()
-    .check();
+.spring(spring -> spring
+    .services(services -> services
+        .namesShouldEndWithService()
+        .shouldBeAnnotatedWithService()
+        .shouldNotDependOnControllers()))
 ```
 
-`shouldNotBeSelfInvoked` is the `@Transactional` specific variant of `noSelfInvocationOfProxiedMethods` and reports calls like the following, including the line number of the call site:
+!!! tip
+    `shouldNotDependOnOtherServices` is strict, and deliberately so, but many codebases legitimately
+    compose services. Adopt it only if that is a convention you actually want to hold.
+
+### 10.7 Repositories
+
+Applies to classes annotated `@Repository`.
+
+| Rule | Enforces |
+|------|----------|
+| `namesShouldEndWithRepository()` | name ends with `Repository` |
+| `namesShouldMatch(String regex)` | name matches a regex |
+| `shouldBeAnnotatedWithRepository()` | classes ending in `Repository` carry `@Repository` |
+| `shouldBeAnnotatedWithRepository(String regex)` | same, for classes matching a regex |
+| `shouldNotDependOnControllers()` | no repository-to-controller dependencies |
+| `shouldNotDependOnServices()` | no repository-to-service dependencies |
+
+```java
+.spring(spring -> spring
+    .repositories(repositories -> repositories
+        .namesShouldEndWithRepository()
+        .shouldBeAnnotatedWithRepository()
+        .shouldNotDependOnServices()
+        .shouldNotDependOnControllers()))
+```
+
+### 10.8 Transactional
+
+These rules target the ways `@Transactional` silently does nothing at runtime. Both
+`org.springframework.transaction.annotation.Transactional` and `jakarta.transaction.Transactional`
+are recognised.
+
+| Rule | Enforces |
+|------|----------|
+| `methodsShouldBePublic()` | `@Transactional` methods are `public` |
+| `shouldNotBeSelfInvoked()` | `@Transactional` methods are not called from within their own class |
+| `shouldNotBeUsedInControllers()` | transaction boundaries live in the service layer |
+
+```java
+.spring(spring -> spring
+    .transactional(transactional -> transactional
+        .methodsShouldBePublic()
+        .shouldNotBeSelfInvoked()
+        .shouldNotBeUsedInControllers()))
+```
+
+`methodsShouldBePublic` exists because Spring's proxy-based transaction management ignores
+non-public methods outright.
+
+`shouldNotBeSelfInvoked` is the `@Transactional`-specific variant of
+[`noSelfInvocationOfProxiedMethods`](#spring-noSelfInvocationOfProxiedMethods) and reports the call
+site with its line number:
 
 ```java
 @Service
@@ -1171,149 +1753,91 @@ class OrderService {
 }
 ```
 
+`shouldNotBeUsedInControllers` reports controllers annotated `@Transactional` as well as controllers
+declaring `@Transactional` methods.
 
-## 9. Quarkus Rules
+## 11. Quarkus Rules
 
-Quarkus configuration involves defining constraints specific to Quarkus usage.
+Default import mode: `WITHOUT_TESTS`.
 
-- **No Injection Fields Configuration**: Ensure that fields are not annotated with `@Inject` and constructor injection is preferred.
+### 11.1 General
 
-```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .quarkus(quarkus -> quarkus
-        .noInjectionFields())
-    .build()
-    .check();
-```
+#### `noInjectionFields`
 
-- **Resources Configuration**: Ensure that REST resource classes follow naming, visibility, annotation, and dependency rules.
+Fields must not be annotated `@Inject`; use constructor injection.
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .quarkus(quarkus -> quarkus
-        .resources(resources -> resources
-            .namesShouldEndWithResource()
-            .namesShouldMatch("regex")
-            .shouldBeAnnotatedWithPath()
-            .shouldBePublic()
-            .shouldNotDependOnOtherResources()))
-    .build()
-    .check();
+.quarkus(quarkus -> quarkus
+    .noInjectionFields())
 ```
 
-- **Panache Configuration**: Ensure that Panache entities and repositories follow naming and annotation conventions.
+### 11.2 Resources
+
+Applies to classes annotated `@Path`.
+
+| Rule | Enforces |
+|------|----------|
+| `namesShouldEndWithResource()` | name ends with `Resource` |
+| `namesShouldMatch(String regex)` | name matches a regex |
+| `shouldBeAnnotatedWithPath()` | classes ending in `Resource` carry `@Path` |
+| `shouldBeAnnotatedWithPath(String regex)` | same, for classes matching a regex |
+| `shouldBePublic()` | resource classes are `public` |
+| `shouldNotDependOnOtherResources()` | no resource-to-resource dependencies |
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .quarkus(quarkus -> quarkus
-        .panache(panache -> panache
-            .shouldBeAnnotatedWithEntityWhenActiveRecordPattern()
-            .namesShouldEndWithRepository()
-            .namesShouldMatch("regex")))
-    .build()
-    .check();
+.quarkus(quarkus -> quarkus
+    .resources(resources -> resources
+        .namesShouldEndWithResource()
+        .shouldBeAnnotatedWithPath()
+        .shouldBePublic()
+        .shouldNotDependOnOtherResources()))
 ```
 
-- **AI Services Configuration**: Ensure that AI services using LangChain4j follow naming, scoping, and tool registration conventions.
+### 11.3 Panache
+
+| Rule | Enforces |
+|------|----------|
+| `shouldBeAnnotatedWithEntityWhenActiveRecordPattern()` | classes extending `PanacheEntity` carry `@Entity` |
+| `namesShouldEndWithRepository()` | classes implementing `PanacheRepository` end with `Repository` |
+| `namesShouldMatch(String regex)` | those classes match a regex |
 
 ```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .quarkus(quarkus -> quarkus
-        .ai(ai -> ai
-            .namesShouldEndWithAssistantOrResource()
-            .namesShouldMatch("regex")
-            .shouldBeAnnotatedWithApplicationScoped()
-            .shouldNotUseToolsAttributeInAiService()))
-    .build()
-    .check();
+.quarkus(quarkus -> quarkus
+    .panache(panache -> panache
+        .shouldBeAnnotatedWithEntityWhenActiveRecordPattern()
+        .namesShouldEndWithRepository()))
 ```
 
-## 10. Using Default Rule Profiles
+### 11.4 AI Services
 
-Taikai allows you to define reusable rule profiles – preconfigured sets of rules that can be applied to a project with a single call. This is useful if you want to enforce the same architecture rules across multiple modules or repositories while keeping the rule configuration readable and maintainable.
+Applies to classes annotated `@RegisterAiService` (Quarkus LangChain4j).
 
-A profile is implemented as a `Customizer<T>`, where `T` is the corresponding configurer type (e.g. `JavaConfigurer`, `TestConfigurer`, …). Profiles can be reused as-is or combined with additional project-specific rules.
+| Rule | Enforces |
+|------|----------|
+| `namesShouldEndWithAssistantOrResource()` | name matches `.+(Assistant\|Service)` |
+| `namesShouldMatch(String regex)` | name matches a regex |
+| `shouldBeAnnotatedWithApplicationScoped()` | AI services carry `@ApplicationScoped` |
+| `shouldNotUseToolsAttributeInAiService()` | tools are not declared via the `tools` attribute |
 
 ```java
-Taikai.builder()
-      .namespace("com.enofex.taikai")
-      .java(java -> {
-        DEFAULT_JAVA_PROFILE.customize(java); // apply predefined profile
-        java.classesShouldHaveModifiers(".*", List.of(PRIVATE, FINAL)); // add project-specific rule
-      })
-      .test(DEFAULT_TEST_PROFILE) // use profile directly
-      .build()
-      .checkAll();
-
-private static final Customizer<JavaConfigurer> DEFAULT_JAVA_PROFILE = java -> {
-  java.noUsageOf(Date.class)
-      .fieldsShouldNotBePublic();
-      // … more rules …
-};
-
-private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> {
-  test.junit(junit -> junit
-      .methodsShouldBePackagePrivate()
-      .methodsShouldMatch("should.*")
-      .methodsShouldContainAssertionsOrVerifications()
-      .classesShouldBePackagePrivate(".*Test")
-      .classesShouldNotBeAnnotatedWithDisabled());
-      // … more rules …
-};
+.quarkus(quarkus -> quarkus
+    .ai(ai -> ai
+        .namesShouldEndWithAssistantOrResource()
+        .shouldBeAnnotatedWithApplicationScoped()
+        .shouldNotUseToolsAttributeInAiService()))
 ```
 
-## 11. Customization
+!!! warning
+    Despite its name, `namesShouldEndWithAssistantOrResource` accepts names ending in `Assistant` or
+    **`Service`**, not `Resource`. Use `namesShouldMatch` if you need a different pattern.
 
-### Custom Configuration for Import Rules
+`shouldNotUseToolsAttributeInAiService` steers you towards `@Toolbox` on the method, which scopes
+tools per call instead of per service.
 
-For every rule, you have the flexibility to add a custom configuration. This allows you to specify the namespace, import options, and exclude specific classes from the checks.
+## 12. Recommended Starter Configuration
 
-The `Configuration` class offers various static methods to create custom configurations:
-- `Configuration.of(String namespace)` to set a custom namespace.
-- `Configuration.of(Namespace.IMPORT namespaceImport)` to specify import options such as `WITHOUT_TESTS`, `WITH_TESTS`, or `ONLY_TESTS`.
-- `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` to set both namespace and import options.
-- `Configuration.of(JavaClasses javaClasses)` to directly provide a set of [Java classes](https://www.archunit.org/userguide/html/000_Index.html#_importing_classes).
-- `Configuration.of(Collection<String> excludedClasses)` to exclude specific classes from the checks. 
-- `Configuration.of(Collection<Class> excludedClasses)` to exclude specific classes from the checks.
-- Additional overloaded methods to combine these options in various ways.
-
-If a `namespaceImport` is not explicitly provided, it defaults to `Namespace.IMPORT.WITHOUT_TESTS`.
-
-Here's an example of how you can use these methods to create a custom configuration:
-
-```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .java(java -> java
-        .imports(imports -> imports
-            .shouldNotImport("..internal..", Configuration.of("com.company.project.different", Namespace.IMPORT.WITHOUT_TESTS))
-            .shouldNotImport(lombok(), Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
-    .build()
-    .check();
-```
-
-In this example, the import rule is configured to apply to classes within the specified namespace, excluding test classes.
-
-### Adding Custom ArchUnit Rules
-
-In addition to the predefined rules provided by Taikai, you can also add custom ArchUnit rules to tailor the architecture testing to your specific project requirements. Here's how you can integrate custom rules into your Taikai configuration:
-
-```java
-Taikai.builder()
-    .namespace("com.company.project")
-    .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
-    .build()
-    .check();
-```
-By using the `addRule()` method and providing a custom ArchUnit rule, you can extend Taikai's capabilities to enforce additional architectural constraints that are not covered by the predefined rules. This flexibility allows you to adapt Taikai to suit the unique architectural needs of your Java project.
-
-## 12. Examples
-
-Below are some examples demonstrating the usage of Taikai to define and enforce architectural rules in Java projects, including Spring-specific configurations:
+A reasonable baseline for a new Spring Boot project. It is deliberately conservative: every rule
+here is one most teams already agree on. Add the stricter rules once this passes.
 
 ```java
 class ArchitectureTest {
@@ -1322,38 +1846,138 @@ class ArchitectureTest {
   void shouldFulfillConstraints() {
     Taikai.builder()
         .namespace("com.company.project")
+        .failOnEmpty(true)
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
-            .classesShouldImplementHashCodeAndEquals()
+            .noUsageOfSystemOutOrErr()
+            .fieldsShouldNotBePublic()
+            .finalClassesShouldNotHaveProtectedMembers()
             .methodsShouldNotDeclareGenericExceptions()
-            .utilityClassesShouldBeFinalAndHavePrivateConstructor())
-        .test(test -> test
-            .junit(junit -> junit
-                .classesShouldNotBeAnnotatedWithDisabled()
-                .methodsShouldNotBeAnnotatedWithDisabled()))
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .serialVersionUIDFieldsShouldBeStaticFinalLong()
+            .classesShouldImplementHashCodeAndEquals()
+            .imports(imports -> imports
+                .shouldHaveNoCycles()
+                .shouldNotImport("..internal.."))
+            .naming(naming -> naming
+                .packagesShouldMatchDefault()
+                .classesShouldNotMatch(".*Impl")
+                .constantsShouldFollowConventions()
+                .enumConstantsShouldFollowConventions()
+                .interfacesShouldNotHavePrefixI()))
         .logging(logging -> logging
             .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))
+        .test(test -> test
+            .junit(junit -> junit
+                .classesShouldEndWithTest()
+                .classesShouldBePackagePrivate(".*Test")
+                .classesShouldNotBeAnnotatedWithDisabled()
+                .methodsShouldBePackagePrivate()
+                .methodsShouldNotBeAnnotatedWithDisabled()
+                .methodsShouldNotDeclareExceptions()
+                .methodsShouldContainAssertionsOrVerifications()))
         .spring(spring -> spring
             .noAutowiredFields()
+            .noSelfInvocationOfProxiedMethods()
             .boot(boot -> boot
-                .applicationClassShouldResideInPackage("com.company.project"))
-            .configurations(configuration -> configuration
-                .namesShouldEndWithConfiguration()
-                .namesShouldMatch("regex"))
+                .applicationClassShouldResideInPackage())
+            .configurations(configurations -> configurations
+                .namesShouldEndWithConfiguration())
             .controllers(controllers -> controllers
-                .shouldBeAnnotatedWithRestController()
                 .namesShouldEndWithController()
-                .namesShouldMatch("regex")
+                .shouldBeAnnotatedWithRestController()
+                .shouldBePackagePrivate()
                 .shouldNotDependOnOtherControllers()
-                .shouldBePackagePrivate())
+                .shouldNotDependOnRepositories())
             .services(services -> services
                 .namesShouldEndWithService()
-                .shouldBeAnnotatedWithService())
+                .shouldBeAnnotatedWithService()
+                .shouldNotDependOnControllers())
             .repositories(repositories -> repositories
                 .namesShouldEndWithRepository()
-                .shouldBeAnnotatedWithRepository()))
+                .shouldBeAnnotatedWithRepository()
+                .shouldNotDependOnServices()
+                .shouldNotDependOnControllers())
+            .transactional(transactional -> transactional
+                .methodsShouldBePublic()
+                .shouldNotBeSelfInvoked()
+                .shouldNotBeUsedInControllers()))
         .build()
-        .check();
+        .checkAll();
+  }
+}
+```
+
+Adopting this on an existing codebase will usually produce violations. Two ways to stage the
+rollout:
+
+- Run `checkAll()` to get the full list, then add the offenders to
+  [`excludeClasses`](#54-excluding-classes-globally) or a per-rule
+  [`Configuration`](#58-per-rule-configuration) and work the list down.
+- Enable the rule groups one at a time, committing each as it goes green.
+
+## 13. Deprecated and Legacy Methods
+
+| Deprecated                                                     | Use instead                                              | Status                      |
+|----------------------------------------------------------------|----------------------------------------------------------|-----------------------------|
+| `test.junit5(...)`                                             | `test.junit(...)`                                        | `@Deprecated(forRemoval)`   |
+| `boot.springBootApplicationShouldBeIn(...)`                    | `boot.applicationClassShouldResideInPackage(...)`        | `@Deprecated(forRemoval)`   |
+| `quarkus.ai.annotatedWithApplicationScoped()`                  | `quarkus.ai.shouldBeAnnotatedWithApplicationScoped()`    | legacy alias                |
+| `quarkus.ai.notUseRegisterAiServiceToDefineTools()`            | `quarkus.ai.shouldNotUseToolsAttributeInAiService()`     | legacy alias                |
+| `quarkus.panache.annotatedWithEntityWhenActiveRecordPattern()` | `quarkus.panache.shouldBeAnnotatedWithEntityWhenActiveRecordPattern()` | legacy alias |
+
+The legacy aliases delegate to their replacement and behave identically. They are not yet marked
+`@Deprecated`, but the `should...` names are the supported spelling.
+
+## 14. Complete Example
+
+The configuration Taikai applies to its own codebase, from
+[`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java):
+
+```java
+import static com.enofex.taikai.java.ImportPatterns.lombok;
+import static com.enofex.taikai.java.ImportPatterns.shaded;
+import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
+import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
+
+class ArchitectureTest {
+
+  @Test
+  void shouldFulfillConstraints() {
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .java(java -> java
+            .noUsageOfDeprecatedAPIs()
+            .noUsageOfSystemOutOrErr()
+            .noUsageOf(Date.class)
+            .noUsageOf(Calendar.class)
+            .noUsageOf(SimpleDateFormat.class)
+            .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL))
+            .classesShouldImplementHashCodeAndEquals()
+            .finalClassesShouldNotHaveProtectedMembers()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .methodsShouldNotDeclareGenericExceptions()
+            .fieldsShouldNotBePublic()
+            .serialVersionUIDFieldsShouldBeStaticFinalLong()
+            .classesShouldResideInPackage("com.enofex.taikai..")
+            .imports(imports -> imports
+                .shouldHaveNoCycles()
+                .shouldNotImport("org.springframework.core.annotation..")
+                .shouldNotImport("jakarta.annotation..")
+                .shouldNotImport("javax.annotation..")
+                .shouldNotImport("org.jetbrains.annotations..")
+                .shouldNotImport(shaded())
+                .shouldNotImport(lombok()))
+            .naming(naming -> naming
+                .packagesShouldMatchDefault()
+                .fieldsShouldNotMatch(".*(List|Set|Map)$")
+                .classesShouldNotMatch(".*Impl")
+                .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")
+                .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
+                .interfacesShouldNotHavePrefixI()
+                .constantsShouldFollowConventions()))
+        .build()
+        .checkAll();
   }
 }
 ```
