@@ -522,6 +522,7 @@ Default import mode: `WITHOUT_TESTS`.
 | [`classesShouldImplement`](#classesShouldImplement) | matching classes implement an interface |
 | [`classesShouldHaveModifiers`](#classesShouldHaveModifiers) | matching classes carry modifiers |
 | [`classesShouldNotHaveModifiers`](#classesShouldNotHaveModifiers) | matching classes lack modifiers |
+| [`classesShouldBePackagePrivate`](#classesShouldBePackagePrivate) | matching / annotated / assignable classes are package-private |
 | [`classesShouldBeAnnotatedWith`](#classesShouldBeAnnotatedWith) | matching classes carry an annotation |
 | [`classesShouldNotBeAnnotatedWith`](#classesShouldNotBeAnnotatedWith) | matching classes lack an annotation |
 | [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) | annotated classes carry further annotations |
@@ -657,6 +658,21 @@ The first parameter is the same literal simple-name suffix, not a regex.
 ```java
 .java(java -> java
     .classesShouldNotHaveModifiers(".*Internal", List.of(PUBLIC)))
+```
+
+#### `classesShouldBePackagePrivate` { #classesShouldBePackagePrivate }
+
+`classesShouldBePackagePrivate(String regex)`,
+`classesAnnotatedWithShouldBePackagePrivate(Class<? extends Annotation> | String annotationType)`,
+`classesAssignableToShouldBePackagePrivate(Class<?> | String typeName)`
+
+Keeps module internals such as JPA entities and Spring Data repositories hidden from other packages.
+
+```java
+.java(java -> java
+    .classesShouldBePackagePrivate(".*Mapper")
+    .classesAnnotatedWithShouldBePackagePrivate("jakarta.persistence.Entity")
+    .classesAssignableToShouldBePackagePrivate("org.springframework.data.repository.Repository"))
 ```
 
 #### `classesShouldBeAnnotatedWith` { #classesShouldBeAnnotatedWith }
@@ -1733,6 +1749,7 @@ Applies to classes annotated `@Repository`.
 | `shouldBeAnnotatedWithRepository(String regex)` | same, for classes matching a regex |
 | `shouldNotDependOnControllers()` | no repository-to-controller dependencies |
 | `shouldNotDependOnServices()` | no repository-to-service dependencies |
+| `shouldBePackagePrivate()` | `@Repository` classes and Spring Data repositories are package-private |
 
 ```java
 .spring(spring -> spring
@@ -1740,7 +1757,8 @@ Applies to classes annotated `@Repository`.
         .namesShouldEndWithRepository()
         .shouldBeAnnotatedWithRepository()
         .shouldNotDependOnServices()
-        .shouldNotDependOnControllers()))
+        .shouldNotDependOnControllers()
+        .shouldBePackagePrivate()))
 ```
 
 ### 10.8 Transactional

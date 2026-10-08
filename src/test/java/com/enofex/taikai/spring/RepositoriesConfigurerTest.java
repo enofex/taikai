@@ -14,6 +14,38 @@ import org.springframework.web.bind.annotation.RestController;
 class RepositoriesConfigurerTest {
 
   @Nested
+  class ShouldBePackagePrivate {
+
+    @Test
+    void shouldNotThrowWhenRepositoryIsPackagePrivate() {
+      Taikai taikai = Taikai.builder()
+          .classes(PackagePrivateRepository.class)
+          .spring(spring -> spring.repositories(RepositoriesConfigurer::shouldBePackagePrivate))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenRepositoryIsPublic() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicRepository.class)
+          .spring(spring -> spring.repositories(RepositoriesConfigurer::shouldBePackagePrivate))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Repository
+  static class PackagePrivateRepository {
+  }
+
+  @Repository
+  public static class PublicRepository {
+  }
+
+  @Nested
   class NamesShouldEndWithRepository {
 
     @Test

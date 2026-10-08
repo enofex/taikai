@@ -1505,6 +1505,139 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
+   * Adds a rule enforcing that classes whose names match a regex should be package-private.
+   *
+   * @param regex the regex for class names
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldBePackagePrivate(String regex) {
+    return classesShouldBePackagePrivate(regex, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes whose names match a regex should be package-private,
+   * using a custom configuration.
+   *
+   * @param regex the regex for class names
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesShouldBePackagePrivate(String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().haveNameMatching(regex)
+            .should().bePackagePrivate()
+            .as("Classes have name matching %s should be package-private".formatted(regex)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with a given annotation type
+   * should be package-private (e.g. {@code jakarta.persistence.Entity}).
+   *
+   * @param annotationType the annotation type to check
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(
+      Class<? extends Annotation> annotationType) {
+    return classesAnnotatedWithShouldBePackagePrivate(annotationType.getName(),
+        defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with a given annotation type
+   * should be package-private, using a custom configuration.
+   *
+   * @param annotationType the annotation type to check
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return classesAnnotatedWithShouldBePackagePrivate(annotationType.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with an annotation whose name matches
+   * the given type name should be package-private (e.g. {@code "jakarta.persistence.Entity"}).
+   *
+   * @param annotationType the annotation type name to check
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(String annotationType) {
+    return classesAnnotatedWithShouldBePackagePrivate(annotationType, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes annotated with an annotation whose name matches
+   * the given type name should be package-private, using a custom configuration.
+   *
+   * @param annotationType the annotation type name to check
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(String annotationType,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().areAnnotatedWith(annotationType)
+            .should().bePackagePrivate()
+            .as("Classes annotated with %s should be package-private".formatted(annotationType)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that classes assignable to the given type should be package-private
+   * (e.g. Spring Data repositories extending {@code org.springframework.data.repository.Repository}).
+   *
+   * @param clazz the type the classes are assignable to
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAssignableToShouldBePackagePrivate(Class<?> clazz) {
+    return classesAssignableToShouldBePackagePrivate(clazz.getName(), defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes assignable to the given type should be package-private,
+   * using a custom configuration.
+   *
+   * @param clazz the type the classes are assignable to
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAssignableToShouldBePackagePrivate(Class<?> clazz,
+      Configuration configuration) {
+    return classesAssignableToShouldBePackagePrivate(clazz.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that classes assignable to the type with the given name
+   * should be package-private.
+   *
+   * @param typeName the fully qualified name of the type the classes are assignable to
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAssignableToShouldBePackagePrivate(String typeName) {
+    return classesAssignableToShouldBePackagePrivate(typeName, defaultConfiguration());
+  }
+
+  /**
+   * Adds a rule enforcing that classes assignable to the type with the given name
+   * should be package-private, using a custom configuration.
+   *
+   * @param typeName the fully qualified name of the type the classes are assignable to
+   * @param configuration the configuration to use
+   * @return this {@link JavaConfigurer} for fluent chaining
+   */
+  public JavaConfigurer classesAssignableToShouldBePackagePrivate(String typeName,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().areAssignableTo(typeName)
+            .and().doNotHaveFullyQualifiedName(typeName)
+            .should().bePackagePrivate()
+            .as("Classes assignable to %s should be package-private".formatted(typeName)),
+        configuration));
+  }
+
+  /**
    * Adds a rule enforcing that fields should not be {@code public}
    * unless they are also {@code static}.
    *

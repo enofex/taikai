@@ -5,6 +5,7 @@ import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REPO
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRepository;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.springDataRepository;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
@@ -16,6 +17,7 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.core.domain.JavaClass;
 
 /**
  * Configures and enforces conventions for Spring {@code @Repository} classes
@@ -34,6 +36,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *             .namesShouldEndWithRepository()
  *             .shouldBeAnnotatedWithRepository()
  *             .shouldNotDependOnServices()
+ *             .shouldBePackagePrivate()
  *         )
  *     );
  * }</pre>
@@ -186,6 +189,30 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
             .should(not(dependOnClassesThat(annotatedWithService(true))))
             .as("Repositories should not depend on Services"),
         configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that repositories should have package-private visibility.
+   * Repositories are classes annotated with {@code @Repository} or types extending
+   * Spring Data's {@code org.springframework.data.repository.Repository}.
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public RepositoriesConfigurer shouldBePackagePrivate() {
+    return shouldBePackagePrivate(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldBePackagePrivate()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public RepositoriesConfigurer shouldBePackagePrivate(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that(are(annotatedWithRepository(true).<JavaClass>forSubtype().or(springDataRepository())))
+        .should().bePackagePrivate()
+        .as("Repositories should be package-private"), configuration));
   }
 
   @Override
