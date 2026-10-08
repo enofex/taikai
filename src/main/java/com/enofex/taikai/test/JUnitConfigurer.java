@@ -4,6 +4,7 @@ import static com.enofex.taikai.internal.ArchConditions.notDeclareThrownExceptio
 import static com.enofex.taikai.test.ContainAssertionsOrVerifications.containAssertionsOrVerifications;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_DISABLED;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_DISPLAY_NAME;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_NESTED;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.annotatedWithTestOrParameterizedTest;
@@ -21,6 +22,7 @@ import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -49,6 +51,7 @@ import java.util.regex.Pattern;
  *             .classesShouldBePackagePrivate(".*Test")
  *             .classesShouldNotBeAnnotatedWithDisabled()
  *             .classesShouldEndWithTest()
+ *             .nestedClassesShouldBeAnnotatedWithNested()
  *         )
  *     );
  * }</pre>
@@ -312,6 +315,37 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .should(haveTopLevelClassNameMatching(regex))
             .as("Classes containing methods annotated with %s or %s should have names matching %s".formatted(
                 ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST, regex)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule that inner classes containing methods annotated with {@code @Test} or
+   * {@code @ParameterizedTest} should be annotated with {@code @Nested}.
+   *
+   * <p>JUnit does not execute a non-static inner class without {@code @Nested} and only reports
+   * a discovery warning, so its tests are silently skipped. Abstract inner classes are excluded,
+   * because JUnit allows them as base classes for {@code @Nested} classes.</p>
+   *
+   * @return this configurer instance for fluent chaining
+   */
+  public JUnitConfigurer nestedClassesShouldBeAnnotatedWithNested() {
+    return nestedClassesShouldBeAnnotatedWithNested(CONFIGURATION);
+  }
+
+  /**
+   * See {@link #nestedClassesShouldBeAnnotatedWithNested()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the configuration for rule customization
+   * @return this configurer instance for fluent chaining
+   */
+  public JUnitConfigurer nestedClassesShouldBeAnnotatedWithNested(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .that().areInnerClasses()
+            .and().doNotHaveModifier(JavaModifier.ABSTRACT)
+            .and(containTestOrParameterizedTestMethods())
+            .should().beMetaAnnotatedWith(ANNOTATION_NESTED)
+            .as("Inner classes containing methods annotated with %s or %s should be annotated with %s".formatted(
+                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST, ANNOTATION_NESTED)),
         configuration));
   }
 

@@ -335,7 +335,10 @@ class Usage {
                 .classesShouldBePackagePrivate(".*Test", defaultConfiguration())
 
                 .classesShouldNotBeAnnotatedWithDisabled()
-                .classesShouldNotBeAnnotatedWithDisabled(defaultConfiguration())))
+                .classesShouldNotBeAnnotatedWithDisabled(defaultConfiguration())
+
+                .nestedClassesShouldBeAnnotatedWithNested()
+                .nestedClassesShouldBeAnnotatedWithNested(defaultConfiguration())))
 
         .spring(spring -> spring
             .noAutowiredFields()

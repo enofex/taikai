@@ -6,7 +6,10 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -319,6 +322,105 @@ class JUnitConfigurerTest {
         assertDoesNotThrow(taikai::check);
     }
 
+    @Test
+    void shouldApplyNestedClassesShouldBeAnnotatedWithNested() {
+        Taikai taikai = Taikai.builder()
+                .classes(ValidNestedTest.Inner.class)
+                .failOnEmpty(true)
+                .test(test -> test.junit(
+                        JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldApplyNestedClassesShouldBeAnnotatedWithNestedWhenMetaAnnotated() {
+        Taikai taikai = Taikai.builder()
+                .classes(ValidMetaNestedTest.Inner.class)
+                .failOnEmpty(true)
+                .test(test -> test.junit(
+                        JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenInnerClassWithTestMethodsIsNotAnnotatedWithNested() {
+        Taikai taikai = Taikai.builder()
+                .classes(MissingNestedTest.Inner.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+                ))
+                .build();
+
+        assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenInnerClassWithParameterizedTestMethodsIsNotAnnotatedWithNested() {
+        Taikai taikai = Taikai.builder()
+                .classes(MissingNestedParameterizedTest.Inner.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+                ))
+                .build();
+
+        assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotApplyNestedClassesShouldBeAnnotatedWithNestedToStaticNestedClasses() {
+        Taikai taikai = Taikai.builder()
+                .classes(StaticNestedTest.Inner.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotApplyNestedClassesShouldBeAnnotatedWithNestedToAbstractInnerClasses() {
+        Taikai taikai = Taikai.builder()
+                .classes(AbstractInnerTest.Inner.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotApplyNestedClassesShouldBeAnnotatedWithNestedToInnerClassesWithoutTests() {
+        Taikai taikai = Taikai.builder()
+                .classes(InnerHelperTest.Helper.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForNestedClassesShouldBeAnnotatedWithNested() {
+        Taikai taikai = Taikai.builder()
+                .classes(MissingNestedTest.Inner.class)
+                .test(test -> test.junit(
+                        junit -> junit.nestedClassesShouldBeAnnotatedWithNested(
+                                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())
+                ))
+                .build();
+
+        assertThrows(AssertionError.class, taikai::check);
+    }
+
     static class ValidTestMethodName {
         @Test
         void shouldDoSomething() {}
@@ -407,5 +509,60 @@ class JUnitConfigurerTest {
         void shouldVerifyArchRule() {
             rule.check(new ClassFileImporter().importClasses(Object.class));
         }
+    }
+
+    static class ValidNestedTest {
+        @Nested
+        class Inner {
+            @Test
+            void shouldWork() {}
+        }
+    }
+
+    static class ValidMetaNestedTest {
+        @NestedAnnotation
+        class Inner {
+            @Test
+            void shouldWork() {}
+        }
+    }
+
+    static class MissingNestedTest {
+        class Inner {
+            @Test
+            void shouldNotRun() {}
+        }
+    }
+
+    static class MissingNestedParameterizedTest {
+        class Inner {
+            @ParameterizedTest
+            @EmptySource
+            void shouldNotRun(String empty) {}
+        }
+    }
+
+    static class StaticNestedTest {
+        static class Inner {
+            @Test
+            void shouldWork() {}
+        }
+    }
+
+    static class AbstractInnerTest {
+        abstract class Inner {
+            @Test
+            void shouldWork() {}
+        }
+    }
+
+    static class InnerHelperTest {
+        class Helper {
+            void doSomething() {}
+        }
+    }
+
+    @Nested
+    @interface NestedAnnotation {
     }
 }

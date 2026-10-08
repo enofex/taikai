@@ -1335,6 +1335,7 @@ Default import mode: `ONLY_TESTS`. All rules live in the nested `junit(...)` con
 | [`classesShouldMatch`](#junit-classesShouldMatch) | test class names match a regex |
 | [`classesShouldBePackagePrivate`](#junit-classesShouldBePackagePrivate) | matching classes are package-private |
 | [`classesShouldNotBeAnnotatedWithDisabled`](#junit-classesShouldNotBeAnnotatedWithDisabled) | no `@Disabled` classes |
+| [`nestedClassesShouldBeAnnotatedWithNested`](#junit-nestedClassesShouldBeAnnotatedWithNested) | inner test classes carry `@Nested` |
 | [`methodsShouldMatch`](#junit-methodsShouldMatch) | test method names match a regex |
 | [`methodsShouldBePackagePrivate`](#junit-methodsShouldBePackagePrivate) | test methods are package-private |
 | [`methodsShouldBeAnnotatedWithDisplayName`](#junit-methodsShouldBeAnnotatedWithDisplayName) | test methods carry `@DisplayName` |
@@ -1396,6 +1397,36 @@ Unlike the rules above, this one selects purely by name, not by the presence of 
     .junit(junit -> junit
         .classesShouldNotBeAnnotatedWithDisabled()))
 ```
+
+#### `nestedClassesShouldBeAnnotatedWithNested` { #junit-nestedClassesShouldBeAnnotatedWithNested }
+
+JUnit does not run an inner (non-static) class without `@Nested`. It only reports a discovery
+warning, so the build stays green while the tests inside are silently skipped:
+
+```java
+class OrderServiceTest {
+
+  class WhenCancelled {   // missing @Nested, never runs
+
+    @Test
+    void shouldRefundPayment() { ... }
+  }
+}
+```
+
+The rule checks inner classes containing test methods. Static nested classes are not inner classes,
+and abstract inner classes are skipped because JUnit allows them as base classes for `@Nested`
+classes. Meta-annotations carrying `@Nested` are accepted.
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .nestedClassesShouldBeAnnotatedWithNested()))
+```
+
+!!! note
+    A project without inner test classes matches nothing, so this rule fails under
+    `failOnEmpty(true)`.
 
 #### `methodsShouldMatch` { #junit-methodsShouldMatch }
 
