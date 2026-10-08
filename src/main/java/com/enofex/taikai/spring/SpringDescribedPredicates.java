@@ -17,7 +17,7 @@ final class SpringDescribedPredicates {
   static final String ANNOTATION_REST_CONTROLLER = "org.springframework.web.bind.annotation.RestController";
   static final String ANNOTATION_SERVICE = "org.springframework.stereotype.Service";
   static final String ANNOTATION_REPOSITORY = "org.springframework.stereotype.Repository";
-  static final String SPRING_DATA_REPOSITORY = "org.springframework.data.repository.Repository";
+  static final String ANNOTATION_DATA_REPOSITORY = "org.springframework.data.repository.Repository";
   static final String ANNOTATION_SPRING_BOOT_APPLICATION = "org.springframework.boot.autoconfigure.SpringBootApplication";
   static final String ANNOTATION_AUTOWIRED = "org.springframework.beans.factory.annotation.Autowired";
   static final String ANNOTATION_VALIDATED = "org.springframework.validation.annotation.Validated";
@@ -87,8 +87,8 @@ final class SpringDescribedPredicates {
   }
 
   static DescribedPredicate<JavaClass> springDataRepository() {
-    return JavaClass.Predicates.assignableTo(SPRING_DATA_REPOSITORY)
-        .and(DescribedPredicate.not(HasName.Predicates.name(SPRING_DATA_REPOSITORY)))
+    return JavaClass.Predicates.assignableTo(ANNOTATION_DATA_REPOSITORY)
+        .and(DescribedPredicate.not(HasName.Predicates.name(ANNOTATION_DATA_REPOSITORY)))
         .as("Spring Data repositories");
   }
 
