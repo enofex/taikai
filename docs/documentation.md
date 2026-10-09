@@ -1720,7 +1720,7 @@ Applies to classes annotated `@Service`.
 |------|----------|
 | `namesShouldEndWithService()` | name ends with `Service` |
 | `namesShouldMatch(String regex)` | name matches a regex |
-| `shouldBeAnnotatedWithService()` | classes ending in `Service` carry `@Service` |
+| `shouldBeAnnotatedWithService()` | classes ending in `Service` carry `@Service` (interfaces excluded) |
 | `shouldBeAnnotatedWithService(String regex)` | same, for classes matching a regex |
 | `shouldNotDependOnControllers()` | no service-to-controller dependencies |
 | `shouldNotDependOnOtherServices()` | no service-to-service dependencies |
