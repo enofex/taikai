@@ -94,7 +94,7 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
 
   /**
    * Adds a rule enforcing that classes with names ending in {@code Service}
-   * should be annotated with {@code @Service}.
+   * should be annotated with {@code @Service}. Interfaces are excluded.
    *
    * @return this configurer instance for fluent chaining
    */
@@ -114,7 +114,7 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
 
   /**
    * Adds a rule enforcing that classes matching the given regex
-   * should be annotated with {@code @Service}.
+   * should be annotated with {@code @Service}. Interfaces are excluded.
    *
    * @param regex the regex for service class names
    * @return this configurer instance for fluent chaining
@@ -132,7 +132,7 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
    */
   public ServicesConfigurer shouldBeAnnotatedWithService(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that().areNotInterfaces().and().haveNameMatching(regex)
             .should(be(annotatedWithService(true)))
             .as("Services should be annotated with %s".formatted(ANNOTATION_SERVICE)),
         configuration));

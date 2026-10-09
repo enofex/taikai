@@ -80,6 +80,27 @@ class ServicesConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenServiceInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(EmailService.class, JavaMailEmailService.class,
+              ConsoleLoggingEmailService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenServiceImplementationMissingAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(EmailService.class, MissingAnnotationEmailService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
   @Nested
@@ -192,6 +213,35 @@ class ServicesConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenMatchingInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(EmailService.class, JavaMailEmailService.class)
+          .spring(spring -> spring.services(
+              svc -> svc.shouldBeAnnotatedWithService(".+Service")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class ServiceInterfaceWithMultipleImplementations {
+
+    @Test
+    void shouldNotThrowWhenAllRulesAreAppliedToServiceInterface() {
+      Taikai taikai = Taikai.builder()
+          .classes(EmailService.class, JavaMailEmailService.class,
+              ConsoleLoggingEmailService.class)
+          .spring(spring -> spring.services(services -> services
+              .shouldBeAnnotatedWithService()
+              .shouldNotDependOnControllers()
+              .namesShouldEndWithService()))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Service
@@ -210,6 +260,34 @@ class ServicesConfigurerTest {
 
   static class UtilityHelper {
 
+  }
+
+  interface EmailService {
+
+    void send(String to, String subject, String content);
+  }
+
+  @Service
+  static class JavaMailEmailService implements EmailService {
+
+    @Override
+    public void send(String to, String subject, String content) {
+    }
+  }
+
+  @Service
+  static class ConsoleLoggingEmailService implements EmailService {
+
+    @Override
+    public void send(String to, String subject, String content) {
+    }
+  }
+
+  static class MissingAnnotationEmailService implements EmailService {
+
+    @Override
+    public void send(String to, String subject, String content) {
+    }
   }
 
   @Controller
