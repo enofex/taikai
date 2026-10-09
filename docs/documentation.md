@@ -1638,7 +1638,7 @@ Applies to classes annotated `@ConfigurationProperties`, except
 |------|----------|
 | `namesShouldEndWithProperties()` | name ends with `Properties` |
 | `namesShouldMatch(String regex)` | name matches a regex |
-| `shouldBeAnnotatedWithConfigurationProperties()` | classes ending in `Properties` carry the annotation |
+| `shouldBeAnnotatedWithConfigurationProperties()` | classes ending in `Properties` carry the annotation (interfaces excluded) |
 | `shouldBeAnnotatedWithConfigurationProperties(String regex)` | same, for classes matching a regex |
 | `shouldBeAnnotatedWithValidated()` | classes carry `@Validated` |
 | `shouldBeRecords()` | classes are records |
@@ -1675,9 +1675,9 @@ Applies to classes annotated `@Controller` or `@RestController`.
 |------|----------|
 | `namesShouldEndWithController()` | name ends with `Controller` |
 | `namesShouldMatch(String regex)` | name matches a regex |
-| `shouldBeAnnotatedWithController()` | classes ending in `Controller` carry `@Controller` |
+| `shouldBeAnnotatedWithController()` | classes ending in `Controller` carry `@Controller` (interfaces excluded) |
 | `shouldBeAnnotatedWithController(String regex)` | same, for classes matching a regex |
-| `shouldBeAnnotatedWithRestController()` | classes ending in `Controller` carry `@RestController` |
+| `shouldBeAnnotatedWithRestController()` | classes ending in `Controller` carry `@RestController` (interfaces excluded) |
 | `shouldBeAnnotatedWithRestController(String regex)` | same, for classes matching a regex |
 | `shouldBePackagePrivate()` | controllers are package-private |
 | `shouldNotDependOnOtherControllers()` | no controller-to-controller dependencies |
@@ -1828,7 +1828,7 @@ Applies to classes annotated `@Path`.
 |------|----------|
 | `namesShouldEndWithResource()` | name ends with `Resource` |
 | `namesShouldMatch(String regex)` | name matches a regex |
-| `shouldBeAnnotatedWithPath()` | classes ending in `Resource` carry `@Path` |
+| `shouldBeAnnotatedWithPath()` | classes ending in `Resource` carry `@Path` (interfaces excluded) |
 | `shouldBeAnnotatedWithPath(String regex)` | same, for classes matching a regex |
 | `shouldBePublic()` | resource classes are `public` |
 | `shouldNotDependOnOtherResources()` | no resource-to-resource dependencies |

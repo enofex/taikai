@@ -112,7 +112,7 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
 
   /**
    * Adds a rule that resource classes (matching the default name pattern)
-   * should be annotated with {@code @Path}.
+   * should be annotated with {@code @Path}. Interfaces are excluded.
    *
    * @return this configurer instance for fluent chaining
    */
@@ -133,7 +133,7 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
 
   /**
    * Adds a rule that resource classes matching the given regex
-   * should be annotated with {@code @Path}.
+   * should be annotated with {@code @Path}. Interfaces are excluded.
    *
    * @param regex the regex for resource class names
    * @return this configurer instance for fluent chaining
@@ -151,7 +151,7 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
    */
   public ResourcesConfigurer shouldBeAnnotatedWithPath(String regex, TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that().areNotInterfaces().and().haveNameMatching(regex)
             .should(be(annotatedWithPath(true)))
             .as("Resources should be annotated with %s".formatted(ANNOTATION_PATH)),
         configuration));

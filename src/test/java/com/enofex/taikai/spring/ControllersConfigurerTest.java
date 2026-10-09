@@ -76,6 +76,17 @@ class ControllersConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenControllerInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(OrderController.class, DefaultOrderController.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldBeAnnotatedWithRestController))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -101,6 +112,17 @@ class ControllersConfigurerTest {
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenControllerInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(OrderController.class, DefaultOrderController.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldBeAnnotatedWithController))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
     }
   }
 
@@ -281,6 +303,15 @@ class ControllersConfigurerTest {
 
   }
 
+  interface OrderController {
+
+  }
+
+  @RestController
+  static class DefaultOrderController implements OrderController {
+
+  }
+
   @Nested
   class NamesShouldMatch {
 
@@ -331,6 +362,17 @@ class ControllersConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenMatchingInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(OrderController.class, DefaultOrderController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(".+Controller")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -356,6 +398,17 @@ class ControllersConfigurerTest {
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenMatchingInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(OrderController.class, DefaultOrderController.class)
+          .spring(spring -> spring.controllers(
+              ctrl -> ctrl.shouldBeAnnotatedWithController(".+Controller")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
     }
   }
 

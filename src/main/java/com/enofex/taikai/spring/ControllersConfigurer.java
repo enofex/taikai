@@ -100,7 +100,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
 
   /**
    * Adds a rule that controller classes (matching the default name pattern)
-   * should be annotated with {@code @RestController}.
+   * should be annotated with {@code @RestController}. Interfaces are excluded.
    *
    * @return this configurer instance for fluent chaining
    */
@@ -121,7 +121,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
 
   /**
    * Adds a rule that controller classes matching the given regex
-   * should be annotated with {@code @RestController}.
+   * should be annotated with {@code @RestController}. Interfaces are excluded.
    *
    * @param regex the regex for controller class names
    * @return this configurer instance for fluent chaining
@@ -139,7 +139,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
    */
   public ControllersConfigurer shouldBeAnnotatedWithRestController(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that().areNotInterfaces().and().haveNameMatching(regex)
             .should(be(annotatedWithRestController(true)))
             .as("Controllers should be annotated with %s".formatted(ANNOTATION_REST_CONTROLLER)),
         configuration));
@@ -147,7 +147,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
 
   /**
    * Adds a rule that controller classes (matching the default name pattern)
-   * should be annotated with {@code @Controller}.
+   * should be annotated with {@code @Controller}. Interfaces are excluded.
    *
    * @return this configurer instance for fluent chaining
    */
@@ -168,7 +168,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
 
   /**
    * Adds a rule that controller classes matching the given regex
-   * should be annotated with {@code @Controller}.
+   * should be annotated with {@code @Controller}. Interfaces are excluded.
    *
    * @param regex the regex for controller class names
    * @return this configurer instance for fluent chaining
@@ -186,7 +186,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
    */
   public ControllersConfigurer shouldBeAnnotatedWithController(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that().areNotInterfaces().and().haveNameMatching(regex)
             .should(be(annotatedWithController(true)))
             .as("Controllers should be annotated with %s".formatted(ANNOTATION_CONTROLLER)),
         configuration));

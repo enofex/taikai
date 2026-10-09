@@ -84,6 +84,30 @@ public class ResourcesConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenResourceInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ResourcesConfigurerTest.OrderResource.class,
+              ResourcesConfigurerTest.DefaultOrderResource.class)
+          .quarkus(quarkus -> quarkus.resources(
+              ResourcesConfigurer::shouldBeAnnotatedWithPath))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenMatchingInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ResourcesConfigurerTest.OrderResource.class,
+              ResourcesConfigurerTest.DefaultOrderResource.class)
+          .quarkus(quarkus -> quarkus.resources(
+              res -> res.shouldBeAnnotatedWithPath(".+Resource")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -185,6 +209,13 @@ public class ResourcesConfigurerTest {
   }
 
   static public class MissingRestResource {
+  }
+
+  public interface OrderResource {
+  }
+
+  @Path("/orders")
+  static public class DefaultOrderResource implements OrderResource {
   }
 
   @Nested

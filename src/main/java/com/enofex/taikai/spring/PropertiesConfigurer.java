@@ -117,7 +117,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
 
   /**
    * Adds a rule enforcing that classes (by default ending with {@code Properties})
-   * should be annotated with {@code @ConfigurationProperties}.
+   * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
    *
    * @return this configurer instance for fluent chaining
    */
@@ -138,7 +138,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
 
   /**
    * Adds a rule enforcing that classes with names matching the given regex
-   * should be annotated with {@code @ConfigurationProperties}.
+   * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
    *
    * @param regex the regex for class names expected to be configuration properties
    * @return this configurer instance for fluent chaining
@@ -156,7 +156,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    */
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that().areNotInterfaces().and().haveNameMatching(regex)
             .should(be(annotatedWithConfigurationProperties(true)))
             .as("Configuration properties should be annotated with %s".formatted(
                 ANNOTATION_CONFIGURATION_PROPERTIES)),

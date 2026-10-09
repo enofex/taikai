@@ -114,6 +114,17 @@ class PropertiesConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenPropertiesInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(MailProperties.class, DefaultMailProperties.class)
+          .spring(spring -> spring.properties(
+              PropertiesConfigurer::shouldBeAnnotatedWithConfigurationProperties))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -180,6 +191,22 @@ class PropertiesConfigurerTest {
     }
   }
 
+  interface MailProperties {
+
+    String host();
+  }
+
+  @ConfigurationProperties(prefix = "mail")
+  static class DefaultMailProperties implements MailProperties {
+
+    private String host;
+
+    @Override
+    public String host() {
+      return host;
+    }
+  }
+
   @ConfigurationProperties(prefix = "record")
   record RecordApplicationProperties(String name, int port) {
   }
@@ -233,6 +260,17 @@ class PropertiesConfigurerTest {
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenMatchingInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(MailProperties.class, DefaultMailProperties.class)
+          .spring(spring -> spring.properties(
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
     }
   }
 
