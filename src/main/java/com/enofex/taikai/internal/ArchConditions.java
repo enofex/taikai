@@ -2,7 +2,9 @@ package com.enofex.taikai.internal;
 
 import static com.enofex.taikai.internal.Modifiers.isFieldPublic;
 import static com.enofex.taikai.internal.Modifiers.isFieldStatic;
+import static java.util.Objects.requireNonNull;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -11,6 +13,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 /**
@@ -22,6 +25,53 @@ import java.util.stream.Collectors;
 public final class ArchConditions {
 
   private ArchConditions() {
+  }
+
+  /**
+   * Rejects matching types anywhere in a method's declared return signature, including
+   * generic arguments, bounds, and array component types.
+   *
+   * @param forbiddenTypes the predicate selecting forbidden return types
+   * @return the return type condition
+   */
+  public static ArchCondition<JavaMethod> notReturnTypesMatching(
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    requireNonNull(forbiddenTypes);
+    return new ArchCondition<>("not return types " + forbiddenTypes.getDescription()) {
+      @Override
+      public void check(JavaMethod method, ConditionEvents events) {
+        method.getReturnType().getAllInvolvedRawTypes().stream()
+            .filter(forbiddenTypes)
+            .sorted(Comparator.comparing(JavaClass::getName))
+            .forEach(type -> events.add(SimpleConditionEvent.violated(method,
+                "Method %s has forbidden return type %s in signature %s %s".formatted(
+                    method.getFullName(), type.getName(), method.getReturnType().getName(),
+                    method.getSourceCodeLocation()))));
+      }
+    };
+  }
+
+  /**
+   * Requires at least one matching type in each method's declared return signature, including
+   * generic arguments, bounds, and array component types.
+   *
+   * @param requiredTypes the predicate selecting required return types
+   * @return the return type condition
+   */
+  public static ArchCondition<JavaMethod> returnTypesMatching(
+      DescribedPredicate<? super JavaClass> requiredTypes) {
+    requireNonNull(requiredTypes);
+    return new ArchCondition<>("return types " + requiredTypes.getDescription()) {
+      @Override
+      public void check(JavaMethod method, ConditionEvents events) {
+        if (method.getReturnType().getAllInvolvedRawTypes().stream().noneMatch(requiredTypes)) {
+          events.add(SimpleConditionEvent.violated(method,
+              "Method %s has no return type %s in signature %s %s".formatted(
+                  method.getFullName(), requiredTypes.getDescription(),
+                  method.getReturnType().getName(), method.getSourceCodeLocation())));
+        }
+      }
+    };
   }
 
   /**
