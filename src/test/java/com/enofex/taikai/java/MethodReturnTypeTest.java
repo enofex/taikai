@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 class MethodReturnTypeTest {
 
   @ParameterizedTest
-  @MethodSource("forbiddenSignatures")
+  @MethodSource("entitySignatures")
   void shouldRejectEntitiesAnywhereInReturnSignature(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
         .classes(fixture)
@@ -34,10 +34,106 @@ class MethodReturnTypeTest {
     assertTrue(failure.getMessage().contains(UserEntity.class.getName()));
   }
 
-  static Stream<Class<?>> forbiddenSignatures() {
+  static Stream<Class<?>> entitySignatures() {
     return Stream.of(DirectReturn.class, ArrayReturn.class, NestedReturn.class,
         UpperWildcardReturn.class, LowerWildcardReturn.class, TypeVariableReturn.class,
         GenericArrayReturn.class, RecursiveBoundReturn.class);
+  }
+
+  @ParameterizedTest
+  @MethodSource("entitySignatures")
+  void shouldAcceptRequiredTypesAnywhereInReturnSignature(Class<?> fixture) {
+    Taikai taikai = Taikai.builder()
+        .classes(fixture)
+        .java(java -> java.methodsShouldReturn(
+            Criteria.inPackage("com.enofex.taikai.java"), Criteria.annotatedWith(Entity.class)))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldRejectEachMethodWithoutRequiredReturnType() {
+    Taikai taikai = Taikai.builder()
+        .classes(SafeReturn.class)
+        .java(java -> java.methodsShouldReturn(
+            Criteria.namedLike("SafeReturn"), Criteria.annotatedWith(Entity.class)))
+        .build();
+
+    AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+    assertTrue(failure.getMessage().contains("result()"));
+    assertTrue(failure.getMessage().contains("nothing()"));
+    assertTrue(failure.getMessage().contains("count()"));
+  }
+
+  @Test
+  void shouldRequireClassNamesEndingInDtoIncludingWrappedReturns() {
+    Taikai taikai = Taikai.builder()
+        .classes(DtoReturn.class)
+        .java(java -> java.methodsShouldReturn(
+            Criteria.namedLike("DtoReturn"), Criteria.namedLike(".*DTO")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldAcceptRequiredTypesSelectedByPackage() {
+    Taikai taikai = Taikai.builder()
+        .classes(NestedReturn.class)
+        .java(java -> java.methodsShouldReturn(
+            Criteria.namedLike("NestedReturn"), Criteria.inPackage("org.springframework.http")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldIgnoreUnselectedClassesForRequiredReturns() {
+    Taikai taikai = Taikai.builder()
+        .classes(DirectReturn.class, SafeReturn.class)
+        .java(java -> java.methodsShouldReturn(
+            Criteria.namedLike("DirectReturn"), Criteria.annotatedWith(Entity.class.getName())))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldHonorConfigurationExclusionsForRequiredReturns() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .java(java -> java.methodsShouldReturn(
+            Criteria.namedLike("DirectReturn|SafeReturn"), Criteria.annotatedWith(Entity.class),
+            Configuration.of(Namespace.IMPORT.WITH_TESTS, List.of(SafeReturn.class.getName()))))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldAllowNoMatchingClassesForRequiredReturns() {
+    Taikai taikai = Taikai.builder()
+        .classes(SafeReturn.class)
+        .java(java -> java.methodsShouldReturn(
+            Criteria.inPackage("com.company.controllers.."), Criteria.namedLike(".*DTO")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldCombineRequiredAndForbiddenReturnTypes() {
+    Taikai taikai = Taikai.builder()
+        .classes(DtoReturn.class)
+        .java(java -> java
+            .methodsShouldReturn(Criteria.namedLike("DtoReturn"), Criteria.namedLike(".*DTO"))
+            .methodsShouldNotReturn(Criteria.namedLike("DtoReturn"),
+                Criteria.annotatedWith(Entity.class)))
+        .build();
+
+    AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+    assertTrue(failure.getMessage().contains(UserEntity.class.getName()));
   }
 
   @Test
@@ -102,6 +198,23 @@ class MethodReturnTypeTest {
 
   @Entity
   static class UserEntity {
+  }
+
+  static class UserDTO {
+  }
+
+  static class DtoReturn {
+    UserDTO result() {
+      return null;
+    }
+
+    ResponseEntity<List<UserDTO>> wrapped() {
+      return null;
+    }
+
+    Map<UserEntity, UserDTO> mixed() {
+      return null;
+    }
   }
 
   static class DirectReturn {

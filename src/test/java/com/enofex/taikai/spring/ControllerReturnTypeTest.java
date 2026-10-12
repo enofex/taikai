@@ -7,6 +7,7 @@ import com.enofex.taikai.Criteria;
 import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
@@ -34,6 +35,48 @@ class ControllerReturnTypeTest {
 
   static Stream<Class<?>> controllers() {
     return Stream.of(MvcController.class, RestApi.class, ComposedController.class);
+  }
+
+  @ParameterizedTest
+  @MethodSource("controllers")
+  void shouldRequireControllerReturnsEndingInDto(Class<?> controller) {
+    Taikai taikai = Taikai.builder()
+        .classes(controller, SafeReturnOutsideController.class)
+        .spring(spring -> spring.controllers(controllers -> controllers
+            .methodsShouldReturn(Criteria.namedLike(".*DTO"))))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldRejectControllersWithoutRequiredReturnTypes() {
+    Taikai taikai = Taikai.builder()
+        .classes(SafeController.class)
+        .spring(spring -> spring.controllers(controllers -> controllers
+            .methodsShouldReturn(Criteria.namedLike(".*DTO"))))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  @Test
+  void shouldHonorConfiguredClassesForRequiredReturns() {
+    Taikai taikai = Taikai.builder()
+        .classes(SafeController.class)
+        .spring(spring -> spring.controllers(controllers -> controllers
+            .methodsShouldReturn(Criteria.namedLike(".*DTO"), Configuration.of(
+                new ClassFileImporter().importClasses(
+                    MvcController.class, RestApi.class, ComposedController.class)))))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  static class SafeReturnOutsideController {
+    String result() {
+      return "safe";
+    }
   }
 
   @Test

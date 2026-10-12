@@ -542,6 +542,7 @@ Default import mode: `WITHOUT_TESTS`.
 | [`methodsShouldNotDeclareGenericExceptions`](#methodsShouldNotDeclareGenericExceptions) | no `throws Exception` / `RuntimeException` |
 | [`methodsShouldNotDeclareException`](#methodsShouldNotDeclareException) | matching methods do not declare a type |
 | [`methodsShouldNotReturn`](#methodsShouldNotReturn) | selected classes do not expose forbidden types in method return signatures |
+| [`methodsShouldReturn`](#methodsShouldReturn) | each selected method has a matching type in its return signature |
 | [`methodsShouldBeAnnotatedWith`](#methodsShouldBeAnnotatedWith) | matching methods carry an annotation |
 | [`methodsShouldBeAnnotatedWithAll`](#methodsShouldBeAnnotatedWithAll) | annotated methods carry further annotations |
 | [`methodsAnnotatedWithShouldNotBeAnnotatedWith`](#methodsAnnotatedWithShouldNotBeAnnotatedWith) | annotations are mutually exclusive |
@@ -887,6 +888,30 @@ components. For example, banning entities rejects `Entity`, `Entity[]`, `List<En
 `ResponseEntity<List<Entity>>`. It does not inspect fields, parameters, method bodies, or inherited
 methods declared in other classes. Types hidden by an erased signature such as `Object` or a raw
 `List` cannot be detected. A final `Configuration` parameter supports the usual customization.
+
+#### `methodsShouldReturn` { #methodsShouldReturn }
+
+`methodsShouldReturn(DescribedPredicate<? super JavaClass> declaringClasses, DescribedPredicate<? super JavaClass> requiredTypes)`
+
+Requires every method declared in the selected classes to have at least one matching type in its
+return signature. For example, require controllers to return objects whose class names end in
+`DTO`:
+
+```java
+.java(java -> java
+    .methodsShouldReturn(Criteria.namedLike(".*Controller"), Criteria.namedLike(".*DTO")))
+```
+
+`OrderDTO`, `OrderDTO[]`, `List<OrderDTO>`, and `ResponseEntity<List<OrderDTO>>` satisfy this rule.
+Nested generic arguments, wildcard and type-variable bounds, and array components are considered.
+`String`, `Object`, primitives, and `void` fail the DTO criterion. Both `Criteria.annotatedWith`
+overloads and `Criteria.inPackage` also work with this rule.
+
+Matching one type satisfies the requirement even if the signature contains other types, such as
+`Map<Entity, OrderDTO>`. Combine `methodsShouldReturn` with `methodsShouldNotReturn` to prohibit
+entities or internal types as well. The [same scope and limitations](#methodsShouldNotReturn)
+apply: all visibilities are checked, inherited declarations are excluded, and only declared types
+are inspected. A final `Configuration` parameter supports customization.
 
 #### `methodsShouldBeAnnotatedWith` { #methodsShouldBeAnnotatedWith }
 
@@ -1732,6 +1757,7 @@ Applies to classes annotated `@Controller` or `@RestController`.
 | `shouldNotDependOnOtherControllers()` | no controller-to-controller dependencies |
 | `shouldNotDependOnRepositories()` | the service layer is not bypassed |
 | `methodsShouldNotReturn(DescribedPredicate<? super JavaClass> forbiddenTypes)` | return signatures do not expose forbidden types |
+| `methodsShouldReturn(DescribedPredicate<? super JavaClass> requiredTypes)` | each method has a matching type in its return signature |
 | `shouldBeAnnotatedWithValidated()` | controllers needing `@Validated` carry it |
 | `shouldBeAnnotatedWithValidated(String regex)` | same, for classes matching a regex |
 | `shouldNotBeAnnotatedWithValidated()` | controllers do not carry `@Validated` |
@@ -1764,6 +1790,20 @@ from internal and collaborator packages:
 
 Composed controller annotations are recognized. The signature checks and limitations are the
 same as the [Java return-type rule](#methodsShouldNotReturn); a `Configuration` overload is available.
+
+Use `methodsShouldReturn` to require a matching return type, including inside wrappers. For example,
+require class names ending in `DTO` and also forbid entities:
+
+```java
+.spring(spring -> spring
+    .controllers(controllers -> controllers
+        .methodsShouldReturn(Criteria.namedLike(".*DTO"))
+        .methodsShouldNotReturn(Criteria.annotatedWith("jakarta.persistence.Entity"))))
+```
+
+The requirement applies to each declared controller method, including private helpers and `void`
+methods. It has the [same semantics as the Java rule](#methodsShouldReturn) and a `Configuration`
+overload.
 
 `shouldBeAnnotatedWithValidated` only flags controllers that actually need it: those with a method
 parameter annotated `@PathVariable` or `@RequestParam` that also carries a validation constraint such

@@ -52,6 +52,29 @@ public final class ArchConditions {
   }
 
   /**
+   * Requires at least one matching type in each method's declared return signature, including
+   * generic arguments, bounds, and array component types.
+   *
+   * @param requiredTypes the predicate selecting required return types
+   * @return the return type condition
+   */
+  public static ArchCondition<JavaMethod> returnTypesMatching(
+      DescribedPredicate<? super JavaClass> requiredTypes) {
+    requireNonNull(requiredTypes);
+    return new ArchCondition<>("return types " + requiredTypes.getDescription()) {
+      @Override
+      public void check(JavaMethod method, ConditionEvents events) {
+        if (method.getReturnType().getAllInvolvedRawTypes().stream().noneMatch(requiredTypes)) {
+          events.add(SimpleConditionEvent.violated(method,
+              "Method %s has no return type %s in signature %s %s".formatted(
+                  method.getFullName(), requiredTypes.getDescription(),
+                  method.getReturnType().getName(), method.getSourceCodeLocation())));
+        }
+      }
+    };
+  }
+
+  /**
    * Creates a condition that checks if a method does not declare thrown exceptions.
    *
    * @return an architectural condition for checking thrown exceptions in methods

@@ -9,6 +9,7 @@ import static com.enofex.taikai.internal.ArchConditions.notHasClassModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notHasFieldModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notHasMethodModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notReturnTypesMatching;
+import static com.enofex.taikai.internal.ArchConditions.returnTypesMatching;
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
@@ -131,6 +132,41 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
         .should(notReturnTypesMatching(forbiddenTypes))
         .as("Methods declared in classes %s should not return types %s".formatted(
             declaringClasses.getDescription(), forbiddenTypes.getDescription())), configuration));
+  }
+
+  /**
+   * Requires each method declared in matching classes to have at least one matching type in
+   * its return signature, including generic arguments, bounds, and array components.
+   * All method visibilities are checked. Use {@link com.enofex.taikai.Criteria} or ArchUnit
+   * predicates to select the types.
+   *
+   * @param declaringClasses the classes whose declared methods are checked
+   * @param requiredTypes the required return types
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer methodsShouldReturn(
+      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaClass> requiredTypes) {
+    return methodsShouldReturn(declaringClasses, requiredTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldReturn(DescribedPredicate, DescribedPredicate)}, with a custom
+   * configuration.
+   *
+   * @param declaringClasses the classes whose declared methods are checked
+   * @param requiredTypes the required return types
+   * @param configuration the configuration for rule customization
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer methodsShouldReturn(
+      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaClass> requiredTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(declaringClasses)
+        .should(returnTypesMatching(requiredTypes))
+        .as("Methods declared in classes %s should return types %s".formatted(
+            declaringClasses.getDescription(), requiredTypes.getDescription())), configuration));
   }
 
   /**

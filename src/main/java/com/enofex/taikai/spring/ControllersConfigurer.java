@@ -2,6 +2,7 @@ package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.notReturnTypesMatching;
+import static com.enofex.taikai.internal.ArchConditions.returnTypesMatching;
 import static com.enofex.taikai.spring.ValidatedController.beAnnotatedWithValidated;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST_CONTROLLER;
@@ -88,6 +89,37 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
         .should(notReturnTypesMatching(forbiddenTypes))
         .as("Controller methods should not return types %s".formatted(
             forbiddenTypes.getDescription())), configuration));
+  }
+
+  /**
+   * Requires each method declared in controllers to have at least one matching type in its
+   * return signature, including generic arguments, bounds, and array components.
+   * All method visibilities are checked. Controllers are selected by {@code @Controller} or
+   * {@code @RestController}, including composed annotations.
+   *
+   * @param requiredTypes the required return types, selected with
+   *     {@link com.enofex.taikai.Criteria} or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   */
+  public ControllersConfigurer methodsShouldReturn(
+      DescribedPredicate<? super JavaClass> requiredTypes) {
+    return methodsShouldReturn(requiredTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldReturn(DescribedPredicate)}, with a custom configuration.
+   *
+   * @param requiredTypes the required return types
+   * @param configuration the configuration for rule customization
+   * @return this configurer for fluent chaining
+   */
+  public ControllersConfigurer methodsShouldReturn(
+      DescribedPredicate<? super JavaClass> requiredTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(annotatedWithControllerOrRestController(true))
+        .should(returnTypesMatching(requiredTypes))
+        .as("Controller methods should return types %s".formatted(
+            requiredTypes.getDescription())), configuration));
   }
 
   /**
