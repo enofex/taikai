@@ -541,6 +541,7 @@ Default import mode: `WITHOUT_TESTS`.
 | [`serialVersionUIDFieldsShouldBeStaticFinalLong`](#serialVersionUIDFieldsShouldBeStaticFinalLong) | `serialVersionUID` is `static final long` |
 | [`methodsShouldNotDeclareGenericExceptions`](#methodsShouldNotDeclareGenericExceptions) | no `throws Exception` / `RuntimeException` |
 | [`methodsShouldNotDeclareException`](#methodsShouldNotDeclareException) | matching methods do not declare a type |
+| [`methodsShouldNotReturn`](#methodsShouldNotReturn) | selected classes do not expose forbidden types in method return signatures |
 | [`methodsShouldBeAnnotatedWith`](#methodsShouldBeAnnotatedWith) | matching methods carry an annotation |
 | [`methodsShouldBeAnnotatedWithAll`](#methodsShouldBeAnnotatedWithAll) | annotated methods carry further annotations |
 | [`methodsAnnotatedWithShouldNotBeAnnotatedWith`](#methodsAnnotatedWithShouldNotBeAnnotatedWith) | annotations are mutually exclusive |
@@ -855,6 +856,38 @@ Methods must not declare `Exception` or `RuntimeException`; use specific types i
     .methodsShouldNotDeclareException("should.*", SpecificException.class))
 ```
 
+#### `methodsShouldNotReturn` { #methodsShouldNotReturn }
+
+`methodsShouldNotReturn(DescribedPredicate<? super JavaClass> declaringClasses, DescribedPredicate<? super JavaClass> forbiddenTypes)`
+
+Keeps implementation types out of a layer's return signatures while allowing them to be used
+internally. Both class selectors can be created with `com.enofex.taikai.Criteria` or supplied as
+ArchUnit predicates:
+
+```java
+.java(java -> java
+    .methodsShouldNotReturn(
+        Criteria.inPackage("com.company.controller.."),
+        Criteria.annotatedWith("jakarta.persistence.Entity"))
+    .methodsShouldNotReturn(
+        Criteria.namedLike(".*Controller"),
+        Criteria.inPackage("com.company.internal..")
+            .or(Criteria.inPackage("com.collaborator.client.."))))
+```
+
+`Criteria.annotatedWith` accepts an annotation class or its fully qualified name without `@`, and
+matches direct and composed annotations. `Criteria.namedLike(".*DTO")` matches the entire simple
+class name against a regular expression. `Criteria.inPackage` uses ArchUnit package syntax:
+`com.company.internal..` includes that package and all subpackages; `*` matches within one segment.
+Combine criteria using `.and(...)` and `.or(...)`.
+
+The rule checks all methods declared in selected classes, including private methods. It checks the
+declared return type, nested generic arguments, wildcard and type-variable bounds, and array
+components. For example, banning entities rejects `Entity`, `Entity[]`, `List<Entity>`, and
+`ResponseEntity<List<Entity>>`. It does not inspect fields, parameters, method bodies, or inherited
+methods declared in other classes. Types hidden by an erased signature such as `Object` or a raw
+`List` cannot be detected. A final `Configuration` parameter supports the usual customization.
+
 #### `methodsShouldBeAnnotatedWith` { #methodsShouldBeAnnotatedWith }
 
 `methodsShouldBeAnnotatedWith(String regex, Class<? extends Annotation> annotationType)`
@@ -968,6 +1001,22 @@ which lets you retire an API layer by layer.
     .noUsageOf(Calendar.class, "com.company.project.domain..")
     .noUsageOf("com.company.legacy.UnwantedClass"))
 ```
+
+Use this rule to keep HTTP exceptions out of service and repository packages, including unchecked
+exceptions constructed without a `throws` declaration:
+
+```java
+.java(java -> java
+    .noUsageOf("org.springframework.web.server.ResponseStatusException",
+        "com.company.service..")
+    .noUsageOf("org.springframework.web.server.ResponseStatusException",
+        "com.company.repository.."))
+```
+
+The restriction includes subclasses and bans every dependency on the exception: construction,
+declarations, catches, fields, and other references. It is a layer dependency rule, not an analysis
+of which exceptions might propagate from called methods. `methodsShouldNotDeclareException` only
+checks `throws` declarations and does not catch unchecked exceptions thrown without one.
 
 #### `noUsageOfDeprecatedAPIs` { #noUsageOfDeprecatedAPIs }
 
@@ -1682,6 +1731,7 @@ Applies to classes annotated `@Controller` or `@RestController`.
 | `shouldBePackagePrivate()` | controllers are package-private |
 | `shouldNotDependOnOtherControllers()` | no controller-to-controller dependencies |
 | `shouldNotDependOnRepositories()` | the service layer is not bypassed |
+| `methodsShouldNotReturn(DescribedPredicate<? super JavaClass> forbiddenTypes)` | return signatures do not expose forbidden types |
 | `shouldBeAnnotatedWithValidated()` | controllers needing `@Validated` carry it |
 | `shouldBeAnnotatedWithValidated(String regex)` | same, for classes matching a regex |
 | `shouldNotBeAnnotatedWithValidated()` | controllers do not carry `@Validated` |
@@ -1700,6 +1750,20 @@ Applies to classes annotated `@Controller` or `@RestController`.
 
 The `regex` overloads of `shouldBeAnnotatedWith...` select classes by name rather than by annotation,
 which is how you enforce the annotation on classes that do not carry it yet.
+
+Use `methodsShouldNotReturn` to prevent controllers from returning persistence entities or types
+from internal and collaborator packages:
+
+```java
+.spring(spring -> spring
+    .controllers(controllers -> controllers
+        .methodsShouldNotReturn(Criteria.annotatedWith("jakarta.persistence.Entity"))
+        .methodsShouldNotReturn(Criteria.inPackage("com.company.internal..")
+            .or(Criteria.inPackage("com.collaborator.client..")))))
+```
+
+Composed controller annotations are recognized. The signature checks and limitations are the
+same as the [Java return-type rule](#methodsShouldNotReturn); a `Configuration` overload is available.
 
 `shouldBeAnnotatedWithValidated` only flags controllers that actually need it: those with a method
 parameter annotated `@PathVariable` or `@RequestParam` that also carries a validation constraint such

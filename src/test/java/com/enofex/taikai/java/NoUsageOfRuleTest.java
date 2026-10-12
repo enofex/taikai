@@ -13,6 +13,43 @@ import org.junit.jupiter.api.Test;
 class NoUsageOfRuleTest {
 
   @Nested
+  class ExceptionLayerRestrictions {
+
+    @Test
+    void shouldRejectUncheckedExceptionsConstructedWithoutThrowsClause() {
+      assertThrows(AssertionError.class, () -> Taikai.builder()
+          .classes(ThrowsHttpException.class)
+          .java(java -> java.noUsageOf(HttpStatusException.class, "com.enofex.taikai.java"))
+          .build().check());
+    }
+
+    @Test
+    void shouldRejectExceptionSubclassesByTypeName() {
+      assertThrows(AssertionError.class, () -> Taikai.builder()
+          .classes(ThrowsHttpExceptionSubclass.class)
+          .java(java -> java.noUsageOf(HttpStatusException.class.getName(),
+              "com.enofex.taikai.java"))
+          .build().check());
+    }
+
+    @Test
+    void shouldAllowExceptionUsageOutsideRestrictedLayer() {
+      assertDoesNotThrow(() -> Taikai.builder()
+          .classes(ThrowsHttpException.class)
+          .java(java -> java.noUsageOf(HttpStatusException.class, "com.company.service.."))
+          .build().check());
+    }
+
+    @Test
+    void declarationRuleShouldAllowUncheckedThrowWithoutThrowsClause() {
+      assertDoesNotThrow(() -> Taikai.builder()
+          .classes(ThrowsHttpException.class)
+          .java(java -> java.methodsShouldNotDeclareException(".*", HttpStatusException.class))
+          .build().check());
+    }
+  }
+
+  @Nested
   class NoUsageOfClassBased {
 
     @Test
@@ -97,6 +134,24 @@ class NoUsageOfRuleTest {
           .build();
 
       assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  static class HttpStatusException extends RuntimeException {
+  }
+
+  static class SpecificHttpStatusException extends HttpStatusException {
+  }
+
+  static class ThrowsHttpException {
+    void execute() {
+      throw new HttpStatusException();
+    }
+  }
+
+  static class ThrowsHttpExceptionSubclass {
+    void execute() {
+      throw new SpecificHttpStatusException();
     }
   }
 

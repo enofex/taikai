@@ -1,0 +1,98 @@
+package com.enofex.taikai.spring;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.enofex.taikai.Criteria;
+import com.enofex.taikai.Namespace;
+import com.enofex.taikai.Taikai;
+import com.enofex.taikai.TaikaiRule.Configuration;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
+
+class ControllerReturnTypeTest {
+
+  @ParameterizedTest
+  @MethodSource("controllers")
+  void shouldRejectForbiddenControllerReturns(Class<?> controller) {
+    assertThrows(AssertionError.class, () -> Taikai.builder()
+        .classes(controller)
+        .spring(spring -> spring.controllers(controllers -> controllers
+            .methodsShouldNotReturn(Criteria.namedLike("InternalDTO"))))
+        .build().check());
+  }
+
+  static Stream<Class<?>> controllers() {
+    return Stream.of(MvcController.class, RestApi.class, ComposedController.class);
+  }
+
+  @Test
+  void shouldAllowSafeControllersAndIgnoreOtherClasses() {
+    assertDoesNotThrow(() -> Taikai.builder()
+        .classes(SafeController.class, NonController.class)
+        .spring(spring -> spring.controllers(controllers -> controllers
+            .methodsShouldNotReturn(Criteria.namedLike("InternalDTO"))))
+        .build().check());
+  }
+
+  @Test
+  void shouldHonorConfigurationExclusions() {
+    assertDoesNotThrow(() -> Taikai.builder()
+        .namespace("com.enofex.taikai.spring")
+        .spring(spring -> spring.controllers(controllers -> controllers
+            .methodsShouldNotReturn(Criteria.namedLike("InternalDTO"),
+                Configuration.of(Namespace.IMPORT.WITH_TESTS, List.of(RestApi.class.getName(),
+                    MvcController.class.getName(), ComposedController.class.getName())))))
+        .build().check());
+  }
+
+  static class InternalDTO {
+  }
+
+  @Controller
+  static class MvcController {
+    InternalDTO result() {
+      return null;
+    }
+  }
+
+  @RestController
+  static class RestApi {
+    ResponseEntity<List<InternalDTO>> result() {
+      return null;
+    }
+  }
+
+  @RestController
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ApiController {
+  }
+
+  @ApiController
+  static class ComposedController {
+    InternalDTO[] result() {
+      return null;
+    }
+  }
+
+  @RestController
+  static class SafeController {
+    List<String> result() {
+      return null;
+    }
+  }
+
+  static class NonController {
+    InternalDTO result() {
+      return null;
+    }
+  }
+}

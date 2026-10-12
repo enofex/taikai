@@ -1,6 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.internal.ArchConditions.notReturnTypesMatching;
 import static com.enofex.taikai.spring.ValidatedController.beAnnotatedWithValidated;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST_CONTROLLER;
@@ -15,12 +16,15 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.onlyHaveDependentClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 
 /**
  * Configures and enforces conventions for Spring MVC controllers
@@ -53,6 +57,37 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
 
   public ControllersConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
+  }
+
+  /**
+   * Prevents methods declared in controllers from returning matching types, including generic
+   * arguments, bounds, and array components. All method visibilities are checked.
+   * Controllers are selected by {@code @Controller} or {@code @RestController}, including
+   * composed annotations.
+   *
+   * @param forbiddenTypes the forbidden return types, selected with
+   *     {@link com.enofex.taikai.Criteria} or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   */
+  public ControllersConfigurer methodsShouldNotReturn(
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    return methodsShouldNotReturn(forbiddenTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldNotReturn(DescribedPredicate)}, with a custom configuration.
+   *
+   * @param forbiddenTypes the forbidden return types
+   * @param configuration the configuration for rule customization
+   * @return this configurer for fluent chaining
+   */
+  public ControllersConfigurer methodsShouldNotReturn(
+      DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(annotatedWithControllerOrRestController(true))
+        .should(notReturnTypesMatching(forbiddenTypes))
+        .as("Controller methods should not return types %s".formatted(
+            forbiddenTypes.getDescription())), configuration));
   }
 
   /**

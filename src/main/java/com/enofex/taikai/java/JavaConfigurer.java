@@ -8,6 +8,7 @@ import static com.enofex.taikai.internal.ArchConditions.notBePublicUnlessStatic;
 import static com.enofex.taikai.internal.ArchConditions.notHasClassModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notHasFieldModifiers;
 import static com.enofex.taikai.internal.ArchConditions.notHasMethodModifiers;
+import static com.enofex.taikai.internal.ArchConditions.notReturnTypesMatching;
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
@@ -32,6 +33,8 @@ import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -94,6 +97,40 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
 
   public JavaConfigurer naming(Customizer<NamingConfigurer> customizer) {
     return customizer(customizer, () -> new NamingConfigurer(configurerContext()));
+  }
+
+  /**
+   * Prevents methods declared in matching classes from returning matching types, including
+   * generic arguments, bounds, and array components. All method visibilities are checked.
+   * Use {@link com.enofex.taikai.Criteria} or ArchUnit predicates to select the types.
+   *
+   * @param declaringClasses the classes whose declared methods are checked
+   * @param forbiddenTypes the forbidden return types
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotReturn(
+      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    return methodsShouldNotReturn(declaringClasses, forbiddenTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldNotReturn(DescribedPredicate, DescribedPredicate)}, with a custom
+   * configuration.
+   *
+   * @param declaringClasses the classes whose declared methods are checked
+   * @param forbiddenTypes the forbidden return types
+   * @param configuration the configuration for rule customization
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer methodsShouldNotReturn(
+      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(declaringClasses)
+        .should(notReturnTypesMatching(forbiddenTypes))
+        .as("Methods declared in classes %s should not return types %s".formatted(
+            declaringClasses.getDescription(), forbiddenTypes.getDescription())), configuration));
   }
 
   /**
