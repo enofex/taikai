@@ -42,17 +42,21 @@ class MethodReturnTypeTest {
 
   @Test
   void shouldRejectTypesSelectedByNameOrPackage() {
-    assertThrows(AssertionError.class, () -> Taikai.builder()
+    Taikai nameRule = Taikai.builder()
         .classes(DirectReturn.class)
         .java(java -> java.methodsShouldNotReturn(
             Criteria.namedLike("DirectReturn"), Criteria.namedLike(".*Entity")))
-        .build().check());
+        .build();
 
-    assertThrows(AssertionError.class, () -> Taikai.builder()
+    assertThrows(AssertionError.class, nameRule::check);
+
+    Taikai packageRule = Taikai.builder()
         .classes(NestedReturn.class)
         .java(java -> java.methodsShouldNotReturn(
             Criteria.namedLike("NestedReturn"), Criteria.inPackage("org.springframework.http")))
-        .build().check());
+        .build();
+
+    assertThrows(AssertionError.class, packageRule::check);
   }
 
   @Test
@@ -101,6 +105,8 @@ class MethodReturnTypeTest {
   }
 
   static class DirectReturn {
+    // ArchUnit inspects this method's bytecode to verify private return signatures.
+    @SuppressWarnings("java:S1144")
     private UserEntity result() {
       return null;
     }
@@ -154,6 +160,7 @@ class MethodReturnTypeTest {
     }
 
     void nothing() {
+      // This fixture verifies that void return types are allowed.
     }
 
     int count() {

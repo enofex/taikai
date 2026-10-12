@@ -23,11 +23,13 @@ class ControllerReturnTypeTest {
   @ParameterizedTest
   @MethodSource("controllers")
   void shouldRejectForbiddenControllerReturns(Class<?> controller) {
-    assertThrows(AssertionError.class, () -> Taikai.builder()
+    Taikai taikai = Taikai.builder()
         .classes(controller)
         .spring(spring -> spring.controllers(controllers -> controllers
             .methodsShouldNotReturn(Criteria.namedLike("InternalDTO"))))
-        .build().check());
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
   }
 
   static Stream<Class<?>> controllers() {

@@ -17,19 +17,23 @@ class NoUsageOfRuleTest {
 
     @Test
     void shouldRejectUncheckedExceptionsConstructedWithoutThrowsClause() {
-      assertThrows(AssertionError.class, () -> Taikai.builder()
+      Taikai taikai = Taikai.builder()
           .classes(ThrowsHttpException.class)
           .java(java -> java.noUsageOf(HttpStatusException.class, "com.enofex.taikai.java"))
-          .build().check());
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
     void shouldRejectExceptionSubclassesByTypeName() {
-      assertThrows(AssertionError.class, () -> Taikai.builder()
+      Taikai taikai = Taikai.builder()
           .classes(ThrowsHttpExceptionSubclass.class)
           .java(java -> java.noUsageOf(HttpStatusException.class.getName(),
               "com.enofex.taikai.java"))
-          .build().check());
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
