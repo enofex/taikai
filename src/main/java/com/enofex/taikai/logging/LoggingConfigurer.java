@@ -10,9 +10,12 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Configures and enforces logging-related rules using {@link com.tngtech.archunit ArchUnit}
@@ -26,7 +29,7 @@ import java.util.List;
  * Taikai.builder()
  *     .namespace("com.example.project")
  *     .logging(logging -> logging
- *             .classesShouldUseLogger("org.slf4j.Logger", ".*Service")
+ *             .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), "org.slf4j.Logger")
  *             .loggersShouldFollowConventions("org.slf4j.Logger", ".*", List.of(JavaModifier.PRIVATE, JavaModifier.STATIC))
  *     );
  * }</pre>
@@ -38,54 +41,70 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that classes matching the given regex should contain a field of the specified logger type.
+   * Adds a rule that classes matching the given criteria should contain a field of the specified
+   * logger type.
    *
-   * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
-   * @param regex the regex for class names expected to use the logger
-   * @return this configurer instance for fluent chaining
-   */
-  public LoggingConfigurer classesShouldUseLogger(String typeName, String regex) {
-    return classesShouldUseLogger(typeName, regex, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule that classes matching the given regex should contain a field of the specified logger type.
-   *
+   * @param classes the classes expected to use the logger, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
-   * @param regex the regex for class names expected to use the logger
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex) {
-    return classesShouldUseLogger(clazz.getName(), regex, defaultConfiguration());
+  public LoggingConfigurer classesShouldUseLogger(DescribedPredicate<? super JavaClass> classes,
+      Class<?> clazz) {
+    return classesShouldUseLogger(classes, clazz.getName(), defaultConfiguration());
   }
 
   /**
-   * See {@link #classesShouldUseLogger(Class, String)}, but with {@link Configuration} for customization.
+   * See {@link #classesShouldUseLogger(DescribedPredicate, Class)}, but with {@link Configuration}
+   * for customization.
    *
+   * @param classes the classes expected to use the logger
    * @param clazz the logger type
-   * @param regex the regex for class names expected to use the logger
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public LoggingConfigurer classesShouldUseLogger(Class<?> clazz, String regex,
-      Configuration configuration) {
-    return classesShouldUseLogger(clazz.getName(), regex, configuration);
+  public LoggingConfigurer classesShouldUseLogger(DescribedPredicate<? super JavaClass> classes,
+      Class<?> clazz, Configuration configuration) {
+    return classesShouldUseLogger(classes, clazz.getName(), configuration);
   }
 
   /**
-   * See {@link #classesShouldUseLogger(String, String)}, but with {@link Configuration} for customization.
+   * Adds a rule that classes matching the given criteria should contain a field of the specified
+   * logger type.
    *
-   * @param typeName the fully qualified logger type
-   * @param regex the regex for class names expected to use the logger
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param classes the classes expected to use the logger, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public LoggingConfigurer classesShouldUseLogger(String typeName, String regex,
-      Configuration configuration) {
+  public LoggingConfigurer classesShouldUseLogger(DescribedPredicate<? super JavaClass> classes,
+      String typeName) {
+    return classesShouldUseLogger(classes, typeName, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #classesShouldUseLogger(DescribedPredicate, String)}, but with {@link Configuration}
+   * for customization.
+   *
+   * @param classes the classes expected to use the logger
+   * @param typeName the fully qualified logger type
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public LoggingConfigurer classesShouldUseLogger(DescribedPredicate<? super JavaClass> classes,
+      String typeName, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that(classes)
             .should(haveFieldOfType(typeName))
-            .as("Classes with names matching %s should use a logger of type %s".formatted(regex,
+            .as("Classes %s should use a logger of type %s".formatted(classes.getDescription(),
                 typeName)),
         configuration));
   }
@@ -95,8 +114,8 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * Uses an empty list of required modifiers by default.
    *
    * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
-   * @param regex the regex pattern for class names
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex) {
     return loggersShouldFollowConventions(typeName, regex, List.of(),
@@ -107,9 +126,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * See {@link #loggersShouldFollowConventions(String, String)}, but with {@link Configuration} for customization.
    *
    * @param typeName the fully qualified logger type
-   * @param regex the regex pattern for class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Configuration configuration) {
@@ -122,8 +141,8 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * Uses an empty list of required modifiers by default.
    *
    * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
-   * @param regex the regex pattern for class names
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex) {
     return loggersShouldFollowConventions(clazz.getName(), regex, List.of(),
@@ -134,9 +153,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * See {@link #loggersShouldFollowConventions(Class, String)}, but with {@link Configuration} for customization.
    *
    * @param clazz the logger type
-   * @param regex the regex pattern for class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
       Configuration configuration) {
@@ -149,9 +168,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * requiring specific modifiers.
    *
    * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
-   * @param regex the regex pattern for class names
-   * @param requiredModifiers a collection of required {@link JavaModifier}s
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @param requiredModifiers the modifiers that must be present
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Collection<JavaModifier> requiredModifiers) {
@@ -164,9 +183,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * requiring specific modifiers.
    *
    * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
-   * @param regex the regex pattern for class names
-   * @param requiredModifiers a collection of required {@link JavaModifier}s
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @param requiredModifiers the modifiers that must be present
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
       Collection<JavaModifier> requiredModifiers) {
@@ -178,10 +197,10 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * See {@link #loggersShouldFollowConventions(Class, String, Collection)}, but with {@link Configuration} for customization.
    *
    * @param clazz the logger type
-   * @param regex the regex pattern for class names
-   * @param requiredModifiers a collection of required {@link JavaModifier}s
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @param requiredModifiers the modifiers that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(Class<?> clazz, String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
@@ -193,17 +212,21 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * See {@link #loggersShouldFollowConventions(String, String, Collection)}, but with {@link Configuration} for customization.
    *
    * @param typeName the fully qualified logger type
-   * @param regex the regex pattern for class names
-   * @param requiredModifiers a collection of required {@link JavaModifier}s
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that logger field names must match
+   * @param requiredModifiers the modifiers that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public LoggingConfigurer loggersShouldFollowConventions(String typeName, String regex,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .should(followLoggerConventions(typeName, regex, requiredModifiers))
-            .as("Loggers in classes matching %s should follow conventions and be of type %s with required modifiers %s".formatted(
-                regex, typeName, requiredModifiers)),
+            .as(requiredModifiers.isEmpty()
+                ? "Loggers of type %s should have names matching %s".formatted(typeName, regex)
+                : "Loggers of type %s should have names matching %s and all of these modifiers %s"
+                    .formatted(typeName, regex, requiredModifiers.stream()
+                        .map(Enum::name)
+                        .collect(Collectors.joining(", ")))),
         configuration));
   }
 

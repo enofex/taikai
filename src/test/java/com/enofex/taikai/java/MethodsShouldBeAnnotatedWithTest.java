@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,7 +19,7 @@ class MethodsShouldBeAnnotatedWithTest {
     void shouldNotThrowWhenMatchingMethodsAreAnnotated() {
       Taikai taikai = Taikai.builder()
           .classes(AnnotatedService.class)
-          .java(java -> java.methodsShouldBeAnnotatedWith("process", TestAnnotation.class))
+          .java(java -> java.methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("process"), TestAnnotation.class))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -28,7 +29,7 @@ class MethodsShouldBeAnnotatedWithTest {
     void shouldThrowWhenMatchingMethodsAreNotAnnotated() {
       Taikai taikai = Taikai.builder()
           .classes(NonAnnotatedService.class)
-          .java(java -> java.methodsShouldBeAnnotatedWith("process", TestAnnotation.class))
+          .java(java -> java.methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("process"), TestAnnotation.class))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -38,7 +39,7 @@ class MethodsShouldBeAnnotatedWithTest {
     void shouldNotThrowWhenRegexDoesNotMatchAnyMethod() {
       Taikai taikai = Taikai.builder()
           .classes(AnnotatedService.class)
-          .java(java -> java.methodsShouldBeAnnotatedWith("nonExistent", TestAnnotation.class))
+          .java(java -> java.methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("nonExistent"), TestAnnotation.class))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -53,7 +54,7 @@ class MethodsShouldBeAnnotatedWithTest {
       Taikai taikai = Taikai.builder()
           .classes(AnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWith(
-              "process", TestAnnotation.class.getName()))
+              MethodCriteria.nameMatching("process"), TestAnnotation.class.getName()))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -64,7 +65,7 @@ class MethodsShouldBeAnnotatedWithTest {
       Taikai taikai = Taikai.builder()
           .classes(NonAnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWith(
-              "process", TestAnnotation.class.getName()))
+              MethodCriteria.nameMatching("process"), TestAnnotation.class.getName()))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -75,7 +76,7 @@ class MethodsShouldBeAnnotatedWithTest {
       Taikai taikai = Taikai.builder()
           .classes(AnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWith(
-              "nonExistent", TestAnnotation.class.getName()))
+              MethodCriteria.nameMatching("nonExistent"), TestAnnotation.class.getName()))
           .build();
 
       assertDoesNotThrow(taikai::check);

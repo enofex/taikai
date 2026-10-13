@@ -12,12 +12,15 @@ import com.enofex.taikai.quarkus.QuarkusConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.FailureReport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
@@ -50,13 +53,15 @@ public final class Taikai {
   @Nullable
   private final JavaClasses classes;
   private final Collection<String> excludedClasses;
+  private final Collection<DescribedPredicate<? super JavaClass>> excludedCriteria;
   private final Collection<TaikaiRule> rules;
 
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
     this.namespace = builder.namespace;
     this.classes = builder.classes;
-    this.excludedClasses = builder.excludedClasses;
+    this.excludedClasses = List.copyOf(builder.excludedClasses);
+    this.excludedCriteria = List.copyOf(builder.excludedCriteria);
     this.rules = Stream.concat(
             builder.configurers.all().stream().flatMap(configurer -> configurer.rules().stream()),
             builder.rules.stream())
@@ -122,6 +127,15 @@ public final class Taikai {
   }
 
   /**
+   * Returns the criteria selecting classes that should not be validated by any rule.
+   *
+   * @return collection of class exclusion criteria
+   */
+  public Collection<DescribedPredicate<? super JavaClass>> excludedCriteria() {
+    return this.excludedCriteria;
+  }
+
+  /**
    * Returns all active {@link TaikaiRule} instances that will be executed.
    *
    * @return collection of active Taikai rules
@@ -139,7 +153,8 @@ public final class Taikai {
    * @throws AssertionError if any rule fails
    */
   public void check() {
-    this.rules.forEach(rule -> rule.check(this.namespace, this.classes, this.excludedClasses));
+    this.rules.forEach(rule -> rule.check(this.namespace, this.classes, this.excludedClasses,
+        this.excludedCriteria));
   }
 
   /**
@@ -159,7 +174,8 @@ public final class Taikai {
     for (TaikaiRule rule : this.rules) {
       FailureReport ruleReport = rule
           .archRule()
-          .evaluate(rule.javaClasses(this.namespace, this.classes, this.excludedClasses))
+          .evaluate(rule.javaClasses(this.namespace, this.classes, this.excludedClasses,
+              this.excludedCriteria))
           .getFailureReport();
 
       if (!ruleReport.isEmpty()) {
@@ -244,20 +260,23 @@ public final class Taikai {
     private final Configurers configurers;
     private final Collection<TaikaiRule> rules;
     private final Collection<String> excludedClasses;
+    private final Collection<DescribedPredicate<? super JavaClass>> excludedCriteria;
     private boolean failOnEmpty;
     private @Nullable String namespace;
     private @Nullable JavaClasses classes;
 
-    public Builder() {
+    private Builder() {
       this.configurers = new Configurers();
       this.rules = new ArrayList<>();
       this.excludedClasses = new ArrayList<>();
+      this.excludedCriteria = new ArrayList<>();
     }
 
-    public Builder(Taikai taikai) {
+    private Builder(Taikai taikai) {
       this.configurers = new Configurers();
-      this.rules = taikai.rules();
-      this.excludedClasses = taikai.excludedClasses();
+      this.rules = new ArrayList<>(taikai.rules());
+      this.excludedClasses = new ArrayList<>(taikai.excludedClasses());
+      this.excludedCriteria = new ArrayList<>(taikai.excludedCriteria());
       this.failOnEmpty = taikai.failOnEmpty();
       this.namespace = taikai.namespace();
       this.classes = taikai.classes();
@@ -378,6 +397,26 @@ public final class Taikai {
      */
     public Builder excludeClasses(String... classNames) {
       this.excludedClasses.addAll(Arrays.asList(classNames));
+      return this;
+    }
+
+    /**
+     * Excludes all classes matching the given criteria from all rule checks, for example
+     * generated code: {@code excludeClasses(ClassCriteria.inPackage("..generated.."))}.
+     * Can be called multiple times; a class matching any of the criteria is excluded.
+     *
+     * <p>Like the name-based exclusions, criteria are only applied to classes imported via
+     * {@link #namespace(String)}. Classes supplied via {@link #classes(JavaClasses)} or a
+     * per-rule {@link TaikaiRule.Configuration} are used as given.</p>
+     *
+     * @param classes the classes to exclude, selected with {@link ClassCriteria} or an ArchUnit
+     *     predicate
+     * @return this builder for fluent chaining
+     * @see com.enofex.taikai.ClassCriteria
+     * @see com.tngtech.archunit.base.DescribedPredicate
+     */
+    public Builder excludeClasses(DescribedPredicate<? super JavaClass> classes) {
+      this.excludedCriteria.add(requireNonNull(classes));
       return this;
     }
 

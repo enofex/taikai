@@ -7,6 +7,7 @@ import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static java.util.Objects.requireNonNull;
 
+import com.enofex.taikai.TaikaiException;
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
@@ -36,7 +37,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  */
 public final class BootConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
-  public BootConfigurer(ConfigurerContext configurerContext) {
+  BootConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -48,32 +49,33 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * <p>This variant uses the namespace provided in the Taikai configuration
    * and applies the rule without requiring an explicit package argument.</p>
    *
-   * @return this configurer instance for fluent chaining
-   * @throws NullPointerException if no namespace is configured
+   * @return this configurer for fluent chaining
+   * @throws TaikaiException if no namespace is configured
    */
   public BootConfigurer applicationClassShouldResideInPackage() {
-    String namespace = configurerContext().namespace();
-    requireNonNull(namespace, "Namespace must not be null");
-
-    return applicationClassShouldResideInPackage(namespace, defaultConfiguration());
+    return applicationClassShouldResideInPackage(defaultConfiguration());
   }
 
   /**
-   * @deprecated Use {@link #applicationClassShouldResideInPackage(String)} instead.
+   * See {@link #applicationClassShouldResideInPackage()}, but with {@link Configuration} for
+   * customization. The namespace of the configuration is used as the root package if it is set,
+   * otherwise the namespace configured via
+   * {@link com.enofex.taikai.Taikai.Builder#namespace(String)}.
+   *
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @throws TaikaiException if no namespace is configured
    */
-  @Deprecated(forRemoval = true)
-  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier) {
-    return applicationClassShouldResideInPackage(packageIdentifier);
-  }
+  public BootConfigurer applicationClassShouldResideInPackage(Configuration configuration) {
+    String namespace = configuration.namespace() != null
+        ? configuration.namespace()
+        : configurerContext().namespace();
 
-  /**
-   * @deprecated Use {@link #applicationClassShouldResideInPackage(String, Configuration)}
-   * instead.
-   */
-  @Deprecated(forRemoval = true)
-  public BootConfigurer springBootApplicationShouldBeIn(String packageIdentifier,
-      Configuration configuration) {
-    return applicationClassShouldResideInPackage(packageIdentifier, configuration);
+    if (namespace == null) {
+      throw new TaikaiException("Namespace is not provided");
+    }
+
+    return applicationClassShouldResideInPackage(namespace, configuration);
   }
 
   /**
@@ -81,7 +83,7 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * specified package.
    *
    * @param packageIdentifier the target package identifier (e.g., {@code "com.example.project"})
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier) {
     requireNonNull(packageIdentifier);
@@ -91,6 +93,10 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
   /**
    * See {@link #applicationClassShouldResideInPackage(String)}, but with {@link Configuration}
    * for customization.
+   *
+   * @param packageIdentifier the target package identifier (e.g., {@code "com.example.project"})
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier,
       Configuration configuration) {

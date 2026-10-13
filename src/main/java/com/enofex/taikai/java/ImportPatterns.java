@@ -1,8 +1,13 @@
 package com.enofex.taikai.java;
 
+import com.enofex.taikai.ClassCriteria;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
+
 /**
- * Predefined import patterns for commonly used Java and framework packages. These patterns can be
- * used with Taikai import rules such as:
+ * Predefined criteria for commonly used Java and framework packages, created with
+ * {@link ClassCriteria#inPackage(String)}. They can be used wherever criteria are accepted, for example
+ * with Taikai import rules:
  *
  * <pre>
  *   .imports(imports -> imports
@@ -15,107 +20,137 @@ public final class ImportPatterns {
   }
 
   /**
-   * Matches imports under {@code org.apache.commons}.
+   * Matches classes under {@code org.apache.commons}.
+   *
+   * @return the class predicate
    */
-  public static String apacheCommons() {
-    return "org.apache.commons..";
+  public static DescribedPredicate<JavaClass> apacheCommons() {
+    return ClassCriteria.inPackage("org.apache.commons..");
   }
 
   /**
-   * Matches imports under {@code org.assertj}.
+   * Matches classes under {@code org.assertj}.
+   *
+   * @return the class predicate
    */
-  public static String assertJ() {
-    return "org.assertj..";
+  public static DescribedPredicate<JavaClass> assertJ() {
+    return ClassCriteria.inPackage("org.assertj..");
   }
 
   /**
-   * Matches imports under {@code org.hamcrest}.
+   * Matches classes under {@code org.hamcrest}.
+   *
+   * @return the class predicate
    */
-  public static String hamcrest() {
-    return "org.hamcrest..";
+  public static DescribedPredicate<JavaClass> hamcrest() {
+    return ClassCriteria.inPackage("org.hamcrest..");
   }
 
   /**
-   * Matches imports under {@code org.hibernate}.
+   * Matches classes under {@code org.hibernate}.
+   *
+   * @return the class predicate
    */
-  public static String hibernate() {
-    return "org.hibernate..";
+  public static DescribedPredicate<JavaClass> hibernate() {
+    return ClassCriteria.inPackage("org.hibernate..");
   }
 
   /**
-   * Matches imports under {@code org.jspecify}.
+   * Matches classes under {@code org.jspecify}.
+   *
+   * @return the class predicate
    */
-  public static String jspecify() {
-    return "org.jspecify..";
+  public static DescribedPredicate<JavaClass> jspecify() {
+    return ClassCriteria.inPackage("org.jspecify..");
   }
 
   /**
-   * Matches imports under {@code org.junit.jupiter} (JUnit 5 and higher).
+   * Matches classes under {@code org.junit.jupiter} (JUnit 5 and higher).
+   *
+   * @return the class predicate
    */
-  public static String junit() {
-    return "org.junit.jupiter..";
+  public static DescribedPredicate<JavaClass> junit() {
+    return ClassCriteria.inPackage("org.junit.jupiter..");
   }
 
   /**
-   * Matches imports under {@code ch.qos.logback}.
+   * Matches classes under {@code ch.qos.logback}.
+   *
+   * @return the class predicate
    */
-  public static String logback() {
-    return "ch.qos.logback..";
+  public static DescribedPredicate<JavaClass> logback() {
+    return ClassCriteria.inPackage("ch.qos.logback..");
   }
 
   /**
-   * Matches imports under {@code lombok}.
+   * Matches classes under {@code lombok}.
+   *
+   * @return the class predicate
    */
-  public static String lombok() {
-    return "lombok..";
+  public static DescribedPredicate<JavaClass> lombok() {
+    return ClassCriteria.inPackage("lombok..");
   }
 
   /**
-   * Matches imports under {@code org.mockito}.
+   * Matches classes under {@code org.mockito}.
+   *
+   * @return the class predicate
    */
-  public static String mockito() {
-    return "org.mockito..";
+  public static DescribedPredicate<JavaClass> mockito() {
+    return ClassCriteria.inPackage("org.mockito..");
   }
 
   /**
-   * Matches shaded or relocated imports containing {@code .shaded.} in the package path.
+   * Matches shaded or relocated classes containing {@code .shaded.} in the package path.
+   *
+   * @return the class predicate
    */
-  public static String shaded() {
-    return "..shaded..";
+  public static DescribedPredicate<JavaClass> shaded() {
+    return ClassCriteria.inPackage("..shaded..");
   }
 
   /**
-   * Matches imports under {@code org.springframework.boot}.
+   * Matches classes under {@code org.springframework.boot}.
+   *
+   * @return the class predicate
    */
-  public static String springBoot() {
-    return "org.springframework.boot..";
+  public static DescribedPredicate<JavaClass> springBoot() {
+    return ClassCriteria.inPackage("org.springframework.boot..");
   }
 
   /**
-   * Matches imports under {@code org.springframework.data}.
+   * Matches classes under {@code org.springframework.data}.
+   *
+   * @return the class predicate
    */
-  public static String springData() {
-    return "org.springframework.data..";
+  public static DescribedPredicate<JavaClass> springData() {
+    return ClassCriteria.inPackage("org.springframework.data..");
   }
 
   /**
-   * Matches imports under {@code org.springframework}.
+   * Matches classes under {@code org.springframework}.
+   *
+   * @return the class predicate
    */
-  public static String springFramework() {
-    return "org.springframework..";
+  public static DescribedPredicate<JavaClass> springFramework() {
+    return ClassCriteria.inPackage("org.springframework..");
   }
 
   /**
-   * Matches imports under {@code org.springframework.security}.
+   * Matches classes under {@code org.springframework.security}.
+   *
+   * @return the class predicate
    */
-  public static String springSecurity() {
-    return "org.springframework.security..";
+  public static DescribedPredicate<JavaClass> springSecurity() {
+    return ClassCriteria.inPackage("org.springframework.security..");
   }
 
   /**
-   * Matches imports under {@code org.testcontainers}.
+   * Matches classes under {@code org.testcontainers}.
+   *
+   * @return the class predicate
    */
-  public static String testcontainers() {
-    return "org.testcontainers..";
+  public static DescribedPredicate<JavaClass> testcontainers() {
+    return ClassCriteria.inPackage("org.testcontainers..");
   }
 }

@@ -1,5 +1,6 @@
 package com.enofex.taikai.test;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
@@ -167,7 +168,7 @@ class JUnitConfigurerTest {
         Taikai taikai = Taikai.builder()
                 .classes(PackagePrivateTestClass.class)
                 .test(test -> test.junit(
-                        junit -> junit.classesShouldBePackagePrivate(".*PackagePrivateTestClass")
+                        junit -> junit.classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*PackagePrivateTestClass"))
                 ))
                 .build();
 
@@ -179,7 +180,7 @@ class JUnitConfigurerTest {
         Taikai taikai = Taikai.builder()
                 .classes(PublicTestClass.class)
                 .test(test -> test.junit(
-                        junit -> junit.classesShouldBePackagePrivate(".*PublicTestClass")
+                        junit -> junit.classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*PublicTestClass"))
                 ))
                 .build();
 

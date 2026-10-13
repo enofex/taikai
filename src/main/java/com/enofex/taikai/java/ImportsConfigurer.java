@@ -10,8 +10,9 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
-import java.util.Optional;
-import org.jspecify.annotations.Nullable;
+import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 
 /**
  * Configures and enforces import-related rules using {@link com.tngtech.archunit ArchUnit} through
@@ -26,120 +27,146 @@ import org.jspecify.annotations.Nullable;
  *     .namespace("com.example.project")
  *     .java(java -> java
  *         .imports(imports -> imports
- *             .shouldNotImport("..internal..")
- *             .shouldNotImport(".*Service", ".*Repository")
- *             .shouldImport(".*Controller", ".*Service")
+ *             .shouldNotImport(ImportPatterns.shaded())
+ *             .shouldNotImport(ClassCriteria.nameMatching(".*Service"),
+ *                 ClassCriteria.nameMatching(".*Repository"))
+ *             .shouldImport(ClassCriteria.nameMatching(".*Controller"),
+ *                 ClassCriteria.nameMatching(".*Service"))
  *             .shouldHaveNoCycles()
  *         )
  *     );
  * }</pre>
  */
-public class ImportsConfigurer extends AbstractConfigurer {
+public final class ImportsConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   ImportsConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
   /**
-   * Ensures that no classes import from the specified package.
+   * Ensures that no classes import classes matching the given criteria. Classes that match the
+   * criteria themselves are not checked, so the classes of a banned package may still import
+   * each other.
    *
-   * @param packageIdentifier the package that should not be imported
-   * @return the updated {@link ImportsConfigurer} instance
-   * @see #shouldNotImport(String, Configuration)
+   * @param forbiddenImports the forbidden imports, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see #shouldNotImport(DescribedPredicate, Configuration)
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ImportsConfigurer shouldNotImport(String packageIdentifier) {
-    return shouldNotImport(packageIdentifier, defaultConfiguration());
+  public ImportsConfigurer shouldNotImport(
+      DescribedPredicate<? super JavaClass> forbiddenImports) {
+    return shouldNotImport(forbiddenImports, defaultConfiguration());
   }
 
   /**
-   * Ensures that no classes import from the specified package with a given {@link Configuration}.
+   * Ensures that no classes import classes matching the given criteria, using the specified
+   * {@link Configuration}. Classes that match the criteria themselves are not checked.
    *
-   * @param packageIdentifier the package that should not be imported
-   * @param configuration     the rule configuration
-   * @return the updated {@link ImportsConfigurer} instance
-   * @see #shouldNotImport(String)
+   * @param forbiddenImports the forbidden imports
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see #shouldNotImport(DescribedPredicate)
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ImportsConfigurer shouldNotImport(String packageIdentifier, Configuration configuration) {
+  public ImportsConfigurer shouldNotImport(DescribedPredicate<? super JavaClass> forbiddenImports,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
-            .should().dependOnClassesThat()
-            .resideInAPackage(packageIdentifier)
-            .as("No classes should have imports from package %s".formatted(packageIdentifier)),
+        .that(DescribedPredicate.not(forbiddenImports))
+        .should().dependOnClassesThat(forbiddenImports)
+        .as("No classes should import classes %s".formatted(forbiddenImports.getDescription())),
         configuration));
   }
 
   /**
-   * Ensures that no classes with names matching the given regex import classes that match another
-   * regex.
+   * Ensures that no classes matching the given criteria import classes matching other criteria.
+   * Selected classes that match the disallowed criteria themselves are not checked, so the
+   * classes of a banned package may still import each other.
    *
-   * @param regex                 the regex for class names
-   * @param notImportClassesRegex the regex for disallowed imports
-   * @return the updated {@link ImportsConfigurer} instance
-   * @see #shouldNotImport(String, String, Configuration)
+   * @param classes the classes to check, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param forbiddenImports the forbidden imports
+   * @return this configurer for fluent chaining
+   * @see #shouldNotImport(DescribedPredicate, DescribedPredicate, Configuration)
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ImportsConfigurer shouldNotImport(String regex, String notImportClassesRegex) {
-    return shouldNotImport(regex, notImportClassesRegex, defaultConfiguration());
+  public ImportsConfigurer shouldNotImport(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenImports) {
+    return shouldNotImport(classes, forbiddenImports, defaultConfiguration());
   }
 
   /**
-   * Ensures that no classes with names matching the given regex import classes that match another
-   * regex, using the specified {@link Configuration}.
+   * Ensures that no classes matching the given criteria import classes matching other criteria,
+   * using the specified {@link Configuration}. Selected classes that match the disallowed criteria
+   * themselves are not checked.
    *
-   * @param regex                 the regex for class names
-   * @param notImportClassesRegex the regex for disallowed imports
-   * @param configuration         the rule configuration
-   * @return the updated {@link ImportsConfigurer} instance
-   * @see #shouldNotImport(String, String)
+   * @param classes the classes to check
+   * @param forbiddenImports the forbidden imports
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see #shouldNotImport(DescribedPredicate, DescribedPredicate)
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ImportsConfigurer shouldNotImport(String regex, String notImportClassesRegex,
-      Configuration configuration) {
+  public ImportsConfigurer shouldNotImport(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenImports, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
-        .that().haveNameMatching(regex)
-        .should().dependOnClassesThat()
-        .haveNameMatching(notImportClassesRegex)
-        .as("No classes that have name matching %s should have imports %s".formatted(
-            regex, notImportClassesRegex)), configuration));
+        .that(classes)
+        .and(DescribedPredicate.not(forbiddenImports))
+        .should().dependOnClassesThat(forbiddenImports)
+        .as("No classes %s should import classes %s".formatted(
+            classes.getDescription(), forbiddenImports.getDescription())), configuration));
   }
 
   /**
-   * Ensures that classes matching the given regex import classes matching another regex.
+   * Ensures that classes matching the given criteria import classes matching other criteria.
    *
-   * @param regex              the regex for class names
-   * @param importClassesRegex the regex for allowed imports
-   * @return the updated {@link ImportsConfigurer} instance
-   * @see #shouldImport(String, String, Configuration)
+   * @param classes the classes to check, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param requiredImports the required imports
+   * @return this configurer for fluent chaining
+   * @see #shouldImport(DescribedPredicate, DescribedPredicate, Configuration)
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ImportsConfigurer shouldImport(String regex, String importClassesRegex) {
-    return shouldImport(regex, importClassesRegex, defaultConfiguration());
+  public ImportsConfigurer shouldImport(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> requiredImports) {
+    return shouldImport(classes, requiredImports, defaultConfiguration());
   }
 
   /**
-   * Ensures that classes matching the given regex import classes matching another regex using the
-   * specified {@link Configuration}.
+   * Ensures that classes matching the given criteria import classes matching other criteria,
+   * using the specified {@link Configuration}.
    *
-   * @param regex              the regex for class names
-   * @param importClassesRegex the regex for allowed imports
-   * @param configuration      the rule configuration
-   * @return the updated {@link ImportsConfigurer} instance
-   * @see #shouldImport(String, String)
+   * @param classes the classes to check
+   * @param requiredImports the required imports
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see #shouldImport(DescribedPredicate, DescribedPredicate)
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ImportsConfigurer shouldImport(String regex, String importClassesRegex,
-      Configuration configuration) {
+  public ImportsConfigurer shouldImport(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> requiredImports, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
-        .should().dependOnClassesThat()
-        .haveNameMatching(importClassesRegex)
-        .as("Classes that have name matching %s should have imports %s".formatted(
-            regex, importClassesRegex)), configuration));
+        .that(classes)
+        .should().dependOnClassesThat(requiredImports)
+        .as("Classes %s should import classes %s".formatted(
+            classes.getDescription(), requiredImports.getDescription())), configuration));
   }
 
   /**
    * Ensures that the project's namespace has no cyclic dependencies between packages.
    *
-   * @return the updated {@link ImportsConfigurer} instance
+   * @return this configurer for fluent chaining
+   * @throws TaikaiException if no namespace is configured
    * @see #shouldHaveNoCycles(Configuration)
    */
   public ImportsConfigurer shouldHaveNoCycles() {
-    return shouldHaveNoCycles(null);
+    return shouldHaveNoCycles(defaultConfiguration());
   }
 
   /**
@@ -147,24 +174,29 @@ public class ImportsConfigurer extends AbstractConfigurer {
    * specified {@link Configuration}.
    *
    * @param configuration the rule configuration
-   * @return the updated {@link ImportsConfigurer} instance
-   * @throws TaikaiException if the namespace is not set
+   * @return this configurer for fluent chaining
+   * @throws TaikaiException if no namespace is configured
    * @see #shouldHaveNoCycles()
    */
-  public ImportsConfigurer shouldHaveNoCycles(@Nullable Configuration configuration) {
-    String namespace = (configuration != null && configuration.namespace() != null)
+  public ImportsConfigurer shouldHaveNoCycles(Configuration configuration) {
+    String namespace = configuration.namespace() != null
         ? configuration.namespace()
-        : Optional.ofNullable(configurerContext())
-            .map(ConfigurerContext::namespace)
-            .orElse(null);
+        : configurerContext().namespace();
 
     if (namespace == null) {
-      throw new TaikaiException("Namespace is not set");
+      throw new TaikaiException("Namespace is not provided");
     }
 
     return addRule(TaikaiRule.of(slices()
         .matching(namespace + ".(*)..")
         .should().beFreeOfCycles()
         .as("Namespace %s should be free of cycles".formatted(namespace)), configuration));
+  }
+
+  @Override
+  public ImportsConfigurer disable() {
+    disable(ImportsConfigurer.class);
+
+    return this;
   }
 }

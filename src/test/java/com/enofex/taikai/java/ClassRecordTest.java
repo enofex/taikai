@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -12,13 +13,13 @@ import org.junit.jupiter.api.Test;
 class ClassRecordTest {
 
   @Nested
-  class ClassesAnnotatedWithShouldBeRecords {
+  class ClassesShouldBeRecordsByAnnotation {
 
     @Test
     void shouldNotThrowWhenAnnotatedClassesAreRecords_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
-          .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class))
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -28,7 +29,7 @@ class ClassRecordTest {
     void shouldThrowWhenAnnotatedClassesAreNotRecords_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(InvalidNonRecord.class)
-          .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class))
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -38,7 +39,7 @@ class ClassRecordTest {
     void shouldNotThrowWhenAnnotatedClassesAreRecords_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
-          .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class.getName()))
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class.getName())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -48,7 +49,7 @@ class ClassRecordTest {
     void shouldThrowWhenAnnotatedClassesAreNotRecords_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(InvalidNonRecord.class)
-          .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class.getName()))
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class.getName())))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -58,7 +59,7 @@ class ClassRecordTest {
     void shouldNotThrowWhenAnnotatedClassesAreRecords_ClassWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
-          .java(java -> java.classesAnnotatedWithShouldBeRecords(TestAnnotation.class,
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class),
               com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
           .build();
 
@@ -73,7 +74,7 @@ class ClassRecordTest {
     void shouldNotThrowWhenClassNameMatchesAndIsRecord() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
-          .java(java -> java.classesShouldBeRecords(".*ValidRecord"))
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.nameMatching(".*ValidRecord")))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -83,7 +84,7 @@ class ClassRecordTest {
     void shouldThrowWhenClassNameMatchesAndIsNotRecord() {
       Taikai taikai = Taikai.builder()
           .classes(InvalidNonRecord.class)
-          .java(java -> java.classesShouldBeRecords(".*InvalidNonRecord"))
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.nameMatching(".*InvalidNonRecord")))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -93,7 +94,7 @@ class ClassRecordTest {
     void shouldNotThrowWhenNoClassNameMatches() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
-          .java(java -> java.classesShouldBeRecords(".*DoesNotExist"))
+          .java(java -> java.classesShouldBeRecords(ClassCriteria.nameMatching(".*DoesNotExist")))
           .build();
 
       assertDoesNotThrow(taikai::check);

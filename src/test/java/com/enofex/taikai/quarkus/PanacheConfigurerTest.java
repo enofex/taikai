@@ -86,30 +86,6 @@ public class PanacheConfigurerTest {
   }
 
   @Nested
-  class AnnotatedWithEntityWhenActiveRecordPattern {
-
-    @Test
-    void shouldNotThrowWhenActiveRecordPatternIsAnnotatedViaAlias() {
-      Taikai taikai = Taikai.builder()
-          .classes(Person.class)
-          .quarkus(quarkus -> quarkus.panache(PanacheConfigurer::annotatedWithEntityWhenActiveRecordPattern))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenActiveRecordPatternIsNotAnnotatedViaAlias() {
-      Taikai taikai = Taikai.builder()
-          .classes(PersonNoEntity.class)
-          .quarkus(quarkus -> quarkus.panache(PanacheConfigurer::annotatedWithEntityWhenActiveRecordPattern))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
   class ConfigurationOverloads {
 
     @Test
@@ -130,18 +106,6 @@ public class PanacheConfigurerTest {
           .classes(Person.class)
           .quarkus(quarkus -> quarkus.panache(
               panache -> panache.shouldBeAnnotatedWithEntityWhenActiveRecordPattern(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForAnnotatedWithEntityWhenActiveRecordPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(Person.class)
-          .quarkus(quarkus -> quarkus.panache(
-              panache -> panache.annotatedWithEntityWhenActiveRecordPattern(
                   com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
           .build();
 

@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.enofex.taikai.Criteria;
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
@@ -25,8 +25,8 @@ class MethodReturnTypeTest {
   void shouldRejectEntitiesAnywhereInReturnSignature(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
         .classes(fixture)
-        .java(java -> java.methodsShouldNotReturn(
-            Criteria.inPackage("com.enofex.taikai.java"), Criteria.annotatedWith(Entity.class)))
+        .java(java -> java.methodsShouldNotReturnForClass(
+            ClassCriteria.inPackage("com.enofex.taikai.java"), ClassCriteria.annotatedWith(Entity.class)))
         .build();
 
     AssertionError failure = assertThrows(AssertionError.class, taikai::check);
@@ -45,8 +45,8 @@ class MethodReturnTypeTest {
   void shouldAcceptRequiredTypesAnywhereInReturnSignature(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
         .classes(fixture)
-        .java(java -> java.methodsShouldReturn(
-            Criteria.inPackage("com.enofex.taikai.java"), Criteria.annotatedWith(Entity.class)))
+        .java(java -> java.methodsShouldReturnForClass(
+            ClassCriteria.inPackage("com.enofex.taikai.java"), ClassCriteria.annotatedWith(Entity.class)))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -56,8 +56,8 @@ class MethodReturnTypeTest {
   void shouldRejectEachMethodWithoutRequiredReturnType() {
     Taikai taikai = Taikai.builder()
         .classes(SafeReturn.class)
-        .java(java -> java.methodsShouldReturn(
-            Criteria.namedLike("SafeReturn"), Criteria.annotatedWith(Entity.class)))
+        .java(java -> java.methodsShouldReturnForClass(
+            ClassCriteria.simpleNameMatching("SafeReturn"), ClassCriteria.annotatedWith(Entity.class)))
         .build();
 
     AssertionError failure = assertThrows(AssertionError.class, taikai::check);
@@ -70,8 +70,8 @@ class MethodReturnTypeTest {
   void shouldRequireClassNamesEndingInDtoIncludingWrappedReturns() {
     Taikai taikai = Taikai.builder()
         .classes(DtoReturn.class)
-        .java(java -> java.methodsShouldReturn(
-            Criteria.namedLike("DtoReturn"), Criteria.namedLike(".*DTO")))
+        .java(java -> java.methodsShouldReturnForClass(
+            ClassCriteria.simpleNameMatching("DtoReturn"), ClassCriteria.nameMatching(".*DTO")))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -81,8 +81,9 @@ class MethodReturnTypeTest {
   void shouldAcceptRequiredTypesSelectedByPackage() {
     Taikai taikai = Taikai.builder()
         .classes(NestedReturn.class)
-        .java(java -> java.methodsShouldReturn(
-            Criteria.namedLike("NestedReturn"), Criteria.inPackage("org.springframework.http")))
+        .java(java -> java.methodsShouldReturnForClass(
+            ClassCriteria.simpleNameMatching("NestedReturn"),
+            ClassCriteria.inPackage("org.springframework.http")))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -92,8 +93,9 @@ class MethodReturnTypeTest {
   void shouldIgnoreUnselectedClassesForRequiredReturns() {
     Taikai taikai = Taikai.builder()
         .classes(DirectReturn.class, SafeReturn.class)
-        .java(java -> java.methodsShouldReturn(
-            Criteria.namedLike("DirectReturn"), Criteria.annotatedWith(Entity.class.getName())))
+        .java(java -> java.methodsShouldReturnForClass(
+            ClassCriteria.simpleNameMatching("DirectReturn"),
+            ClassCriteria.annotatedWith(Entity.class.getName())))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -103,8 +105,9 @@ class MethodReturnTypeTest {
   void shouldHonorConfigurationExclusionsForRequiredReturns() {
     Taikai taikai = Taikai.builder()
         .namespace("com.enofex.taikai.java")
-        .java(java -> java.methodsShouldReturn(
-            Criteria.namedLike("DirectReturn|SafeReturn"), Criteria.annotatedWith(Entity.class),
+        .java(java -> java.methodsShouldReturnForClass(
+            ClassCriteria.simpleNameMatching("DirectReturn|SafeReturn"),
+            ClassCriteria.annotatedWith(Entity.class),
             Configuration.of(Namespace.IMPORT.WITH_TESTS, List.of(SafeReturn.class.getName()))))
         .build();
 
@@ -115,8 +118,8 @@ class MethodReturnTypeTest {
   void shouldAllowNoMatchingClassesForRequiredReturns() {
     Taikai taikai = Taikai.builder()
         .classes(SafeReturn.class)
-        .java(java -> java.methodsShouldReturn(
-            Criteria.inPackage("com.company.controllers.."), Criteria.namedLike(".*DTO")))
+        .java(java -> java.methodsShouldReturnForClass(
+            ClassCriteria.inPackage("com.company.controllers.."), ClassCriteria.nameMatching(".*DTO")))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -127,9 +130,10 @@ class MethodReturnTypeTest {
     Taikai taikai = Taikai.builder()
         .classes(DtoReturn.class)
         .java(java -> java
-            .methodsShouldReturn(Criteria.namedLike("DtoReturn"), Criteria.namedLike(".*DTO"))
-            .methodsShouldNotReturn(Criteria.namedLike("DtoReturn"),
-                Criteria.annotatedWith(Entity.class)))
+            .methodsShouldReturnForClass(ClassCriteria.simpleNameMatching("DtoReturn"),
+                ClassCriteria.nameMatching(".*DTO"))
+            .methodsShouldNotReturnForClass(ClassCriteria.simpleNameMatching("DtoReturn"),
+                ClassCriteria.annotatedWith(Entity.class)))
         .build();
 
     AssertionError failure = assertThrows(AssertionError.class, taikai::check);
@@ -140,16 +144,17 @@ class MethodReturnTypeTest {
   void shouldRejectTypesSelectedByNameOrPackage() {
     Taikai nameRule = Taikai.builder()
         .classes(DirectReturn.class)
-        .java(java -> java.methodsShouldNotReturn(
-            Criteria.namedLike("DirectReturn"), Criteria.namedLike(".*Entity")))
+        .java(java -> java.methodsShouldNotReturnForClass(
+            ClassCriteria.simpleNameMatching("DirectReturn"), ClassCriteria.nameMatching(".*Entity")))
         .build();
 
     assertThrows(AssertionError.class, nameRule::check);
 
     Taikai packageRule = Taikai.builder()
         .classes(NestedReturn.class)
-        .java(java -> java.methodsShouldNotReturn(
-            Criteria.namedLike("NestedReturn"), Criteria.inPackage("org.springframework.http")))
+        .java(java -> java.methodsShouldNotReturnForClass(
+            ClassCriteria.simpleNameMatching("NestedReturn"),
+            ClassCriteria.inPackage("org.springframework.http")))
         .build();
 
     assertThrows(AssertionError.class, packageRule::check);
@@ -159,8 +164,9 @@ class MethodReturnTypeTest {
   void shouldAllowSafeReturnsAndUnselectedClasses() {
     assertDoesNotThrow(() -> Taikai.builder()
         .classes(SafeReturn.class, DirectReturn.class)
-        .java(java -> java.methodsShouldNotReturn(
-            Criteria.namedLike("SafeReturn"), Criteria.annotatedWith(Entity.class.getName())))
+        .java(java -> java.methodsShouldNotReturnForClass(
+            ClassCriteria.simpleNameMatching("SafeReturn"),
+            ClassCriteria.annotatedWith(Entity.class.getName())))
         .build().check());
   }
 
@@ -168,8 +174,8 @@ class MethodReturnTypeTest {
   void shouldAllowForbiddenTypesOutsideTheReturnSignature() {
     assertDoesNotThrow(() -> Taikai.builder()
         .classes(UsesEntity.class)
-        .java(java -> java.methodsShouldNotReturn(
-            Criteria.namedLike("UsesEntity"), Criteria.annotatedWith(Entity.class)))
+        .java(java -> java.methodsShouldNotReturnForClass(
+            ClassCriteria.simpleNameMatching("UsesEntity"), ClassCriteria.annotatedWith(Entity.class)))
         .build().check());
   }
 
@@ -177,8 +183,9 @@ class MethodReturnTypeTest {
   void shouldHonorConfigurationExclusions() {
     assertDoesNotThrow(() -> Taikai.builder()
         .namespace("com.enofex.taikai.java")
-        .java(java -> java.methodsShouldNotReturn(
-            Criteria.namedLike("DirectReturn|SafeReturn"), Criteria.annotatedWith(Entity.class),
+        .java(java -> java.methodsShouldNotReturnForClass(
+            ClassCriteria.simpleNameMatching("DirectReturn|SafeReturn"),
+            ClassCriteria.annotatedWith(Entity.class),
             Configuration.of(Namespace.IMPORT.WITH_TESTS, List.of(DirectReturn.class.getName()))))
         .build().check());
   }
@@ -187,8 +194,8 @@ class MethodReturnTypeTest {
   void shouldAllowNoMatchingClasses() {
     assertDoesNotThrow(() -> Taikai.builder()
         .classes(DirectReturn.class)
-        .java(java -> java.methodsShouldNotReturn(
-            Criteria.inPackage("com.company.controllers.."), Criteria.annotatedWith(Entity.class)))
+        .java(java -> java.methodsShouldNotReturnForClass(
+            ClassCriteria.inPackage("com.company.controllers.."), ClassCriteria.annotatedWith(Entity.class)))
         .build().check());
   }
 

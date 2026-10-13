@@ -1,9 +1,12 @@
 package com.enofex.taikai.quarkus;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.ANNOTATION_PATH;
@@ -37,18 +40,18 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
  *
  * <p>By default, this configurer checks classes annotated with {@code @Path}.</p>
  */
-public class ResourcesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
+public final class ResourcesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_RESOURCE_NAME_MATCHING = ".+Resource";
 
-  public ResourcesConfigurer(ConfigurerContext configurerContext) {
+  ResourcesConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
   /**
    * Adds a rule enforcing that resource have names ending with {@code Resource}.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer namesShouldEndWithResource() {
     return namesShouldMatch(DEFAULT_RESOURCE_NAME_MATCHING, defaultConfiguration());
@@ -57,8 +60,8 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
   /**
    * See {@link #namesShouldEndWithResource()}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer namesShouldEndWithResource(TaikaiRule.Configuration configuration) {
     return namesShouldMatch(DEFAULT_RESOURCE_NAME_MATCHING, configuration);
@@ -67,8 +70,8 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
   /**
    * Adds a rule enforcing that resource class names match the given regex.
    *
-   * @param regex the regex pattern for valid resource class names
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer namesShouldMatch(String regex) {
     return namesShouldMatch(regex, defaultConfiguration());
@@ -77,9 +80,9 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
   /**
    * See {@link #namesShouldMatch(String)}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param regex         the regex pattern for valid resource class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer namesShouldMatch(String regex, TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -91,7 +94,7 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
   /**
    * Adds a rule enforcing that resource classes should have public visibility.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer shouldBePublic() {
     return shouldBePublic(defaultConfiguration());
@@ -100,8 +103,8 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
   /**
    * See {@link #shouldBePublic()}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer shouldBePublic(TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -114,53 +117,60 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
    * Adds a rule that resource classes (matching the default name pattern)
    * should be annotated with {@code @Path}. Interfaces are excluded.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer shouldBeAnnotatedWithPath() {
-    return shouldBeAnnotatedWithPath(DEFAULT_RESOURCE_NAME_MATCHING,
-        defaultConfiguration());
+    return shouldBeAnnotatedWithPath(
+        ClassCriteria.nameMatching(DEFAULT_RESOURCE_NAME_MATCHING), defaultConfiguration());
   }
 
   /**
    * See {@link #shouldBeAnnotatedWithPath()}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer shouldBeAnnotatedWithPath(TaikaiRule.Configuration configuration) {
-    return shouldBeAnnotatedWithPath(DEFAULT_RESOURCE_NAME_MATCHING, configuration);
+    return shouldBeAnnotatedWithPath(
+        ClassCriteria.nameMatching(DEFAULT_RESOURCE_NAME_MATCHING), configuration);
   }
 
   /**
-   * Adds a rule that resource classes matching the given regex
+   * Adds a rule that resource classes matching the given criteria
    * should be annotated with {@code @Path}. Interfaces are excluded.
    *
-   * @param regex the regex for resource class names
-   * @return this configurer instance for fluent chaining
+   * @param classes the resource classes, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ResourcesConfigurer shouldBeAnnotatedWithPath(String regex) {
-    return shouldBeAnnotatedWithPath(regex, defaultConfiguration());
+  public ResourcesConfigurer shouldBeAnnotatedWithPath(DescribedPredicate<? super JavaClass> classes) {
+    return shouldBeAnnotatedWithPath(classes, defaultConfiguration());
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithPath(String)}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithPath(DescribedPredicate)}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param regex         the regex for path class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param classes the resource classes
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ResourcesConfigurer shouldBeAnnotatedWithPath(String regex, TaikaiRule.Configuration configuration) {
+  public ResourcesConfigurer shouldBeAnnotatedWithPath(DescribedPredicate<? super JavaClass> classes, TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().areNotInterfaces().and().haveNameMatching(regex)
+            .that().areNotInterfaces().and(classes)
             .should(be(annotatedWithPath(true)))
-            .as("Resources should be annotated with %s".formatted(ANNOTATION_PATH)),
+            .as("Resources %s should be annotated with %s".formatted(
+                classes.getDescription(), ANNOTATION_PATH)),
         configuration));
   }
 
   /**
    * Adds a rule enforcing that resource classes should not depend on other resources.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer shouldNotDependOnOtherResources() {
     return shouldNotDependOnOtherResources(defaultConfiguration());
@@ -169,8 +179,8 @@ public class ResourcesConfigurer extends AbstractConfigurer implements Disableab
   /**
    * See {@link #shouldNotDependOnOtherResources()}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public ResourcesConfigurer shouldNotDependOnOtherResources(TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(classes()

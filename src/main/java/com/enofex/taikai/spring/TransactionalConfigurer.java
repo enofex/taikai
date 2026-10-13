@@ -17,6 +17,7 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
  * Configures and enforces conventions for transactional code annotated with
@@ -45,7 +46,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
 public final class TransactionalConfigurer extends AbstractConfigurer implements
     DisableableConfigurer {
 
-  public TransactionalConfigurer(ConfigurerContext configurerContext) {
+  TransactionalConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -56,7 +57,7 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
    * A {@code @Transactional} annotation on a non-public method is silently ignored and no
    * transaction is created at runtime.</p>
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public TransactionalConfigurer methodsShouldBePublic() {
     return methodsShouldBePublic(defaultConfiguration());
@@ -65,12 +66,13 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
   /**
    * See {@link #methodsShouldBePublic()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public TransactionalConfigurer methodsShouldBePublic(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
         .that(are(annotatedWithTransactional(true)))
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().bePublic()
         .as("Methods annotated with %s or %s should be public, Spring's proxy-based transaction management ignores non-public methods".formatted(
             ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
@@ -90,7 +92,7 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
    * as the self injection workaround, are reported as well. Use {@link Configuration} to exclude
    * those classes.</p>
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public TransactionalConfigurer shouldNotBeSelfInvoked() {
     return shouldNotBeSelfInvoked(defaultConfiguration());
@@ -99,13 +101,13 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
   /**
    * See {@link #shouldNotBeSelfInvoked()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public TransactionalConfigurer shouldNotBeSelfInvoked(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(notSelfInvokeMethodsAnnotatedWith(ANNOTATIONS_TRANSACTIONAL))
-        .as("Methods annotated with %s or %s should not be self invoked, the call bypasses Spring's proxy and no transaction is created".formatted(
+        .as("Methods annotated with %s or %s should not be self-invoked, the call bypasses Spring's proxy and no transaction is created".formatted(
             ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
   }
 
@@ -115,7 +117,7 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
    * declare {@code @Transactional} methods. Transaction boundaries should be defined
    * in the service layer.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public TransactionalConfigurer shouldNotBeUsedInControllers() {
     return shouldNotBeUsedInControllers(defaultConfiguration());
@@ -124,8 +126,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
   /**
    * See {@link #shouldNotBeUsedInControllers()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public TransactionalConfigurer shouldNotBeUsedInControllers(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()

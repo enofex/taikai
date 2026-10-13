@@ -19,8 +19,11 @@ import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +47,7 @@ class TaikaiTest {
     assertNull(taikai.classes());
     assertTrue(taikai.rules().isEmpty());
     assertTrue(taikai.excludedClasses().isEmpty());
+    assertTrue(taikai.excludedCriteria().isEmpty());
   }
 
   @Test
@@ -132,7 +136,7 @@ class TaikaiTest {
         .build()
         .check();
 
-    verify(mockRule, times(1)).check(VALID_NAMESPACE, null, emptyList());
+    verify(mockRule, times(1)).check(VALID_NAMESPACE, null, emptyList(), List.of());
   }
 
   @Test
@@ -224,6 +228,134 @@ class TaikaiTest {
         .build();
 
     assertThrows(AssertionError.class, taikai::checkAll);
+  }
+
+  @Test
+  void shouldExcludeClassesMatchingCriteria() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .excludeClasses(ClassCriteria.simpleNameMatching("ImportPatterns"))
+        .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*Patterns")))
+        .build();
+
+    assertEquals(1, taikai.excludedCriteria().size());
+    assertDoesNotThrow(taikai::check);
+    assertDoesNotThrow(taikai::checkAll);
+  }
+
+  @Test
+  void shouldFailWithoutCriteriaExclusion() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*Patterns")))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+    assertThrows(AssertionError.class, taikai::checkAll);
+  }
+
+  @Test
+  void shouldExcludeClassesMatchingAnyOfSeveralCriteria() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .excludeClasses(ClassCriteria.simpleNameMatching("ImportPatterns"))
+        .excludeClasses(ClassCriteria.nameMatching(".*Naming"))
+        .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*(Patterns|Naming)")))
+        .build();
+
+    assertEquals(2, taikai.excludedCriteria().size());
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldCombineNameAndCriteriaExclusions() {
+    Taikai taikai = Taikai.builder()
+        .namespace("com.enofex.taikai.java")
+        .excludeClasses("com.enofex.taikai.java.ImportPatterns")
+        .excludeClasses(ClassCriteria.nameMatching(".*Naming"))
+        .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*(Patterns|Naming)")))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldNotApplyCriteriaExclusionsToDirectlySuppliedClasses() {
+    Taikai taikai = Taikai.builder()
+        .classes(ViolatingClass.class)
+        .excludeClasses(ClassCriteria.simpleNameMatching("ViolatingClass"))
+        .java(JavaConfigurer::methodsShouldNotDeclareGenericExceptions)
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  @Test
+  void shouldCopyCriteriaExclusionsWithoutSharingThem() {
+    Taikai base = Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .excludeClasses(ClassCriteria.simpleNameMatching("First"))
+        .build();
+
+    Taikai derived = base.toBuilder()
+        .excludeClasses(ClassCriteria.simpleNameMatching("Second"))
+        .build();
+
+    assertEquals(1, base.excludedCriteria().size());
+    assertEquals(2, derived.excludedCriteria().size());
+  }
+
+  @Test
+  void shouldCopyNameExclusionsWithoutSharingThem() {
+    Taikai base = Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .excludeClasses("com.enofex.taikai.First")
+        .build();
+
+    Taikai derived = base.toBuilder()
+        .excludeClasses("com.enofex.taikai.Second")
+        .build();
+
+    assertEquals(List.of("com.enofex.taikai.First"), base.excludedClasses());
+    assertEquals(2, derived.excludedClasses().size());
+  }
+
+  @Test
+  void shouldNotShareNameExclusionsWithBuilder() {
+    Taikai.Builder builder = Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .excludeClasses("com.enofex.taikai.First");
+
+    Taikai taikai = builder.build();
+    builder.excludeClasses("com.enofex.taikai.Second");
+
+    assertEquals(List.of("com.enofex.taikai.First"), taikai.excludedClasses());
+  }
+
+  @Test
+  void shouldCopyRulesWithoutSharingThem() {
+    TaikaiRule firstRule = mock(TaikaiRule.class);
+    TaikaiRule secondRule = mock(TaikaiRule.class);
+
+    Taikai base = Taikai.builder()
+        .namespace(VALID_NAMESPACE)
+        .addRule(firstRule)
+        .build();
+
+    Taikai derived = base.toBuilder()
+        .addRule(secondRule)
+        .build();
+
+    assertEquals(List.of(firstRule), base.rules());
+    assertEquals(List.of(firstRule, secondRule), derived.rules());
+  }
+
+  @Test
+  void shouldRejectNullCriteriaExclusion() {
+    Taikai.Builder builder = Taikai.builder();
+    DescribedPredicate<JavaClass> criteria = null;
+
+    assertThrows(NullPointerException.class, () -> builder.excludeClasses(criteria));
   }
 
   static class ViolatingClass {

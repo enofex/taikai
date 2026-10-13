@@ -17,7 +17,7 @@ public class AiConfigurerTest {
     void shouldNotThrowWhenAiServiceEndsWithAssistant() {
       Taikai taikai = Taikai.builder()
           .classes(HelloAssistant.class)
-          .quarkus(quarkus -> quarkus.ai(AiConfigurer::namesShouldEndWithAssistantOrResource))
+          .quarkus(quarkus -> quarkus.ai(AiConfigurer::namesShouldEndWithAssistantOrService))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -27,7 +27,7 @@ public class AiConfigurerTest {
     void shouldNotThrowWhenAiServiceEndsWithService() {
       Taikai taikai = Taikai.builder()
           .classes(HelloService.class)
-          .quarkus(quarkus -> quarkus.ai(AiConfigurer::namesShouldEndWithAssistantOrResource))
+          .quarkus(quarkus -> quarkus.ai(AiConfigurer::namesShouldEndWithAssistantOrService))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -38,7 +38,7 @@ public class AiConfigurerTest {
     void shouldThrowWhenAiServiceNotEndsWithAssistantOrService() {
       Taikai taikai = Taikai.builder()
           .classes(Hello.class)
-          .quarkus(quarkus -> quarkus.ai(AiConfigurer::namesShouldEndWithAssistantOrResource))
+          .quarkus(quarkus -> quarkus.ai(AiConfigurer::namesShouldEndWithAssistantOrService))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -63,30 +63,6 @@ public class AiConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(Hello.class)
           .quarkus(quarkus -> quarkus.ai(AiConfigurer::shouldBeAnnotatedWithApplicationScoped))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class AnnotatedWithApplicationScoped {
-
-    @Test
-    void shouldNotThrowWhenAiServiceIsAnnotatedWithApplicationScoped() {
-      Taikai taikai = Taikai.builder()
-          .classes(HelloService.class)
-          .quarkus(quarkus -> quarkus.ai(AiConfigurer::annotatedWithApplicationScoped))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAiServiceIsNotAnnotatedWithApplicationScoped() {
-      Taikai taikai = Taikai.builder()
-          .classes(Hello.class)
-          .quarkus(quarkus -> quarkus.ai(AiConfigurer::annotatedWithApplicationScoped))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -144,38 +120,14 @@ public class AiConfigurerTest {
   }
 
   @Nested
-  class NotUseRegisterAiServiceToDefineTools {
-
-    @Test
-    void shouldNotThrowWhenAiServiceNotUsingTools() {
-      Taikai taikai = Taikai.builder()
-          .classes(HelloService.class)
-          .quarkus(quarkus -> quarkus.ai(AiConfigurer::notUseRegisterAiServiceToDefineTools))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAiServiceUsingToolsAttribute() {
-      Taikai taikai = Taikai.builder()
-          .classes(Hello.class)
-          .quarkus(quarkus -> quarkus.ai(AiConfigurer::notUseRegisterAiServiceToDefineTools))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
   class ConfigurationOverloads {
 
     @Test
-    void shouldSupportConfigurationForNamesShouldEndWithAssistantOrResource() {
+    void shouldSupportConfigurationForNamesShouldEndWithAssistantOrService() {
       Taikai taikai = Taikai.builder()
           .classes(HelloService.class)
           .quarkus(quarkus -> quarkus.ai(
-              ai -> ai.namesShouldEndWithAssistantOrResource(
+              ai -> ai.namesShouldEndWithAssistantOrService(
                   com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
           .build();
 
@@ -193,18 +145,6 @@ public class AiConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
-
-    @Test
-    void shouldSupportConfigurationForAnnotatedWithApplicationScoped() {
-      Taikai taikai = Taikai.builder()
-          .classes(HelloService.class)
-          .quarkus(quarkus -> quarkus.ai(
-              ai -> ai.annotatedWithApplicationScoped(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
   }
 
   @Nested
@@ -215,7 +155,7 @@ public class AiConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(Hello.class)
           .quarkus(quarkus -> quarkus.ai(ai -> {
-            ai.namesShouldEndWithAssistantOrResource();
+            ai.namesShouldEndWithAssistantOrService();
             ai.disable();
           }))
           .build();

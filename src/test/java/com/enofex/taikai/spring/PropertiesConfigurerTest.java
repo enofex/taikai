@@ -3,6 +3,7 @@ package com.enofex.taikai.spring;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -238,14 +239,14 @@ class PropertiesConfigurerTest {
   }
 
   @Nested
-  class ShouldBeAnnotatedWithConfigurationPropertiesByRegex {
+  class ShouldBeAnnotatedWithConfigurationPropertiesByName {
 
     @Test
     void shouldNotThrowWhenMatchingClassIsAnnotatedWithConfigurationProperties() {
       Taikai taikai = Taikai.builder()
           .classes(ApplicationProperties.class)
           .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties")))
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -256,7 +257,7 @@ class PropertiesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(MissingAnnotationProperties.class)
           .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties")))
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -267,7 +268,7 @@ class PropertiesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(MailProperties.class, DefaultMailProperties.class)
           .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties")))
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -318,7 +319,7 @@ class PropertiesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ApplicationProperties.class)
           .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(".+Properties",
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"),
                   com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
           .build();
 

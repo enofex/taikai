@@ -3,6 +3,8 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
+import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Retention;
@@ -15,14 +17,14 @@ import org.junit.jupiter.api.Test;
 class MethodModifierTest {
 
   @Nested
-  class MethodsAnnotatedWithShouldHaveModifiers {
+  class MethodsShouldHaveModifiersByAnnotation {
 
     @Test
     void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class, List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldHaveModifiers(
+              MethodCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -32,8 +34,8 @@ class MethodModifierTest {
     void shouldThrowWhenAnnotatedMethodsLackRequiredModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(NonPublicMethods.class)
-          .java(java -> java.methodsAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class, List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldHaveModifiers(
+              MethodCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -43,8 +45,8 @@ class MethodModifierTest {
     void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class.getName(), List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldHaveModifiers(
+              MethodCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -54,8 +56,8 @@ class MethodModifierTest {
     void shouldThrowWhenAnnotatedMethodsLackRequiredModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(NonPublicMethods.class)
-          .java(java -> java.methodsAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class.getName(), List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldHaveModifiers(
+              MethodCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -63,14 +65,14 @@ class MethodModifierTest {
   }
 
   @Nested
-  class MethodsAnnotatedWithShouldNotHaveModifiers {
+  class MethodsShouldNotHaveModifiersByAnnotation {
 
     @Test
     void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class, List.of(JavaModifier.STATIC)))
+          .java(java -> java.methodsShouldNotHaveModifiers(
+              MethodCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.STATIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -80,8 +82,8 @@ class MethodModifierTest {
     void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class.getName(), List.of(JavaModifier.STATIC)))
+          .java(java -> java.methodsShouldNotHaveModifiers(
+              MethodCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.STATIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -95,7 +97,7 @@ class MethodModifierTest {
     void shouldNotThrowWhenMethodsMatchRegexAndHaveRequiredModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldHaveModifiers(".*", List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldHaveModifiers(MethodCriteria.nameMatching(".*"), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -105,7 +107,7 @@ class MethodModifierTest {
     void shouldThrowWhenMethodsMatchRegexButDoNotHaveRequiredModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(MixedModifiers.class)
-          .java(java -> java.methodsShouldHaveModifiers("one|two|three", List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldHaveModifiers(MethodCriteria.nameMatching("one|two|three"), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -119,7 +121,7 @@ class MethodModifierTest {
     void shouldNotThrowWhenMethodsDoNotHaveForbiddenModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiers(".*", List.of(JavaModifier.STATIC)))
+          .java(java -> java.methodsShouldNotHaveModifiers(MethodCriteria.nameMatching(".*"), List.of(JavaModifier.STATIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -129,7 +131,7 @@ class MethodModifierTest {
     void shouldThrowWhenMethodsHaveForbiddenModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiers(".*anotherPublicMethod", List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldNotHaveModifiers(MethodCriteria.nameMatching(".*anotherPublicMethod"), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -139,7 +141,7 @@ class MethodModifierTest {
     void shouldNotThrowWhenRegexDoesNotMatchAnyMethod() {
       Taikai taikai = Taikai.builder()
           .classes(StaticMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiers("noSuchMethod", List.of(JavaModifier.STATIC)))
+          .java(java -> java.methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("noSuchMethod"), List.of(JavaModifier.STATIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -149,13 +151,12 @@ class MethodModifierTest {
     void shouldSupportEmptyModifierCollections() {
       Taikai taikai = Taikai.builder()
           .classes(StaticMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiers(".*", Set.of()))
+          .java(java -> java.methodsShouldNotHaveModifiers(MethodCriteria.nameMatching(".*"), Set.of()))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
   }
-
 
   @Nested
   class MethodsShouldHaveModifiersForClass {
@@ -164,7 +165,7 @@ class MethodModifierTest {
     void shouldNotThrowWhenAllMethodsInClassHaveRequiredModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldHaveModifiersForClass(".*PublicMethods", List.of(JavaModifier.PUBLIC)))
+          .java(java -> java.methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching(".*PublicMethods"), List.of(JavaModifier.PUBLIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -174,7 +175,7 @@ class MethodModifierTest {
     void shouldThrowWhenAnyMethodInClassLacksRequiredModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(MixedModifiers.class)
-          .java(java -> java.methodsShouldHaveModifiersForClass(".*MixedModifiers", List.of(JavaModifier.PRIVATE)))
+          .java(java -> java.methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching(".*MixedModifiers"), List.of(JavaModifier.PRIVATE)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -188,7 +189,7 @@ class MethodModifierTest {
     void shouldNotThrowWhenAllMethodsInClassDoNotHaveForbiddenModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiersForClass(".*PublicMethods", List.of(JavaModifier.STATIC)))
+          .java(java -> java.methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching(".*PublicMethods"), List.of(JavaModifier.STATIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -198,17 +199,17 @@ class MethodModifierTest {
     void shouldThrowWhenAnyMethodInClassHasForbiddenModifiers() {
       Taikai taikai = Taikai.builder()
           .classes(StaticMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiersForClass(".*StaticMethods", List.of(JavaModifier.STATIC)))
+          .java(java -> java.methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching(".*StaticMethods"), List.of(JavaModifier.STATIC)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
-    void shouldNotThrowWhenRegexDoesNotMatchAnyClass() {
+    void shouldNotThrowWhenNoClassMatches() {
       Taikai taikai = Taikai.builder()
           .classes(StaticMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiersForClass(".*NonExistentClass", List.of(JavaModifier.STATIC)))
+          .java(java -> java.methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching(".*NonExistentClass"), List.of(JavaModifier.STATIC)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -218,21 +219,19 @@ class MethodModifierTest {
     void shouldSupportEmptyModifierCollections() {
       Taikai taikai = Taikai.builder()
           .classes(StaticMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiersForClass(".*StaticMethods", Set.of()))
+          .java(java -> java.methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching(".*StaticMethods"), Set.of()))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
   }
 
-
-
   @Test
   void shouldSupportEmptyModifierCollections() {
     Taikai taikai = Taikai.builder()
         .classes(PublicMethods.class)
-        .java(java -> java.methodsAnnotatedWithShouldHaveModifiers(
-            TestAnnotation.class, Set.of()))
+        .java(java -> java.methodsShouldHaveModifiers(
+            MethodCriteria.annotatedWith(TestAnnotation.class), Set.of()))
         .build();
 
     assertDoesNotThrow(taikai::check);

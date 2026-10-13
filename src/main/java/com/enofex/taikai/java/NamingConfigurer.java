@@ -17,11 +17,15 @@ import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaField;
+import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.List;
 
@@ -53,7 +57,7 @@ import java.util.List;
  *     );
  * }</pre>
  */
-public class NamingConfigurer extends AbstractConfigurer {
+public final class NamingConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String PACKAGE_NAME_REGEX = "^[a-z_]+(\\.[a-z_][a-z0-9_]*)*$";
 
@@ -87,7 +91,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces the default Taikai package naming convention using a custom configuration.
    *
-   * @param configuration the rule configuration to use
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer packagesShouldMatchDefault(Configuration configuration) {
@@ -97,7 +101,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces that packages match the given regular expression.
    *
-   * @param regex the regular expression packages must match
+   * @param regex the regex that package names must match
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer packagesShouldMatch(String regex) {
@@ -107,8 +111,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces that packages match the given regular expression using a custom configuration.
    *
-   * @param regex         the regular expression packages must match
-   * @param configuration the rule configuration to use
+   * @param regex the regex that package names must match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer packagesShouldMatch(String regex, Configuration configuration) {
@@ -120,7 +124,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Requires all classes to have names matching the given regular expression.
    *
-   * @param regex the required class-name pattern
+   * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer classesShouldMatch(String regex) {
@@ -131,8 +135,8 @@ public class NamingConfigurer extends AbstractConfigurer {
    * Requires all classes to have names matching the given regular expression using a custom
    * configuration.
    *
-   * @param regex         the required class-name pattern
-   * @param configuration the rule configuration to use
+   * @param regex the regex that fully qualified class names must match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer classesShouldMatch(String regex, Configuration configuration) {
@@ -144,7 +148,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Prohibits classes whose names match the given regular expression.
    *
-   * @param regex a forbidden class-name pattern
+   * @param regex the regex that fully qualified class names must not match
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer classesShouldNotMatch(String regex) {
@@ -154,8 +158,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Prohibits classes whose names match the given regular expression using a custom configuration.
    *
-   * @param regex         a forbidden class-name pattern
-   * @param configuration the rule configuration to use
+   * @param regex the regex that fully qualified class names must not match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer classesShouldNotMatch(String regex, Configuration configuration) {
@@ -165,230 +169,80 @@ public class NamingConfigurer extends AbstractConfigurer {
   }
 
   /**
-   * Requires classes annotated with the given annotation type to match the specified name pattern.
+   * Requires classes matching the given criteria to match the specified name pattern.
    *
-   * @param annotationType the annotation type to filter classes
-   * @param regex          the required class-name pattern
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or an
+   *     ArchUnit predicate
+   * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public NamingConfigurer classesAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex) {
-    return classesAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
+  public NamingConfigurer classesShouldMatch(DescribedPredicate<? super JavaClass> classes,
+      String regex) {
+    return classesShouldMatch(classes, regex, defaultConfiguration());
   }
 
   /**
-   * Requires classes annotated with the given annotation type to match the specified name pattern
-   * using a custom configuration.
-   *
-   * @param annotationType the annotation type to filter classes
-   * @param regex          the required class-name pattern
-   * @param configuration  the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
-    return classesAnnotatedWithShouldMatch(annotationType.getName(), regex, configuration);
-  }
-
-  /**
-   * Requires classes annotated with the given annotation (by fully qualified name) to match the
-   * specified name pattern.
-   *
-   * @param annotationType the fully qualified annotation type name
-   * @param regex          the required class-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesAnnotatedWithShouldMatch(String annotationType, String regex) {
-    return classesAnnotatedWithShouldMatch(annotationType, regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires classes annotated with the given annotation (by fully qualified name) to match the
-   * specified name pattern using a custom configuration.
-   *
-   * @param annotationType the fully qualified annotation type name
-   * @param regex          the required class-name pattern
-   * @param configuration  the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesAnnotatedWithShouldMatch(String annotationType, String regex,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-        .that().areMetaAnnotatedWith(annotationType)
-        .should().haveNameMatching(regex)
-        .as("Classes annotated with %s should have names matching %s".formatted(
-            annotationType, regex)), configuration));
-  }
-
-  /**
-   * Requires classes that implement the given type to match the specified name pattern.
-   *
-   * @param clazz the implemented type
-   * @param regex the required class-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesImplementingShouldMatch(Class<?> clazz, String regex) {
-    return classesImplementingShouldMatch(clazz.getName(), regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires classes that implement the given type to match the specified name pattern using a
+   * Requires classes matching the given criteria to match the specified name pattern using a
    * custom configuration.
    *
-   * @param clazz         the implemented type
-   * @param regex         the required class-name pattern
-   * @param configuration the rule configuration to use
+   * @param classes the classes to check
+   * @param regex the regex that fully qualified class names must match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public NamingConfigurer classesImplementingShouldMatch(Class<?> clazz, String regex,
-      Configuration configuration) {
-    return classesImplementingShouldMatch(clazz.getName(), regex, configuration);
-  }
-
-  /**
-   * Requires classes that implement the given type (by name) to match the specified name pattern.
-   *
-   * @param typeName the fully qualified implemented type name
-   * @param regex    the required class-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesImplementingShouldMatch(String typeName, String regex) {
-    return classesImplementingShouldMatch(typeName, regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires classes that implement the given type (by name) to match the specified name pattern
-   * using a custom configuration.
-   *
-   * @param typeName      the fully qualified implemented type name
-   * @param regex         the required class-name pattern
-   * @param configuration the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesImplementingShouldMatch(String typeName, String regex,
-      Configuration configuration) {
+  public NamingConfigurer classesShouldMatch(DescribedPredicate<? super JavaClass> classes,
+      String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().implement(typeName)
+        .that(classes)
         .should().haveNameMatching(regex)
-        .as("Classes implementing %s should have names matching %s".formatted(
-            typeName, regex)), configuration));
+        .as("Classes %s should have names matching %s".formatted(
+            classes.getDescription(), regex)), configuration));
   }
 
   /**
-   * Requires classes assignable to the given type to match the specified name pattern.
-   *
-   * @param clazz the supertype or interface
-   * @param regex the required class-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesAssignableToShouldMatch(Class<?> clazz, String regex) {
-    return classesAssignableToShouldMatch(clazz.getName(), regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires classes assignable to the given type to match the specified name pattern using a
-   * custom configuration.
-   *
-   * @param clazz         the supertype or interface
-   * @param regex         the required class-name pattern
-   * @param configuration the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesAssignableToShouldMatch(Class<?> clazz, String regex,
-      Configuration configuration) {
-    return classesAssignableToShouldMatch(clazz.getName(), regex, configuration);
-  }
-
-  /**
-   * Requires classes assignable to the given type (by name) to match the specified name pattern.
-   *
-   * @param typeName the fully qualified supertype or interface name
-   * @param regex    the required class-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesAssignableToShouldMatch(String typeName, String regex) {
-    return classesAssignableToShouldMatch(typeName, regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires classes assignable to the given type (by name) to match the specified name pattern
-   * using a custom configuration.
-   *
-   * @param typeName      the fully qualified supertype or interface name
-   * @param regex         the required class-name pattern
-   * @param configuration the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer classesAssignableToShouldMatch(String typeName, String regex,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-        .that().areAssignableTo(typeName)
-        .should().haveNameMatching(regex)
-        .as("Classes assignable to %s should have names matching %s".formatted(
-            typeName, regex)), configuration));
-  }
-
-  /**
-   * Requires methods annotated with the given annotation type to match the specified name pattern.
-   *
-   * @param annotationType the annotation type
-   * @param regex          the required method-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer methodsAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex) {
-    return methodsAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires methods annotated with the given annotation type to match the specified name pattern
-   * using a custom configuration.
-   *
-   * @param annotationType the annotation type
-   * @param regex          the required method-name pattern
-   * @param configuration  the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer methodsAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
-    return methodsAnnotatedWithShouldMatch(annotationType.getName(), regex, configuration);
-  }
-
-  /**
-   * Requires methods annotated with the given annotation (by name) to match the specified name
+   * Prohibits classes matching the given criteria from having names that match the specified
    * pattern.
    *
-   * @param annotationType the fully qualified annotation type name
-   * @param regex          the required method-name pattern
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or an
+   *     ArchUnit predicate
+   * @param regex the regex that fully qualified class names must not match
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public NamingConfigurer methodsAnnotatedWithShouldMatch(
-      String annotationType, String regex) {
-    return methodsAnnotatedWithShouldMatch(annotationType, regex, defaultConfiguration());
+  public NamingConfigurer classesShouldNotMatch(DescribedPredicate<? super JavaClass> classes,
+      String regex) {
+    return classesShouldNotMatch(classes, regex, defaultConfiguration());
   }
 
   /**
-   * Requires methods annotated with the given annotation (by name) to match the specified name
+   * Prohibits classes matching the given criteria from having names that match the specified
    * pattern using a custom configuration.
    *
-   * @param annotationType the fully qualified annotation type name
-   * @param regex          the required method-name pattern
-   * @param configuration  the rule configuration to use
+   * @param classes the classes to check
+   * @param regex the regex that fully qualified class names must not match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public NamingConfigurer methodsAnnotatedWithShouldMatch(String annotationType, String regex,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-        .that().areMetaAnnotatedWith(annotationType)
+  public NamingConfigurer classesShouldNotMatch(DescribedPredicate<? super JavaClass> classes,
+      String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses()
+        .that(classes)
         .should().haveNameMatching(regex)
-        .as("Methods annotated with %s should have names matching %s".formatted(
-            annotationType, regex)), configuration));
+        .as("Classes %s should not have names matching %s".formatted(
+            classes.getDescription(), regex)), configuration));
   }
 
   /**
    * Requires all methods to have names matching the given pattern.
    *
-   * @param regex the required method-name pattern
+   * @param regex the regex that method names must match
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer methodsShouldMatch(String regex) {
@@ -398,20 +252,58 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Requires all methods to have names matching the given pattern using a custom configuration.
    *
-   * @param regex         the required method-name pattern
-   * @param configuration the rule configuration to use
+   * @param regex the regex that method names must match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer methodsShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().haveNameMatching(regex)
         .as("Methods should have names matching %s".formatted(regex)), configuration));
   }
 
   /**
+   * Requires methods matching the given criteria to match the specified name pattern. Synthetic
+   * methods generated by the compiler are ignored.
+   *
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.annotatedWith(Test.class)}, or an ArchUnit predicate
+   * @param regex the regex that method names must match
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer methodsShouldMatch(DescribedPredicate<? super JavaMethod> methods,
+      String regex) {
+    return methodsShouldMatch(methods, regex, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldMatch(DescribedPredicate, String)}, with a custom configuration.
+   *
+   * @param methods the methods to check
+   * @param regex the regex that method names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer methodsShouldMatch(DescribedPredicate<? super JavaMethod> methods,
+      String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should().haveNameMatching(regex)
+            .as("Methods %s should have names matching %s".formatted(
+                methods.getDescription(), regex)),
+        configuration));
+  }
+
+  /**
    * Prohibits methods whose names match the given pattern.
    *
-   * @param regex a forbidden method-name pattern
+   * @param regex the regex that method names must not match
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer methodsShouldNotMatch(String regex) {
@@ -421,130 +313,171 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Prohibits methods whose names match the given pattern using a custom configuration.
    *
-   * @param regex         a forbidden method-name pattern
-   * @param configuration the rule configuration to use
+   * @param regex the regex that method names must not match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer methodsShouldNotMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(noMethods()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().haveNameMatching(regex)
         .as("Methods should not have names matching %s".formatted(regex)), configuration));
   }
 
   /**
-   * Requires fields annotated with the given annotation type to match the specified name pattern.
+   * Requires methods matching the given criteria not to match the specified name pattern.
+   * Synthetic methods generated by the compiler are ignored.
    *
-   * @param annotationType the field-level annotation type
-   * @param regex          the required field-name pattern
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.annotatedWith(Deprecated.class)}, or an ArchUnit predicate
+   * @param regex the regex that method names must not match
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public NamingConfigurer fieldsAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex) {
-    return fieldsAnnotatedWithShouldMatch(annotationType.getName(), regex, defaultConfiguration());
+  public NamingConfigurer methodsShouldNotMatch(DescribedPredicate<? super JavaMethod> methods,
+      String regex) {
+    return methodsShouldNotMatch(methods, regex, defaultConfiguration());
   }
 
   /**
-   * Requires fields annotated with the given annotation type to match the specified name pattern
-   * using a custom configuration.
+   * See {@link #methodsShouldNotMatch(DescribedPredicate, String)}, with a custom configuration.
    *
-   * @param annotationType the field-level annotation type
-   * @param regex          the required field-name pattern
-   * @param configuration  the rule configuration to use
+   * @param methods the methods to check
+   * @param regex the regex that method names must not match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public NamingConfigurer fieldsAnnotatedWithShouldMatch(
-      Class<? extends Annotation> annotationType, String regex, Configuration configuration) {
-    return fieldsAnnotatedWithShouldMatch(annotationType.getName(), regex, configuration);
-  }
-
-  /**
-   * Requires fields annotated with the given annotation (by name) to match the specified name
-   * pattern.
-   *
-   * @param annotationType the fully qualified annotation type name
-   * @param regex          the required field-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer fieldsAnnotatedWithShouldMatch(String annotationType, String regex) {
-    return fieldsAnnotatedWithShouldMatch(annotationType, regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires fields annotated with the given annotation (by name) to match the specified name
-   * pattern using a custom configuration.
-   *
-   * @param annotationType the fully qualified annotation type name
-   * @param regex          the required field-name pattern
-   * @param configuration  the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer fieldsAnnotatedWithShouldMatch(String annotationType, String regex,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(fields()
-        .that().areMetaAnnotatedWith(annotationType)
-        .should().haveNameMatching(regex)
-        .as("Fields annotated with %s should have names matching %s".formatted(
-            annotationType, regex)), configuration));
-  }
-
-  /**
-   * Requires fields of the given raw type (by name) to match the specified name pattern.
-   *
-   * @param typeName the fully qualified field type name
-   * @param regex    the required field-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer fieldsShouldMatch(String typeName, String regex) {
-    return fieldsShouldMatch(typeName, regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires fields of the given raw type to match the specified name pattern.
-   *
-   * @param clazz the field raw type
-   * @param regex the required field-name pattern
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex) {
-    return fieldsShouldMatch(clazz.getName(), regex, defaultConfiguration());
-  }
-
-  /**
-   * Requires fields of the given raw type to match the specified name pattern using a custom
-   * configuration.
-   *
-   * @param clazz         the field raw type
-   * @param regex         the required field-name pattern
-   * @param configuration the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer fieldsShouldMatch(Class<?> clazz, String regex,
-      Configuration configuration) {
-    return fieldsShouldMatch(clazz.getName(), regex, configuration);
-  }
-
-  /**
-   * Requires fields of the given raw type (by name) to match the specified name pattern using a
-   * custom configuration.
-   *
-   * @param typeName      the fully qualified field type name
-   * @param regex         the required field-name pattern
-   * @param configuration the rule configuration to use
-   * @return this configurer for fluent chaining
-   */
-  public NamingConfigurer fieldsShouldMatch(String typeName, String regex,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(fields()
-            .that().haveRawType(typeName)
+  public NamingConfigurer methodsShouldNotMatch(DescribedPredicate<? super JavaMethod> methods,
+      String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(noMethods()
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().haveNameMatching(regex)
-            .as("Fields of type %s should have names matching %s".formatted(typeName, regex)),
+            .as("Methods %s should not have names matching %s".formatted(
+                methods.getDescription(), regex)),
+        configuration));
+  }
+
+  /**
+   * Requires all methods declared in classes matching the given criteria to have names matching
+   * the given pattern. Synthetic methods generated by the compiler are ignored.
+   *
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param regex the regex that method names must match
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer methodsShouldMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex) {
+    return methodsShouldMatchForClass(classes, regex, defaultConfiguration());
+  }
+
+  /**
+   * Requires all methods declared in classes matching the given criteria to have names matching
+   * the given pattern using a custom configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param regex the regex that method names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer methodsShouldMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should().haveNameMatching(regex)
+        .as("Methods declared in classes %s should have names matching %s".formatted(
+            classes.getDescription(), regex)), configuration));
+  }
+
+  /**
+   * Prohibits methods declared in classes matching the given criteria from having names that
+   * match the given pattern. Synthetic methods generated by the compiler are ignored.
+   *
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param regex the regex that method names must not match
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer methodsShouldNotMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex) {
+    return methodsShouldNotMatchForClass(classes, regex, defaultConfiguration());
+  }
+
+  /**
+   * Prohibits methods declared in classes matching the given criteria from having names that
+   * match the given pattern using a custom configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param regex the regex that method names must not match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer methodsShouldNotMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(noMethods()
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should().haveNameMatching(regex)
+        .as("Methods declared in classes %s should not have names matching %s".formatted(
+            classes.getDescription(), regex)), configuration));
+  }
+
+  /**
+   * Requires fields matching the given criteria to match the specified name pattern. Synthetic
+   * fields generated by the compiler are ignored.
+   *
+   * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
+   *     example {@code FieldCriteria.annotatedWith(Inject.class)}, or an ArchUnit predicate
+   * @param regex the regex that field names must match
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldMatch(DescribedPredicate<? super JavaField> fields,
+      String regex) {
+    return fieldsShouldMatch(fields, regex, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #fieldsShouldMatch(DescribedPredicate, String)}, with a custom configuration.
+   *
+   * @param fields the fields to check
+   * @param regex the regex that field names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldMatch(DescribedPredicate<? super JavaField> fields,
+      String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+            .that(fields)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should().haveNameMatching(regex)
+            .as("Fields %s should have names matching %s".formatted(
+                fields.getDescription(), regex)),
         configuration));
   }
 
   /**
    * Prohibits fields whose names match the given pattern.
    *
-   * @param regex a forbidden field-name pattern
+   * @param regex the regex that field names must not match
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer fieldsShouldNotMatch(String regex) {
@@ -554,14 +487,126 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Prohibits fields whose names match the given pattern using a custom configuration.
    *
-   * @param regex         a forbidden field-name pattern
-   * @param configuration the rule configuration to use
+   * @param regex the regex that field names must not match
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer fieldsShouldNotMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(noFields()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().haveNameMatching(regex)
         .as("Fields should not have names matching %s".formatted(regex)), configuration));
+  }
+
+  /**
+   * Requires fields matching the given criteria not to match the specified name pattern.
+   * Synthetic fields generated by the compiler are ignored.
+   *
+   * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
+   *     example {@code FieldCriteria.ofType(String.class)}, or an ArchUnit predicate
+   * @param regex the regex that field names must not match
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldNotMatch(DescribedPredicate<? super JavaField> fields,
+      String regex) {
+    return fieldsShouldNotMatch(fields, regex, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #fieldsShouldNotMatch(DescribedPredicate, String)}, with a custom configuration.
+   *
+   * @param fields the fields to check
+   * @param regex the regex that field names must not match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldNotMatch(DescribedPredicate<? super JavaField> fields,
+      String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(noFields()
+            .that(fields)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should().haveNameMatching(regex)
+            .as("Fields %s should not have names matching %s".formatted(
+                fields.getDescription(), regex)),
+        configuration));
+  }
+
+  /**
+   * Requires all fields declared in classes matching the given criteria to have names matching
+   * the given pattern. Synthetic fields generated by the compiler are ignored.
+   *
+   * @param classes the classes whose declared fields are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param regex the regex that field names must match
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex) {
+    return fieldsShouldMatchForClass(classes, regex, defaultConfiguration());
+  }
+
+  /**
+   * Requires all fields declared in classes matching the given criteria to have names matching
+   * the given pattern using a custom configuration.
+   *
+   * @param classes the classes whose declared fields are checked
+   * @param regex the regex that field names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should().haveNameMatching(regex)
+        .as("Fields declared in classes %s should have names matching %s".formatted(
+            classes.getDescription(), regex)), configuration));
+  }
+
+  /**
+   * Prohibits fields declared in classes matching the given criteria from having names that match
+   * the given pattern. Synthetic fields generated by the compiler are ignored.
+   *
+   * @param classes the classes whose declared fields are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param regex the regex that field names must not match
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldNotMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex) {
+    return fieldsShouldNotMatchForClass(classes, regex, defaultConfiguration());
+  }
+
+  /**
+   * Prohibits fields declared in classes matching the given criteria from having names that match
+   * the given pattern using a custom configuration.
+   *
+   * @param classes the classes whose declared fields are checked
+   * @param regex the regex that field names must not match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public NamingConfigurer fieldsShouldNotMatchForClass(
+      DescribedPredicate<? super JavaClass> classes, String regex, Configuration configuration) {
+    return addRule(TaikaiRule.of(noFields()
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should().haveNameMatching(regex)
+        .as("Fields declared in classes %s should not have names matching %s".formatted(
+            classes.getDescription(), regex)), configuration));
   }
 
   /**
@@ -577,7 +622,7 @@ public class NamingConfigurer extends AbstractConfigurer {
    * Enforces that interfaces are not prefixed with an upper-case {@code I} using a custom
    * configuration.
    *
-   * @param configuration the rule configuration to use
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer interfacesShouldNotHavePrefixI(Configuration configuration) {
@@ -620,7 +665,7 @@ public class NamingConfigurer extends AbstractConfigurer {
    * Enforces constant naming conventions while excluding the specified field names.
    *
    * @param excludedFields field names to exclude from validation (e.g.,
-   *                       {@code "serialVersionUID"})
+   *     {@code "serialVersionUID"})
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields) {
@@ -631,7 +676,7 @@ public class NamingConfigurer extends AbstractConfigurer {
    * Enforces constant naming conventions using a custom configuration, excluding a default field
    * list.
    *
-   * @param configuration the rule configuration to use
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer constantsShouldFollowConventions(Configuration configuration) {
@@ -643,7 +688,7 @@ public class NamingConfigurer extends AbstractConfigurer {
    * Enforces constant naming conventions using a custom configuration and exclusion list.
    *
    * @param excludedFields field names to exclude from validation
-   * @param configuration  the rule configuration to use
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields,
@@ -667,7 +712,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces enum constant naming conventions using a custom configuration.
    *
-   * @param configuration the rule configuration to use
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer enumConstantsShouldFollowConventions(Configuration configuration) {
@@ -703,7 +748,7 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces boolean method naming with the default prefixes using a custom configuration.
    *
-   * @param configuration the rule configuration to use
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer booleanMethodsShouldStartWith(Configuration configuration) {
@@ -713,8 +758,8 @@ public class NamingConfigurer extends AbstractConfigurer {
   /**
    * Enforces boolean method naming with the given prefixes using a custom configuration.
    *
-   * @param prefixes      the allowed method name prefixes (e.g., {@code "is"}, {@code "has"})
-   * @param configuration the rule configuration to use
+   * @param prefixes the allowed method name prefixes (e.g., {@code "is"}, {@code "has"})
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer booleanMethodsShouldStartWith(Collection<String> prefixes,
@@ -724,5 +769,12 @@ public class NamingConfigurer extends AbstractConfigurer {
         .should(shouldStartWith(prefixes))
         .as("Methods returning boolean or Boolean should start with one of %s".formatted(prefixes)),
         configuration));
+  }
+
+  @Override
+  public NamingConfigurer disable() {
+    disable(NamingConfigurer.class);
+
+    return this;
   }
 }

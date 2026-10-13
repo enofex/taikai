@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -24,330 +25,368 @@ class Usage {
     Taikai.builder()
         .namespace("com.enofex.taikai")
         .java(java -> java
-            .noUsageOf(Date.class)
-            .noUsageOf(Date.class, defaultConfiguration())
-            .noUsageOf("java.util.Date")
-            .noUsageOf("java.util.Date", defaultConfiguration())
 
-            .noUsageOf(Date.class, "com.enofex.taikai.java")
-            .noUsageOf(Date.class, "com.enofex.taikai.java", defaultConfiguration())
-            .noUsageOf("java.util.Date", "com.enofex.taikai.java")
-            .noUsageOf("java.util.Date", "com.enofex.taikai.java", defaultConfiguration())
+            .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching("regex"), DisplayName.class)
+            .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching("regex"), DisplayName.class, defaultConfiguration())
+            .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName")
+            .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName", defaultConfiguration())
 
-            .noUsageOfSystemOutOrErr()
-            .noUsageOfSystemOutOrErr(defaultConfiguration())
+            .classesShouldBeAnnotatedWithAll(ClassCriteria.nameMatching("regex"), List.of("org.junit.jupiter.api.Disabled"))
+            .classesShouldBeAnnotatedWithAll(ClassCriteria.nameMatching("regex"), List.of("org.junit.jupiter.api.Disabled"), defaultConfiguration())
 
-            .noUsageOfDeprecatedAPIs()
-            .noUsageOfDeprecatedAPIs(defaultConfiguration())
+            .classesShouldBeAssignableTo(ClassCriteria.nameMatching("regex"), LocalDate.class)
+            .classesShouldBeAssignableTo(ClassCriteria.nameMatching("regex"), LocalDate.class, defaultConfiguration())
+            .classesShouldBeAssignableTo(ClassCriteria.nameMatching("regex"), "java.time.LocalDate")
+            .classesShouldBeAssignableTo(ClassCriteria.nameMatching("regex"), "java.time.LocalDate", defaultConfiguration())
 
-            .fieldsShouldNotBePublic()
-            .fieldsShouldNotBePublic(defaultConfiguration())
+            .classesShouldBeInterfaces(ClassCriteria.nameMatching("regex"))
+            .classesShouldBeInterfaces(ClassCriteria.nameMatching("regex"), defaultConfiguration())
 
-            .fieldsShouldHaveModifiers("regex", List.of(PRIVATE, FINAL))
-            .fieldsShouldHaveModifiers("regex", List.of(PRIVATE, FINAL), defaultConfiguration())
+            .classesShouldBePackagePrivate(ClassCriteria.nameMatching("regex"))
+            .classesShouldBePackagePrivate(ClassCriteria.nameMatching("regex"), defaultConfiguration())
 
-            .fieldsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .fieldsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE),
-                defaultConfiguration())
-            .fieldsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC))
-            .fieldsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC), defaultConfiguration())
+            .classesShouldBeRecords(ClassCriteria.nameMatching("regex"))
+            .classesShouldBeRecords(ClassCriteria.nameMatching("regex"), defaultConfiguration())
 
-            .fieldsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .fieldsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE),
-                defaultConfiguration())
-            .fieldsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC))
-            .fieldsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC), defaultConfiguration())
+            .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+
+            .classesShouldImplement(ClassCriteria.nameMatching("regex"), Serializable.class)
+            .classesShouldImplement(ClassCriteria.nameMatching("regex"), Serializable.class, defaultConfiguration())
+            .classesShouldImplement(ClassCriteria.nameMatching("regex"), "java.io.Serializable")
+            .classesShouldImplement(ClassCriteria.nameMatching("regex"), "java.io.Serializable", defaultConfiguration())
 
             .classesShouldImplementHashCodeAndEquals()
             .classesShouldImplementHashCodeAndEquals(defaultConfiguration())
 
-            .classesShouldResideInPackage("regex", "com.enofex.taikai")
-            .classesShouldResideInPackage("regex", "com.enofex.taikai", defaultConfiguration())
+            .classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching("regex"), DisplayName.class)
+            .classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching("regex"), DisplayName.class, defaultConfiguration())
+            .classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName")
+            .classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName", defaultConfiguration())
 
-            .classesShouldResideOutsidePackage("regex", "com.enofex.taikai")
-            .classesShouldResideOutsidePackage("regex", "com.enofex.taikai", defaultConfiguration())
+            .classesShouldNotHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .classesShouldNotHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
 
-            .classesShouldBeAnnotatedWith("regex", DisplayName.class)
-            .classesShouldBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
-            .classesShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
-            .classesShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName",
-                defaultConfiguration())
+            .classesShouldResideInPackage("com.enofex.taikai..")
+            .classesShouldResideInPackage("com.enofex.taikai..", defaultConfiguration())
+            .classesShouldResideInPackage(ClassCriteria.nameMatching("regex"), "com.enofex.taikai")
+            .classesShouldResideInPackage(ClassCriteria.nameMatching("regex"), "com.enofex.taikai", defaultConfiguration())
 
-            .classesShouldNotBeAnnotatedWith("regex", DisplayName.class)
-            .classesShouldNotBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
-            .classesShouldNotBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
-            .classesShouldNotBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName",
-                defaultConfiguration())
+            .classesShouldResideOutsidePackage(ClassCriteria.nameMatching("regex"), "com.enofex.taikai")
+            .classesShouldResideOutsidePackage(ClassCriteria.nameMatching("regex"), "com.enofex.taikai", defaultConfiguration())
 
-            .classesAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class)
-            .classesAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class,
-                defaultConfiguration())
-            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
-                "org.junit.jupiter.api.Disabled")
-            .classesAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
-                "org.junit.jupiter.api.Disabled", defaultConfiguration())
+            .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL))
+            .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL), defaultConfiguration())
 
-            .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai")
-            .classesAnnotatedWithShouldResideInPackage(DisplayName.class, "com.enofex.taikai",
-                defaultConfiguration())
-            .classesAnnotatedWithShouldResideInPackage("org.junit.jupiter.api.DisplayName",
-                "com.enofex.taikai")
-            .classesAnnotatedWithShouldResideInPackage("org.junit.jupiter.api.DisplayName",
-                "com.enofex.taikai", defaultConfiguration())
+            .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL))
+            .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL), defaultConfiguration())
 
-            .classesShouldBeAssignableTo("regex", LocalDate.class)
-            .classesShouldBeAssignableTo("regex", LocalDate.class, defaultConfiguration())
-            .classesShouldBeAssignableTo("regex", "java.time.LocalDate")
-            .classesShouldBeAssignableTo("regex", "java.time.LocalDate", defaultConfiguration())
+            .fieldsShouldNotBePublic()
+            .fieldsShouldNotBePublic(defaultConfiguration())
 
-            .classesShouldImplement("regex", Serializable.class)
-            .classesShouldImplement("regex", Serializable.class, defaultConfiguration())
-            .classesShouldImplement("regex", "java.io.Serializable")
-            .classesShouldImplement("regex", "java.io.Serializable", defaultConfiguration())
+            .fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
 
-            .classesShouldBeAnnotatedWithAll(DisplayName.class, List.of())
-            .classesShouldBeAnnotatedWithAll(DisplayName.class, List.of(), defaultConfiguration())
-            .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
-            .classesShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(),
-                defaultConfiguration())
-
-            .classesShouldHaveModifiers("regex", List.of(PUBLIC))
-            .classesShouldHaveModifiers("regex", List.of(PUBLIC), defaultConfiguration())
-
-            .classesShouldNotHaveModifiers("regex", List.of(PUBLIC))
-            .classesShouldNotHaveModifiers("regex", List.of(PUBLIC), defaultConfiguration())
-
-            .classesAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .classesAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE),
-                defaultConfiguration())
-            .classesAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC))
-            .classesAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC), defaultConfiguration())
-
-            .classesAnnotatedWithShouldBeRecords(DisplayName.class)
-            .classesAnnotatedWithShouldBeRecords(DisplayName.class, defaultConfiguration())
-            .classesAnnotatedWithShouldBeRecords("org.junit.jupiter.api.DisplayName")
-            .classesAnnotatedWithShouldBeRecords("org.junit.jupiter.api.DisplayName", defaultConfiguration())
-
-            .classesAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .classesAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE),
-                defaultConfiguration())
-            .classesAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC))
-            .classesAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC), defaultConfiguration())
-
-            .classesShouldBeRecords("regex")
-            .classesShouldBeRecords("regex", defaultConfiguration())
-
-            .methodsShouldBeAnnotatedWith("regex", DisplayName.class)
-            .methodsShouldBeAnnotatedWith("regex", DisplayName.class, defaultConfiguration())
-            .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName")
-            .methodsShouldBeAnnotatedWith("regex", "org.junit.jupiter.api.DisplayName",
-                defaultConfiguration())
-
-            .methodsShouldNotDeclareGenericExceptions()
-            .methodsShouldNotDeclareGenericExceptions(defaultConfiguration())
-
-            .methodsShouldNotDeclareException("regex", RuntimeException.class)
-            .methodsShouldNotDeclareException("regex", RuntimeException.class,
-                defaultConfiguration())
-            .methodsShouldNotDeclareException("regex", "java.lang.RuntimeException")
-            .methodsShouldNotDeclareException("regex", "java.lang.RuntimeException",
-                defaultConfiguration())
-
-            .methodsShouldBeAnnotatedWithAll(DisplayName.class, List.of())
-            .methodsShouldBeAnnotatedWithAll(DisplayName.class, List.of(), defaultConfiguration())
-            .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of())
-            .methodsShouldBeAnnotatedWithAll("org.junit.jupiter.api.DisplayName", List.of(),
-                defaultConfiguration())
-
-            .methodsAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class)
-            .methodsAnnotatedWithShouldNotBeAnnotatedWith(DisplayName.class, Disabled.class,
-                defaultConfiguration())
-            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
-                "org.junit.jupiter.api.Disabled")
-            .methodsAnnotatedWithShouldNotBeAnnotatedWith("org.junit.jupiter.api.DisplayName",
-                "org.junit.jupiter.api.Disabled", defaultConfiguration())
-
-            .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .methodsAnnotatedWithShouldHaveModifiers(DisplayName.class, List.of(PRIVATE),
-                defaultConfiguration())
-            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC))
-            .methodsAnnotatedWithShouldHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC), defaultConfiguration())
-
-            .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PUBLIC))
-            .methodsAnnotatedWithShouldNotHaveModifiers(DisplayName.class, List.of(PRIVATE),
-                defaultConfiguration())
-            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC))
-            .methodsAnnotatedWithShouldNotHaveModifiers("org.junit.jupiter.api.DisplayName",
-                List.of(PUBLIC), defaultConfiguration())
-
-            .methodsShouldHaveModifiers("regex", List.of(PRIVATE))
-            .methodsShouldHaveModifiers("regex", List.of(PRIVATE), defaultConfiguration())
-
-            .methodsShouldNotHaveModifiers("regex", List.of(PRIVATE))
-            .methodsShouldNotHaveModifiers("regex", List.of(PRIVATE), defaultConfiguration())
-
-            .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE))
-            .methodsShouldHaveModifiersForClass("regex", List.of(PRIVATE), defaultConfiguration())
-
-            .methodsShouldNotHaveModifiersForClass("regex", List.of(PRIVATE))
-            .methodsShouldNotHaveModifiersForClass("regex", List.of(PRIVATE),
-                defaultConfiguration())
-
-            .methodsShouldNotExceedMaxParameters(10)
-            .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
+            .fieldsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .fieldsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
 
             .finalClassesShouldNotHaveProtectedMembers()
             .finalClassesShouldNotHaveProtectedMembers(defaultConfiguration())
 
-            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
-            .utilityClassesShouldBeFinalAndHavePrivateConstructor(defaultConfiguration())
+            .methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("regex"), DisplayName.class)
+            .methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("regex"), DisplayName.class, defaultConfiguration())
+            .methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName")
+            .methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName", defaultConfiguration())
+
+            .methodsShouldBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), DisplayName.class)
+            .methodsShouldBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), DisplayName.class, defaultConfiguration())
+            .methodsShouldBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName")
+            .methodsShouldBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName", defaultConfiguration())
+
+            .methodsShouldBeAnnotatedWithAll(MethodCriteria.annotatedWith(DisplayName.class), List.of("org.junit.jupiter.api.Disabled"))
+            .methodsShouldBeAnnotatedWithAll(MethodCriteria.annotatedWith(DisplayName.class), List.of("org.junit.jupiter.api.Disabled"), defaultConfiguration())
+
+            .methodsShouldBeAnnotatedWithAllForClass(ClassCriteria.nameMatching("regex"), List.of("org.junit.jupiter.api.Disabled"))
+            .methodsShouldBeAnnotatedWithAllForClass(ClassCriteria.nameMatching("regex"), List.of("org.junit.jupiter.api.Disabled"), defaultConfiguration())
+
+            .methodsShouldHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .methodsShouldHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+
+            .methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+
+            .methodsShouldNotBeAnnotatedWith(MethodCriteria.annotatedWith(DisplayName.class), Disabled.class)
+            .methodsShouldNotBeAnnotatedWith(MethodCriteria.annotatedWith(DisplayName.class), Disabled.class, defaultConfiguration())
+            .methodsShouldNotBeAnnotatedWith(MethodCriteria.annotatedWith(DisplayName.class), "org.junit.jupiter.api.Disabled")
+            .methodsShouldNotBeAnnotatedWith(MethodCriteria.annotatedWith(DisplayName.class), "org.junit.jupiter.api.Disabled", defaultConfiguration())
+
+            .methodsShouldNotBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), Disabled.class)
+            .methodsShouldNotBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), Disabled.class, defaultConfiguration())
+            .methodsShouldNotBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.Disabled")
+            .methodsShouldNotBeAnnotatedWithForClass(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.Disabled", defaultConfiguration())
+
+            .methodsShouldNotDeclareException(MethodCriteria.nameMatching("regex"), RuntimeException.class)
+            .methodsShouldNotDeclareException(MethodCriteria.nameMatching("regex"), RuntimeException.class, defaultConfiguration())
+            .methodsShouldNotDeclareException(MethodCriteria.nameMatching("regex"), "java.lang.RuntimeException")
+            .methodsShouldNotDeclareException(MethodCriteria.nameMatching("regex"), "java.lang.RuntimeException", defaultConfiguration())
+            .methodsShouldNotDeclareException(MethodCriteria.nameMatching("regex"), ClassCriteria.nameMatching(".*Exception"))
+            .methodsShouldNotDeclareException(MethodCriteria.nameMatching("regex"), ClassCriteria.nameMatching(".*Exception"), defaultConfiguration())
+
+            .methodsShouldNotDeclareExceptionForClass(ClassCriteria.nameMatching("regex"), RuntimeException.class)
+            .methodsShouldNotDeclareExceptionForClass(ClassCriteria.nameMatching("regex"), RuntimeException.class, defaultConfiguration())
+            .methodsShouldNotDeclareExceptionForClass(ClassCriteria.nameMatching("regex"), "java.lang.RuntimeException")
+            .methodsShouldNotDeclareExceptionForClass(ClassCriteria.nameMatching("regex"), "java.lang.RuntimeException", defaultConfiguration())
+            .methodsShouldNotDeclareExceptionForClass(ClassCriteria.nameMatching("regex"), ClassCriteria.nameMatching(".*Exception"))
+            .methodsShouldNotDeclareExceptionForClass(ClassCriteria.nameMatching("regex"), ClassCriteria.nameMatching(".*Exception"), defaultConfiguration())
+
+            .methodsShouldNotDeclareGenericExceptions()
+            .methodsShouldNotDeclareGenericExceptions(defaultConfiguration())
+
+            .methodsShouldNotExceedMaxParameters(10)
+            .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
+
+            .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+
+            .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
+            .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .methodsShouldNotReturn(MethodCriteria.nameMatching("find.*"), ClassCriteria.type(Optional.class))
+            .methodsShouldNotReturn(MethodCriteria.nameMatching("find.*"), ClassCriteria.type(Optional.class), defaultConfiguration())
+
+
+            .methodsShouldNotReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*Optional"))
+            .methodsShouldNotReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*Optional"), defaultConfiguration())
+            .methodsShouldReturn(MethodCriteria.annotatedWith(DisplayName.class), ClassCriteria.nameMatching(".*ResponseEntity"))
+            .methodsShouldReturn(MethodCriteria.annotatedWith(DisplayName.class), ClassCriteria.nameMatching(".*ResponseEntity"), defaultConfiguration())
+
+
+            .methodsShouldReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*ResponseEntity"))
+            .methodsShouldReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*ResponseEntity"), defaultConfiguration())
+
+            .noUsageOf(Date.class)
+            .noUsageOf(Date.class, defaultConfiguration())
+            .noUsageOf("java.util.Date")
+            .noUsageOf("java.util.Date", defaultConfiguration())
+            .noUsageOf(ClassCriteria.nameMatching(".*Date"))
+            .noUsageOf(ClassCriteria.nameMatching(".*Date"), defaultConfiguration())
+            .noUsageOf(ClassCriteria.nameMatching("regex"), Date.class)
+            .noUsageOf(ClassCriteria.nameMatching("regex"), Date.class, defaultConfiguration())
+            .noUsageOf(ClassCriteria.nameMatching("regex"), "java.util.Date")
+            .noUsageOf(ClassCriteria.nameMatching("regex"), "java.util.Date", defaultConfiguration())
+            .noUsageOf(ClassCriteria.nameMatching("regex"), ClassCriteria.nameMatching(".*Date"))
+            .noUsageOf(ClassCriteria.nameMatching("regex"), ClassCriteria.nameMatching(".*Date"), defaultConfiguration())
+
+            .noUsageOfDeprecatedAPIs()
+            .noUsageOfDeprecatedAPIs(defaultConfiguration())
+
+            .noUsageOfSystemOutOrErr()
+            .noUsageOfSystemOutOrErr(defaultConfiguration())
 
             .serialVersionUIDFieldsShouldBeStaticFinalLong()
             .serialVersionUIDFieldsShouldBeStaticFinalLong(defaultConfiguration())
 
-            .classesShouldResideInPackage("com.enofex.taikai..")
-            .classesShouldResideInPackage("com.enofex.taikai..", defaultConfiguration())
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor(defaultConfiguration())
 
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldHaveNoCycles(defaultConfiguration())
 
-                .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
-                .shouldImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException",
-                    defaultConfiguration())
+                .shouldImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"))
+                .shouldImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"), defaultConfiguration())
 
-                .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException")
-                .shouldNotImport(".*ImportsConfigurer", "com.enofex.taikai.TaikaiException",
-                    defaultConfiguration()))
+                .shouldNotImport(ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"))
+                .shouldNotImport(ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"), defaultConfiguration())
+                .shouldNotImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"))
+                .shouldNotImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"), defaultConfiguration()))
+
             .naming(naming -> naming
-                .packagesShouldMatchDefault()
-                .packagesShouldMatchDefault(defaultConfiguration())
+                .booleanMethodsShouldStartWith()
+                .booleanMethodsShouldStartWith(defaultConfiguration())
+                .booleanMethodsShouldStartWith(List.of("is", "has"))
+                .booleanMethodsShouldStartWith(List.of("is", "has"), defaultConfiguration())
+
+                .classesShouldMatch("regex")
+                .classesShouldMatch("regex", defaultConfiguration())
+                .classesShouldMatch(ClassCriteria.nameMatching("regex"), "regex")
+                .classesShouldMatch(ClassCriteria.nameMatching("regex"), "regex", defaultConfiguration())
+
+                .classesShouldNotMatch(".*Impl")
+                .classesShouldNotMatch(".*Impl", defaultConfiguration())
+                .classesShouldNotMatch(ClassCriteria.nameMatching("regex"), ".*Impl")
+                .classesShouldNotMatch(ClassCriteria.nameMatching("regex"), ".*Impl", defaultConfiguration())
+
+                .constantsShouldFollowConventions()
+                .constantsShouldFollowConventions(defaultConfiguration())
+                .constantsShouldFollowConventions(List.of("serialVersionUID"))
+                .constantsShouldFollowConventions(List.of("serialVersionUID"), defaultConfiguration())
+
+                .enumConstantsShouldFollowConventions()
+                .enumConstantsShouldFollowConventions(defaultConfiguration())
+
+                .fieldsShouldMatch(FieldCriteria.ofType(Serializable.class), "regex")
+                .fieldsShouldMatch(FieldCriteria.ofType(Serializable.class), "regex", defaultConfiguration())
+                .fieldsShouldMatch(FieldCriteria.ofType("java.io.Serializable"), "regex")
+                .fieldsShouldMatch(FieldCriteria.ofType("java.io.Serializable"), "regex", defaultConfiguration())
+                .fieldsShouldMatch(FieldCriteria.ofType(ClassCriteria.nameMatching(".*Logger")), "regex")
+                .fieldsShouldMatch(FieldCriteria.ofType(ClassCriteria.nameMatching(".*Logger")), "regex", defaultConfiguration())
+
+                .fieldsShouldMatchForClass(ClassCriteria.nameMatching("regex"), "regex")
+                .fieldsShouldMatchForClass(ClassCriteria.nameMatching("regex"), "regex", defaultConfiguration())
+
+                .fieldsShouldNotMatch("regex")
+                .fieldsShouldNotMatch("regex", defaultConfiguration())
+                .fieldsShouldNotMatch(FieldCriteria.annotatedWith(DisplayName.class), "regex")
+                .fieldsShouldNotMatch(FieldCriteria.annotatedWith(DisplayName.class), "regex", defaultConfiguration())
+
+                .fieldsShouldNotMatchForClass(ClassCriteria.nameMatching("regex"), "regex")
+                .fieldsShouldNotMatchForClass(ClassCriteria.nameMatching("regex"), "regex", defaultConfiguration())
+
+                .interfacesShouldNotHavePrefixI()
+                .interfacesShouldNotHavePrefixI(defaultConfiguration())
+
+                .methodsShouldMatch("regex")
+                .methodsShouldMatch("regex", defaultConfiguration())
+                .methodsShouldMatch(MethodCriteria.annotatedWith(DisplayName.class), "regex")
+                .methodsShouldMatch(MethodCriteria.annotatedWith(DisplayName.class), "regex", defaultConfiguration())
+
+                .methodsShouldMatchForClass(ClassCriteria.nameMatching("regex"), "regex")
+                .methodsShouldMatchForClass(ClassCriteria.nameMatching("regex"), "regex", defaultConfiguration())
+
+                .methodsShouldNotMatch("regex")
+                .methodsShouldNotMatch("regex", defaultConfiguration())
+                .methodsShouldNotMatch(MethodCriteria.annotatedWith(DisplayName.class), "regex")
+                .methodsShouldNotMatch(MethodCriteria.annotatedWith(DisplayName.class), "regex", defaultConfiguration())
+
+                .methodsShouldNotMatchForClass(ClassCriteria.nameMatching("regex"), "regex")
+                .methodsShouldNotMatchForClass(ClassCriteria.nameMatching("regex"), "regex", defaultConfiguration())
 
                 .packagesShouldMatch("regex")
                 .packagesShouldMatch("regex", defaultConfiguration())
 
-                .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
-                .classesImplementingShouldMatch(Configurer.class, ".*Configurer",
-                    defaultConfiguration())
-                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer",
-                    ".*Configurer")
-                .classesImplementingShouldMatch("com.enofex.taikai.configures.Configurer",
-                    ".*Configurer", defaultConfiguration())
-
-                .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")
-                .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer",
-                    defaultConfiguration())
-                .classesAssignableToShouldMatch("com.enofex.taikai.configures.AbstractConfigurer",
-                    ".*Configurer")
-                .classesAssignableToShouldMatch("com.enofex.taikai.configures.AbstractConfigurer",
-                    ".*Configurer", defaultConfiguration())
-
-                .classesShouldNotMatch(".*Impl")
-                .classesShouldNotMatch(".*Impl", defaultConfiguration())
-
-                .classesAnnotatedWithShouldMatch(DisplayName.class, "regex")
-                .classesAnnotatedWithShouldMatch(DisplayName.class, "regex", defaultConfiguration())
-                .classesAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex")
-                .classesAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex",
-                    defaultConfiguration())
-
-                .methodsAnnotatedWithShouldMatch(DisplayName.class, "regex")
-                .methodsAnnotatedWithShouldMatch(DisplayName.class, "regex", defaultConfiguration())
-                .methodsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex")
-                .methodsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex",
-                    defaultConfiguration())
-
-                .methodsShouldNotMatch("regex")
-                .methodsShouldNotMatch("regex", defaultConfiguration())
-
-                .fieldsAnnotatedWithShouldMatch(DisplayName.class, "regex")
-                .fieldsAnnotatedWithShouldMatch(DisplayName.class, "regex", defaultConfiguration())
-                .fieldsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex")
-                .fieldsAnnotatedWithShouldMatch("org.junit.jupiter.api.DisplayName", "regex",
-                    defaultConfiguration())
-
-                .fieldsShouldNotMatch("regex")
-                .fieldsShouldNotMatch("regex", defaultConfiguration())
-
-                .fieldsShouldMatch(Serializable.class, "regex")
-                .fieldsShouldMatch(Serializable.class, "regex", defaultConfiguration())
-                .fieldsShouldMatch("java.io.Serializable", "regex")
-                .fieldsShouldMatch("java.io.Serializable", "regex", defaultConfiguration())
-
-                .constantsShouldFollowConventions()
-                .constantsShouldFollowConventions(defaultConfiguration())
-
-                .interfacesShouldNotHavePrefixI()
-                .interfacesShouldNotHavePrefixI(defaultConfiguration())))
+                .packagesShouldMatchDefault()
+                .packagesShouldMatchDefault(defaultConfiguration())))
         .logging(logging -> logging
-            .classesShouldUseLogger(Logger.class, ".*Service")
-            .classesShouldUseLogger(Logger.class, ".*Service", defaultConfiguration())
-            .classesShouldUseLogger("java.util.logging.Logger", ".*Service")
-            .classesShouldUseLogger("java.util.logging.Logger", ".*Service", defaultConfiguration())
+            .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), Logger.class)
+            .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), Logger.class, defaultConfiguration())
+            .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), "java.util.logging.Logger")
+            .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), "java.util.logging.Logger", defaultConfiguration())
 
             .loggersShouldFollowConventions(Logger.class, "logger")
             .loggersShouldFollowConventions(Logger.class, "logger", defaultConfiguration())
             .loggersShouldFollowConventions("java.util.logging.Logger", "logger")
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
-                defaultConfiguration())
-
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", defaultConfiguration())
             .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL))
-            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL),
-                defaultConfiguration())
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
-                List.of(PRIVATE, FINAL))
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger",
-                List.of(PRIVATE, FINAL), defaultConfiguration())
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL), defaultConfiguration())
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(PRIVATE, FINAL))
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(PRIVATE, FINAL), defaultConfiguration()))
+        .quarkus(quarkus -> quarkus
+            .noInjectionFields()
+            .noInjectionFields(defaultConfiguration())
 
-        )
-        .test(test -> test
-            .junit(junit -> junit
-                .methodsShouldNotDeclareExceptions()
-                .methodsShouldNotDeclareExceptions(defaultConfiguration())
+            .ai(ai -> ai
+                .namesShouldEndWithAssistantOrService()
+                .namesShouldEndWithAssistantOrService(defaultConfiguration())
 
-                .methodsShouldMatch("should.*")
-                .methodsShouldMatch("should.*", defaultConfiguration())
+                .namesShouldMatch("regex")
+                .namesShouldMatch("regex", defaultConfiguration())
 
-                .methodsShouldBePackagePrivate()
-                .methodsShouldBePackagePrivate(defaultConfiguration())
+                .shouldBeAnnotatedWithApplicationScoped()
+                .shouldBeAnnotatedWithApplicationScoped(defaultConfiguration())
 
-                .methodsShouldBeAnnotatedWithDisplayName()
-                .methodsShouldBeAnnotatedWithDisplayName(defaultConfiguration())
+                .shouldNotUseToolsAttributeInAiService()
+                .shouldNotUseToolsAttributeInAiService(defaultConfiguration()))
 
-                .methodsShouldNotBeAnnotatedWithDisabled()
-                .methodsShouldNotBeAnnotatedWithDisabled(defaultConfiguration())
+            .panache(panache -> panache
+                .namesShouldEndWithRepository()
+                .namesShouldEndWithRepository(defaultConfiguration())
 
-                .methodsShouldContainAssertionsOrVerifications()
-                .methodsShouldContainAssertionsOrVerifications(defaultConfiguration())
+                .namesShouldMatch("regex")
+                .namesShouldMatch("regex", defaultConfiguration())
 
-                .classesShouldBePackagePrivate(".*Test")
-                .classesShouldBePackagePrivate(".*Test", defaultConfiguration())
+                .shouldBeAnnotatedWithEntityWhenActiveRecordPattern()
+                .shouldBeAnnotatedWithEntityWhenActiveRecordPattern(defaultConfiguration()))
 
-                .classesShouldNotBeAnnotatedWithDisabled()
-                .classesShouldNotBeAnnotatedWithDisabled(defaultConfiguration())
+            .resources(resources -> resources
+                .namesShouldEndWithResource()
+                .namesShouldEndWithResource(defaultConfiguration())
 
-                .nestedClassesShouldBeAnnotatedWithNested()
-                .nestedClassesShouldBeAnnotatedWithNested(defaultConfiguration())))
+                .namesShouldMatch("regex")
+                .namesShouldMatch("regex", defaultConfiguration())
 
+                .shouldBeAnnotatedWithPath()
+                .shouldBeAnnotatedWithPath(defaultConfiguration())
+                .shouldBeAnnotatedWithPath(ClassCriteria.nameMatching("regex"))
+                .shouldBeAnnotatedWithPath(ClassCriteria.nameMatching("regex"), defaultConfiguration())
+
+                .shouldBePublic()
+                .shouldBePublic(defaultConfiguration())
+
+                .shouldNotDependOnOtherResources()
+                .shouldNotDependOnOtherResources(defaultConfiguration())))
         .spring(spring -> spring
             .noAutowiredFields()
             .noAutowiredFields(defaultConfiguration())
 
+            .noSelfInvocationOfProxiedMethods()
+            .noSelfInvocationOfProxiedMethods(defaultConfiguration())
+            .noSelfInvocationOfProxiedMethods(List.of("jakarta.transaction.Transactional"))
+            .noSelfInvocationOfProxiedMethods(List.of("jakarta.transaction.Transactional"), defaultConfiguration())
+
             .boot(boot -> boot
                 .applicationClassShouldResideInPackage()
+                .applicationClassShouldResideInPackage(defaultConfiguration())
                 .applicationClassShouldResideInPackage("com.enofex.taikai")
                 .applicationClassShouldResideInPackage("com.enofex.taikai", defaultConfiguration()))
+
+            .configurations(configurations -> configurations
+                .namesShouldEndWithConfiguration()
+                .namesShouldEndWithConfiguration(defaultConfiguration())
+
+                .namesShouldMatch("regex")
+                .namesShouldMatch("regex", defaultConfiguration()))
+
+            .controllers(controllers -> controllers
+                .methodsShouldNotReturn(ClassCriteria.nameMatching(".*Optional"))
+                .methodsShouldNotReturn(ClassCriteria.nameMatching(".*Optional"), defaultConfiguration())
+
+                .methodsShouldReturn(ClassCriteria.nameMatching(".*ResponseEntity"))
+                .methodsShouldReturn(ClassCriteria.nameMatching(".*ResponseEntity"), defaultConfiguration())
+
+                .namesShouldEndWithController()
+                .namesShouldEndWithController(defaultConfiguration())
+
+                .namesShouldMatch("regex")
+                .namesShouldMatch("regex", defaultConfiguration())
+
+                .shouldBeAnnotatedWithController()
+                .shouldBeAnnotatedWithController(defaultConfiguration())
+                .shouldBeAnnotatedWithController(ClassCriteria.nameMatching("regex"))
+                .shouldBeAnnotatedWithController(ClassCriteria.nameMatching("regex"), defaultConfiguration())
+
+                .shouldBeAnnotatedWithRestController()
+                .shouldBeAnnotatedWithRestController(defaultConfiguration())
+                .shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching("regex"))
+                .shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching("regex"), defaultConfiguration())
+
+                .shouldBeAnnotatedWithValidated()
+                .shouldBeAnnotatedWithValidated(defaultConfiguration())
+                .shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching("regex"))
+                .shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching("regex"), defaultConfiguration())
+
+                .shouldBePackagePrivate()
+                .shouldBePackagePrivate(defaultConfiguration())
+
+                .shouldNotBeAnnotatedWithValidated()
+                .shouldNotBeAnnotatedWithValidated(defaultConfiguration())
+                .shouldNotBeAnnotatedWithValidated(ClassCriteria.nameMatching("regex"))
+                .shouldNotBeAnnotatedWithValidated(ClassCriteria.nameMatching("regex"), defaultConfiguration())
+
+                .shouldNotDependOnOtherControllers()
+                .shouldNotDependOnOtherControllers(defaultConfiguration())
+
+                .shouldNotDependOnRepositories()
+                .shouldNotDependOnRepositories(defaultConfiguration()))
 
             .properties(properties -> properties
                 .namesShouldEndWithProperties()
@@ -358,9 +397,8 @@ class Usage {
 
                 .shouldBeAnnotatedWithConfigurationProperties()
                 .shouldBeAnnotatedWithConfigurationProperties(defaultConfiguration())
-
-                .shouldBeAnnotatedWithConfigurationProperties("regex")
-                .shouldBeAnnotatedWithConfigurationProperties("regex", defaultConfiguration())
+                .shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching("regex"))
+                .shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching("regex"), defaultConfiguration())
 
                 .shouldBeAnnotatedWithValidated()
                 .shouldBeAnnotatedWithValidated(defaultConfiguration())
@@ -368,78 +406,88 @@ class Usage {
                 .shouldBeRecords()
                 .shouldBeRecords(defaultConfiguration()))
 
-            .configurations(configuration -> configuration
-                .namesShouldEndWithConfiguration()
-                .namesShouldEndWithConfiguration(defaultConfiguration())
+            .repositories(repositories -> repositories
+                .namesShouldEndWithRepository()
+                .namesShouldEndWithRepository(defaultConfiguration())
 
                 .namesShouldMatch("regex")
-                .namesShouldMatch("regex", defaultConfiguration()))
+                .namesShouldMatch("regex", defaultConfiguration())
 
-            .controllers(controllers -> controllers
-                .shouldBeAnnotatedWithController()
-                .shouldBeAnnotatedWithController(defaultConfiguration())
-
-                .shouldBeAnnotatedWithController("regex")
-                .shouldBeAnnotatedWithController("regex", defaultConfiguration())
-
-                .shouldBeAnnotatedWithRestController()
-                .shouldBeAnnotatedWithRestController(defaultConfiguration())
-
-                .shouldBeAnnotatedWithRestController("regex")
-                .shouldBeAnnotatedWithRestController("regex", defaultConfiguration())
-
-                .shouldBeAnnotatedWithValidated()
-                .shouldBeAnnotatedWithValidated(defaultConfiguration())
-
-                .shouldBeAnnotatedWithValidated("regex")
-                .shouldBeAnnotatedWithValidated("regex", defaultConfiguration())
-
-                .shouldNotDependOnOtherControllers()
-                .shouldNotDependOnOtherControllers(defaultConfiguration())
-
-                .shouldNotDependOnRepositories()
-                .shouldNotDependOnRepositories(defaultConfiguration())
+                .shouldBeAnnotatedWithRepository()
+                .shouldBeAnnotatedWithRepository(defaultConfiguration())
+                .shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching("regex"))
+                .shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching("regex"), defaultConfiguration())
 
                 .shouldBePackagePrivate()
                 .shouldBePackagePrivate(defaultConfiguration())
 
-                .namesShouldEndWithController()
-                .namesShouldEndWithController(defaultConfiguration())
+                .shouldNotDependOnControllers()
+                .shouldNotDependOnControllers(defaultConfiguration())
 
-                .namesShouldMatch("regex")
-                .namesShouldMatch("regex", defaultConfiguration()))
+                .shouldNotDependOnServices()
+                .shouldNotDependOnServices(defaultConfiguration()))
 
             .services(services -> services
+                .namesShouldEndWithService()
+                .namesShouldEndWithService(defaultConfiguration())
+
+                .namesShouldMatch("regex")
+                .namesShouldMatch("regex", defaultConfiguration())
+
                 .shouldBeAnnotatedWithService()
                 .shouldBeAnnotatedWithService(defaultConfiguration())
-
-                .shouldBeAnnotatedWithService("regex")
-                .shouldBeAnnotatedWithService("regex", defaultConfiguration())
+                .shouldBeAnnotatedWithService(ClassCriteria.nameMatching("regex"))
+                .shouldBeAnnotatedWithService(ClassCriteria.nameMatching("regex"), defaultConfiguration())
 
                 .shouldNotDependOnControllers()
                 .shouldNotDependOnControllers(defaultConfiguration())
 
-                .namesShouldMatch("regex")
-                .namesShouldMatch("regex", defaultConfiguration())
+                .shouldNotDependOnOtherServices()
+                .shouldNotDependOnOtherServices(defaultConfiguration()))
 
-                .namesShouldEndWithService()
-                .namesShouldEndWithService(defaultConfiguration()))
+            .transactional(transactional -> transactional
+                .methodsShouldBePublic()
+                .methodsShouldBePublic(defaultConfiguration())
 
-            .repositories(repositories -> repositories
-                .shouldNotDependOnServices()
-                .shouldNotDependOnServices(defaultConfiguration())
+                .shouldNotBeSelfInvoked()
+                .shouldNotBeSelfInvoked(defaultConfiguration())
 
-                .shouldBeAnnotatedWithRepository()
-                .shouldBeAnnotatedWithRepository(defaultConfiguration())
+                .shouldNotBeUsedInControllers()
+                .shouldNotBeUsedInControllers(defaultConfiguration())))
+        .test(test -> test
+            .junit(junit -> junit
+                .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Test"))
+                .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Test"), defaultConfiguration())
 
-                .shouldBeAnnotatedWithRepository("regex")
-                .shouldBeAnnotatedWithRepository("regex", defaultConfiguration())
+                .classesShouldEndWithTest()
+                .classesShouldEndWithTest(defaultConfiguration())
 
-                .namesShouldMatch("regex")
-                .namesShouldMatch("regex", defaultConfiguration())
+                .classesShouldMatch("regex")
+                .classesShouldMatch("regex", defaultConfiguration())
 
-                .namesShouldEndWithRepository()
-                .namesShouldEndWithRepository(defaultConfiguration())))
+                .classesShouldNotBeAnnotatedWithDisabled()
+                .classesShouldNotBeAnnotatedWithDisabled(defaultConfiguration())
+
+                .methodsShouldBeAnnotatedWithDisplayName()
+                .methodsShouldBeAnnotatedWithDisplayName(defaultConfiguration())
+
+                .methodsShouldBePackagePrivate()
+                .methodsShouldBePackagePrivate(defaultConfiguration())
+
+                .methodsShouldContainAssertionsOrVerifications()
+                .methodsShouldContainAssertionsOrVerifications(defaultConfiguration())
+
+                .methodsShouldMatch("should.*")
+                .methodsShouldMatch("should.*", defaultConfiguration())
+
+                .methodsShouldNotBeAnnotatedWithDisabled()
+                .methodsShouldNotBeAnnotatedWithDisabled(defaultConfiguration())
+
+                .methodsShouldNotDeclareExceptions()
+                .methodsShouldNotDeclareExceptions(defaultConfiguration())
+
+                .nestedClassesShouldBeAnnotatedWithNested()
+                .nestedClassesShouldBeAnnotatedWithNested(defaultConfiguration())))
         .build()
         .check();
 
@@ -447,7 +495,7 @@ class Usage {
         .namespace("com.enofex.taikai")
         .java(java -> {
           DEFAULT_JAVA_PROFILE.customize(java);
-          java.classesShouldHaveModifiers(".*", List.of(PRIVATE, FINAL));
+          java.classesShouldHaveModifiers(ClassCriteria.nameMatching(".*"), List.of(PRIVATE, FINAL));
         })
         .test(DEFAULT_TEST_PROFILE)
         .build()
@@ -465,7 +513,6 @@ class Usage {
         .methodsShouldBePackagePrivate()
         .methodsShouldMatch("should.*")
         .methodsShouldContainAssertionsOrVerifications()
-        .classesShouldBePackagePrivate(".*Test")
         .classesShouldNotBeAnnotatedWithDisabled());
     // … more rules …
   };

@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import java.io.IOException;
 import org.junit.jupiter.api.Nested;
@@ -41,7 +42,7 @@ class MethodExceptionRuleTest {
     void shouldNotThrowWhenMethodsDoNotDeclareGivenException_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(NoIOExceptionDeclared.class)
-          .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class))
+          .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -51,7 +52,7 @@ class MethodExceptionRuleTest {
     void shouldThrowWhenMethodsDeclareGivenException_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(DeclaresIOException.class)
-          .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class))
+          .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -61,7 +62,7 @@ class MethodExceptionRuleTest {
     void shouldNotThrowWhenMethodsDoNotDeclareGivenException_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(NoIOExceptionDeclared.class)
-          .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class.getName()))
+          .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class.getName()))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -71,7 +72,7 @@ class MethodExceptionRuleTest {
     void shouldThrowWhenMethodsDeclareGivenException_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(DeclaresIOException.class)
-          .java(java -> java.methodsShouldNotDeclareException(".*", IOException.class.getName()))
+          .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class.getName()))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -81,7 +82,7 @@ class MethodExceptionRuleTest {
     void shouldNotThrowWhenRegexDoesNotMatchAnyMethod() {
       Taikai taikai = Taikai.builder()
           .classes(DeclaresIOException.class)
-          .java(java -> java.methodsShouldNotDeclareException("nonExistingMethod", IOException.class))
+          .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching("nonExistingMethod"), IOException.class))
           .build();
 
       assertDoesNotThrow(taikai::check);

@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -18,7 +19,7 @@ class ClassesShouldBePackagePrivateTest {
     void shouldNotThrowWhenMatchingClassIsPackagePrivate() {
       Taikai taikai = Taikai.builder()
           .classes(PackagePrivateEntity.class)
-          .java(java -> java.classesShouldBePackagePrivate(".*Entity"))
+          .java(java -> java.classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Entity")))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -28,7 +29,7 @@ class ClassesShouldBePackagePrivateTest {
     void shouldThrowWhenMatchingClassIsPublic() {
       Taikai taikai = Taikai.builder()
           .classes(PublicEntity.class)
-          .java(java -> java.classesShouldBePackagePrivate(".*Entity"))
+          .java(java -> java.classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Entity")))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -36,13 +37,13 @@ class ClassesShouldBePackagePrivateTest {
   }
 
   @Nested
-  class ClassesAnnotatedWithShouldBePackagePrivate {
+  class ClassesShouldBePackagePrivateByAnnotation {
 
     @Test
     void shouldNotThrowWhenAnnotatedClassIsPackagePrivate() {
       Taikai taikai = Taikai.builder()
           .classes(PackagePrivateEntity.class)
-          .java(java -> java.classesAnnotatedWithShouldBePackagePrivate(Entity.class))
+          .java(java -> java.classesShouldBePackagePrivate(ClassCriteria.annotatedWith(Entity.class)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -52,7 +53,7 @@ class ClassesShouldBePackagePrivateTest {
     void shouldThrowWhenAnnotatedClassIsPublic() {
       Taikai taikai = Taikai.builder()
           .classes(PublicEntity.class)
-          .java(java -> java.classesAnnotatedWithShouldBePackagePrivate(Entity.class.getName()))
+          .java(java -> java.classesShouldBePackagePrivate(ClassCriteria.annotatedWith(Entity.class.getName())))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -60,13 +61,13 @@ class ClassesShouldBePackagePrivateTest {
   }
 
   @Nested
-  class ClassesAssignableToShouldBePackagePrivate {
+  class ClassesShouldBePackagePrivateBySupertype {
 
     @Test
     void shouldNotThrowWhenSubtypeIsPackagePrivate() {
       Taikai taikai = Taikai.builder()
           .classes(BaseRepository.class, PackagePrivateRepository.class)
-          .java(java -> java.classesAssignableToShouldBePackagePrivate(BaseRepository.class))
+          .java(java -> java.classesShouldBePackagePrivate(ClassCriteria.assignableTo(BaseRepository.class)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -76,8 +77,8 @@ class ClassesShouldBePackagePrivateTest {
     void shouldThrowWhenSubtypeIsPublic() {
       Taikai taikai = Taikai.builder()
           .classes(BaseRepository.class, PublicRepository.class)
-          .java(java -> java.classesAssignableToShouldBePackagePrivate(
-              BaseRepository.class.getName()))
+          .java(java -> java.classesShouldBePackagePrivate(
+              ClassCriteria.assignableTo(BaseRepository.class.getName())))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);

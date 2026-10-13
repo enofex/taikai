@@ -3,8 +3,10 @@ package com.enofex.taikai.logging;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import java.util.List;
 import java.util.logging.Logger;
@@ -73,6 +75,19 @@ class LoggingConfigurerTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
+  @Test
+  void shouldDescribeLoggerConventionsByLoggerFieldName() {
+    Taikai taikai = Taikai.builder()
+        .classes(LoggerConventionsFollowed.class)
+        .logging(logging -> logging.loggersShouldFollowConventions(Logger.class, "logger",
+            List.of(PRIVATE, FINAL)))
+        .build();
+
+    assertEquals("Loggers of type java.util.logging.Logger should have names matching logger "
+            + "and all of these modifiers PRIVATE, FINAL",
+        taikai.rules().iterator().next().archRule().getDescription());
+  }
+
   private static class LoggerConventionsFollowed {
     private static final Logger logger = Logger.getLogger(
         LoggerConventionsFollowed.class.getName());
@@ -95,7 +110,7 @@ class LoggingConfigurerTest {
   void shouldApplyClassesShouldUseLoggerWithTypeName() {
     Taikai taikai = Taikai.builder()
         .classes(LoggerConventionsFollowed.class)
-        .logging(logging -> logging.classesShouldUseLogger("java.util.logging.Logger", ".*LoggerConventionsFollowed"))
+        .logging(logging -> logging.classesShouldUseLogger(ClassCriteria.nameMatching(".*LoggerConventionsFollowed"), "java.util.logging.Logger"))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -105,7 +120,7 @@ class LoggingConfigurerTest {
   void shouldThrowWhenClassShouldUseLoggerButDoesNot() {
     Taikai taikai = Taikai.builder()
         .classes(NoLoggerClass.class)
-        .logging(logging -> logging.classesShouldUseLogger("java.util.logging.Logger", ".*NoLoggerClass"))
+        .logging(logging -> logging.classesShouldUseLogger(ClassCriteria.nameMatching(".*NoLoggerClass"), "java.util.logging.Logger"))
         .build();
 
     assertThrows(AssertionError.class, taikai::check);
@@ -115,7 +130,7 @@ class LoggingConfigurerTest {
   void shouldApplyClassesShouldUseLoggerWithClass() {
     Taikai taikai = Taikai.builder()
         .classes(LoggerConventionsFollowed.class)
-        .logging(logging -> logging.classesShouldUseLogger(Logger.class, ".*LoggerConventionsFollowed"))
+        .logging(logging -> logging.classesShouldUseLogger(ClassCriteria.nameMatching(".*LoggerConventionsFollowed"), Logger.class))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -145,8 +160,8 @@ class LoggingConfigurerTest {
   void shouldApplyClassesShouldUseLoggerWithClassAndConfiguration() {
     Taikai taikai = Taikai.builder()
         .classes(LoggerConventionsFollowed.class)
-        .logging(logging -> logging.classesShouldUseLogger(Logger.class,
-            ".*LoggerConventionsFollowed",
+        .logging(logging -> logging.classesShouldUseLogger(ClassCriteria.nameMatching(".*LoggerConventionsFollowed"),
+            Logger.class,
             com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
         .build();
 
@@ -195,7 +210,7 @@ class LoggingConfigurerTest {
     Taikai taikai = Taikai.builder()
         .classes(NoLoggerClass.class)
         .logging(logging -> {
-          logging.classesShouldUseLogger("java.util.logging.Logger", ".*NoLoggerClass");
+          logging.classesShouldUseLogger(ClassCriteria.nameMatching(".*NoLoggerClass"), "java.util.logging.Logger");
           logging.disable();
         })
         .build();

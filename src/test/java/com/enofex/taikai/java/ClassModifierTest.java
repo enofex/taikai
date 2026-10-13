@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Retention;
@@ -16,14 +17,14 @@ import org.junit.jupiter.api.Test;
 class ClassModifierTest {
 
   @Nested
-  class ClassesAnnotatedWithShouldHaveModifiers {
+  class ClassesShouldHaveModifiersByAnnotation {
 
     @Test
     void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
-          .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+          .java(java -> java.classesShouldHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -33,8 +34,8 @@ class ClassModifierTest {
     void shouldThrowWhenAnnotatedClassesLackRequiredModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
-          .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+          .java(java -> java.classesShouldHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -44,8 +45,8 @@ class ClassModifierTest {
     void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
-          .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class.getName(), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+          .java(java -> java.classesShouldHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -55,8 +56,8 @@ class ClassModifierTest {
     void shouldThrowWhenAnnotatedClassesLackRequiredModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
-          .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-              TestAnnotation.class.getName(), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
+          .java(java -> java.classesShouldHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -64,14 +65,14 @@ class ClassModifierTest {
   }
 
   @Nested
-  class ClassesAnnotatedWithShouldNotHaveModifiers {
+  class ClassesShouldNotHaveModifiersByAnnotation {
 
     @Test
     void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
-          .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class, List.of(JavaModifier.ABSTRACT)))
+          .java(java -> java.classesShouldNotHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -81,8 +82,8 @@ class ClassModifierTest {
     void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiers_ClassVersion() {
       Taikai taikai = Taikai.builder()
           .classes(AbstractClass.class)
-          .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class, List.of(JavaModifier.ABSTRACT)))
+          .java(java -> java.classesShouldNotHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -92,8 +93,8 @@ class ClassModifierTest {
     void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
-          .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class.getName(), List.of(JavaModifier.ABSTRACT)))
+          .java(java -> java.classesShouldNotHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -103,8 +104,8 @@ class ClassModifierTest {
     void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiers_StringVersion() {
       Taikai taikai = Taikai.builder()
           .classes(AbstractClass.class)
-          .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-              TestAnnotation.class.getName(), List.of(JavaModifier.ABSTRACT)))
+          .java(java -> java.classesShouldNotHaveModifiers(
+              ClassCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.ABSTRACT)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -119,7 +120,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
-              ".*PublicFinalClass",
+              ClassCriteria.nameMatching(".*PublicFinalClass"),
               List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
@@ -131,7 +132,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
-              ".*PublicNonFinalClass",
+              ClassCriteria.nameMatching(".*PublicNonFinalClass"),
               List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
           .build();
 
@@ -143,7 +144,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
-              ".*DoesNotMatch",
+              ClassCriteria.nameMatching(".*DoesNotMatch"),
               List.of(JavaModifier.PUBLIC)))
           .build();
 
@@ -155,7 +156,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
-              ".*PublicFinalClass",
+              ClassCriteria.nameMatching(".*PublicFinalClass"),
               List.of())) // empty list → always allowed
           .build();
 
@@ -167,7 +168,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
-              ".*PublicFinalClass",
+              ClassCriteria.nameMatching(".*PublicFinalClass"),
               List.of(JavaModifier.PUBLIC, JavaModifier.FINAL),
               com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
           .build();
@@ -184,7 +185,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PackagePrivateClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(
-              ".*PackagePrivateClass",
+              ClassCriteria.nameMatching(".*PackagePrivateClass"),
               EnumSet.of(JavaModifier.PUBLIC)))
           .build();
 
@@ -196,7 +197,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(
-              ".*PublicFinalClass",
+              ClassCriteria.nameMatching(".*PublicFinalClass"),
               EnumSet.of(JavaModifier.PUBLIC)))
           .build();
 
@@ -208,7 +209,7 @@ class ClassModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(
-              ".*DoesNotMatch",
+              ClassCriteria.nameMatching(".*DoesNotMatch"),
               EnumSet.of(JavaModifier.PUBLIC)))
           .build();
 
@@ -220,19 +221,19 @@ class ClassModifierTest {
   void shouldSupportEmptyModifierCollections() {
     Taikai taikai = Taikai.builder()
         .classes(PublicFinalClass.class)
-        .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-            TestAnnotation.class, Set.of()))
+        .java(java -> java.classesShouldHaveModifiers(
+            ClassCriteria.annotatedWith(TestAnnotation.class), Set.of()))
         .build();
 
     assertDoesNotThrow(taikai::check);
   }
 
   @Test
-  void shouldSupportConfigurationForClassesAnnotatedWithShouldHaveModifiers() {
+  void shouldSupportConfigurationForClassesShouldHaveModifiersByAnnotation() {
     Taikai taikai = Taikai.builder()
         .classes(PublicFinalClass.class)
-        .java(java -> java.classesAnnotatedWithShouldHaveModifiers(
-            TestAnnotation.class, List.of(JavaModifier.PUBLIC, JavaModifier.FINAL),
+        .java(java -> java.classesShouldHaveModifiers(
+            ClassCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL),
             com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
         .build();
 
@@ -240,11 +241,11 @@ class ClassModifierTest {
   }
 
   @Test
-  void shouldSupportConfigurationForClassesAnnotatedWithShouldNotHaveModifiers() {
+  void shouldSupportConfigurationForClassesShouldNotHaveModifiersByAnnotation() {
     Taikai taikai = Taikai.builder()
         .classes(PublicNonFinalClass.class)
-        .java(java -> java.classesAnnotatedWithShouldNotHaveModifiers(
-            TestAnnotation.class, List.of(JavaModifier.ABSTRACT),
+        .java(java -> java.classesShouldNotHaveModifiers(
+            ClassCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.ABSTRACT),
             com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
         .build();
 

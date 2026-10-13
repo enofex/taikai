@@ -34,7 +34,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
  *             .shouldBeAnnotatedWithEntityWhenActiveRecordPattern()
  *             .namesShouldEndWithRepository())
  *         .ai(ai -> ai
- *             .namesShouldEndWithAssistantOrResource()
+ *             .namesShouldEndWithAssistantOrService()
  *             .shouldBeAnnotatedWithApplicationScoped()
  *             .shouldNotUseToolsAttributeInAiService())
  *     )
@@ -52,7 +52,7 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
    * Adds a rule that no fields in the codebase should be annotated with {@code @Inject}.
    * Constructor injection should be preferred instead.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public QuarkusConfigurer noInjectionFields() {
     return noInjectionFields(defaultConfiguration());
@@ -61,8 +61,8 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
   /**
    * See {@link #noInjectionFields()}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public QuarkusConfigurer noInjectionFields(TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(noFields()
@@ -75,7 +75,7 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
    * Configures JAX-RS {@code @Path} resource class rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link ResourcesConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public QuarkusConfigurer resources(
       Customizer<ResourcesConfigurer> customizer) {
@@ -86,7 +86,7 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
    * Configures Panache entity and repository rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link PanacheConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public QuarkusConfigurer panache(
       Customizer<PanacheConfigurer> customizer) {
@@ -97,7 +97,7 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
    * Configures LangChain4j AI service rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link AiConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public QuarkusConfigurer ai(
       Customizer<AiConfigurer> customizer) {

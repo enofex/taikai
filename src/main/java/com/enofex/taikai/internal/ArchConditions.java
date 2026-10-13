@@ -160,23 +160,23 @@ public final class ArchConditions {
    * Creates a condition that checks if a field does <strong>not</strong> contain
    * any of the specified modifiers.
    *
-   * @param notAllowedModifiers the collection of modifiers that the field must not have
+   * @param forbiddenModifiers the collection of modifiers that the field must not have
    * @return an architectural condition for checking that a field does not have the given modifiers
    */
   public static ArchCondition<JavaField> notHasFieldModifiers(
-      Collection<JavaModifier> notAllowedModifiers) {
+      Collection<JavaModifier> forbiddenModifiers) {
     return new ArchCondition<>("does not have field modifiers") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
-        boolean hasForbiddenModifier = field.getModifiers().stream()
-            .anyMatch(notAllowedModifiers::contains);
+        String presentModifiers = presentForbiddenModifiers(field.getModifiers(),
+            forbiddenModifiers);
 
-        if (hasForbiddenModifier) {
+        if (!presentModifiers.isEmpty()) {
           events.add(SimpleConditionEvent.violated(field,
               "Field %s in class %s has forbidden modifier(s): %s".formatted(
                   field.getName(),
                   field.getOwner().getFullName(),
-                  notAllowedModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+                  presentModifiers)));
         }
       }
     };
@@ -208,23 +208,23 @@ public final class ArchConditions {
    * Creates a condition that checks if a method does <strong>not</strong> contain
    * any of the specified modifiers.
    *
-   * @param notAllowedModifiers the collection of modifiers that the method must not have
+   * @param forbiddenModifiers the collection of modifiers that the method must not have
    * @return an architectural condition for checking that a method does not have the given modifiers
    */
   public static ArchCondition<JavaMethod> notHasMethodModifiers(
-      Collection<JavaModifier> notAllowedModifiers) {
+      Collection<JavaModifier> forbiddenModifiers) {
     return new ArchCondition<>("does not have method modifiers") {
       @Override
       public void check(JavaMethod method, ConditionEvents events) {
-        boolean hasForbiddenModifier = method.getModifiers().stream()
-            .anyMatch(notAllowedModifiers::contains);
+        String presentModifiers = presentForbiddenModifiers(method.getModifiers(),
+            forbiddenModifiers);
 
-        if (hasForbiddenModifier) {
+        if (!presentModifiers.isEmpty()) {
           events.add(SimpleConditionEvent.violated(method,
               "Method %s in class %s has forbidden modifier(s): %s".formatted(
                   method.getName(),
                   method.getOwner().getFullName(),
-                  notAllowedModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+                  presentModifiers)));
         }
       }
     };
@@ -255,24 +255,33 @@ public final class ArchConditions {
    * Creates a condition that checks if a class does <strong>not</strong> contain
    * any of the specified modifiers.
    *
-   * @param notAllowedModifiers the collection of modifiers that the class must not have
+   * @param forbiddenModifiers the collection of modifiers that the class must not have
    * @return an architectural condition for checking that a class does not have the given modifiers
    */
   public static ArchCondition<JavaClass> notHasClassModifiers(
-      Collection<JavaModifier> notAllowedModifiers) {
+      Collection<JavaModifier> forbiddenModifiers) {
     return new ArchCondition<>("does not have class modifiers") {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        boolean hasForbiddenModifier = javaClass.getModifiers().stream()
-            .anyMatch(notAllowedModifiers::contains);
+        String presentModifiers = presentForbiddenModifiers(javaClass.getModifiers(),
+            forbiddenModifiers);
 
-        if (hasForbiddenModifier) {
+        if (!presentModifiers.isEmpty()) {
           events.add(SimpleConditionEvent.violated(javaClass,
               "Class %s has forbidden modifier(s): %s".formatted(
                   javaClass.getFullName(),
-                  notAllowedModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+                  presentModifiers)));
         }
       }
     };
+  }
+
+  private static String presentForbiddenModifiers(Collection<JavaModifier> modifiers,
+      Collection<JavaModifier> forbiddenModifiers) {
+    return modifiers.stream()
+        .filter(forbiddenModifiers::contains)
+        .sorted()
+        .map(Enum::name)
+        .collect(Collectors.joining(", "));
   }
 }

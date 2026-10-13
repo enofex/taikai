@@ -12,11 +12,13 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 
 /**
@@ -55,7 +57,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
    * Adds a rule enforcing that classes annotated with {@code @Repository}
    * have names ending with {@code Repository}.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer namesShouldEndWithRepository() {
     return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, defaultConfiguration());
@@ -64,8 +66,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   /**
    * See {@link #namesShouldEndWithRepository()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer namesShouldEndWithRepository(Configuration configuration) {
     return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, configuration);
@@ -75,8 +77,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
    * Adds a rule enforcing that {@code @Repository}-annotated classes
    * have names matching the given regex.
    *
-   * @param regex the regex pattern for valid repository class names
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer namesShouldMatch(String regex) {
     return namesShouldMatch(regex, defaultConfiguration());
@@ -85,9 +87,9 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   /**
    * See {@link #namesShouldMatch(String)}, but with {@link Configuration} for customization.
    *
-   * @param regex the regex pattern for valid repository class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -98,48 +100,57 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
 
   /**
    * Adds a rule enforcing that classes with names ending in {@code Repository}
-   * should be annotated with {@code @Repository}.
+   * should be annotated with {@code @Repository}. Interfaces, such as Spring Data
+   * repositories, are excluded.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository() {
-    return shouldBeAnnotatedWithRepository(DEFAULT_REPOSITORY_NAME_MATCHING,
-        defaultConfiguration());
+    return shouldBeAnnotatedWithRepository(
+        ClassCriteria.nameMatching(DEFAULT_REPOSITORY_NAME_MATCHING), defaultConfiguration());
   }
 
   /**
    * See {@link #shouldBeAnnotatedWithRepository()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(Configuration configuration) {
-    return shouldBeAnnotatedWithRepository(DEFAULT_REPOSITORY_NAME_MATCHING, configuration);
+    return shouldBeAnnotatedWithRepository(
+        ClassCriteria.nameMatching(DEFAULT_REPOSITORY_NAME_MATCHING), configuration);
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given regex
-   * should be annotated with {@code @Repository}.
+   * Adds a rule enforcing that classes matching the given criteria
+   * should be annotated with {@code @Repository}. Interfaces, such as Spring Data
+   * repositories, are excluded.
    *
-   * @param regex the regex for repository class names
-   * @return this configurer instance for fluent chaining
+   * @param classes the repository classes, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(String regex) {
-    return shouldBeAnnotatedWithRepository(regex, defaultConfiguration());
+  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(DescribedPredicate<? super JavaClass> classes) {
+    return shouldBeAnnotatedWithRepository(classes, defaultConfiguration());
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithRepository(String)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithRepository(DescribedPredicate)}, but with {@link Configuration} for customization.
    *
-   * @param regex the regex for repository class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param classes the repository classes
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(String regex, Configuration configuration) {
+  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that().areNotInterfaces().and(classes)
             .should(be(annotatedWithRepository(true)))
-            .as("Repositories should be annotated with %s".formatted(ANNOTATION_REPOSITORY)),
+            .as("Repositories %s should be annotated with %s".formatted(
+                classes.getDescription(), ANNOTATION_REPOSITORY)),
         configuration));
   }
 
@@ -147,7 +158,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
    * Adds a rule enforcing that repository classes should not depend on controller classes
    * (annotated with {@code @Controller} or {@code @RestController}).
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldNotDependOnControllers() {
     return shouldNotDependOnControllers(defaultConfiguration());
@@ -156,8 +167,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   /**
    * See {@link #shouldNotDependOnControllers()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldNotDependOnControllers(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -171,7 +182,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
    * Adds a rule enforcing that repository classes should not depend on service-layer classes
    * (annotated with {@code @Service}).
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldNotDependOnServices() {
     return shouldNotDependOnServices(defaultConfiguration());
@@ -180,8 +191,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   /**
    * See {@link #shouldNotDependOnServices()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldNotDependOnServices(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -196,7 +207,7 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
    * Repositories are classes annotated with {@code @Repository} or types extending
    * Spring Data's {@code org.springframework.data.repository.Repository}.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldBePackagePrivate() {
     return shouldBePackagePrivate(defaultConfiguration());
@@ -205,8 +216,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   /**
    * See {@link #shouldBePackagePrivate()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public RepositoriesConfigurer shouldBePackagePrivate(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()

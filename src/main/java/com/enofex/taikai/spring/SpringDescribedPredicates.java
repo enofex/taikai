@@ -32,7 +32,7 @@ final class SpringDescribedPredicates {
   static final String ANNOTATION_RETRYABLE = "org.springframework.retry.annotation.Retryable";
 
   /**
-   * Annotations whose behaviour is applied by a Spring proxy and is therefore lost when the
+   * Annotations whose behavior is applied by a Spring proxy and is therefore lost when the
    * annotated method is invoked from within the same class.
    */
   static final Collection<String> ANNOTATIONS_APPLIED_BY_PROXY = List.of(

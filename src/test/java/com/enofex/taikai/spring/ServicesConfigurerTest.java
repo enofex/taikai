@@ -3,6 +3,7 @@ package com.enofex.taikai.spring;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
@@ -190,14 +191,14 @@ class ServicesConfigurerTest {
   }
 
   @Nested
-  class ShouldBeAnnotatedWithServiceByRegex {
+  class ShouldBeAnnotatedWithServiceByName {
 
     @Test
     void shouldNotThrowWhenMatchingClassIsAnnotatedWithService() {
       Taikai taikai = Taikai.builder()
           .classes(UserService.class)
           .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(".+Service")))
+              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -208,7 +209,7 @@ class ServicesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(MissingAnnotationService.class)
           .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(".+Service")))
+              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -219,7 +220,7 @@ class ServicesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(EmailService.class, JavaMailEmailService.class)
           .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(".+Service")))
+              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -431,14 +432,14 @@ class ServicesConfigurerTest {
     void shouldBeAnnotatedWithServiceWithRegexShouldReturnConfigurer() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
       org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldBeAnnotatedWithService(".+Service"));
+          configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service")));
     }
 
     @Test
     void shouldBeAnnotatedWithServiceWithRegexAndConfigShouldReturnConfigurer() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
       org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldBeAnnotatedWithService(".+Service",
+          configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"),
               com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
     }
 
@@ -528,7 +529,7 @@ class ServicesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(MissingAnnotationService.class)
           .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(".+Service")))
+              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);

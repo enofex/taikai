@@ -24,9 +24,24 @@ public final class Namespace {
 
   private static final Map<Key, JavaClasses> JAVA_CLASSES = new ConcurrentHashMap<>();
 
+  /**
+   * Defines which classes of a namespace are imported.
+   */
   public enum IMPORT {
+
+    /**
+     * Imports production classes only.
+     */
     WITHOUT_TESTS,
+
+    /**
+     * Imports production and test classes.
+     */
     WITH_TESTS,
+
+    /**
+     * Imports test classes only.
+     */
     ONLY_TESTS
   }
 

@@ -19,18 +19,6 @@ class TestConfigurerTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
-  void shouldApplyJunit5DeprecatedCustomizer() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidTestClass.class)
-        .test(test -> test.junit5(
-            junit -> junit.methodsShouldBePackagePrivate()))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
   void shouldDisableTestConfigurer() {
     Taikai taikai = Taikai.builder()
         .classes(ValidTestClass.class)

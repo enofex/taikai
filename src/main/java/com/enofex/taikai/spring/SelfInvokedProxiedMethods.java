@@ -6,6 +6,7 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -29,11 +30,13 @@ final class SelfInvokedProxiedMethods {
       predicates.put(annotation, annotatedWith(annotation, true));
     }
 
-    return new ArchCondition<>("not self invoke methods annotated with %s".formatted(annotations)) {
+    return new ArchCondition<>("not self-invoke methods annotated with %s".formatted(
+        String.join(" or ", annotations))) {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         for (JavaMethodCall call : javaClass.getMethodCallsFromSelf()) {
-          if (!call.getTargetOwner().equals(javaClass)) {
+          if (!call.getTargetOwner().equals(javaClass)
+              || call.getOrigin().getModifiers().contains(JavaModifier.SYNTHETIC)) {
             continue;
           }
 
@@ -46,7 +49,7 @@ final class SelfInvokedProxiedMethods {
           for (Entry<String, DescribedPredicate<CanBeAnnotated>> predicate : predicates.entrySet()) {
             if (predicate.getValue().test(target.get())) {
               events.add(SimpleConditionEvent.violated(javaClass,
-                  "Method %s calls %s in line %d, the self invocation bypasses the Spring proxy and %s has no effect.".formatted(
+                  "Method %s calls %s in line %d, the self-invocation bypasses the Spring proxy and %s has no effect".formatted(
                       call.getOrigin().getFullName(),
                       target.get().getFullName(),
                       call.getLineNumber(),

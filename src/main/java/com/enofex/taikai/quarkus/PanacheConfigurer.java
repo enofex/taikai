@@ -39,11 +39,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
  * are annotated with {@code @Entity}, and that classes implementing {@code PanacheRepository}
  * have names ending with {@code Repository}.</p>
  */
-public class PanacheConfigurer extends AbstractConfigurer implements DisableableConfigurer {
+public final class PanacheConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
   private static final String DEFAULT_REPOSITORY_NAME_MATCHING = ".+Repository";
 
-  public PanacheConfigurer(ConfigurerContext configurerContext) {
+  PanacheConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
 
@@ -51,39 +51,19 @@ public class PanacheConfigurer extends AbstractConfigurer implements Disableable
    * Adds a rule enforcing that classes implementing {@code PanacheEntity}
    * are annotated with {@code Entity}.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public PanacheConfigurer shouldBeAnnotatedWithEntityWhenActiveRecordPattern() {
-    return annotatedWithEntityWhenActiveRecordPattern(defaultConfiguration());
+    return shouldBeAnnotatedWithEntityWhenActiveRecordPattern(defaultConfiguration());
   }
 
   /**
    * See {@link #shouldBeAnnotatedWithEntityWhenActiveRecordPattern()}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PanacheConfigurer shouldBeAnnotatedWithEntityWhenActiveRecordPattern(TaikaiRule.Configuration configuration) {
-    return annotatedWithEntityWhenActiveRecordPattern(configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes implementing {@code PanacheEntity}
-   * are annotated with {@code Entity}.
-   *
-   * @return this configurer instance for fluent chaining
-   */
-  public PanacheConfigurer annotatedWithEntityWhenActiveRecordPattern() {
-    return annotatedWithEntityWhenActiveRecordPattern(defaultConfiguration());
-  }
-
-  /**
-   * See {@link #annotatedWithEntityWhenActiveRecordPattern()}, but with {@link TaikaiRule.Configuration} for customization.
-   *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
-   */
-  public PanacheConfigurer annotatedWithEntityWhenActiveRecordPattern(TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areAssignableTo(PANACHE_ENTITY)
             .should(be(annotatedWithEntity(true)))
@@ -96,7 +76,7 @@ public class PanacheConfigurer extends AbstractConfigurer implements Disableable
    * Adds a rule enforcing that classes implementing {@code PanacheRepository}
    * have names ending with {@code Repository}.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public PanacheConfigurer namesShouldEndWithRepository() {
     return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, defaultConfiguration());
@@ -105,8 +85,8 @@ public class PanacheConfigurer extends AbstractConfigurer implements Disableable
   /**
    * See {@link #namesShouldEndWithRepository()}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PanacheConfigurer namesShouldEndWithRepository(TaikaiRule.Configuration configuration) {
     return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, configuration);
@@ -116,8 +96,8 @@ public class PanacheConfigurer extends AbstractConfigurer implements Disableable
    * Adds a rule enforcing that classes implementing {@code PanacheRepository}
    * have names matching the given regex.
    *
-   * @param regex the regex pattern for valid repository class names
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @return this configurer for fluent chaining
    */
   public PanacheConfigurer namesShouldMatch(String regex) {
     return namesShouldMatch(regex, defaultConfiguration());
@@ -126,9 +106,9 @@ public class PanacheConfigurer extends AbstractConfigurer implements Disableable
   /**
    * See {@link #namesShouldMatch(String)}, but with {@link TaikaiRule.Configuration} for customization.
    *
-   * @param regex         the regex pattern for valid repository class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PanacheConfigurer namesShouldMatch(String regex, TaikaiRule.Configuration configuration) {
     return addRule(TaikaiRule.of(classes()

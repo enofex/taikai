@@ -21,7 +21,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *             .methodsShouldMatch("should[A-Z].*")
  *             .methodsShouldBePackagePrivate()
  *             .methodsShouldContainAssertionsOrVerifications()
- *             .classesShouldBePackagePrivate(".*Test")
+ *             .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Test"))
  *             .classesShouldNotBeAnnotatedWithDisabled()
  *         )
  *     )
@@ -36,20 +36,10 @@ public final class TestConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * @deprecated Since only JUnit and above are supported, use {@link #junit(Customizer)} instead.
-   * This method was retained for backward compatibility and delegates directly to
-   * {@link #junit(Customizer)}.
-   */
-  @Deprecated(forRemoval = true)
-  public TestConfigurer junit5(Customizer<JUnitConfigurer> customizer) {
-    return junit(customizer);
-  }
-
-  /**
    * Configures JUnit-specific test rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link JUnitConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public TestConfigurer junit(Customizer<JUnitConfigurer> customizer) {
     return customizer(customizer, () -> new JUnitConfigurer(configurerContext()));

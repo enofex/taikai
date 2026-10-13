@@ -3,6 +3,7 @@ package com.enofex.taikai.spring;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -117,6 +118,28 @@ class RepositoriesConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenRepositoryInterfaceIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(SpringDataRepository.class)
+          .spring(spring -> spring.repositories(
+              RepositoriesConfigurer::shouldBeAnnotatedWithRepository))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenRepositoryInterfaceMatchingCriteriaIsNotAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(SpringDataRepository.class)
+          .spring(spring -> spring.repositories(repositories -> repositories
+              .shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".*Repository"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -208,14 +231,14 @@ class RepositoriesConfigurerTest {
   }
 
   @Nested
-  class ShouldBeAnnotatedWithRepositoryByRegex {
+  class ShouldBeAnnotatedWithRepositoryByName {
 
     @Test
     void shouldNotThrowWhenMatchingClassIsAnnotatedWithRepository() {
       Taikai taikai = Taikai.builder()
           .classes(UserRepository.class)
           .spring(spring -> spring.repositories(
-              repo -> repo.shouldBeAnnotatedWithRepository(".+Repository")))
+              repo -> repo.shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".+Repository"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -226,7 +249,7 @@ class RepositoriesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(MissingAnnotationRepository.class)
           .spring(spring -> spring.repositories(
-              repo -> repo.shouldBeAnnotatedWithRepository(".+Repository")))
+              repo -> repo.shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".+Repository"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -241,6 +264,9 @@ class RepositoriesConfigurerTest {
   @Repository
   static class InvalidRepoName {
 
+  }
+
+  interface SpringDataRepository {
   }
 
   static class MissingAnnotationRepository {

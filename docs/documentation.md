@@ -31,7 +31,7 @@ class ArchitectureTest {
 | Requirement | Version      |
 |-------------|--------------|
 | Java        | 17 or higher |
-| ArchUnit    | 1.5.0        |
+| ArchUnit    | 1.5.1        |
 
 ArchUnit is a regular (compile-scope) dependency of Taikai, so it arrives transitively and you do
 not need to declare it yourself. Taikai only relies on the stable ArchUnit core API, so a newer
@@ -71,6 +71,7 @@ import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.java.ImportPatterns;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -90,7 +91,7 @@ class ArchitectureTest {
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
-                .shouldNotImport("..internal.."))
+                .shouldNotImport(ImportPatterns.shaded()))
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
                 .classesShouldNotMatch(".*Impl")
@@ -113,7 +114,7 @@ class ArchitectureTest {
 
 ### 5.1 Selecting Classes with a Namespace
 
-`namespace` is the base package Taikai imports and analyses.
+`namespace` is the base package Taikai imports and analyzes.
 
 ```java
 Taikai.builder()
@@ -196,14 +197,34 @@ Taikai.builder()
     .check();
 ```
 
+`excludeClasses(...)` also accepts [criteria](#513-selecting-with-criteria), which can
+exclude classes by annotation or any other property instead of by name. A class matching any of the
+registered criteria is excluded. This is the typical way to skip generated code everywhere:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .excludeClasses(ClassCriteria.inPackage("com.company.project.generated.."))
+    .excludeClasses(ClassCriteria.annotatedWith(Legacy.class))
+    .build()
+    .check();
+```
+
+!!! warning
+    Class criteria only see annotations that are kept in the class files. `jakarta.annotation.Generated`
+    and `javax.annotation.processing.Generated`, which code generators commonly add, have `SOURCE`
+    retention, so `ClassCriteria.annotatedWith(...)` never matches them. Exclude generated code by
+    package, or by an annotation with `CLASS` or `RUNTIME` retention.
+
 To exclude classes from a single rule only, use [`Configuration`](#58-per-rule-configuration) instead.
 
 !!! warning
-    Exclusions are only applied on the namespace path, so they take effect only when the classes
-    come from `namespace(...)`. If you supply the classes yourself — globally via
+    Exclusions, whether by name or by criteria, are only applied on the namespace path, so they take
+    effect only when the classes come from `namespace(...)`. If you supply the classes yourself — globally via
     [`classes(...)`](#52-selecting-classes-directly) or per rule via
-    `Configuration.of(JavaClasses)` — that set is used verbatim and `excludeClasses(...)` is
-    silently ignored. Filter the `JavaClasses` before handing them over instead.
+    `Configuration.of(JavaClasses)` — `excludeClasses(...)` is silently ignored. Filter the
+    `JavaClasses` before handing them over, or pass the exclusions together with a rule's classes
+    in `Configuration.of(JavaClasses, Collection<T>)`.
 
 ### 5.5 Failing on Empty Rule Results
 
@@ -225,7 +246,7 @@ The default is `false`. Turning it on is recommended for any long-lived configur
 
 Both methods evaluate every configured rule; they differ in how they report.
 
-| Method       | Behaviour                                                                       |
+| Method       | Behavior                                                                        |
 |--------------|----------------------------------------------------------------------------------|
 | `check()`    | Stops at the first violated rule and throws immediately.                        |
 | `checkAll()` | Evaluates all rules, aggregates every violation, then throws one combined report. |
@@ -333,7 +354,7 @@ rather than class literals.
 ```java
 .java(java -> java
     .imports(imports -> imports
-        .shouldNotImport("..internal..",
+        .shouldNotImport(ClassCriteria.inPackage("com.company.project.legacy.."),
             Configuration.of("com.company.project.different", Namespace.IMPORT.WITHOUT_TESTS))
         .shouldNotImport(lombok(),
             Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
@@ -347,7 +368,7 @@ rather than class literals.
 
 ### 5.9 Disabling a Rule Group
 
-Most configurers implement `disable()`, which clears all rules registered on that configurer. This
+Every configurer implements `disable()`, which clears all rules registered on that configurer. This
 is mainly useful when a shared [profile](#511-reusable-rule-profiles) enables a group that a
 particular module must not run.
 
@@ -362,17 +383,13 @@ Taikai.builder()
     .checkAll();
 ```
 
-`disable()` is available on `java`, `logging`, `test`, `junit`, `spring`, `boot`, `properties`,
-`configurations`, `controllers`, `services`, `repositories`, `transactional`, `quarkus`, `resources`,
-`panache` and `ai`.
-
-The two nested Java configurers, `naming(...)` and `imports(...)`, do **not** have `disable()` —
-they are the only rule groups without it.
+Every rule group has `disable()`: `java`, `imports`, `naming`, `logging`, `test`, `junit`, `spring`,
+`boot`, `properties`, `configurations`, `controllers`, `services`, `repositories`, `transactional`,
+`quarkus`, `resources`, `panache` and `ai`.
 
 `disable()` cascades to nested configurers: `java(...)` also clears `naming` and `imports`,
 `spring(...)` clears all its sub-configurers, `quarkus(...)` clears `resources`, `panache` and `ai`,
-and `test(...)` clears `junit`. So disabling `java(...)` is how you drop naming and import rules a
-profile added.
+and `test(...)` clears `junit`.
 
 ### 5.10 Modifying an Existing Configuration
 
@@ -399,14 +416,6 @@ Taikai adapted = base.toBuilder()
 adapted.check();
 ```
 
-Two sharp edges in the current implementation:
-
-- The derived builder shares the exclusion list with the source instance, so `excludeClasses(...)`
-  on `adapted` also adds to `base`. Do not reuse `base` for a separate check afterwards.
-- `addRule(...)` and `addRules(...)` throw `UnsupportedOperationException` on a builder obtained
-  from `toBuilder()`, because the copied rule list is immutable. Register custom rules on the
-  original builder instead.
-
 ### 5.11 Reusable Rule Profiles
 
 A profile is a `Customizer<T>`, where `T` is a configurer type such as `JavaConfigurer` or
@@ -423,7 +432,7 @@ private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> t
         .methodsShouldBePackagePrivate()
         .methodsShouldMatch("should.*")
         .methodsShouldContainAssertionsOrVerifications()
-        .classesShouldBePackagePrivate(".*Test")
+        .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Test"))
         .classesShouldNotBeAnnotatedWithDisabled());
 ```
 
@@ -431,10 +440,10 @@ private static final Customizer<TestConfigurer> DEFAULT_TEST_PROFILE = test -> t
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> {
-      DEFAULT_JAVA_PROFILE.customize(java);          // apply the profile
-      java.classesShouldBeRecords(".*Dto");          // plus a local rule
+      DEFAULT_JAVA_PROFILE.customize(java);                         // apply the profile
+      java.classesShouldBeRecords(ClassCriteria.nameMatching(".*Dto"));  // plus a local rule
     })
-    .test(DEFAULT_TEST_PROFILE)                      // use the profile directly
+    .test(DEFAULT_TEST_PROFILE)                                     // use the profile directly
     .build()
     .checkAll();
 ```
@@ -459,6 +468,91 @@ Taikai.builder()
     .checkAll();
 ```
 
+### 5.13 Selecting with Criteria
+
+Rules that apply to a selection of classes, fields or methods take an ArchUnit `DescribedPredicate`,
+so the selection can be expressed precisely and combined freely. The parameter type tells you which
+factory builds it:
+
+| Parameter type | Factory | Listed as |
+|----------------|---------|-----------|
+| `DescribedPredicate<? super JavaClass>` | `com.enofex.taikai.ClassCriteria` | `classes`, and types such as `forbiddenTypes` |
+| `DescribedPredicate<? super JavaField>` | `com.enofex.taikai.FieldCriteria` | `fields` |
+| `DescribedPredicate<? super JavaMethod>` | `com.enofex.taikai.MethodCriteria` | `methods` |
+
+Passing criteria of the wrong kind does not compile, so a `FieldCriteria` can never end up in a rule
+that selects methods.
+
+#### Class criteria
+
+`ClassCriteria` selects the classes a rule applies to. Rules that restrict sets of types, such as
+[`noUsageOf`](#noUsageOf), [`shouldNotImport`](#imports-shouldNotImport) or
+[`methodsShouldNotReturnForClass`](#methodsShouldNotReturnForClass), take class criteria for those
+types too, and `FieldCriteria.ofType(...)` selects fields by class criteria on their type.
+
+| Criterion | Matches |
+|-----------|---------|
+| `ClassCriteria.annotatedWith(Class<? extends Annotation> annotationType)` | classes directly or meta-annotated with the annotation; `SOURCE`-retention annotations never match |
+| `ClassCriteria.annotatedWith(String annotationType)` | same, by fully qualified name without `@` |
+| `ClassCriteria.type(Class<?> clazz)` | exactly the type, without its subtypes, for example `Optional` |
+| `ClassCriteria.assignableTo(Class<?> clazz)` | classes extending or implementing the type, directly or indirectly; the type itself does not match |
+| `ClassCriteria.implementing(Class<?> clazz)` | classes implementing the interface, directly or indirectly; interfaces never match |
+| `ClassCriteria.nameMatching(String regex)` | the entire **fully qualified** class name, for example `.*Dto` |
+| `ClassCriteria.simpleNameMatching(String regex)` | the entire **simple** class name, for example `OrderDto` |
+| `ClassCriteria.inPackage(String packageIdentifier)` | classes in an ArchUnit package identifier, for example `com.company.internal..` |
+
+Combine criteria with `.and(...)` and `.or(...)`, and negate them with `DescribedPredicate.not(...)`.
+Any other ArchUnit class predicate works as well, for example
+`JavaClass.Predicates.assignableTo(Repository.class)`.
+
+```java
+.java(java -> java
+    .classesShouldBeRecords(ClassCriteria.nameMatching(".*Dto")
+        .and(ClassCriteria.inPackage("..api..")))
+    .classesShouldBePackagePrivate(ClassCriteria.annotatedWith("jakarta.persistence.Entity")
+        .or(ClassCriteria.inPackage("..internal..")))
+    .noUsageOf(ClassCriteria.inPackage("..domain.."),
+        ClassCriteria.inPackage("com.company.legacy..")))
+```
+
+The description of the criteria becomes part of the rule name shown in failure reports.
+
+Class criteria can also [exclude classes from every rule](#54-excluding-classes-globally) with
+`excludeClasses(criteria)`, which also covers the rules that take no parameters, such as
+`noUsageOfSystemOutOrErr()` or `fieldsShouldNotBePublic()`.
+
+#### Field and method criteria
+
+Rules that select fields or methods, such as
+[`fieldsShouldHaveModifiers`](#fieldsShouldHaveModifiers) or
+[`methodsShouldBeAnnotatedWith`](#methodsShouldBeAnnotatedWith), take field or method criteria:
+
+| Criterion | Matches |
+|-----------|---------|
+| `FieldCriteria.nameMatching(String regex)` | the entire field name, without the declaring class, for example `logger` |
+| `FieldCriteria.annotatedWith(Class<? extends Annotation> annotationType)` | fields directly or meta-annotated with the annotation |
+| `FieldCriteria.ofType(Class<?> clazz)` | fields whose declared raw type is exactly the type; `List<String>` has the type `List` |
+| `FieldCriteria.ofType(DescribedPredicate<? super JavaClass> types)` | fields whose declared raw type matches class criteria |
+| `MethodCriteria.nameMatching(String regex)` | the entire method name, without the declaring class, for example `find.*` |
+| `MethodCriteria.annotatedWith(Class<? extends Annotation> annotationType)` | methods directly or meta-annotated with the annotation |
+
+Every `annotatedWith`, `type`, `assignableTo`, `implementing` and `ofType(Class)` criterion also
+has an overload taking the fully qualified name as a `String`. Field and method criteria combine like class criteria, and with
+ArchUnit member predicates such as `HasModifiers.Predicates.modifier(PUBLIC)`. This allows
+selections that no single rule variant offers:
+
+```java
+.java(java -> java
+    .fieldsShouldHaveModifiers(FieldCriteria.ofType(Logger.class), List.of(PRIVATE, STATIC, FINAL))
+    .methodsShouldHaveModifiers(MethodCriteria.annotatedWith(GetMapping.class)
+        .and(MethodCriteria.nameMatching("find.*")), List.of(PUBLIC)))
+```
+
+To select fields or methods by their declaring class, use the `…ForClass` variants, such as
+[`methodsShouldBeAnnotatedWithForClass`](#methodsShouldBeAnnotatedWithForClass) or
+[`fieldsShouldHaveModifiersForClass`](#fieldsShouldHaveModifiersForClass), which take class
+criteria.
+
 ## 6. How to Read the Rule Reference
 
 Sections 7 to 11 document every rule. To keep them readable, examples are shown as **fragments**
@@ -466,7 +560,7 @@ rather than complete tests. A fragment such as
 
 ```java
 .java(java -> java
-    .classesShouldBeRecords(".*Dto"))
+    .classesShouldBeRecords(ClassCriteria.nameMatching(".*Dto")))
 ```
 
 belongs inside the builder chain from [Section 4](#4-quick-start):
@@ -475,7 +569,7 @@ belongs inside the builder chain from [Section 4](#4-quick-start):
 Taikai.builder()
     .namespace("com.company.project")
     .java(java -> java
-        .classesShouldBeRecords(".*Dto"))
+        .classesShouldBeRecords(ClassCriteria.nameMatching(".*Dto")))
     .build()
     .check();
 ```
@@ -486,26 +580,33 @@ Conventions used throughout the reference:
 - Wherever a rule takes an annotation or a type, there are two overloads: one taking a
   `Class<?>` literal and one taking a fully qualified name as a `String`. The `String` form exists so
   you can reference types that are not on the test classpath. Only one form is shown per rule.
+- Rules that apply to a selection of classes take a `DescribedPredicate<? super JavaClass>`,
+  usually built with [`ClassCriteria`](#513-selecting-with-criteria), listed as `classes`.
+  Rules that select fields or methods by name take `FieldCriteria` or `MethodCriteria`, listed as
+  `fields` or `methods`.
 - Every rule also has an overload with a trailing `TaikaiRule.Configuration` parameter
   (see [5.8](#58-per-rule-configuration)). It is omitted from the signatures below.
 - `Collection<JavaModifier>` parameters take ArchUnit's
   `com.tngtech.archunit.core.domain.JavaModifier` constants, for example
   `List.of(PUBLIC, STATIC, FINAL)`.
 - A *regex* must match the **whole** name, not merely occur inside it.
-- For **classes**, a regex is matched against the **fully qualified** name, so anchor it with a
-  leading `.*`: `.*Dto` matches `com.company.project.OrderDto`, while `Dto` and `[A-Z].*` match
-  nothing at all.
-- For **methods and fields**, a regex is matched against the member's own name, without the
-  declaring class: `should.*`, `^[A-Z][A-Z0-9_]*$`.
+- For **classes**, a regex, including the one in `ClassCriteria.nameMatching`, is matched against the
+  **fully qualified** name, so anchor it with a leading `.*`: `.*Dto` matches
+  `com.company.project.OrderDto`, while `Dto` and `[A-Z].*` match nothing at all.
+- For **methods and fields**, a regex, including the ones in `FieldCriteria.nameMatching` and
+  `MethodCriteria.nameMatching`, is matched against the member's own name, without the declaring
+  class: `should.*`, `^[A-Z][A-Z0-9_]*$`.
 - A *packageIdentifier* is not a regex but an ArchUnit package identifier, matched against the
   fully qualified name with `*` for one segment and `..` for any number:
   `com.company.project..`, `..internal..`.
-
-!!! warning
-    Two rules break the pattern above: [`classesShouldBeAssignableTo`](#classesShouldBeAssignableTo)
-    and [`classesShouldImplement`](#classesShouldImplement) take a **literal simple-name suffix**,
-    not a regex, despite the parameter being named `regex`. Pass `"Repository"`, not
-    `".*Repository"` — the latter selects nothing and the rule passes silently.
+- An annotation matches whether it is placed directly on the class or member or inherited through
+  another annotation, so a composed annotation such as `@GetMapping` counts as `@RequestMapping`.
+  Only annotations kept in the class files can match, so `RetentionPolicy.SOURCE` annotations never
+  do.
+- Rules that check methods or fields ignore *synthetic* members generated by the compiler, which
+  cannot be changed in source code: the `$values()` method of every enum, bridge methods of
+  generic overrides with erased signatures, and fields such as `$assertionsDisabled`. Calls made
+  by bridge methods do not count as self-invocations either.
 
 ## 7. Java Rules
 
@@ -522,32 +623,31 @@ Default import mode: `WITHOUT_TESTS`.
 | [`classesShouldImplement`](#classesShouldImplement) | matching classes implement an interface |
 | [`classesShouldHaveModifiers`](#classesShouldHaveModifiers) | matching classes carry modifiers |
 | [`classesShouldNotHaveModifiers`](#classesShouldNotHaveModifiers) | matching classes lack modifiers |
-| [`classesShouldBePackagePrivate`](#classesShouldBePackagePrivate) | matching / annotated / assignable classes are package-private |
+| [`classesShouldBePackagePrivate`](#classesShouldBePackagePrivate) | matching classes are package-private |
 | [`classesShouldBeAnnotatedWith`](#classesShouldBeAnnotatedWith) | matching classes carry an annotation |
 | [`classesShouldNotBeAnnotatedWith`](#classesShouldNotBeAnnotatedWith) | matching classes lack an annotation |
-| [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) | annotated classes carry further annotations |
-| [`classesAnnotatedWithShouldResideInPackage`](#classesAnnotatedWithShouldResideInPackage) | annotated classes live in a package |
-| [`classesAnnotatedWithShouldNotBeAnnotatedWith`](#classesAnnotatedWithShouldNotBeAnnotatedWith) | annotations are mutually exclusive |
-| [`classesAnnotatedWithShouldHaveModifiers`](#classesAnnotatedWithShouldHaveModifiers) | annotated classes carry modifiers |
-| [`classesAnnotatedWithShouldNotHaveModifiers`](#classesAnnotatedWithShouldNotHaveModifiers) | annotated classes lack modifiers |
-| [`classesAnnotatedWithShouldBeRecords`](#classesAnnotatedWithShouldBeRecords) | annotated classes are records |
+| [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) | matching classes carry all given annotations |
 | [`finalClassesShouldNotHaveProtectedMembers`](#finalClassesShouldNotHaveProtectedMembers) | `final` classes have no `protected` members |
 | [`utilityClassesShouldBeFinalAndHavePrivateConstructor`](#utilityClassesShouldBeFinalAndHavePrivateConstructor) | utility classes cannot be instantiated or extended |
 | [`fieldsShouldNotBePublic`](#fieldsShouldNotBePublic) | no `public` fields except `static` ones |
 | [`fieldsShouldHaveModifiers`](#fieldsShouldHaveModifiers) | matching fields carry modifiers |
 | [`fieldsShouldNotHaveModifiers`](#fieldsShouldNotHaveModifiers) | matching fields lack modifiers |
-| [`fieldsAnnotatedWithShouldHaveModifiers`](#fieldsAnnotatedWithShouldHaveModifiers) | annotated fields carry modifiers |
-| [`fieldsAnnotatedWithShouldNotHaveModifiers`](#fieldsAnnotatedWithShouldNotHaveModifiers) | annotated fields lack modifiers |
+| [`fieldsShouldHaveModifiersForClass`](#fieldsShouldHaveModifiersForClass) | fields of matching classes carry modifiers |
+| [`fieldsShouldNotHaveModifiersForClass`](#fieldsShouldNotHaveModifiersForClass) | fields of matching classes lack modifiers |
 | [`serialVersionUIDFieldsShouldBeStaticFinalLong`](#serialVersionUIDFieldsShouldBeStaticFinalLong) | `serialVersionUID` is `static final long` |
 | [`methodsShouldNotDeclareGenericExceptions`](#methodsShouldNotDeclareGenericExceptions) | no `throws Exception` / `RuntimeException` |
 | [`methodsShouldNotDeclareException`](#methodsShouldNotDeclareException) | matching methods do not declare a type |
-| [`methodsShouldNotReturn`](#methodsShouldNotReturn) | selected classes do not expose forbidden types in method return signatures |
-| [`methodsShouldReturn`](#methodsShouldReturn) | each selected method has a matching type in its return signature |
+| [`methodsShouldNotDeclareExceptionForClass`](#methodsShouldNotDeclareExceptionForClass) | methods of matching classes do not declare a type |
+| [`methodsShouldNotReturn`](#methodsShouldNotReturn) | matching methods do not expose forbidden types in their return signatures |
+| [`methodsShouldNotReturnForClass`](#methodsShouldNotReturnForClass) | selected classes do not expose forbidden types in method return signatures |
+| [`methodsShouldReturn`](#methodsShouldReturn) | each matching method has a matching type in its return signature |
+| [`methodsShouldReturnForClass`](#methodsShouldReturnForClass) | each selected method has a matching type in its return signature |
 | [`methodsShouldBeAnnotatedWith`](#methodsShouldBeAnnotatedWith) | matching methods carry an annotation |
-| [`methodsShouldBeAnnotatedWithAll`](#methodsShouldBeAnnotatedWithAll) | annotated methods carry further annotations |
-| [`methodsAnnotatedWithShouldNotBeAnnotatedWith`](#methodsAnnotatedWithShouldNotBeAnnotatedWith) | annotations are mutually exclusive |
-| [`methodsAnnotatedWithShouldHaveModifiers`](#methodsAnnotatedWithShouldHaveModifiers) | annotated methods carry modifiers |
-| [`methodsAnnotatedWithShouldNotHaveModifiers`](#methodsAnnotatedWithShouldNotHaveModifiers) | annotated methods lack modifiers |
+| [`methodsShouldBeAnnotatedWithForClass`](#methodsShouldBeAnnotatedWithForClass) | methods of matching classes carry an annotation |
+| [`methodsShouldBeAnnotatedWithAll`](#methodsShouldBeAnnotatedWithAll) | matching methods carry several annotations |
+| [`methodsShouldBeAnnotatedWithAllForClass`](#methodsShouldBeAnnotatedWithAllForClass) | methods of matching classes carry several annotations |
+| [`methodsShouldNotBeAnnotatedWith`](#methodsShouldNotBeAnnotatedWith) | matching methods do not carry an annotation |
+| [`methodsShouldNotBeAnnotatedWithForClass`](#methodsShouldNotBeAnnotatedWithForClass) | methods of matching classes do not carry an annotation |
 | [`methodsShouldHaveModifiers`](#methodsShouldHaveModifiers) | matching methods carry modifiers |
 | [`methodsShouldNotHaveModifiers`](#methodsShouldNotHaveModifiers) | matching methods lack modifiers |
 | [`methodsShouldHaveModifiersForClass`](#methodsShouldHaveModifiersForClass) | methods of matching classes carry modifiers |
@@ -575,183 +675,160 @@ the contract and produces objects that misbehave in hash-based collections.
 #### `classesShouldResideInPackage` { #classesShouldResideInPackage }
 
 `classesShouldResideInPackage(String packageIdentifier)`
-`classesShouldResideInPackage(String regex, String packageIdentifier)`
+`classesShouldResideInPackage(DescribedPredicate<? super JavaClass> classes, String packageIdentifier)`
 
 With one argument, *all* imported classes must reside in the given package identifier, which
-supports the `*` and `..` wildcards. With two arguments, only classes whose name matches the regex
-are constrained.
+supports the `*` and `..` wildcards. With criteria, only the matching classes are constrained.
 
 ```java
 .java(java -> java
     .classesShouldResideInPackage("com.company.project..")
-    .classesShouldResideInPackage(".*Utils", "com.company.project.utils"))
+    .classesShouldResideInPackage(ClassCriteria.nameMatching(".*Utils"),
+        "com.company.project.utils")
+    .classesShouldResideInPackage(ClassCriteria.annotatedWith(Entity.class),
+        "com.company.project.domain.."))
 ```
 
 #### `classesShouldResideOutsidePackage` { #classesShouldResideOutsidePackage }
 
-`classesShouldResideOutsidePackage(String regex, String packageIdentifier)`
+`classesShouldResideOutsidePackage(DescribedPredicate<? super JavaClass> classes, String packageIdentifier)`
 
 The inverse of the two-argument form above. Useful for keeping transport types out of the domain.
 
 ```java
 .java(java -> java
-    .classesShouldResideOutsidePackage(".*Dto", "com.company.project.domain"))
+    .classesShouldResideOutsidePackage(ClassCriteria.nameMatching(".*Dto"),
+        "com.company.project.domain..")
+    .classesShouldResideOutsidePackage(ClassCriteria.annotatedWith(RestController.class),
+        "com.company.project.domain.."))
 ```
 
 #### `classesShouldBeRecords` { #classesShouldBeRecords }
 
-`classesShouldBeRecords(String regex)`
+`classesShouldBeRecords(DescribedPredicate<? super JavaClass> classes)`
 
 ```java
 .java(java -> java
-    .classesShouldBeRecords(".*Dto"))
+    .classesShouldBeRecords(ClassCriteria.nameMatching(".*Dto"))
+    .classesShouldBeRecords(ClassCriteria.annotatedWith(ConfigurationProperties.class))
+    .classesShouldBeRecords(ClassCriteria.nameMatching(".*Event")
+        .and(ClassCriteria.inPackage("..events.."))))
 ```
 
 #### `classesShouldBeInterfaces` { #classesShouldBeInterfaces }
 
-`classesShouldBeInterfaces(String regex)`
+`classesShouldBeInterfaces(DescribedPredicate<? super JavaClass> classes)`
 
 ```java
 .java(java -> java
-    .classesShouldBeInterfaces(".*Repository"))
+    .classesShouldBeInterfaces(ClassCriteria.nameMatching(".*Repository"))
+    .classesShouldBeInterfaces(ClassCriteria.inPackage("..port..")))
 ```
 
 #### `classesShouldBeAssignableTo` { #classesShouldBeAssignableTo }
 
-`classesShouldBeAssignableTo(String suffix, Class<?> clazz)`
+`classesShouldBeAssignableTo(DescribedPredicate<? super JavaClass> classes, Class<?> clazz)`
 
-Classes whose **simple name ends with** the given literal suffix must be assignable to the type,
-whether by extending a class or implementing an interface.
+Classes matching the criteria must be assignable to the type, whether by extending a
+class or implementing an interface.
 
 ```java
 .java(java -> java
-    .classesShouldBeAssignableTo("Repository", BaseRepository.class))
+    .classesShouldBeAssignableTo(ClassCriteria.nameMatching(".*Repository"), BaseRepository.class)
+    .classesShouldBeAssignableTo(ClassCriteria.annotatedWith(Repository.class),
+        BaseRepository.class))
 ```
-
-!!! warning
-    The first parameter is declared as `regex` but is compared literally, as a simple-name suffix.
-    Passing `".*Repository"` selects no class at all and the rule passes without checking anything.
 
 #### `classesShouldImplement` { #classesShouldImplement }
 
-`classesShouldImplement(String suffix, Class<?> clazz)`
+`classesShouldImplement(DescribedPredicate<? super JavaClass> classes, Class<?> clazz)`
 
-Stricter than `classesShouldBeAssignableTo`: the class must implement the given interface directly.
-The first parameter is the same literal simple-name suffix, not a regex.
+Unlike `classesShouldBeAssignableTo`, an interface never satisfies this rule: the class itself must
+implement the interface, directly or through a superclass or another interface.
 
 ```java
 .java(java -> java
-    .classesShouldImplement("Repository", CrudRepository.class))
+    .classesShouldImplement(ClassCriteria.nameMatching(".*Repository"), CrudRepository.class)
+    .classesShouldImplement(ClassCriteria.annotatedWith(Repository.class), CrudRepository.class))
 ```
 
 #### `classesShouldHaveModifiers` { #classesShouldHaveModifiers }
 
-`classesShouldHaveModifiers(String regex, Collection<JavaModifier> requiredModifiers)`
+`classesShouldHaveModifiers(DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> requiredModifiers)`
 
 ```java
 .java(java -> java
-    .classesShouldHaveModifiers(".*Config", List.of(PUBLIC, FINAL)))
+    .classesShouldHaveModifiers(ClassCriteria.nameMatching(".*Config"), List.of(PUBLIC, FINAL))
+    .classesShouldHaveModifiers(ClassCriteria.annotatedWith(PublicApi.class), List.of(PUBLIC)))
 ```
 
 #### `classesShouldNotHaveModifiers` { #classesShouldNotHaveModifiers }
 
-`classesShouldNotHaveModifiers(String regex, Collection<JavaModifier> notRequiredModifiers)`
+`classesShouldNotHaveModifiers(DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> forbiddenModifiers)`
 
 ```java
 .java(java -> java
-    .classesShouldNotHaveModifiers(".*Internal", List.of(PUBLIC)))
+    .classesShouldNotHaveModifiers(ClassCriteria.nameMatching(".*Internal"), List.of(PUBLIC))
+    .classesShouldNotHaveModifiers(ClassCriteria.inPackage("..internal.."), List.of(PUBLIC))
+    .classesShouldNotHaveModifiers(ClassCriteria.annotatedWith(InternalApi.class), List.of(PUBLIC)))
 ```
 
 #### `classesShouldBePackagePrivate` { #classesShouldBePackagePrivate }
 
-`classesShouldBePackagePrivate(String regex)`,
-`classesAnnotatedWithShouldBePackagePrivate(Class<? extends Annotation> | String annotationType)`,
-`classesAssignableToShouldBePackagePrivate(Class<?> | String typeName)`
+`classesShouldBePackagePrivate(DescribedPredicate<? super JavaClass> classes)`
 
-Keeps module internals such as JPA entities and Spring Data repositories hidden from other packages.
+Keeps module internals such as mappers hidden from other packages. With
+`ClassCriteria.assignableTo`, the subtypes are constrained but not the type itself, for example
+Spring Data repositories but not the `Repository` interface.
 
 ```java
 .java(java -> java
-    .classesShouldBePackagePrivate(".*Mapper")
-    .classesAnnotatedWithShouldBePackagePrivate("jakarta.persistence.Entity")
-    .classesAssignableToShouldBePackagePrivate("org.springframework.data.repository.Repository"))
+    .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Mapper"))
+    .classesShouldBePackagePrivate(
+        ClassCriteria.assignableTo("org.springframework.data.repository.Repository"))
+    .classesShouldBePackagePrivate(ClassCriteria.annotatedWith("jakarta.persistence.Entity")
+        .or(ClassCriteria.inPackage("..internal.."))))
 ```
 
 #### `classesShouldBeAnnotatedWith` { #classesShouldBeAnnotatedWith }
 
-`classesShouldBeAnnotatedWith(String regex, Class<? extends Annotation> annotationType)`
+`classesShouldBeAnnotatedWith(DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType)`
 
 ```java
 .java(java -> java
-    .classesShouldBeAnnotatedWith(".*Api", PublicApi.class)
-    .classesShouldBeAnnotatedWith(".*Api", "com.company.project.PublicApi"))
+    .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching(".*Api"), PublicApi.class)
+    .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching(".*Api"),
+        "com.company.project.PublicApi")
+    .classesShouldBeAnnotatedWith(ClassCriteria.inPackage("..api.."), PublicApi.class))
 ```
 
 #### `classesShouldNotBeAnnotatedWith` { #classesShouldNotBeAnnotatedWith }
 
-`classesShouldNotBeAnnotatedWith(String regex, Class<? extends Annotation> annotationType)`
+`classesShouldNotBeAnnotatedWith(DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType)`
+
+Selecting the classes by another annotation makes two annotations mutually exclusive.
 
 ```java
 .java(java -> java
-    .classesShouldNotBeAnnotatedWith(".*Internal", PublicApi.class))
+    .classesShouldNotBeAnnotatedWith(ClassCriteria.annotatedWith(PublicApi.class),
+        InternalApi.class)
+    .classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching(".*Internal"), PublicApi.class)
+    .classesShouldNotBeAnnotatedWith(ClassCriteria.inPackage("..internal.."), PublicApi.class))
 ```
 
 #### `classesShouldBeAnnotatedWithAll` { #classesShouldBeAnnotatedWithAll }
 
-`classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType, Collection<Class<? extends Annotation>> requiredAnnotationTypes)`
+`classesShouldBeAnnotatedWithAll(DescribedPredicate<? super JavaClass> classes, Collection<String> requiredAnnotationTypes)`
 
-Classes carrying the first annotation must also carry all the annotations in the collection.
-
-```java
-.java(java -> java
-    .classesShouldBeAnnotatedWithAll(RestController.class, List.of(RequestMapping.class)))
-```
-
-#### `classesAnnotatedWithShouldResideInPackage` { #classesAnnotatedWithShouldResideInPackage }
-
-`classesAnnotatedWithShouldResideInPackage(Class<? extends Annotation> annotationType, String packageIdentifier)`
+Classes matching the criteria must carry all the annotations in the collection, given as fully
+qualified annotation names.
 
 ```java
 .java(java -> java
-    .classesAnnotatedWithShouldResideInPackage(PublicApi.class, "com.company.project.api"))
-```
-
-#### `classesAnnotatedWithShouldNotBeAnnotatedWith` { #classesAnnotatedWithShouldNotBeAnnotatedWith }
-
-`classesAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType, Class<? extends Annotation> notAnnotationType)`
-
-Declares two annotations mutually exclusive.
-
-```java
-.java(java -> java
-    .classesAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class))
-```
-
-#### `classesAnnotatedWithShouldHaveModifiers` { #classesAnnotatedWithShouldHaveModifiers }
-
-`classesAnnotatedWithShouldHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> requiredModifiers)`
-
-```java
-.java(java -> java
-    .classesAnnotatedWithShouldHaveModifiers(PublicApi.class, List.of(PUBLIC, FINAL)))
-```
-
-#### `classesAnnotatedWithShouldNotHaveModifiers` { #classesAnnotatedWithShouldNotHaveModifiers }
-
-`classesAnnotatedWithShouldNotHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> notRequiredModifiers)`
-
-```java
-.java(java -> java
-    .classesAnnotatedWithShouldNotHaveModifiers(InternalApi.class, List.of(PUBLIC)))
-```
-
-#### `classesAnnotatedWithShouldBeRecords` { #classesAnnotatedWithShouldBeRecords }
-
-`classesAnnotatedWithShouldBeRecords(Class<? extends Annotation> annotationType)`
-
-```java
-.java(java -> java
-    .classesAnnotatedWithShouldBeRecords(ConfigurationProperties.class))
+    .classesShouldBeAnnotatedWithAll(ClassCriteria.nameMatching(".*Controller"),
+        List.of(RestController.class.getName(), RequestMapping.class.getName()))
+    .classesShouldBeAnnotatedWithAll(ClassCriteria.annotatedWith(RestController.class),
+        List.of(RequestMapping.class.getName())))
 ```
 
 #### `finalClassesShouldNotHaveProtectedMembers` { #finalClassesShouldNotHaveProtectedMembers }
@@ -788,43 +865,61 @@ so a mutable `public static` field passes this rule. Combine it with
 ```java
 .java(java -> java
     .fieldsShouldNotBePublic()
-    .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL)))
+    .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("^[A-Z][A-Z0-9_]*$"),
+        List.of(STATIC, FINAL)))
 ```
 
 #### `fieldsShouldHaveModifiers` { #fieldsShouldHaveModifiers }
 
-`fieldsShouldHaveModifiers(String regex, Collection<JavaModifier> requiredModifiers)`
+`fieldsShouldHaveModifiers(DescribedPredicate<? super JavaField> fields, Collection<JavaModifier> requiredModifiers)`
+
+Fields matching the criteria, selected by name, annotation or type with `FieldCriteria`, must have
+all the modifiers. To select fields by their declaring class, use
+[`fieldsShouldHaveModifiersForClass`](#fieldsShouldHaveModifiersForClass).
 
 ```java
 .java(java -> java
-    .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL)))
+    .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("^[A-Z][A-Z0-9_]*$"),
+        List.of(STATIC, FINAL))
+    .fieldsShouldHaveModifiers(FieldCriteria.annotatedWith(Constant.class),
+        List.of(PUBLIC, STATIC, FINAL)))
 ```
 
 #### `fieldsShouldNotHaveModifiers` { #fieldsShouldNotHaveModifiers }
 
-`fieldsShouldNotHaveModifiers(String regex, Collection<JavaModifier> notRequiredModifiers)`
+`fieldsShouldNotHaveModifiers(DescribedPredicate<? super JavaField> fields, Collection<JavaModifier> forbiddenModifiers)`
 
 ```java
 .java(java -> java
-    .fieldsShouldNotHaveModifiers(".*Cache", List.of(PUBLIC)))
+    .fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching(".*Cache"), List.of(PUBLIC))
+    .fieldsShouldNotHaveModifiers(FieldCriteria.annotatedWith(Autowired.class), List.of(STATIC)))
 ```
 
-#### `fieldsAnnotatedWithShouldHaveModifiers` { #fieldsAnnotatedWithShouldHaveModifiers }
+#### `fieldsShouldHaveModifiersForClass` { #fieldsShouldHaveModifiersForClass }
 
-`fieldsAnnotatedWithShouldHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> requiredModifiers)`
+`fieldsShouldHaveModifiersForClass(DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> requiredModifiers)`
+
+Selects fields by their *declaring class*, so every field of a matching class is constrained, for
+example to enforce constructor injection in services or encapsulated entities.
 
 ```java
 .java(java -> java
-    .fieldsAnnotatedWithShouldHaveModifiers(Constant.class, List.of(PUBLIC, STATIC, FINAL)))
+    .fieldsShouldHaveModifiersForClass(ClassCriteria.annotatedWith(Service.class),
+        List.of(PRIVATE, FINAL))
+    .fieldsShouldHaveModifiersForClass(ClassCriteria.annotatedWith("jakarta.persistence.Entity"),
+        List.of(PRIVATE)))
 ```
 
-#### `fieldsAnnotatedWithShouldNotHaveModifiers` { #fieldsAnnotatedWithShouldNotHaveModifiers }
+#### `fieldsShouldNotHaveModifiersForClass` { #fieldsShouldNotHaveModifiersForClass }
 
-`fieldsAnnotatedWithShouldNotHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> notRequiredModifiers)`
+`fieldsShouldNotHaveModifiersForClass(DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> forbiddenModifiers)`
+
+Fails for a field that has any of the given modifiers.
 
 ```java
 .java(java -> java
-    .fieldsAnnotatedWithShouldNotHaveModifiers(Autowired.class, List.of(STATIC)))
+    .fieldsShouldNotHaveModifiersForClass(ClassCriteria.annotatedWith(RestController.class),
+        List.of(STATIC)))
 ```
 
 #### `serialVersionUIDFieldsShouldBeStaticFinalLong` { #serialVersionUIDFieldsShouldBeStaticFinalLong }
@@ -850,37 +945,72 @@ Methods must not declare `Exception` or `RuntimeException`; use specific types i
 
 #### `methodsShouldNotDeclareException` { #methodsShouldNotDeclareException }
 
-`methodsShouldNotDeclareException(String regex, Class<? extends Throwable> clazz)`
+`methodsShouldNotDeclareException(DescribedPredicate<? super JavaMethod> methods, Class<? extends Throwable> clazz)`
+`methodsShouldNotDeclareException(DescribedPredicate<? super JavaMethod> methods, DescribedPredicate<? super JavaClass> forbiddenTypes)`
+
+The member criteria select methods, usually by name with `MethodCriteria.nameMatching`. The second
+overload forbids every exception type that matches class criteria, such as all exceptions of a
+technical package.
 
 ```java
 .java(java -> java
-    .methodsShouldNotDeclareException("should.*", SpecificException.class))
+    .methodsShouldNotDeclareException(MethodCriteria.nameMatching("should.*"),
+        SpecificException.class)
+    .methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"),
+        ClassCriteria.inPackage("java.sql")))
+```
+
+#### `methodsShouldNotDeclareExceptionForClass` { #methodsShouldNotDeclareExceptionForClass }
+
+`methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes, Class<? extends Throwable> clazz)`
+`methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> forbiddenTypes)`
+
+Selects methods by their *declaring class* rather than by name, so no method of a matching class
+may declare the exception type. The second overload forbids every exception type that matches the
+criteria.
+
+```java
+.java(java -> java
+    .methodsShouldNotDeclareExceptionForClass(ClassCriteria.annotatedWith(RestController.class),
+        SQLException.class)
+    .methodsShouldNotDeclareExceptionForClass(ClassCriteria.inPackage("..domain.."),
+        ClassCriteria.inPackage("java.sql")))
 ```
 
 #### `methodsShouldNotReturn` { #methodsShouldNotReturn }
 
-`methodsShouldNotReturn(DescribedPredicate<? super JavaClass> declaringClasses, DescribedPredicate<? super JavaClass> forbiddenTypes)`
+`methodsShouldNotReturn(DescribedPredicate<? super JavaMethod> methods, DescribedPredicate<? super JavaClass> forbiddenTypes)`
+
+Like [`methodsShouldNotReturnForClass`](#methodsShouldNotReturnForClass), with the same checks and
+limitations, but the methods are selected with method criteria, for example by name or annotation.
+
+```java
+.java(java -> java
+    .methodsShouldNotReturn(MethodCriteria.nameMatching("find.*"),
+        ClassCriteria.type(Optional.class)))
+```
+
+#### `methodsShouldNotReturnForClass` { #methodsShouldNotReturnForClass }
+
+`methodsShouldNotReturnForClass(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> forbiddenTypes)`
 
 Keeps implementation types out of a layer's return signatures while allowing them to be used
-internally. Both class selectors can be created with `com.enofex.taikai.Criteria` or supplied as
+internally. Both class selectors can be created with `com.enofex.taikai.ClassCriteria` or supplied as
 ArchUnit predicates:
 
 ```java
 .java(java -> java
-    .methodsShouldNotReturn(
-        Criteria.inPackage("com.company.controller.."),
-        Criteria.annotatedWith("jakarta.persistence.Entity"))
-    .methodsShouldNotReturn(
-        Criteria.namedLike(".*Controller"),
-        Criteria.inPackage("com.company.internal..")
-            .or(Criteria.inPackage("com.collaborator.client.."))))
+    .methodsShouldNotReturnForClass(
+        ClassCriteria.inPackage("com.company.controller.."),
+        ClassCriteria.annotatedWith("jakarta.persistence.Entity"))
+    .methodsShouldNotReturnForClass(
+        ClassCriteria.nameMatching(".*Controller"),
+        ClassCriteria.inPackage("com.company.internal..")
+            .or(ClassCriteria.inPackage("com.collaborator.client.."))))
 ```
 
-`Criteria.annotatedWith` accepts an annotation class or its fully qualified name without `@`, and
-matches direct and composed annotations. `Criteria.namedLike(".*DTO")` matches the entire simple
-class name against a regular expression. `Criteria.inPackage` uses ArchUnit package syntax:
-`com.company.internal..` includes that package and all subpackages; `*` matches within one segment.
-Combine criteria using `.and(...)` and `.or(...)`.
+See [5.13](#513-selecting-with-criteria) for the available criteria and how to combine
+them.
 
 The rule checks all methods declared in selected classes, including private methods. It checks the
 declared return type, nested generic arguments, wildcard and type-variable bounds, and array
@@ -891,7 +1021,20 @@ methods declared in other classes. Types hidden by an erased signature such as `
 
 #### `methodsShouldReturn` { #methodsShouldReturn }
 
-`methodsShouldReturn(DescribedPredicate<? super JavaClass> declaringClasses, DescribedPredicate<? super JavaClass> requiredTypes)`
+`methodsShouldReturn(DescribedPredicate<? super JavaMethod> methods, DescribedPredicate<? super JavaClass> requiredTypes)`
+
+Like [`methodsShouldReturnForClass`](#methodsShouldReturnForClass), with the same checks and
+limitations, but the methods are selected with method criteria.
+
+```java
+.java(java -> java
+    .methodsShouldReturn(MethodCriteria.annotatedWith(GetMapping.class),
+        ClassCriteria.nameMatching(".*DTO")))
+```
+
+#### `methodsShouldReturnForClass` { #methodsShouldReturnForClass }
+
+`methodsShouldReturnForClass(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> requiredTypes)`
 
 Requires every method declared in the selected classes to have at least one matching type in its
 return signature. For example, require controllers to return objects whose class names end in
@@ -899,106 +1042,151 @@ return signature. For example, require controllers to return objects whose class
 
 ```java
 .java(java -> java
-    .methodsShouldReturn(Criteria.namedLike(".*Controller"), Criteria.namedLike(".*DTO")))
+    .methodsShouldReturnForClass(ClassCriteria.nameMatching(".*Controller"),
+        ClassCriteria.nameMatching(".*DTO")))
 ```
 
 `OrderDTO`, `OrderDTO[]`, `List<OrderDTO>`, and `ResponseEntity<List<OrderDTO>>` satisfy this rule.
 Nested generic arguments, wildcard and type-variable bounds, and array components are considered.
-`String`, `Object`, primitives, and `void` fail the DTO criterion. Both `Criteria.annotatedWith`
-overloads and `Criteria.inPackage` also work with this rule.
+`String`, `Object`, primitives, and `void` fail the DTO criterion. Both `ClassCriteria.annotatedWith`
+overloads and `ClassCriteria.inPackage` also work with this rule.
 
 Matching one type satisfies the requirement even if the signature contains other types, such as
-`Map<Entity, OrderDTO>`. Combine `methodsShouldReturn` with `methodsShouldNotReturn` to prohibit
-entities or internal types as well. The [same scope and limitations](#methodsShouldNotReturn)
-apply: all visibilities are checked, inherited declarations are excluded, and only declared types
-are inspected. A final `Configuration` parameter supports customization.
+`Map<Entity, OrderDTO>`. Combine `methodsShouldReturnForClass` with
+`methodsShouldNotReturnForClass` to prohibit entities or internal types as well. The
+[same scope and limitations](#methodsShouldNotReturnForClass) apply: all visibilities are checked,
+inherited declarations are excluded, and only declared types are inspected. A final
+`Configuration` parameter supports customization.
 
 #### `methodsShouldBeAnnotatedWith` { #methodsShouldBeAnnotatedWith }
 
-`methodsShouldBeAnnotatedWith(String regex, Class<? extends Annotation> annotationType)`
+`methodsShouldBeAnnotatedWith(DescribedPredicate<? super JavaMethod> methods, Class<? extends Annotation> annotationType)`
+
+Every method matching the criteria, usually selected by name with `MethodCriteria.nameMatching`,
+must carry the annotation.
 
 ```java
 .java(java -> java
-    .methodsShouldBeAnnotatedWith(".*Api", PublicApi.class))
+    .methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching(".*Api"), PublicApi.class))
 ```
+
+#### `methodsShouldBeAnnotatedWithForClass` { #methodsShouldBeAnnotatedWithForClass }
+
+`methodsShouldBeAnnotatedWithForClass(DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType)`
+
+Selects methods by their *declaring class*, so every method of a matching class must carry the
+annotation. Meta-annotations count, so in the example below `@GetMapping` satisfies
+`@RequestMapping` and every method of a Feign client must map to an endpoint.
+
+```java
+.java(java -> java
+    .methodsShouldBeAnnotatedWithForClass(ClassCriteria.annotatedWith(FeignClient.class),
+        RequestMapping.class))
+```
+
+The rule checks methods of every visibility, including private and static helpers, so it suits
+classes whose methods all form an API, such as client interfaces. It does not suit controllers:
+their private helpers would have to carry the annotation too, for example a `@PreAuthorize` that
+Spring ignores on private methods. Select the endpoint methods by name with
+[`methodsShouldBeAnnotatedWith`](#methodsShouldBeAnnotatedWith) instead.
 
 #### `methodsShouldBeAnnotatedWithAll` { #methodsShouldBeAnnotatedWithAll }
 
-`methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType, Collection<Class<? extends Annotation>> requiredAnnotationTypes)`
+`methodsShouldBeAnnotatedWithAll(DescribedPredicate<? super JavaMethod> methods, Collection<String> requiredAnnotationTypes)`
 
-Methods carrying the first annotation must also carry all the annotations in the collection. A
-classic use is Spring Data: `@Modifying` is only correct together with `@Transactional` and `@Query`.
+Methods matching the criteria must carry all the annotations in the collection, given as fully
+qualified annotation names. A classic use is Spring Data: `@Modifying` is only correct together
+with `@Transactional` and `@Query`.
 
 ```java
 .java(java -> java
-    .methodsShouldBeAnnotatedWithAll(Modifying.class, List.of(Transactional.class, Query.class)))
+    .methodsShouldBeAnnotatedWithAll(MethodCriteria.annotatedWith(Modifying.class),
+        List.of(Transactional.class.getName(), Query.class.getName())))
 ```
 
-#### `methodsAnnotatedWithShouldNotBeAnnotatedWith` { #methodsAnnotatedWithShouldNotBeAnnotatedWith }
+#### `methodsShouldBeAnnotatedWithAllForClass` { #methodsShouldBeAnnotatedWithAllForClass }
 
-`methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType, Class<? extends Annotation> notAnnotationType)`
+`methodsShouldBeAnnotatedWithAllForClass(DescribedPredicate<? super JavaClass> classes, Collection<String> requiredAnnotationTypes)`
+
+Every method declared in a matching class must carry all the annotations, given as fully
+qualified names.
 
 ```java
 .java(java -> java
-    .methodsAnnotatedWithShouldNotBeAnnotatedWith(PublicApi.class, InternalApi.class))
+    .methodsShouldBeAnnotatedWithAllForClass(ClassCriteria.annotatedWith(FeignClient.class),
+        List.of(RequestMapping.class.getName())))
 ```
 
-#### `methodsAnnotatedWithShouldHaveModifiers` { #methodsAnnotatedWithShouldHaveModifiers }
+#### `methodsShouldNotBeAnnotatedWith` { #methodsShouldNotBeAnnotatedWith }
 
-`methodsAnnotatedWithShouldHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> requiredModifiers)`
+`methodsShouldNotBeAnnotatedWith(DescribedPredicate<? super JavaMethod> methods, Class<? extends Annotation> annotationType)`
+
+Selecting the methods by another annotation makes two annotations mutually exclusive.
 
 ```java
 .java(java -> java
-    .methodsAnnotatedWithShouldHaveModifiers(Transactional.class, List.of(PUBLIC)))
+    .methodsShouldNotBeAnnotatedWith(MethodCriteria.annotatedWith(PublicApi.class),
+        InternalApi.class))
 ```
 
-#### `methodsAnnotatedWithShouldNotHaveModifiers` { #methodsAnnotatedWithShouldNotHaveModifiers }
+#### `methodsShouldNotBeAnnotatedWithForClass` { #methodsShouldNotBeAnnotatedWithForClass }
 
-`methodsAnnotatedWithShouldNotHaveModifiers(Class<? extends Annotation> annotationType, Collection<JavaModifier> notRequiredModifiers)`
+`methodsShouldNotBeAnnotatedWithForClass(DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType)`
+
+No method declared in a matching class may carry the annotation.
 
 ```java
 .java(java -> java
-    .methodsAnnotatedWithShouldNotHaveModifiers(Test.class, List.of(PUBLIC)))
+    .methodsShouldNotBeAnnotatedWithForClass(ClassCriteria.annotatedWith(RestController.class),
+        Transactional.class))
 ```
 
 #### `methodsShouldHaveModifiers` { #methodsShouldHaveModifiers }
 
-`methodsShouldHaveModifiers(String regex, Collection<JavaModifier> requiredModifiers)`
+`methodsShouldHaveModifiers(DescribedPredicate<? super JavaMethod> methods, Collection<JavaModifier> requiredModifiers)`
 
-Selects methods by *method* name.
+Selects methods with method criteria, by *method* name or annotation.
 
 ```java
 .java(java -> java
-    .methodsShouldHaveModifiers("create.*", List.of(PUBLIC)))
+    .methodsShouldHaveModifiers(MethodCriteria.nameMatching("create.*"), List.of(PUBLIC))
+    .methodsShouldHaveModifiers(MethodCriteria.annotatedWith(Transactional.class),
+        List.of(PUBLIC)))
 ```
 
 #### `methodsShouldNotHaveModifiers` { #methodsShouldNotHaveModifiers }
 
-`methodsShouldNotHaveModifiers(String regex, Collection<JavaModifier> notRequiredModifiers)`
+`methodsShouldNotHaveModifiers(DescribedPredicate<? super JavaMethod> methods, Collection<JavaModifier> forbiddenModifiers)`
 
 ```java
 .java(java -> java
-    .methodsShouldNotHaveModifiers("internal.*", List.of(PUBLIC)))
+    .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("internal.*"), List.of(PUBLIC))
+    .methodsShouldNotHaveModifiers(MethodCriteria.annotatedWith(Test.class), List.of(PUBLIC)))
 ```
 
 #### `methodsShouldHaveModifiersForClass` { #methodsShouldHaveModifiersForClass }
 
-`methodsShouldHaveModifiersForClass(String regex, Collection<JavaModifier> requiredModifiers)`
+`methodsShouldHaveModifiersForClass(DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> requiredModifiers)`
 
-Selects methods by the *declaring class* name, so every method of a matching class is constrained.
+Selects methods by the *declaring class*, so every method of a matching class is constrained.
 
 ```java
 .java(java -> java
-    .methodsShouldHaveModifiersForClass(".*Controller", List.of(PUBLIC)))
+    .methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching(".*Controller"), List.of(PUBLIC))
+    .methodsShouldHaveModifiersForClass(ClassCriteria.annotatedWith(RestController.class),
+        List.of(PUBLIC)))
 ```
 
 #### `methodsShouldNotHaveModifiersForClass` { #methodsShouldNotHaveModifiersForClass }
 
-`methodsShouldNotHaveModifiersForClass(String regex, Collection<JavaModifier> notRequiredModifiers)`
+`methodsShouldNotHaveModifiersForClass(DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> forbiddenModifiers)`
 
 ```java
 .java(java -> java
-    .methodsShouldNotHaveModifiersForClass(".*Internal", List.of(PUBLIC)))
+    .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching(".*Internal"),
+        List.of(PUBLIC))
+    .methodsShouldNotHaveModifiersForClass(ClassCriteria.inPackage("..internal.."),
+        List.of(PUBLIC)))
 ```
 
 #### `methodsShouldNotExceedMaxParameters` { #methodsShouldNotExceedMaxParameters }
@@ -1015,16 +1203,25 @@ Selects methods by the *declaring class* name, so every method of a matching cla
 #### `noUsageOf` { #noUsageOf }
 
 `noUsageOf(Class<?> clazz)`
-`noUsageOf(Class<?> clazz, String packageIdentifier)`
+`noUsageOf(DescribedPredicate<? super JavaClass> forbiddenTypes)`
+`noUsageOf(DescribedPredicate<? super JavaClass> classes, Class<?> clazz)`
+`noUsageOf(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> forbiddenTypes)`
 
-Forbids all usage of a type. The second parameter narrows the ban to classes inside a given package,
-which lets you retire an API layer by layer.
+Forbids all usage of a type. With two arguments, the first one selects the classes to check, which
+lets you retire an API layer by layer, for example with `ClassCriteria.inPackage(...)`. A type passed as
+`Class` or name is banned together with its subtypes; with `forbiddenTypes`, every type that matches
+the criteria is banned, for example a whole package. Classes that match `forbiddenTypes` themselves
+are not checked, so the classes of a banned package may still use each other.
 
 ```java
 .java(java -> java
     .noUsageOf(Date.class)
-    .noUsageOf(Calendar.class, "com.company.project.domain..")
-    .noUsageOf("com.company.legacy.UnwantedClass"))
+    .noUsageOf(ClassCriteria.inPackage("com.company.project.domain.."), Calendar.class)
+    .noUsageOf("com.company.legacy.UnwantedClass")
+    .noUsageOf(ClassCriteria.annotatedWith(Entity.class), Date.class)
+    .noUsageOf(ClassCriteria.inPackage("com.company.legacy.."))
+    .noUsageOf(ClassCriteria.inPackage("..domain.."),
+        ClassCriteria.inPackage("org.springframework.web..")))
 ```
 
 Use this rule to keep HTTP exceptions out of service and repository packages, including unchecked
@@ -1032,10 +1229,10 @@ exceptions constructed without a `throws` declaration:
 
 ```java
 .java(java -> java
-    .noUsageOf("org.springframework.web.server.ResponseStatusException",
-        "com.company.service..")
-    .noUsageOf("org.springframework.web.server.ResponseStatusException",
-        "com.company.repository.."))
+    .noUsageOf(ClassCriteria.inPackage("com.company.service.."),
+        "org.springframework.web.server.ResponseStatusException")
+    .noUsageOf(ClassCriteria.inPackage("com.company.repository.."),
+        "org.springframework.web.server.ResponseStatusException"))
 ```
 
 The restriction includes subclasses and bans every dependency on the exception: construction,
@@ -1054,7 +1251,7 @@ Nothing annotated `@Deprecated` may be used.
 
 #### `noUsageOfSystemOutOrErr` { #noUsageOfSystemOutOrErr }
 
-Forbids `System.out` and `System.err` in favour of a logging framework.
+Forbids `System.out` and `System.err` in favor of a logging framework.
 
 ```java
 .java(java -> java
@@ -1083,36 +1280,58 @@ Fails on cyclic dependencies between the slices of your namespace.
 
 #### `shouldImport` { #imports-shouldImport }
 
-`shouldImport(String regex, String importClassesRegex)`
+`shouldImport(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> requiredImports)`
 
-Classes matching the first regex must import something matching the second.
+Classes matching the first criteria must import something matching the second.
 
 ```java
 .java(java -> java
     .imports(imports -> imports
-        .shouldImport(".*Service", "com.company.project.BusinessException")))
+        .shouldImport(ClassCriteria.nameMatching(".*Service"),
+            ClassCriteria.nameMatching("com.company.project.BusinessException"))
+        .shouldImport(ClassCriteria.annotatedWith(Service.class),
+            ClassCriteria.nameMatching(".*BusinessException"))))
 ```
 
 #### `shouldNotImport` { #imports-shouldNotImport }
 
-`shouldNotImport(String packageIdentifier)`
-`shouldNotImport(String regex, String notImportClassesRegex)`
+`shouldNotImport(DescribedPredicate<? super JavaClass> forbiddenImports)`
+`shouldNotImport(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> forbiddenImports)`
 
-With one argument, nothing may import the given package identifier. With two, only classes matching
-the first regex are constrained.
+With one argument, nothing may import classes matching the criteria; use
+`ClassCriteria.inPackage(...)` to ban a package. With two, only classes matching the first criteria
+are constrained. As with [`noUsageOf`](#noUsageOf), classes that match the disallowed criteria
+themselves are not checked, so the classes of a banned package may still import each other.
 
 ```java
 .java(java -> java
     .imports(imports -> imports
-        .shouldNotImport("..internal..")
-        .shouldNotImport(".*Service", "com.company.project.SpecificException")))
+        .shouldNotImport(ClassCriteria.inPackage("com.company.project.legacy.."))
+        .shouldNotImport(ClassCriteria.nameMatching(".*Service"),
+            ClassCriteria.nameMatching("com.company.project.SpecificException"))
+        .shouldNotImport(ClassCriteria.annotatedWith(Deprecated.class))
+        .shouldNotImport(ClassCriteria.inPackage("..domain.."),
+            ClassCriteria.inPackage("org.springframework.web.."))))
+```
+
+A one-argument ban applies to every class outside the banned package, including the module that
+owns it. To keep a module's `internal` package private to that module, constrain only the classes
+outside the module:
+
+```java
+.java(java -> java
+    .imports(imports -> imports
+        .shouldNotImport(
+            DescribedPredicate.not(ClassCriteria.inPackage("com.company.project.order..")),
+            ClassCriteria.inPackage("com.company.project.order.internal.."))))
 ```
 
 #### Predefined import patterns
 
-`com.enofex.taikai.java.ImportPatterns` provides constants for packages that are commonly banned
-from production code or from a particular layer. They are plain `String` package identifiers, so they
-work anywhere a package identifier is accepted.
+`com.enofex.taikai.java.ImportPatterns` provides criteria for packages that are commonly banned
+from production code or from a particular layer. Each one is `ClassCriteria.inPackage(...)` for the
+package identifier below, so they work anywhere criteria are accepted, such as `shouldNotImport`,
+`noUsageOf`, or `excludeClasses`.
 
 ```java
 import static com.enofex.taikai.java.ImportPatterns.lombok;
@@ -1154,15 +1373,14 @@ Naming rules live in the nested `naming(...)` configurer.
 | [`packagesShouldMatch`](#naming-packagesShouldMatch) | packages match a regex |
 | [`classesShouldMatch`](#naming-classesShouldMatch) | class names match a regex |
 | [`classesShouldNotMatch`](#naming-classesShouldNotMatch) | class names do not match a regex |
-| [`classesAnnotatedWithShouldMatch`](#naming-classesAnnotatedWithShouldMatch) | annotated classes match a regex |
-| [`classesImplementingShouldMatch`](#naming-classesImplementingShouldMatch) | implementors match a regex |
-| [`classesAssignableToShouldMatch`](#naming-classesAssignableToShouldMatch) | subtypes match a regex |
 | [`methodsShouldMatch`](#naming-methodsShouldMatch) | method names match a regex |
 | [`methodsShouldNotMatch`](#naming-methodsShouldNotMatch) | method names do not match a regex |
-| [`methodsAnnotatedWithShouldMatch`](#naming-methodsAnnotatedWithShouldMatch) | annotated methods match a regex |
+| [`methodsShouldMatchForClass`](#naming-methodsShouldMatchForClass) | methods of matching classes match a regex |
+| [`methodsShouldNotMatchForClass`](#naming-methodsShouldNotMatchForClass) | methods of matching classes do not match a regex |
 | [`fieldsShouldMatch`](#naming-fieldsShouldMatch) | fields of a type match a regex |
 | [`fieldsShouldNotMatch`](#naming-fieldsShouldNotMatch) | field names do not match a regex |
-| [`fieldsAnnotatedWithShouldMatch`](#naming-fieldsAnnotatedWithShouldMatch) | annotated fields match a regex |
+| [`fieldsShouldMatchForClass`](#naming-fieldsShouldMatchForClass) | fields of matching classes match a regex |
+| [`fieldsShouldNotMatchForClass`](#naming-fieldsShouldNotMatchForClass) | fields of matching classes do not match a regex |
 | [`constantsShouldFollowConventions`](#naming-constantsShouldFollowConventions) | constants are `UPPER_SNAKE_CASE` |
 | [`enumConstantsShouldFollowConventions`](#naming-enumConstantsShouldFollowConventions) | enum constants are `UPPER_SNAKE_CASE` |
 | [`booleanMethodsShouldStartWith`](#naming-booleanMethodsShouldStartWith) | boolean getters use a prefix |
@@ -1192,122 +1410,150 @@ no digits in the first character of a segment, no camel case.
 #### `classesShouldMatch` { #naming-classesShouldMatch }
 
 `classesShouldMatch(String regex)`
+`classesShouldMatch(DescribedPredicate<? super JavaClass> classes, String regex)`
 
 Remember that the regex is matched against the fully qualified name, so it has to cover the package
-too.
+too. The criteria overload restricts the rule to matching classes, for example annotated classes,
+implementations of an interface or subtypes of a class.
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .classesShouldMatch("com\\.company\\.project\\..*")))
+        .classesShouldMatch("com\\.company\\.project\\..*")
+        .classesShouldMatch(ClassCriteria.inPackage("..web.."), ".*(Controller|Dto)")
+        .classesShouldMatch(ClassCriteria.annotatedWith(Entity.class), ".*Entity")
+        .classesShouldMatch(ClassCriteria.implementing(Configurer.class), ".*Configurer")
+        .classesShouldMatch(ClassCriteria.assignableTo(AbstractConfigurer.class), ".*Configurer")))
 ```
 
 #### `classesShouldNotMatch` { #naming-classesShouldNotMatch }
 
 `classesShouldNotMatch(String regex)`
+`classesShouldNotMatch(DescribedPredicate<? super JavaClass> classes, String regex)`
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .classesShouldNotMatch(".*Impl")))
-```
-
-#### `classesAnnotatedWithShouldMatch` { #naming-classesAnnotatedWithShouldMatch }
-
-`classesAnnotatedWithShouldMatch(Class<? extends Annotation> annotationType, String regex)`
-
-```java
-.java(java -> java
-    .naming(naming -> naming
-        .classesAnnotatedWithShouldMatch(Entity.class, ".*Entity")))
-```
-
-#### `classesImplementingShouldMatch` { #naming-classesImplementingShouldMatch }
-
-`classesImplementingShouldMatch(Class<?> clazz, String regex)`
-
-Constrains the names of classes that implement the given interface directly.
-
-```java
-.java(java -> java
-    .naming(naming -> naming
-        .classesImplementingShouldMatch(Configurer.class, ".*Configurer")))
-```
-
-#### `classesAssignableToShouldMatch` { #naming-classesAssignableToShouldMatch }
-
-`classesAssignableToShouldMatch(Class<?> clazz, String regex)`
-
-Same idea, but covers the whole subtype hierarchy rather than direct implementors.
-
-```java
-.java(java -> java
-    .naming(naming -> naming
-        .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")))
+        .classesShouldNotMatch(".*Impl")
+        .classesShouldNotMatch(ClassCriteria.inPackage("..domain.."), ".*(Dto|Entity)")))
 ```
 
 #### `methodsShouldMatch` { #naming-methodsShouldMatch }
 
 `methodsShouldMatch(String regex)`
+`methodsShouldMatch(DescribedPredicate<? super JavaMethod> methods, String regex)`
+
+With one argument, all methods must match. The criteria overload restricts the rule to matching
+methods. Synthetic methods generated by the compiler are ignored.
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .methodsShouldMatch("[a-z][a-zA-Z0-9]*")))
+        .methodsShouldMatch("[a-z][a-zA-Z0-9]*")
+        .methodsShouldMatch(MethodCriteria.annotatedWith(Scheduled.class), "^scheduled[A-Z].*")))
 ```
 
 #### `methodsShouldNotMatch` { #naming-methodsShouldNotMatch }
 
 `methodsShouldNotMatch(String regex)`
+`methodsShouldNotMatch(DescribedPredicate<? super JavaMethod> methods, String regex)`
+
+With one argument, no method may match. The criteria overload restricts the rule to matching
+methods.
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .methodsShouldNotMatch("^(foo|bar).*")))
+        .methodsShouldNotMatch("^(foo|bar).*")
+        .methodsShouldNotMatch(MethodCriteria.annotatedWith(Test.class), "^test.*")))
 ```
 
-#### `methodsAnnotatedWithShouldMatch` { #naming-methodsAnnotatedWithShouldMatch }
+#### `methodsShouldMatchForClass` { #naming-methodsShouldMatchForClass }
 
-`methodsAnnotatedWithShouldMatch(Class<? extends Annotation> annotationType, String regex)`
+`methodsShouldMatchForClass(DescribedPredicate<? super JavaClass> classes, String regex)`
+
+Selects methods by their *declaring class*, so every method of a matching class must have a name
+matching the regex. Synthetic methods generated by the compiler are ignored.
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .methodsAnnotatedWithShouldMatch(Scheduled.class, "^scheduled[A-Z].*")))
+        .methodsShouldMatchForClass(ClassCriteria.annotatedWith(Repository.class),
+            "(find|save|delete).*")))
+```
+
+#### `methodsShouldNotMatchForClass` { #naming-methodsShouldNotMatchForClass }
+
+`methodsShouldNotMatchForClass(DescribedPredicate<? super JavaClass> classes, String regex)`
+
+Selects methods by their *declaring class*, so no method of a matching class may have a name
+matching the regex. Synthetic methods generated by the compiler are ignored.
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .methodsShouldNotMatchForClass(ClassCriteria.annotatedWith(RestController.class), "get.*")))
 ```
 
 #### `fieldsShouldMatch` { #naming-fieldsShouldMatch }
 
-`fieldsShouldMatch(Class<?> clazz, String regex)`
-`fieldsShouldMatch(String typeName, String regex)`
+`fieldsShouldMatch(DescribedPredicate<? super JavaField> fields, String regex)`
 
-Constrains the *name* of fields whose declared **type** is the given class. The example below
-requires every field of type `Matcher` to be named `matcher`.
+Constrains the *name* of fields matching the criteria, for example by their declared **type** with
+`FieldCriteria.ofType`. The example below requires every field of type `Matcher` to be named
+`matcher`, every field whose type is a repository to end with `Repository`, and every `@Value`
+field to be camel case.
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .fieldsShouldMatch(Matcher.class, "matcher")))
+        .fieldsShouldMatch(FieldCriteria.ofType(Matcher.class), "matcher")
+        .fieldsShouldMatch(FieldCriteria.ofType(ClassCriteria.annotatedWith(Repository.class)),
+            ".*Repository")
+        .fieldsShouldMatch(FieldCriteria.annotatedWith(Value.class), "^[a-z][a-zA-Z0-9]*$")))
 ```
+
+To select fields by their *declaring class* instead, use
+[`fieldsShouldMatchForClass`](#naming-fieldsShouldMatchForClass).
 
 #### `fieldsShouldNotMatch` { #naming-fieldsShouldNotMatch }
 
 `fieldsShouldNotMatch(String regex)`
+`fieldsShouldNotMatch(DescribedPredicate<? super JavaField> fields, String regex)`
+
+With one argument, no field may match. The criteria overload restricts the rule to matching fields.
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .fieldsShouldNotMatch(".*(List|Set|Map)$")))
+        .fieldsShouldNotMatch(".*(List|Set|Map)$")
+        .fieldsShouldNotMatch(FieldCriteria.ofType(Logger.class), "^log$")))
 ```
 
-#### `fieldsAnnotatedWithShouldMatch` { #naming-fieldsAnnotatedWithShouldMatch }
+#### `fieldsShouldMatchForClass` { #naming-fieldsShouldMatchForClass }
 
-`fieldsAnnotatedWithShouldMatch(Class<? extends Annotation> annotationType, String regex)`
+`fieldsShouldMatchForClass(DescribedPredicate<? super JavaClass> classes, String regex)`
+
+Selects fields by their *declaring class*, so every field of a matching class must have a name
+matching the regex. Unlike [`fieldsShouldMatch`](#naming-fieldsShouldMatch), the criteria select the
+class the field is declared in, not the field's type. Synthetic fields generated by the compiler are
+ignored.
 
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .fieldsAnnotatedWithShouldMatch(Value.class, "^[a-z][a-zA-Z0-9]*$")))
+        .fieldsShouldMatchForClass(ClassCriteria.annotatedWith("jakarta.persistence.Entity"),
+            "[a-z][a-zA-Z0-9]*")))
+```
+
+#### `fieldsShouldNotMatchForClass` { #naming-fieldsShouldNotMatchForClass }
+
+`fieldsShouldNotMatchForClass(DescribedPredicate<? super JavaClass> classes, String regex)`
+
+```java
+.java(java -> java
+    .naming(naming -> naming
+        .fieldsShouldNotMatchForClass(ClassCriteria.inPackage("..api.."), ".*(Entity|Dao)$")))
 ```
 
 #### `constantsShouldFollowConventions` { #naming-constantsShouldFollowConventions }
@@ -1405,14 +1651,16 @@ The `String` overload avoids a compile-time dependency on the logging API:
 
 #### `classesShouldUseLogger` { #classesShouldUseLogger }
 
-`classesShouldUseLogger(Class<?> clazz, String regex)`
+`classesShouldUseLogger(DescribedPredicate<? super JavaClass> classes, Class<?> clazz)`
 
-Classes matching the regex must declare a field of the given logger type. This is the complement of
-the rule above: one fixes *how* loggers are declared, the other *that* they are declared.
+Classes matching the criteria must declare a field of the given logger type. This is the
+complement of the rule above: one fixes *how* loggers are declared, the other *that* they are
+declared.
 
 ```java
 .logging(logging -> logging
-    .classesShouldUseLogger(Logger.class, ".*Service"))
+    .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), Logger.class)
+    .classesShouldUseLogger(ClassCriteria.annotatedWith(Service.class), Logger.class))
 ```
 
 ## 9. Test Rules
@@ -1439,7 +1687,7 @@ Throughout this section, "test method" means a method meta-annotated `@Test` or
 Three rules select differently, and the difference matters because these rules run over the
 `ONLY_TESTS` import, where every imported class is a test class anyway:
 
-- `classesShouldBePackagePrivate(regex)` selects by name, and skips interfaces.
+- `classesShouldBePackagePrivate(classes)` selects by criteria, and skips interfaces.
 - `classesShouldNotBeAnnotatedWithDisabled` applies to *all* imported classes.
 - `methodsShouldNotBeAnnotatedWithDisabled` applies to *all* imported methods, so it also catches
   `@Disabled` on a `@BeforeEach` or a helper.
@@ -1470,14 +1718,17 @@ Same selection as above, with your own pattern. The `@Nested` handling is identi
 
 #### `classesShouldBePackagePrivate` { #junit-classesShouldBePackagePrivate }
 
-`classesShouldBePackagePrivate(String regex)`
+`classesShouldBePackagePrivate(DescribedPredicate<? super JavaClass> classes)`
 
-Unlike the rules above, this one selects purely by name, not by the presence of test methods.
+Unlike the rules above, this one selects by criteria, not by the presence of test methods.
+Interfaces are excluded.
 
 ```java
 .test(test -> test
     .junit(junit -> junit
-        .classesShouldBePackagePrivate(".*Test")))
+        .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Test"))
+        .classesShouldBePackagePrivate(
+            ClassCriteria.annotatedWith("org.springframework.boot.test.context.SpringBootTest"))))
 ```
 
 #### `classesShouldNotBeAnnotatedWithDisabled` { #junit-classesShouldNotBeAnnotatedWithDisabled }
@@ -1530,7 +1781,7 @@ classes. Meta-annotations carrying `@Nested` are accepted.
 
 #### `methodsShouldBePackagePrivate` { #junit-methodsShouldBePackagePrivate }
 
-JUnit 5 does not require `public` test methods, so `public` is noise.
+JUnit Jupiter does not require `public` test methods, so `public` is noise.
 
 ```java
 .test(test -> test
@@ -1569,7 +1820,7 @@ Test methods must not declare `throws`; assert on the exception instead.
 Every test method must contain at least one assertion or verification. A call to any of the
 following counts:
 
-| Framework      | Recognised call                                                              |
+| Framework      | Recognized call                                                              |
 |----------------|-------------------------------------------------------------------------------|
 | JUnit          | any method on `org.junit.jupiter.api.Assertions`                             |
 | AssertJ        | any method on `org.assertj.core.api.Assertions`                              |
@@ -1618,7 +1869,7 @@ explicit and objects testable without a container.
 #### `noSelfInvocationOfProxiedMethods` { #spring-noSelfInvocationOfProxiedMethods }
 
 `noSelfInvocationOfProxiedMethods()`
-`noSelfInvocationOfProxiedMethods(Collection<String> annotations)`
+`noSelfInvocationOfProxiedMethods(Collection<String> annotationTypes)`
 
 Spring implements `@Transactional`, `@Async`, caching, method security and retries by wrapping the
 bean in a proxy. A call such as `this.save()` targets the bean instance directly rather than the
@@ -1689,7 +1940,8 @@ The `@SpringBootApplication` class must reside in the given package. Component s
 that package, so a misplaced application class silently changes which beans are discovered.
 
 The no-argument overload uses the configured `namespace`, which is what you want in almost every
-project:
+project. Its `Configuration` overload uses the namespace of that configuration if one is set, and
+the global `namespace` otherwise:
 
 ```java
 .spring(spring -> spring
@@ -1713,7 +1965,7 @@ Applies to classes annotated `@ConfigurationProperties`, except
 | `namesShouldEndWithProperties()` | name ends with `Properties` |
 | `namesShouldMatch(String regex)` | name matches a regex |
 | `shouldBeAnnotatedWithConfigurationProperties()` | classes ending in `Properties` carry the annotation (interfaces excluded) |
-| `shouldBeAnnotatedWithConfigurationProperties(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldBeAnnotatedWithValidated()` | classes carry `@Validated` |
 | `shouldBeRecords()` | classes are records |
 
@@ -1750,18 +2002,18 @@ Applies to classes annotated `@Controller` or `@RestController`.
 | `namesShouldEndWithController()` | name ends with `Controller` |
 | `namesShouldMatch(String regex)` | name matches a regex |
 | `shouldBeAnnotatedWithController()` | classes ending in `Controller` carry `@Controller` (interfaces excluded) |
-| `shouldBeAnnotatedWithController(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithController(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldBeAnnotatedWithRestController()` | classes ending in `Controller` carry `@RestController` (interfaces excluded) |
-| `shouldBeAnnotatedWithRestController(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithRestController(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldBePackagePrivate()` | controllers are package-private |
 | `shouldNotDependOnOtherControllers()` | no controller-to-controller dependencies |
 | `shouldNotDependOnRepositories()` | the service layer is not bypassed |
 | `methodsShouldNotReturn(DescribedPredicate<? super JavaClass> forbiddenTypes)` | return signatures do not expose forbidden types |
 | `methodsShouldReturn(DescribedPredicate<? super JavaClass> requiredTypes)` | each method has a matching type in its return signature |
 | `shouldBeAnnotatedWithValidated()` | controllers needing `@Validated` carry it |
-| `shouldBeAnnotatedWithValidated(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithValidated(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldNotBeAnnotatedWithValidated()` | controllers do not carry `@Validated` |
-| `shouldNotBeAnnotatedWithValidated(String regex)` | same, for classes matching a regex |
+| `shouldNotBeAnnotatedWithValidated(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 
 ```java
 .spring(spring -> spring
@@ -1774,8 +2026,16 @@ Applies to classes annotated `@Controller` or `@RestController`.
         .shouldBeAnnotatedWithValidated()))
 ```
 
-The `regex` overloads of `shouldBeAnnotatedWith...` select classes by name rather than by annotation,
-which is how you enforce the annotation on classes that do not carry it yet.
+The criteria overloads of `shouldBeAnnotatedWith...` select classes by name, package
+or another criterion rather than by the controller annotation, which is how you enforce the
+annotation on classes that do not carry it yet:
+
+```java
+.spring(spring -> spring
+    .controllers(controllers -> controllers
+        .shouldBeAnnotatedWithRestController(ClassCriteria.inPackage("com.company.project.web.."))
+        .shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*Controller"))))
+```
 
 Use `methodsShouldNotReturn` to prevent controllers from returning persistence entities or types
 from internal and collaborator packages:
@@ -1783,13 +2043,14 @@ from internal and collaborator packages:
 ```java
 .spring(spring -> spring
     .controllers(controllers -> controllers
-        .methodsShouldNotReturn(Criteria.annotatedWith("jakarta.persistence.Entity"))
-        .methodsShouldNotReturn(Criteria.inPackage("com.company.internal..")
-            .or(Criteria.inPackage("com.collaborator.client..")))))
+        .methodsShouldNotReturn(ClassCriteria.annotatedWith("jakarta.persistence.Entity"))
+        .methodsShouldNotReturn(ClassCriteria.inPackage("com.company.internal..")
+            .or(ClassCriteria.inPackage("com.collaborator.client..")))))
 ```
 
 Composed controller annotations are recognized. The signature checks and limitations are the
-same as the [Java return-type rule](#methodsShouldNotReturn); a `Configuration` overload is available.
+same as the [Java return-type rule](#methodsShouldNotReturnForClass); a `Configuration` overload
+is available.
 
 Use `methodsShouldReturn` to require a matching return type, including inside wrappers. For example,
 require class names ending in `DTO` and also forbid entities:
@@ -1797,13 +2058,13 @@ require class names ending in `DTO` and also forbid entities:
 ```java
 .spring(spring -> spring
     .controllers(controllers -> controllers
-        .methodsShouldReturn(Criteria.namedLike(".*DTO"))
-        .methodsShouldNotReturn(Criteria.annotatedWith("jakarta.persistence.Entity"))))
+        .methodsShouldReturn(ClassCriteria.nameMatching(".*DTO"))
+        .methodsShouldNotReturn(ClassCriteria.annotatedWith("jakarta.persistence.Entity"))))
 ```
 
 The requirement applies to each declared controller method, including private helpers and `void`
-methods. It has the [same semantics as the Java rule](#methodsShouldReturn) and a `Configuration`
-overload.
+methods. It has the [same semantics as the Java rule](#methodsShouldReturnForClass) and a
+`Configuration` overload.
 
 `shouldBeAnnotatedWithValidated` only flags controllers that actually need it: those with a method
 parameter annotated `@PathVariable` or `@RequestParam` that also carries a validation constraint such
@@ -1825,7 +2086,7 @@ Applies to classes annotated `@Service`.
 | `namesShouldEndWithService()` | name ends with `Service` |
 | `namesShouldMatch(String regex)` | name matches a regex |
 | `shouldBeAnnotatedWithService()` | classes ending in `Service` carry `@Service` (interfaces excluded) |
-| `shouldBeAnnotatedWithService(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithService(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldNotDependOnControllers()` | no service-to-controller dependencies |
 | `shouldNotDependOnOtherServices()` | no service-to-service dependencies |
 
@@ -1849,8 +2110,8 @@ Applies to classes annotated `@Repository`.
 |------|----------|
 | `namesShouldEndWithRepository()` | name ends with `Repository` |
 | `namesShouldMatch(String regex)` | name matches a regex |
-| `shouldBeAnnotatedWithRepository()` | classes ending in `Repository` carry `@Repository` |
-| `shouldBeAnnotatedWithRepository(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithRepository()` | classes ending in `Repository` carry `@Repository` (interfaces, such as Spring Data repositories, excluded) |
+| `shouldBeAnnotatedWithRepository(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldNotDependOnControllers()` | no repository-to-controller dependencies |
 | `shouldNotDependOnServices()` | no repository-to-service dependencies |
 | `shouldBePackagePrivate()` | `@Repository` classes and Spring Data repositories are package-private |
@@ -1869,7 +2130,7 @@ Applies to classes annotated `@Repository`.
 
 These rules target the ways `@Transactional` silently does nothing at runtime. Both
 `org.springframework.transaction.annotation.Transactional` and `jakarta.transaction.Transactional`
-are recognised.
+are recognized.
 
 | Rule | Enforces |
 |------|----------|
@@ -1913,9 +2174,16 @@ declaring `@Transactional` methods.
 
 Default import mode: `WITHOUT_TESTS`.
 
+| Rule | Enforces |
+|------|----------|
+| [`noInjectionFields`](#quarkus-noInjectionFields) | constructor injection instead of `@Inject` fields |
+| [`resources.*`](#112-resources) | `@Path` resource naming, annotation, visibility and dependencies |
+| [`panache.*`](#113-panache) | Panache entity and repository conventions |
+| [`ai.*`](#114-ai-services) | `@RegisterAiService` naming, scope and tools |
+
 ### 11.1 General
 
-#### `noInjectionFields`
+#### `noInjectionFields` { #quarkus-noInjectionFields }
 
 Fields must not be annotated `@Inject`; use constructor injection.
 
@@ -1933,7 +2201,7 @@ Applies to classes annotated `@Path`.
 | `namesShouldEndWithResource()` | name ends with `Resource` |
 | `namesShouldMatch(String regex)` | name matches a regex |
 | `shouldBeAnnotatedWithPath()` | classes ending in `Resource` carry `@Path` (interfaces excluded) |
-| `shouldBeAnnotatedWithPath(String regex)` | same, for classes matching a regex |
+| `shouldBeAnnotatedWithPath(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldBePublic()` | resource classes are `public` |
 | `shouldNotDependOnOtherResources()` | no resource-to-resource dependencies |
 
@@ -1967,7 +2235,7 @@ Applies to classes annotated `@RegisterAiService` (Quarkus LangChain4j).
 
 | Rule | Enforces |
 |------|----------|
-| `namesShouldEndWithAssistantOrResource()` | name matches `.+(Assistant\|Service)` |
+| `namesShouldEndWithAssistantOrService()` | name ends with `Assistant` or `Service` |
 | `namesShouldMatch(String regex)` | name matches a regex |
 | `shouldBeAnnotatedWithApplicationScoped()` | AI services carry `@ApplicationScoped` |
 | `shouldNotUseToolsAttributeInAiService()` | tools are not declared via the `tools` attribute |
@@ -1975,14 +2243,10 @@ Applies to classes annotated `@RegisterAiService` (Quarkus LangChain4j).
 ```java
 .quarkus(quarkus -> quarkus
     .ai(ai -> ai
-        .namesShouldEndWithAssistantOrResource()
+        .namesShouldEndWithAssistantOrService()
         .shouldBeAnnotatedWithApplicationScoped()
         .shouldNotUseToolsAttributeInAiService()))
 ```
-
-!!! warning
-    Despite its name, `namesShouldEndWithAssistantOrResource` accepts names ending in `Assistant` or
-    **`Service`**, not `Resource`. Use `namesShouldMatch` if you need a different pattern.
 
 `shouldNotUseToolsAttributeInAiService` steers you towards `@Toolbox` on the method, which scopes
 tools per call instead of per service.
@@ -2011,7 +2275,7 @@ class ArchitectureTest {
             .classesShouldImplementHashCodeAndEquals()
             .imports(imports -> imports
                 .shouldHaveNoCycles()
-                .shouldNotImport("..internal.."))
+                .shouldNotImport(ImportPatterns.shaded()))
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
                 .classesShouldNotMatch(".*Impl")
@@ -2023,7 +2287,7 @@ class ArchitectureTest {
         .test(test -> test
             .junit(junit -> junit
                 .classesShouldEndWithTest()
-                .classesShouldBePackagePrivate(".*Test")
+                .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Test"))
                 .classesShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldBePackagePrivate()
                 .methodsShouldNotBeAnnotatedWithDisabled()
@@ -2069,20 +2333,7 @@ rollout:
   [`Configuration`](#58-per-rule-configuration) and work the list down.
 - Enable the rule groups one at a time, committing each as it goes green.
 
-## 13. Deprecated and Legacy Methods
-
-| Deprecated                                                     | Use instead                                              | Status                      |
-|----------------------------------------------------------------|----------------------------------------------------------|-----------------------------|
-| `test.junit5(...)`                                             | `test.junit(...)`                                        | `@Deprecated(forRemoval)`   |
-| `boot.springBootApplicationShouldBeIn(...)`                    | `boot.applicationClassShouldResideInPackage(...)`        | `@Deprecated(forRemoval)`   |
-| `quarkus.ai.annotatedWithApplicationScoped()`                  | `quarkus.ai.shouldBeAnnotatedWithApplicationScoped()`    | legacy alias                |
-| `quarkus.ai.notUseRegisterAiServiceToDefineTools()`            | `quarkus.ai.shouldNotUseToolsAttributeInAiService()`     | legacy alias                |
-| `quarkus.panache.annotatedWithEntityWhenActiveRecordPattern()` | `quarkus.panache.shouldBeAnnotatedWithEntityWhenActiveRecordPattern()` | legacy alias |
-
-The legacy aliases delegate to their replacement and behave identically. They are not yet marked
-`@Deprecated`, but the `should...` names are the supported spelling.
-
-## 14. Complete Example
+## 13. Complete Example
 
 The configuration Taikai applies to its own codebase, from
 [`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java):
@@ -2105,7 +2356,8 @@ class ArchitectureTest {
             .noUsageOf(Date.class)
             .noUsageOf(Calendar.class)
             .noUsageOf(SimpleDateFormat.class)
-            .fieldsShouldHaveModifiers("^[A-Z][A-Z0-9_]*$", List.of(STATIC, FINAL))
+            .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("^[A-Z][A-Z0-9_]*$"),
+                List.of(STATIC, FINAL))
             .classesShouldImplementHashCodeAndEquals()
             .finalClassesShouldNotHaveProtectedMembers()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
@@ -2115,18 +2367,19 @@ class ArchitectureTest {
             .classesShouldResideInPackage("com.enofex.taikai..")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
-                .shouldNotImport("org.springframework.core.annotation..")
-                .shouldNotImport("jakarta.annotation..")
-                .shouldNotImport("javax.annotation..")
-                .shouldNotImport("org.jetbrains.annotations..")
+                .shouldNotImport(ClassCriteria.inPackage("org.springframework.core.annotation.."))
+                .shouldNotImport(ClassCriteria.inPackage("jakarta.annotation.."))
+                .shouldNotImport(ClassCriteria.inPackage("javax.annotation.."))
+                .shouldNotImport(ClassCriteria.inPackage("org.jetbrains.annotations.."))
                 .shouldNotImport(shaded())
                 .shouldNotImport(lombok()))
             .naming(naming -> naming
                 .packagesShouldMatchDefault()
                 .fieldsShouldNotMatch(".*(List|Set|Map)$")
                 .classesShouldNotMatch(".*Impl")
-                .classesAssignableToShouldMatch(AbstractConfigurer.class, ".*Configurer")
-                .classesImplementingShouldMatch(Configurer.class, ".*Configurer")
+                .classesShouldMatch(ClassCriteria.assignableTo(AbstractConfigurer.class),
+                    ".*Configurer")
+                .classesShouldMatch(ClassCriteria.implementing(Configurer.class), ".*Configurer")
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))
         .build()

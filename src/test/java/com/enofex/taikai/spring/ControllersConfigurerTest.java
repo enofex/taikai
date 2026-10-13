@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.ConfigurerContext;
@@ -339,14 +340,14 @@ class ControllersConfigurerTest {
   }
 
   @Nested
-  class ShouldBeAnnotatedWithRestControllerByRegex {
+  class ShouldBeAnnotatedWithRestControllerByName {
 
     @Test
     void shouldNotThrowWhenMatchingClassHasRestControllerAnnotation() {
       Taikai taikai = Taikai.builder()
           .classes(ValidUserController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithRestController(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -357,7 +358,7 @@ class ControllersConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(MissingRestController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithRestController(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -368,7 +369,7 @@ class ControllersConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(OrderController.class, DefaultOrderController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithRestController(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -376,14 +377,14 @@ class ControllersConfigurerTest {
   }
 
   @Nested
-  class ShouldBeAnnotatedWithControllerByRegex {
+  class ShouldBeAnnotatedWithControllerByName {
 
     @Test
     void shouldNotThrowWhenMatchingClassHasControllerAnnotation() {
       Taikai taikai = Taikai.builder()
           .classes(BasicController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithController(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -394,7 +395,7 @@ class ControllersConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(UnannotatedController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithController(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -405,7 +406,7 @@ class ControllersConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(OrderController.class, DefaultOrderController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithController(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -509,14 +510,14 @@ class ControllersConfigurerTest {
   }
 
   @Nested
-  class ShouldBeAnnotatedWithValidatedByRegex {
+  class ShouldBeAnnotatedWithValidatedByName {
 
     @Test
     void shouldThrowWhenMatchingControllerHasValidationAnnotationsButMissingValidated() {
       Taikai taikai = Taikai.builder()
           .classes(UnvalidatedApiController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithValidated(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -527,7 +528,7 @@ class ControllersConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ValidatedUserController.class)
           .spring(spring -> spring.controllers(
-              ctrl -> ctrl.shouldBeAnnotatedWithValidated(".+Controller")))
+              ctrl -> ctrl.shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".+Controller"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -703,24 +704,24 @@ class ControllersConfigurerTest {
       assertSame(configurer, configurer.namesShouldMatch(".*", Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithRestController());
       assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(".*"));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*")));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithController());
       assertSame(configurer, configurer.shouldBeAnnotatedWithController(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithController(".*"));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithController(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".*")));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBePackagePrivate());
       assertSame(configurer, configurer.shouldBePackagePrivate(Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldNotDependOnOtherControllers());
       assertSame(configurer, configurer.shouldNotDependOnOtherControllers(Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldNotDependOnRepositories());
       assertSame(configurer, configurer.shouldNotDependOnRepositories(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(".*"));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*")));
+      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated());
       assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(".*"));
-      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*")));
+      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated());
       assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(Configuration.defaultConfiguration()));
     }

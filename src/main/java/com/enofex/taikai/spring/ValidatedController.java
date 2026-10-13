@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.internal.Modifiers.isMethodSynthetic;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
 
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -39,6 +40,10 @@ final class ValidatedController {
         boolean hasValidatedAnnotation = controllerClass.isMetaAnnotatedWith(ANNOTATION_VALIDATED);
 
         for (JavaMethod method : controllerClass.getMethods()) {
+          if (isMethodSynthetic(method)) {
+            continue;
+          }
+
           for (JavaParameter parameter : method.getParameters()) {
             if ((parameter.isMetaAnnotatedWith(REQUEST_PARAM)
                 || parameter.isMetaAnnotatedWith(PATH_VARIABLE))
@@ -48,7 +53,7 @@ final class ValidatedController {
 
               if (!hasValidatedAnnotation) {
                 events.add(SimpleConditionEvent.violated(controllerClass,
-                    "Controller %s is missing @Validated but has a method parameter in %s annotated with @PathVariable or @RequestParam and a validation annotation.".formatted(
+                    "Controller %s is missing @Validated but has a method parameter in %s annotated with @PathVariable or @RequestParam and a validation annotation".formatted(
                         controllerClass.getName(),
                         method.getFullName())));
               }

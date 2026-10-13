@@ -3,7 +3,7 @@ package com.enofex.taikai.spring;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.enofex.taikai.Criteria;
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
@@ -27,7 +27,7 @@ class ControllerReturnTypeTest {
     Taikai taikai = Taikai.builder()
         .classes(controller)
         .spring(spring -> spring.controllers(controllers -> controllers
-            .methodsShouldNotReturn(Criteria.namedLike("InternalDTO"))))
+            .methodsShouldNotReturn(ClassCriteria.simpleNameMatching("InternalDTO"))))
         .build();
 
     assertThrows(AssertionError.class, taikai::check);
@@ -43,7 +43,7 @@ class ControllerReturnTypeTest {
     Taikai taikai = Taikai.builder()
         .classes(controller, SafeReturnOutsideController.class)
         .spring(spring -> spring.controllers(controllers -> controllers
-            .methodsShouldReturn(Criteria.namedLike(".*DTO"))))
+            .methodsShouldReturn(ClassCriteria.nameMatching(".*DTO"))))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -54,7 +54,7 @@ class ControllerReturnTypeTest {
     Taikai taikai = Taikai.builder()
         .classes(SafeController.class)
         .spring(spring -> spring.controllers(controllers -> controllers
-            .methodsShouldReturn(Criteria.namedLike(".*DTO"))))
+            .methodsShouldReturn(ClassCriteria.nameMatching(".*DTO"))))
         .build();
 
     assertThrows(AssertionError.class, taikai::check);
@@ -65,7 +65,7 @@ class ControllerReturnTypeTest {
     Taikai taikai = Taikai.builder()
         .classes(SafeController.class)
         .spring(spring -> spring.controllers(controllers -> controllers
-            .methodsShouldReturn(Criteria.namedLike(".*DTO"), Configuration.of(
+            .methodsShouldReturn(ClassCriteria.nameMatching(".*DTO"), Configuration.of(
                 new ClassFileImporter().importClasses(
                     MvcController.class, RestApi.class, ComposedController.class)))))
         .build();
@@ -84,7 +84,7 @@ class ControllerReturnTypeTest {
     assertDoesNotThrow(() -> Taikai.builder()
         .classes(SafeController.class, NonController.class)
         .spring(spring -> spring.controllers(controllers -> controllers
-            .methodsShouldNotReturn(Criteria.namedLike("InternalDTO"))))
+            .methodsShouldNotReturn(ClassCriteria.simpleNameMatching("InternalDTO"))))
         .build().check());
   }
 
@@ -93,7 +93,7 @@ class ControllerReturnTypeTest {
     assertDoesNotThrow(() -> Taikai.builder()
         .namespace("com.enofex.taikai.spring")
         .spring(spring -> spring.controllers(controllers -> controllers
-            .methodsShouldNotReturn(Criteria.namedLike("InternalDTO"),
+            .methodsShouldNotReturn(ClassCriteria.simpleNameMatching("InternalDTO"),
                 Configuration.of(Namespace.IMPORT.WITH_TESTS, List.of(RestApi.class.getName(),
                     MvcController.class.getName(), ComposedController.class.getName())))))
         .build().check());

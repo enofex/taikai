@@ -230,4 +230,55 @@ class ArchConditionsTest {
 
     verify(this.events, times(1)).add(any(SimpleConditionEvent.class));
   }
+
+  @Test
+  void shouldReportOnlyPresentForbiddenFieldModifiers() {
+    when(this.mockField.getModifiers()).thenReturn(
+        EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC));
+    when(this.mockField.getName()).thenReturn("counter");
+    when(this.mockField.getOwner()).thenReturn(this.mockClass);
+    when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
+
+    ArchConditions.notHasFieldModifiers(
+            EnumSet.of(JavaModifier.FINAL, JavaModifier.STATIC, JavaModifier.PUBLIC))
+        .check(this.mockField, this.events);
+
+    assertEquals("Field counter in class com.example.MyClass has forbidden modifier(s): "
+        + "PUBLIC, STATIC", capturedDescription());
+  }
+
+  @Test
+  void shouldReportOnlyPresentForbiddenMethodModifiers() {
+    when(this.mockMethod.getModifiers()).thenReturn(
+        EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC));
+    when(this.mockMethod.getName()).thenReturn("create");
+    when(this.mockMethod.getOwner()).thenReturn(this.mockClass);
+    when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
+
+    ArchConditions.notHasMethodModifiers(EnumSet.of(JavaModifier.STATIC, JavaModifier.FINAL))
+        .check(this.mockMethod, this.events);
+
+    assertEquals("Method create in class com.example.MyClass has forbidden modifier(s): STATIC",
+        capturedDescription());
+  }
+
+  @Test
+  void shouldReportOnlyPresentForbiddenClassModifiers() {
+    when(this.mockClass.getModifiers()).thenReturn(
+        EnumSet.of(JavaModifier.PUBLIC, JavaModifier.ABSTRACT));
+    when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
+
+    ArchConditions.notHasClassModifiers(EnumSet.of(JavaModifier.ABSTRACT, JavaModifier.FINAL))
+        .check(this.mockClass, this.events);
+
+    assertEquals("Class com.example.MyClass has forbidden modifier(s): ABSTRACT",
+        capturedDescription());
+  }
+
+  private String capturedDescription() {
+    ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(
+        SimpleConditionEvent.class);
+    verify(this.events).add(eventCaptor.capture());
+    return eventCaptor.getValue().getDescriptionLines().get(0);
+  }
 }

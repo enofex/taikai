@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ class ClassesShouldBeInterfacesTest {
     void shouldNotThrowWhenMatchedTypeIsAnInterface() {
       Taikai taikai = Taikai.builder()
           .classes(MyRepository.class)
-          .java(java -> java.classesShouldBeInterfaces(".*Repository"))
+          .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*Repository")))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -26,7 +27,7 @@ class ClassesShouldBeInterfacesTest {
     void shouldThrowWhenMatchedTypeIsNotAnInterface() {
       Taikai taikai = Taikai.builder()
           .classes(ConcreteRepository.class)
-          .java(java -> java.classesShouldBeInterfaces(".*Repository"))
+          .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*Repository")))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -36,7 +37,7 @@ class ClassesShouldBeInterfacesTest {
     void shouldNotThrowWhenNoClassMatchesPattern() {
       Taikai taikai = Taikai.builder()
           .classes(MyRepository.class)
-          .java(java -> java.classesShouldBeInterfaces(".*NonExistent"))
+          .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*NonExistent")))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -47,7 +48,7 @@ class ClassesShouldBeInterfacesTest {
       Taikai taikai = Taikai.builder()
           .classes(MyRepository.class)
           .java(java -> java.classesShouldBeInterfaces(
-              ".*Repository",
+              ClassCriteria.nameMatching(".*Repository"),
               com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
           .build();
 

@@ -3,6 +3,7 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,7 +21,7 @@ class MethodsShouldBeAnnotatedWithAllTest {
       Taikai taikai = Taikai.builder()
           .classes(FullyAnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              BaseAnnotation.class, List.of(RequiredA.class, RequiredB.class)))
+              MethodCriteria.annotatedWith(BaseAnnotation.class), List.of(RequiredA.class.getName(), RequiredB.class.getName())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -31,7 +32,7 @@ class MethodsShouldBeAnnotatedWithAllTest {
       Taikai taikai = Taikai.builder()
           .classes(PartiallyAnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              BaseAnnotation.class, List.of(RequiredA.class, RequiredB.class)))
+              MethodCriteria.annotatedWith(BaseAnnotation.class), List.of(RequiredA.class.getName(), RequiredB.class.getName())))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -42,7 +43,7 @@ class MethodsShouldBeAnnotatedWithAllTest {
       Taikai taikai = Taikai.builder()
           .classes(NonBaseAnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              BaseAnnotation.class, List.of(RequiredA.class, RequiredB.class)))
+              MethodCriteria.annotatedWith(BaseAnnotation.class), List.of(RequiredA.class.getName(), RequiredB.class.getName())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -57,7 +58,7 @@ class MethodsShouldBeAnnotatedWithAllTest {
       Taikai taikai = Taikai.builder()
           .classes(FullyAnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              BaseAnnotation.class.getName(),
+              MethodCriteria.annotatedWith(BaseAnnotation.class.getName()),
               List.of(RequiredA.class.getName(), RequiredB.class.getName())))
           .build();
 
@@ -69,7 +70,7 @@ class MethodsShouldBeAnnotatedWithAllTest {
       Taikai taikai = Taikai.builder()
           .classes(PartiallyAnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              BaseAnnotation.class.getName(),
+              MethodCriteria.annotatedWith(BaseAnnotation.class.getName()),
               List.of(RequiredA.class.getName(), RequiredB.class.getName())))
           .build();
 
@@ -81,7 +82,7 @@ class MethodsShouldBeAnnotatedWithAllTest {
       Taikai taikai = Taikai.builder()
           .classes(NonBaseAnnotatedService.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              BaseAnnotation.class.getName(),
+              MethodCriteria.annotatedWith(BaseAnnotation.class.getName()),
               List.of(RequiredA.class.getName(), RequiredB.class.getName())))
           .build();
 

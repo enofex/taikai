@@ -7,6 +7,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 final class LoggerConventions {
 
@@ -24,17 +25,19 @@ final class LoggerConventions {
           if (field.getRawType().isAssignableTo(typeName)) {
             if (!field.getName().matches(regex)) {
               events.add(SimpleConditionEvent.violated(field,
-                  "Field '%s' in class %s does not match the naming pattern '%s'".formatted(
+                  "Field %s in class %s does not have a name matching %s".formatted(
                       field.getName(),
                       javaClass.getName(), regex)));
             }
 
             if (!field.getModifiers().containsAll(requiredModifiers)) {
               events.add(SimpleConditionEvent.violated(field,
-                  "Field '%s' in class %s does not have the required modifiers %s".formatted(
+                  "Field %s in class %s is missing one of these modifiers: %s".formatted(
                       field.getName(),
                       javaClass.getName(),
-                      requiredModifiers)));
+                      requiredModifiers.stream()
+                          .map(Enum::name)
+                          .collect(Collectors.joining(", ")))));
             }
           }
         }

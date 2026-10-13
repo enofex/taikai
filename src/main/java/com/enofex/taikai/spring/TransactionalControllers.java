@@ -1,5 +1,6 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.internal.Modifiers.isMethodSynthetic;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithTransactional;
 
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -20,14 +21,14 @@ final class TransactionalControllers {
       public void check(JavaClass controllerClass, ConditionEvents events) {
         if (annotatedWithTransactional(true).test(controllerClass)) {
           events.add(SimpleConditionEvent.violated(controllerClass,
-              "Controller %s is annotated with @Transactional, transaction boundaries should be defined in the service layer.".formatted(
+              "Controller %s is annotated with @Transactional, transaction boundaries should be defined in the service layer".formatted(
                   controllerClass.getName())));
         }
 
         for (JavaMethod method : controllerClass.getMethods()) {
-          if (annotatedWithTransactional(true).test(method)) {
+          if (!isMethodSynthetic(method) && annotatedWithTransactional(true).test(method)) {
             events.add(SimpleConditionEvent.violated(controllerClass,
-                "Controller %s declares the @Transactional method %s, transaction boundaries should be defined in the service layer.".formatted(
+                "Controller %s declares the @Transactional method %s, transaction boundaries should be defined in the service layer".formatted(
                     controllerClass.getName(),
                     method.getFullName())));
           }

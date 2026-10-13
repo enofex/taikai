@@ -8,11 +8,14 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 
 /**
  * Configures and enforces conventions for Spring {@code @ConfigurationProperties} classes
@@ -49,7 +52,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * Adds a rule enforcing that classes annotated with {@code @ConfigurationProperties}
    * have names ending with {@code Properties}.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer namesShouldEndWithProperties() {
     return namesShouldMatch(DEFAULT_PROPERTIES_NAME_MATCHING, defaultConfiguration());
@@ -58,8 +61,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   /**
    * See {@link #namesShouldEndWithProperties()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer namesShouldEndWithProperties(Configuration configuration) {
     return namesShouldMatch(DEFAULT_PROPERTIES_NAME_MATCHING, configuration);
@@ -69,8 +72,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * Adds a rule enforcing that {@code @ConfigurationProperties}-annotated classes
    * have names matching the given regex.
    *
-   * @param regex the regex pattern for valid property class names
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer namesShouldMatch(String regex) {
     return namesShouldMatch(regex, defaultConfiguration());
@@ -79,9 +82,9 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   /**
    * See {@link #namesShouldMatch(String)}, but with {@link Configuration} for customization.
    *
-   * @param regex the regex pattern for valid property class names
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param regex the regex that fully qualified class names must match
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -94,7 +97,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * Adds a rule enforcing that classes annotated with {@code @ConfigurationProperties}
    * are also annotated with {@code @Validated}.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer shouldBeAnnotatedWithValidated() {
     return shouldBeAnnotatedWithValidated(defaultConfiguration());
@@ -103,8 +106,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   /**
    * See {@link #shouldBeAnnotatedWithValidated()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer shouldBeAnnotatedWithValidated(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -119,47 +122,53 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * Adds a rule enforcing that classes (by default ending with {@code Properties})
    * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties() {
-    return shouldBeAnnotatedWithConfigurationProperties(DEFAULT_PROPERTIES_NAME_MATCHING,
-        defaultConfiguration());
+    return shouldBeAnnotatedWithConfigurationProperties(
+        ClassCriteria.nameMatching(DEFAULT_PROPERTIES_NAME_MATCHING), defaultConfiguration());
   }
 
   /**
    * See {@link #shouldBeAnnotatedWithConfigurationProperties()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(Configuration configuration) {
-    return shouldBeAnnotatedWithConfigurationProperties(DEFAULT_PROPERTIES_NAME_MATCHING, configuration);
+    return shouldBeAnnotatedWithConfigurationProperties(
+        ClassCriteria.nameMatching(DEFAULT_PROPERTIES_NAME_MATCHING), configuration);
   }
 
   /**
-   * Adds a rule enforcing that classes with names matching the given regex
+   * Adds a rule enforcing that classes matching the given criteria
    * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
    *
-   * @param regex the regex for class names expected to be configuration properties
-   * @return this configurer instance for fluent chaining
+   * @param classes the classes expected to be configuration properties, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(String regex) {
-    return shouldBeAnnotatedWithConfigurationProperties(regex, defaultConfiguration());
+  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate<? super JavaClass> classes) {
+    return shouldBeAnnotatedWithConfigurationProperties(classes, defaultConfiguration());
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithConfigurationProperties(String)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate)}, but with {@link Configuration} for customization.
    *
-   * @param regex the regex for class names expected to be configuration properties
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param classes the classes expected to be configuration properties
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(String regex, Configuration configuration) {
+  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().areNotInterfaces().and().haveNameMatching(regex)
+            .that().areNotInterfaces().and(classes)
             .should(be(annotatedWithConfigurationProperties(true)))
-            .as("Configuration properties should be annotated with %s".formatted(
-                ANNOTATION_CONFIGURATION_PROPERTIES)),
+            .as("Configuration properties %s should be annotated with %s".formatted(
+                classes.getDescription(), ANNOTATION_CONFIGURATION_PROPERTIES)),
         configuration));
   }
 
@@ -169,7 +178,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    *
    * <p>This promotes immutability, thread-safety, and consistency in configuration design.</p>
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer shouldBeRecords() {
     return shouldBeRecords(defaultConfiguration());
@@ -178,8 +187,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   /**
    * See {@link #shouldBeRecords()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public PropertiesConfigurer shouldBeRecords(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -189,7 +198,6 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
                 .formatted(ANNOTATION_CONFIGURATION_PROPERTIES)),
         configuration));
   }
-
 
   @Override
   public PropertiesConfigurer disable() {

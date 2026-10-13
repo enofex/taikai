@@ -36,11 +36,12 @@ import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaField;
+import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.stream.Collectors;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Configures and enforces general Java code quality and design rules using
@@ -92,88 +93,195 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
     super(configurerContext);
   }
 
+  /**
+   * Configures import rules using the provided {@link Customizer}.
+   *
+   * @param customizer the customizer for {@link ImportsConfigurer}
+   * @return this configurer for fluent chaining
+   */
   public JavaConfigurer imports(Customizer<ImportsConfigurer> customizer) {
     return customizer(customizer, () -> new ImportsConfigurer(configurerContext()));
   }
 
+  /**
+   * Configures naming rules using the provided {@link Customizer}.
+   *
+   * @param customizer the customizer for {@link NamingConfigurer}
+   * @return this configurer for fluent chaining
+   */
   public JavaConfigurer naming(Customizer<NamingConfigurer> customizer) {
     return customizer(customizer, () -> new NamingConfigurer(configurerContext()));
   }
 
   /**
-   * Prevents methods declared in matching classes from returning matching types, including
+   * Prevents methods matching the given criteria from returning matching types, including
    * generic arguments, bounds, and array components. All method visibilities are checked.
-   * Use {@link com.enofex.taikai.Criteria} or ArchUnit predicates to select the types.
+   * Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the types.
    *
-   * @param declaringClasses the classes whose declared methods are checked
+   * @param methods the methods to check, selected with
+   *     {@link com.enofex.taikai.MethodCriteria} or an ArchUnit predicate
    * @param forbiddenTypes the forbidden return types
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public JavaConfigurer methodsShouldNotReturn(
-      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaMethod> methods,
       DescribedPredicate<? super JavaClass> forbiddenTypes) {
-    return methodsShouldNotReturn(declaringClasses, forbiddenTypes, defaultConfiguration());
+    return methodsShouldNotReturn(methods, forbiddenTypes, defaultConfiguration());
   }
 
   /**
-   * See {@link #methodsShouldNotReturn(DescribedPredicate, DescribedPredicate)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotReturn(DescribedPredicate, DescribedPredicate)}, with a
+   * custom configuration.
    *
-   * @param declaringClasses the classes whose declared methods are checked
+   * @param methods the methods to check
    * @param forbiddenTypes the forbidden return types
-   * @param configuration the configuration for rule customization
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public JavaConfigurer methodsShouldNotReturn(
-      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaMethod> methods,
       DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-        .that().areDeclaredInClassesThat(declaringClasses)
+        .that(methods)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should(notReturnTypesMatching(forbiddenTypes))
+        .as("Methods %s should not return types %s".formatted(
+            methods.getDescription(), forbiddenTypes.getDescription())), configuration));
+  }
+
+  /**
+   * Prevents methods declared in matching classes from returning matching types, including
+   * generic arguments, bounds, and array components. All method visibilities are checked.
+   * Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the types.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param forbiddenTypes the forbidden return types
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotReturnForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    return methodsShouldNotReturnForClass(classes, forbiddenTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldNotReturnForClass(DescribedPredicate, DescribedPredicate)}, with a
+   * custom configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param forbiddenTypes the forbidden return types
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotReturnForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should(notReturnTypesMatching(forbiddenTypes))
         .as("Methods declared in classes %s should not return types %s".formatted(
-            declaringClasses.getDescription(), forbiddenTypes.getDescription())), configuration));
+            classes.getDescription(), forbiddenTypes.getDescription())), configuration));
   }
 
   /**
    * Requires each method declared in matching classes to have at least one matching type in
    * its return signature, including generic arguments, bounds, and array components.
-   * All method visibilities are checked. Use {@link com.enofex.taikai.Criteria} or ArchUnit
+   * All method visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit
    * predicates to select the types.
    *
-   * @param declaringClasses the classes whose declared methods are checked
+   * @param methods the methods to check, selected with
+   *     {@link com.enofex.taikai.MethodCriteria} or an ArchUnit predicate
    * @param requiredTypes the required return types
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public JavaConfigurer methodsShouldReturn(
-      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaMethod> methods,
       DescribedPredicate<? super JavaClass> requiredTypes) {
-    return methodsShouldReturn(declaringClasses, requiredTypes, defaultConfiguration());
+    return methodsShouldReturn(methods, requiredTypes, defaultConfiguration());
   }
 
   /**
    * See {@link #methodsShouldReturn(DescribedPredicate, DescribedPredicate)}, with a custom
    * configuration.
    *
-   * @param declaringClasses the classes whose declared methods are checked
+   * @param methods the methods to check
    * @param requiredTypes the required return types
-   * @param configuration the configuration for rule customization
+   * @param configuration the rule configuration
    * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public JavaConfigurer methodsShouldReturn(
-      DescribedPredicate<? super JavaClass> declaringClasses,
+      DescribedPredicate<? super JavaMethod> methods,
       DescribedPredicate<? super JavaClass> requiredTypes, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-        .that().areDeclaredInClassesThat(declaringClasses)
+        .that(methods)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should(returnTypesMatching(requiredTypes))
+        .as("Methods %s should return types %s".formatted(
+            methods.getDescription(), requiredTypes.getDescription())), configuration));
+  }
+
+  /**
+   * Requires each method declared in matching classes to have at least one matching type in
+   * its return signature, including generic arguments, bounds, and array components.
+   * All method visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit
+   * predicates to select the types.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param requiredTypes the required return types
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldReturnForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> requiredTypes) {
+    return methodsShouldReturnForClass(classes, requiredTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldReturnForClass(DescribedPredicate, DescribedPredicate)}, with a custom
+   * configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param requiredTypes the required return types
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldReturnForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> requiredTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should(returnTypesMatching(requiredTypes))
         .as("Methods declared in classes %s should return types %s".formatted(
-            declaringClasses.getDescription(), requiredTypes.getDescription())), configuration));
+            classes.getDescription(), requiredTypes.getDescription())), configuration));
   }
 
   /**
    * Adds a rule enforcing that utility classes must be {@code final}
    * and have a private constructor.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor() {
     return utilityClassesShouldBeFinalAndHavePrivateConstructor(defaultConfiguration());
@@ -183,8 +291,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that utility classes must be {@code final}
    * and have a private constructor, using a custom {@link Configuration}.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer utilityClassesShouldBeFinalAndHavePrivateConstructor(
       Configuration configuration) {
@@ -198,7 +306,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule preventing methods from declaring {@code Exception}
    * or {@code RuntimeException}.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions() {
     return methodsShouldNotDeclareGenericExceptions(defaultConfiguration());
@@ -208,509 +316,778 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule preventing methods from declaring {@code Exception}
    * or {@code RuntimeException}, using a custom {@link Configuration}.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer methodsShouldNotDeclareGenericExceptions(Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().notDeclareThrowableOfType(Exception.class)
          .andShould().notDeclareThrowableOfType(RuntimeException.class)
         .as("Methods should not declare generic Exception or RuntimeException"), configuration));
   }
 
   /**
-   * Adds a rule preventing methods whose names match the given regex
-   * from declaring a specific exception type.
+   * Adds a rule enforcing that methods matching the given criteria must not declare the given
+   * exception. Synthetic methods generated by the compiler are ignored.
    *
-   * @param regex a regex for matching method names
-   * @param clazz the exception type
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
+   * @param clazz the exception type that must not be declared
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotDeclareException(String regex,
-      Class<? extends Throwable> clazz) {
-    return methodsShouldNotDeclareException(regex, clazz.getName(), defaultConfiguration());
+  public JavaConfigurer methodsShouldNotDeclareException(
+      DescribedPredicate<? super JavaMethod> methods, Class<? extends Throwable> clazz) {
+    return methodsShouldNotDeclareException(methods, clazz, defaultConfiguration());
   }
 
   /**
-   * Adds a rule preventing methods whose names match the given regex
-   * from declaring a specific exception type, with a custom configuration.
+   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, Class)}, with a custom
+   * configuration.
    *
-   * @param regex a regex for matching method names
-   * @param clazz the exception type
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check
+   * @param clazz the exception type that must not be declared
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotDeclareException(String regex,
-      Class<? extends Throwable> clazz, Configuration configuration) {
-    return methodsShouldNotDeclareException(regex, clazz.getName(), configuration);
+  public JavaConfigurer methodsShouldNotDeclareException(
+      DescribedPredicate<? super JavaMethod> methods, Class<? extends Throwable> clazz,
+      Configuration configuration) {
+    return methodsShouldNotDeclareException(methods, clazz.getName(), configuration);
   }
 
   /**
-   * Adds a rule preventing methods whose names match the given regex
-   * from declaring a specific exception type by name.
+   * Adds a rule enforcing that methods matching the given criteria must not declare the given
+   * exception. Synthetic methods generated by the compiler are ignored.
    *
-   * @param regex a regex for matching method names
-   * @param typeName the exception type name
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
+   * @param typeName the fully qualified name of the exception type that must not be declared
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName) {
-    return methodsShouldNotDeclareException(regex, typeName, defaultConfiguration());
+  public JavaConfigurer methodsShouldNotDeclareException(
+      DescribedPredicate<? super JavaMethod> methods, String typeName) {
+    return methodsShouldNotDeclareException(methods, typeName, defaultConfiguration());
   }
 
   /**
-   * Adds a rule preventing methods whose names match the given regex
-   * from declaring a specific exception type by name, with a custom configuration.
+   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, String)}, with a custom
+   * configuration.
    *
-   * @param regex a regex for matching method names
-   * @param typeName the exception type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check
+   * @param typeName the fully qualified name of the exception type that must not be declared
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotDeclareException(String regex, String typeName,
+  public JavaConfigurer methodsShouldNotDeclareException(
+      DescribedPredicate<? super JavaMethod> methods, String typeName,
       Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-            .that().haveNameMatching(regex)
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().notDeclareThrowableOfType(typeName)
-            .as("Methods have name matching %s should not declare %s".formatted(regex, typeName)),
+            .as("Methods %s should not declare %s".formatted(
+                methods.getDescription(), typeName)),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that methods with names matching a regex
-   * must be annotated with a specific annotation.
+   * Adds a rule enforcing that methods matching the given criteria must not declare any exception
+   * matching other criteria. Synthetic methods generated by the compiler are ignored.
    *
-   * @param regex the regex for method names
-   * @param annotationType the required annotation class
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
+   * @param forbiddenTypes the exception types that must not be declared, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex,
-      Class<? extends Annotation> annotationType) {
-    return methodsShouldBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
+  public JavaConfigurer methodsShouldNotDeclareException(
+      DescribedPredicate<? super JavaMethod> methods,
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    return methodsShouldNotDeclareException(methods, forbiddenTypes, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that methods with names matching a regex
-   * must be annotated with a specific annotation, with custom configuration.
+   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, DescribedPredicate)}, with a
+   * custom configuration.
    *
-   * @param regex the regex for method names
-   * @param annotationType the required annotation class
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check
+   * @param forbiddenTypes the exception types that must not be declared, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex,
-      Class<? extends Annotation> annotationType, Configuration configuration) {
-    return methodsShouldBeAnnotatedWith(regex, annotationType.getName(), configuration);
+  public JavaConfigurer methodsShouldNotDeclareException(
+      DescribedPredicate<? super JavaMethod> methods,
+      DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should().notDeclareThrowableOfType(forbiddenTypes)
+            .as("Methods %s should not declare exceptions %s".formatted(
+                methods.getDescription(), forbiddenTypes.getDescription())),
+        configuration));
   }
 
   /**
-   * Adds a rule enforcing that methods with names matching a regex
-   * must be annotated with a specific annotation by name.
+   * Adds a rule preventing all methods declared in classes matching the given criteria
+   * from declaring a specific exception type. Synthetic methods generated by the compiler,
+   * such as bridge methods with erased {@code throws} clauses, are ignored.
    *
-   * @param regex the regex for method names
-   * @param annotationType the required annotation type name
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param clazz the exception type
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex, String annotationType) {
-    return methodsShouldBeAnnotatedWith(regex, annotationType, defaultConfiguration());
+  public JavaConfigurer methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes,
+      Class<? extends Throwable> clazz) {
+    return methodsShouldNotDeclareExceptionForClass(classes, clazz.getName(),
+        defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that methods with names matching a regex
-   * must be annotated with a specific annotation by name, using a custom configuration.
+   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate, Class)}, with a
+   * custom configuration.
    *
-   * @param regex the regex for method names
-   * @param annotationType the required annotation type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked
+   * @param clazz the exception type
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldBeAnnotatedWith(String regex, String annotationType,
+  public JavaConfigurer methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes,
+      Class<? extends Throwable> clazz, Configuration configuration) {
+    return methodsShouldNotDeclareExceptionForClass(classes, clazz.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule preventing all methods declared in classes matching the given criteria
+   * from declaring a specific exception type by name. Synthetic methods generated by the
+   * compiler are ignored.
+   *
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param typeName the exception type name
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes,
+      String typeName) {
+    return methodsShouldNotDeclareExceptionForClass(classes, typeName, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate, String)}, with a
+   * custom configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param typeName the exception type name
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes,
+      String typeName, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areDeclaredInClassesThat(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should().notDeclareThrowableOfType(typeName)
+            .as("Methods declared in classes %s should not declare %s".formatted(
+                classes.getDescription(), typeName)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule preventing all methods declared in classes matching the given criteria
+   * from declaring any exception type matching other criteria. Synthetic methods generated by
+   * the compiler are ignored.
+   *
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param forbiddenTypes the forbidden exception types
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    return methodsShouldNotDeclareExceptionForClass(classes, forbiddenTypes,
+        defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate,
+   * DescribedPredicate)}, with a custom configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param forbiddenTypes the forbidden exception types
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotDeclareExceptionForClass(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areDeclaredInClassesThat(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should().notDeclareThrowableOfType(forbiddenTypes)
+            .as("Methods declared in classes %s should not declare exceptions %s".formatted(
+                classes.getDescription(), forbiddenTypes.getDescription())),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that methods matching the given criteria must be annotated with the given
+   * annotation. Synthetic methods generated by the compiler are ignored.
+   *
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
+   * @param annotationType the annotation that must be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, Class<? extends Annotation> annotationType) {
+    return methodsShouldBeAnnotatedWith(methods, annotationType, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
+   * configuration.
+   *
+   * @param methods the methods to check
+   * @param annotationType the annotation that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, Class<? extends Annotation> annotationType,
+      Configuration configuration) {
+    return methodsShouldBeAnnotatedWith(methods, annotationType.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that methods matching the given criteria must be annotated with the given
+   * annotation. Synthetic methods generated by the compiler are ignored.
+   *
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
+   * @param annotationType the annotation that must be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, String annotationType) {
+    return methodsShouldBeAnnotatedWith(methods, annotationType, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldBeAnnotatedWith(DescribedPredicate, String)}, with a custom
+   * configuration.
+   *
+   * @param methods the methods to check
+   * @param annotationType the annotation that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, String annotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-        .that().haveNameMatching(regex)
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should().beMetaAnnotatedWith(annotationType)
+            .as("Methods %s should be annotated with %s".formatted(
+                methods.getDescription(), annotationType)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that all methods declared in classes matching the given criteria
+   * must be annotated with a specific annotation. All method visibilities are checked;
+   * synthetic methods generated by the compiler are ignored.
+   *
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param annotationType the required annotation class
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      Class<? extends Annotation> annotationType) {
+    return methodsShouldBeAnnotatedWithForClass(classes, annotationType.getName(),
+        defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldBeAnnotatedWithForClass(DescribedPredicate, Class)}, with a custom
+   * configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param annotationType the required annotation class
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      Class<? extends Annotation> annotationType, Configuration configuration) {
+    return methodsShouldBeAnnotatedWithForClass(classes, annotationType.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that all methods declared in classes matching the given criteria
+   * must be annotated with a specific annotation by name. All method visibilities are checked;
+   * synthetic methods generated by the compiler are ignored.
+   *
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param annotationType the required annotation type name
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      String annotationType) {
+    return methodsShouldBeAnnotatedWithForClass(classes, annotationType, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldBeAnnotatedWithForClass(DescribedPredicate, String)}, with a custom
+   * configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param annotationType the required annotation type name
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      String annotationType, Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().beMetaAnnotatedWith(annotationType)
-        .as("Methods have name matching %s should be annotated with %s".formatted(regex,
+        .as("Methods declared in classes %s should be annotated with %s".formatted(
+            classes.getDescription(), annotationType)), configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that methods matching the given criteria
+   * must be annotated with all required annotations.
+   *
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}
+   *     or an ArchUnit predicate
+   * @param requiredAnnotationTypes the required annotation type names
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithAll(
+      DescribedPredicate<? super JavaMethod> methods, Collection<String> requiredAnnotationTypes) {
+    return methodsShouldBeAnnotatedWithAll(methods, requiredAnnotationTypes,
+        defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldBeAnnotatedWithAll(DescribedPredicate, Collection)}, with a custom
+   * configuration.
+   *
+   * @param methods the methods to check
+   * @param requiredAnnotationTypes the required annotation type names
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithAll(
+      DescribedPredicate<? super JavaMethod> methods, Collection<String> requiredAnnotationTypes,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
+            .as("Methods %s should be annotated with %s".formatted(
+                methods.getDescription(), String.join(", ", requiredAnnotationTypes))),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that methods declared in classes matching the given criteria
+   * must be annotated with all required annotations.
+   *
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param requiredAnnotationTypes the required annotation type names
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithAllForClass(
+      DescribedPredicate<? super JavaClass> classes, Collection<String> requiredAnnotationTypes) {
+    return methodsShouldBeAnnotatedWithAllForClass(classes, requiredAnnotationTypes,
+        defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldBeAnnotatedWithAllForClass(DescribedPredicate, Collection)}, with a
+   * custom configuration.
+   *
+   * @param classes the classes whose declared methods are checked
+   * @param requiredAnnotationTypes the required annotation type names
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldBeAnnotatedWithAllForClass(
+      DescribedPredicate<? super JavaClass> classes, Collection<String> requiredAnnotationTypes,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areDeclaredInClassesThat(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
+            .as("Methods declared in classes %s should be annotated with %s".formatted(
+                classes.getDescription(), String.join(", ", requiredAnnotationTypes))),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that methods matching the given criteria
+   * must not be annotated with a specific annotation.
+   *
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}
+   *     or an ArchUnit predicate
+   * @param annotationType the forbidden annotation
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, Class<? extends Annotation> annotationType) {
+    return methodsShouldNotBeAnnotatedWith(methods, annotationType.getName(),
+        defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldNotBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
+   * configuration.
+   *
+   * @param methods the methods to check
+   * @param annotationType the forbidden annotation
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, Class<? extends Annotation> annotationType,
+      Configuration configuration) {
+    return methodsShouldNotBeAnnotatedWith(methods, annotationType.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule enforcing that methods matching the given criteria
+   * must not be annotated with a specific annotation by name.
+   *
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}
+   *     or an ArchUnit predicate
+   * @param annotationType the forbidden annotation type name
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, String annotationType) {
+    return methodsShouldNotBeAnnotatedWith(methods, annotationType, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldNotBeAnnotatedWith(DescribedPredicate, String)}, with a custom
+   * configuration.
+   *
+   * @param methods the methods to check
+   * @param annotationType the forbidden annotation type name
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaMethod> methods, String annotationType,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+        .that(methods)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should().notBeMetaAnnotatedWith(annotationType)
+        .as("Methods %s should not be annotated with %s".formatted(methods.getDescription(),
             annotationType)), configuration));
   }
 
   /**
-   * Adds a rule enforcing that methods annotated with a specific annotation
-   * must also be annotated with all given annotations.
+   * Adds a rule enforcing that methods declared in classes matching the given criteria
+   * must not be annotated with a specific annotation.
    *
-   * @param annotationType the base annotation type
-   * @param requiredAnnotationTypes the required annotations that must coexist
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param annotationType the forbidden annotation
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
-      Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
-    return methodsShouldBeAnnotatedWithAll(annotationType.getName(),
-        requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with a specific annotation
-   * must also be annotated with all given annotations, using a custom configuration.
-   *
-   * @param annotationType the base annotation type
-   * @param requiredAnnotationTypes the required annotations that must coexist
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
-      Collection<Class<? extends Annotation>> requiredAnnotationTypes,
-      Configuration configuration) {
-    return methodsShouldBeAnnotatedWithAll(annotationType.getName(),
-        requiredAnnotationTypes.stream().map(Class::getName).toList(), configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with a specific annotation (by name)
-   * must also be annotated with all given annotations.
-   *
-   * @param annotationType the base annotation type name
-   * @param requiredAnnotationTypes a collection of required annotation type names
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsShouldBeAnnotatedWithAll(String annotationType,
-      Collection<String> requiredAnnotationTypes) {
-    return methodsShouldBeAnnotatedWithAll(annotationType, requiredAnnotationTypes,
+  public JavaConfigurer methodsShouldNotBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType) {
+    return methodsShouldNotBeAnnotatedWithForClass(classes, annotationType.getName(),
         defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that methods annotated with a specific annotation (by name)
-   * must also be annotated with all given annotations, using a custom configuration.
+   * See {@link #methodsShouldNotBeAnnotatedWithForClass(DescribedPredicate, Class)}, with a custom
+   * configuration.
    *
-   * @param annotationType the base annotation type name
-   * @param requiredAnnotationTypes a collection of required annotation type names
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked
+   * @param annotationType the forbidden annotation
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldBeAnnotatedWithAll(String annotationType,
-      Collection<String> requiredAnnotationTypes, Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-            .that().areMetaAnnotatedWith(annotationType)
-            .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
-            .as("Methods annotated with %s should be annotated with %s".formatted(
-                annotationType, String.join(", ", requiredAnnotationTypes))),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with one annotation
-   * must not be annotated with another conflicting annotation.
-   *
-   * @param annotationType the base annotation
-   * @param notAnnotationType the disallowed annotation
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
-      Class<? extends Annotation> notAnnotationType) {
-    return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with one annotation
-   * must not be annotated with another conflicting annotation, using a custom configuration.
-   *
-   * @param annotationType the base annotation
-   * @param notAnnotationType the disallowed annotation
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
-      Class<? extends Annotation> notAnnotationType, Configuration configuration) {
-    return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with one annotation (by name)
-   * must not be annotated with another.
-   *
-   * @param annotationType the base annotation type name
-   * @param notAnnotationType the disallowed annotation type name
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType) {
-    return methodsAnnotatedWithShouldNotBeAnnotatedWith(annotationType, notAnnotationType, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with one annotation (by name)
-   * must not be annotated with another, using a custom configuration.
-   *
-   * @param annotationType the base annotation type name
-   * @param notAnnotationType the disallowed annotation type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType,
+  public JavaConfigurer methodsShouldNotBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType,
       Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-        .that().areAnnotatedWith(annotationType)
-        .should().notBeMetaAnnotatedWith(notAnnotationType)
-        .as("Methods annotated with %s should not be annotated with %s".formatted(annotationType,
-            notAnnotationType)), configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with a given annotation type
-   * must have all the specified modifiers.
-   *
-   * @param annotationType the annotation type to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> requiredModifiers) {
-    return methodsAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with a given annotation type
-   * must have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
-    return methodsAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
+    return methodsShouldNotBeAnnotatedWithForClass(classes, annotationType.getName(),
         configuration);
   }
 
   /**
-   * Adds a rule enforcing that methods annotated with an annotation whose name matches
-   * the given type name must have all the specified modifiers.
+   * Adds a rule enforcing that methods declared in classes matching the given criteria
+   * must not be annotated with a specific annotation by name.
    *
-   * @param annotationType the annotation type name to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param annotationType the forbidden annotation type name
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(String annotationType,
-      Collection<JavaModifier> requiredModifiers) {
-    return methodsAnnotatedWithShouldHaveModifiers(annotationType, requiredModifiers,
-        defaultConfiguration());
+  public JavaConfigurer methodsShouldNotBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes, String annotationType) {
+    return methodsShouldNotBeAnnotatedWithForClass(classes, annotationType, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that methods annotated with an annotation whose name matches
-   * the given type name must have all the specified modifiers, using a custom configuration.
+   * See {@link #methodsShouldNotBeAnnotatedWithForClass(DescribedPredicate, String)}, with a custom
+   * configuration.
    *
-   * @param annotationType the annotation type name to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked
+   * @param annotationType the forbidden annotation type name
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsAnnotatedWithShouldHaveModifiers(String annotationType,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+  public JavaConfigurer methodsShouldNotBeAnnotatedWithForClass(
+      DescribedPredicate<? super JavaClass> classes, String annotationType,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-            .that().areAnnotatedWith(annotationType)
+        .that().areDeclaredInClassesThat(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should().notBeMetaAnnotatedWith(annotationType)
+        .as("Methods declared in classes %s should not be annotated with %s".formatted(
+            classes.getDescription(), annotationType)), configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that methods matching the given criteria must have all specified
+   * modifiers. Synthetic methods generated by the compiler are ignored.
+   *
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
+   * @param requiredModifiers the modifiers that must be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldHaveModifiers(
+      DescribedPredicate<? super JavaMethod> methods, Collection<JavaModifier> requiredModifiers) {
+    return methodsShouldHaveModifiers(methods, requiredModifiers, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #methodsShouldHaveModifiers(DescribedPredicate, Collection)}, with a custom
+   * configuration.
+   *
+   * @param methods the methods to check
+   * @param requiredModifiers the modifiers that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer methodsShouldHaveModifiers(
+      DescribedPredicate<? super JavaMethod> methods, Collection<JavaModifier> requiredModifiers,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(hasMethodsModifiers(requiredModifiers))
-            .as("Methods annotated with %s should have all of this modifiers %s".formatted(
-                annotationType,
+            .as("Methods %s should have all of these modifiers %s".formatted(
+                methods.getDescription(),
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that methods annotated with a given annotation type
-   * must not have all the specified modifiers.
-   *
-   * @param annotationType the annotation type to check
-   * @param notRequiredModifiers the not required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return methodsAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with a given annotation type
-   * must not have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type to check
-   * @param notRequiredModifiers the not required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
-    return methodsAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
-        configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with an annotation whose name matches
-   * the given type name must have all the specified modifiers.
-   *
-   * @param annotationType the annotation type name to check
-   * @param notRequiredModifiers the required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(String annotationType,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return methodsAnnotatedWithShouldNotHaveModifiers(annotationType, notRequiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that methods annotated with an annotation whose name matches
-   * the given type name must not have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type name to check
-   * @param notRequiredModifiers the not required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsAnnotatedWithShouldNotHaveModifiers(String annotationType,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-            .that().areAnnotatedWith(annotationType)
-            .should(notHasMethodModifiers(notRequiredModifiers))
-            .as("Methods annotated with %s should not have all of this modifiers %s".formatted(
-                annotationType,
-                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that methods whose names match a regex
+   * Adds a rule enforcing that all methods declared in classes matching the given criteria
    * must have the specified modifiers.
    *
-   * @param regex the regex for method names
-   * @param requiredModifiers the required modifiers
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param requiredModifiers the modifiers that must be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldHaveModifiers(String regex,
-      Collection<JavaModifier> requiredModifiers) {
-    return methodsShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
+  public JavaConfigurer methodsShouldHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> requiredModifiers) {
+    return methodsShouldHaveModifiersForClass(classes, requiredModifiers, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that methods whose names match a regex
-   * must have the specified modifiers, using a custom configuration.
+   * See {@link #methodsShouldHaveModifiersForClass(DescribedPredicate, Collection)}, with a
+   * custom configuration.
    *
-   * @param regex the regex for method names
-   * @param requiredModifiers the required modifiers
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked
+   * @param requiredModifiers the modifiers that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldHaveModifiers(String regex,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
+  public JavaConfigurer methodsShouldHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> requiredModifiers,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-            .that().haveNameMatching(regex)
+            .that().areDeclaredInClassesThat(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(hasMethodsModifiers(requiredModifiers))
-            .as("Methods have name matching %s should have all of this modifiers %s".formatted(
-                regex,
+            .as("Methods declared in classes %s should have all of these modifiers %s".formatted(
+                classes.getDescription(),
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that methods whose names match a regex
-   * must not have the specified modifiers.
+   * Adds a rule enforcing that methods matching the given criteria must not have any of the
+   * specified modifiers. Synthetic methods generated by the compiler are ignored.
    *
-   * @param regex the regex for method names
-   * @param notRequiredModifiers the not required modifiers
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
+   *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotHaveModifiers(String regex,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return methodsShouldNotHaveModifiers(regex, notRequiredModifiers, defaultConfiguration());
+  public JavaConfigurer methodsShouldNotHaveModifiers(
+      DescribedPredicate<? super JavaMethod> methods, Collection<JavaModifier> forbiddenModifiers) {
+    return methodsShouldNotHaveModifiers(methods, forbiddenModifiers, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that methods whose names match a regex
-   * must not have the specified modifiers, using a custom configuration.
+   * See {@link #methodsShouldNotHaveModifiers(DescribedPredicate, Collection)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for method names
-   * @param notRequiredModifiers the not required modifiers
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param methods the methods to check
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.MethodCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotHaveModifiers(String regex,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+  public JavaConfigurer methodsShouldNotHaveModifiers(
+      DescribedPredicate<? super JavaMethod> methods, Collection<JavaModifier> forbiddenModifiers,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-            .that().haveNameMatching(regex)
-            .should(notHasMethodModifiers(notRequiredModifiers))
-            .as("Methods have name matching %s should not have all of this modifiers %s".formatted(
-                regex,
-                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+            .that(methods)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should(notHasMethodModifiers(forbiddenModifiers))
+            .as("Methods %s should not have any of these modifiers %s".formatted(
+                methods.getDescription(),
+                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that all methods declared in a specific class (by regex)
-   * must have the specified modifiers.
-   *
-   * @param regex regex for class name
-   * @param requiredModifiers required modifiers for methods
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsShouldHaveModifiersForClass(String regex,
-      Collection<JavaModifier> requiredModifiers) {
-    return methodsShouldHaveModifiersForClass(regex, requiredModifiers, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that all methods declared in a specific class (by regex)
-   * must have the specified modifiers, using a custom configuration.
-   *
-   * @param regex regex for class name
-   * @param requiredModifiers required modifiers for methods
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer methodsShouldHaveModifiersForClass(String regex,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-            .that().areDeclaredInClassesThat().haveNameMatching(regex)
-            .should(hasMethodsModifiers(requiredModifiers))
-            .as("Methods in class %s should have all of this modifiers %s".formatted(
-                regex,
-                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that all methods declared in a specific class (by regex)
+   * Adds a rule enforcing that all methods declared in classes matching the given criteria
    * must not have the specified modifiers.
    *
-   * @param regex regex for class name
-   * @param notRequiredModifiers not required modifiers for methods
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotHaveModifiersForClass(String regex,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return methodsShouldNotHaveModifiersForClass(regex, notRequiredModifiers, defaultConfiguration());
+  public JavaConfigurer methodsShouldNotHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      Collection<JavaModifier> forbiddenModifiers) {
+    return methodsShouldNotHaveModifiersForClass(classes, forbiddenModifiers,
+        defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that all methods declared in a specific class (by regex)
-   * must not have the specified modifiers, using a custom configuration.
+   * See {@link #methodsShouldNotHaveModifiersForClass(DescribedPredicate, Collection)}, with a
+   * custom configuration.
    *
-   * @param regex regex for class name
-   * @param notRequiredModifiers not required modifiers for methods
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared methods are checked
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer methodsShouldNotHaveModifiersForClass(String regex,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+  public JavaConfigurer methodsShouldNotHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      Collection<JavaModifier> forbiddenModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
-            .that().areDeclaredInClassesThat().haveNameMatching(regex)
-            .should(notHasMethodModifiers(notRequiredModifiers))
-            .as("Methods in class %s should not have all of this modifiers %s".formatted(
-                regex,
-                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+            .that().areDeclaredInClassesThat(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should(notHasMethodModifiers(forbiddenModifiers))
+            .as("Methods declared in classes %s should not have any of these modifiers %s".formatted(
+                classes.getDescription(),
+                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
@@ -718,7 +1095,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule ensuring methods do not exceed a specific number of parameters.
    *
    * @param maxMethodParameters maximum number of allowed parameters
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters) {
     return methodsShouldNotExceedMaxParameters(maxMethodParameters, defaultConfiguration());
@@ -729,11 +1106,12 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * using a custom configuration.
    *
    * @param maxMethodParameters maximum number of allowed parameters
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters, Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should(notExceedMaxParameters(maxMethodParameters))
         .as("Methods should not have more than %d parameters".formatted(maxMethodParameters)), configuration));
   }
@@ -741,7 +1119,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   /**
    * Adds a rule prohibiting usage of deprecated APIs.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOfDeprecatedAPIs() {
     return noUsageOfDeprecatedAPIs(defaultConfiguration());
@@ -750,8 +1128,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   /**
    * Adds a rule prohibiting usage of deprecated APIs, using a custom configuration.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOfDeprecatedAPIs(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -763,7 +1141,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that all classes reside in a specific package.
    *
    * @param packageIdentifier the expected package pattern
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer classesShouldResideInPackage(String packageIdentifier) {
     return classesShouldResideInPackage(packageIdentifier, defaultConfiguration());
@@ -774,613 +1152,336 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * using a custom configuration.
    *
    * @param packageIdentifier the expected package pattern
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer classesShouldResideInPackage(String packageIdentifier,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .should().resideInAPackage(packageIdentifier)
-            .as("Package names should match %s".formatted(packageIdentifier)),
+            .as("Classes should reside in package %s".formatted(packageIdentifier)),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes with names matching a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * must reside in a specific package.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param packageIdentifier the required package
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier) {
-    return classesShouldResideInPackage(regex, packageIdentifier, defaultConfiguration());
+  public JavaConfigurer classesShouldResideInPackage(DescribedPredicate<? super JavaClass> classes,
+      String packageIdentifier) {
+    return classesShouldResideInPackage(classes, packageIdentifier, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes with names matching a regex
-   * must reside in a specific package, using a custom configuration.
+   * See {@link #classesShouldResideInPackage(DescribedPredicate, String)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param packageIdentifier the required package
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldResideInPackage(String regex, String packageIdentifier,
-      Configuration configuration) {
+  public JavaConfigurer classesShouldResideInPackage(DescribedPredicate<? super JavaClass> classes,
+      String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
+        .that(classes)
         .should().resideInAPackage(packageIdentifier)
-        .as("Classes have name matching %s should reside in package %s".formatted(
-            regex, packageIdentifier)), configuration));
+        .as("Classes %s should reside in package %s".formatted(
+            classes.getDescription(), packageIdentifier)), configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes with names matching a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * must reside outside a specific package.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param packageIdentifier the forbidden package
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier) {
-    return classesShouldResideOutsidePackage(regex, packageIdentifier, defaultConfiguration());
+  public JavaConfigurer classesShouldResideOutsidePackage(
+      DescribedPredicate<? super JavaClass> classes, String packageIdentifier) {
+    return classesShouldResideOutsidePackage(classes, packageIdentifier, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes with names matching a regex
-   * must reside outside a specific package, using a custom configuration.
+   * See {@link #classesShouldResideOutsidePackage(DescribedPredicate, String)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param packageIdentifier the forbidden package
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldResideOutsidePackage(String regex, String packageIdentifier,
+  public JavaConfigurer classesShouldResideOutsidePackage(
+      DescribedPredicate<? super JavaClass> classes, String packageIdentifier,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
+        .that(classes)
         .should().resideOutsideOfPackage(packageIdentifier)
-        .as("Classes have name matching %s should reside outside package %s".formatted(
-            regex, packageIdentifier)), configuration));
+        .as("Classes %s should reside outside package %s".formatted(
+            classes.getDescription(), packageIdentifier)), configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match the given regular expression
+   * Adds a rule enforcing that classes matching the given criteria
    * must be declared as Java records.
    *
-   * @param regex the regular expression used to match class names
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeRecords(String regex) {
-    return classesShouldBeRecords(regex, defaultConfiguration());
+  public JavaConfigurer classesShouldBeRecords(DescribedPredicate<? super JavaClass> classes) {
+    return classesShouldBeRecords(classes, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match the given regular expression
-   * must be declared as Java records, using a custom configuration.
+   * See {@link #classesShouldBeRecords(DescribedPredicate)}, with a custom configuration.
    *
-   * @param regex the regular expression used to match class names
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeRecords(String regex, Configuration configuration) {
+  public JavaConfigurer classesShouldBeRecords(DescribedPredicate<? super JavaClass> classes,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that(classes)
             .should().beRecords()
-            .as("Classes with names matching %s should be records".formatted(regex)),
+            .as("Classes %s should be records".formatted(classes.getDescription())),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match the given regular expression
+   * Adds a rule enforcing that classes matching the given criteria
    * must be declared as Java interfaces.
    *
-   * @param regex the regular expression used to match class names
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeInterfaces(String regex) {
-    return classesShouldBeInterfaces(regex, defaultConfiguration());
+  public JavaConfigurer classesShouldBeInterfaces(DescribedPredicate<? super JavaClass> classes) {
+    return classesShouldBeInterfaces(classes, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match the given regular expression
-   * must be declared as Java interfaces, using a custom configuration.
+   * See {@link #classesShouldBeInterfaces(DescribedPredicate)}, with a custom configuration.
    *
-   * @param regex the regular expression used to match class names
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeInterfaces(String regex, Configuration configuration) {
+  public JavaConfigurer classesShouldBeInterfaces(DescribedPredicate<? super JavaClass> classes,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that(classes)
             .should().beInterfaces()
-            .as("Classes with names matching %s should be interfaces".formatted(regex)),
+            .as("Classes %s should be interfaces".formatted(classes.getDescription())),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with a specific annotation
-   * must also be annotated with all required annotations.
+   * Adds a rule enforcing that classes matching the given criteria
+   * must be annotated with all required annotations.
    *
-   * @param annotationType the base annotation type
-   * @param requiredAnnotationTypes the required annotation types
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
-      Collection<Class<? extends Annotation>> requiredAnnotationTypes) {
-    return classesShouldBeAnnotatedWithAll(annotationType.getName(),
-        requiredAnnotationTypes.stream().map(Class::getName).toList(), defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation
-   * must also be annotated with all required annotations, using a custom configuration.
-   *
-   * @param annotationType the base annotation type
-   * @param requiredAnnotationTypes the required annotation types
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesShouldBeAnnotatedWithAll(Class<? extends Annotation> annotationType,
-      Collection<Class<? extends Annotation>> requiredAnnotationTypes,
-      Configuration configuration) {
-    return classesShouldBeAnnotatedWithAll(annotationType.getName(),
-        requiredAnnotationTypes.stream().map(Class::getName).toList(), configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
-   * must also be annotated with all required annotations.
-   *
-   * @param annotationType the base annotation type name
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param requiredAnnotationTypes the required annotation type names
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAnnotatedWithAll(String annotationType,
-      Collection<String> requiredAnnotationTypes) {
-    return classesShouldBeAnnotatedWithAll(annotationType, requiredAnnotationTypes,
+  public JavaConfigurer classesShouldBeAnnotatedWithAll(
+      DescribedPredicate<? super JavaClass> classes, Collection<String> requiredAnnotationTypes) {
+    return classesShouldBeAnnotatedWithAll(classes, requiredAnnotationTypes,
         defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
-   * must also be annotated with all required annotations, using a custom configuration.
+   * See {@link #classesShouldBeAnnotatedWithAll(DescribedPredicate, Collection)}, with a custom
+   * configuration.
    *
-   * @param annotationType the base annotation type name
+   * @param classes the classes to check
    * @param requiredAnnotationTypes the required annotation type names
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAnnotatedWithAll(String annotationType,
-      Collection<String> requiredAnnotationTypes, Configuration configuration) {
+  public JavaConfigurer classesShouldBeAnnotatedWithAll(
+      DescribedPredicate<? super JavaClass> classes, Collection<String> requiredAnnotationTypes,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().areMetaAnnotatedWith(annotationType)
+            .that(classes)
             .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
-            .as("Classes annotated with %s should be annotated with %s".formatted(
-                annotationType, String.join(", ", requiredAnnotationTypes))),
+            .as("Classes %s should be annotated with %s".formatted(
+                classes.getDescription(), String.join(", ", requiredAnnotationTypes))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * must be annotated with a specific annotation.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param annotationType the required annotation
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
+  public JavaConfigurer classesShouldBeAnnotatedWith(DescribedPredicate<? super JavaClass> classes,
       Class<? extends Annotation> annotationType) {
-    return classesShouldBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
+    return classesShouldBeAnnotatedWith(classes, annotationType.getName(), defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * must be annotated with a specific annotation, using a custom configuration.
+   * See {@link #classesShouldBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param annotationType the required annotation
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAnnotatedWith(String regex,
+  public JavaConfigurer classesShouldBeAnnotatedWith(DescribedPredicate<? super JavaClass> classes,
       Class<? extends Annotation> annotationType, Configuration configuration) {
-    return classesShouldBeAnnotatedWith(regex, annotationType.getName(), configuration);
+    return classesShouldBeAnnotatedWith(classes, annotationType.getName(), configuration);
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * must be annotated with a specific annotation by name.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param annotationType the required annotation type name
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType) {
-    return classesShouldBeAnnotatedWith(regex, annotationType, defaultConfiguration());
+  public JavaConfigurer classesShouldBeAnnotatedWith(DescribedPredicate<? super JavaClass> classes,
+      String annotationType) {
+    return classesShouldBeAnnotatedWith(classes, annotationType, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * must be annotated with a specific annotation by name, using a custom configuration.
+   * See {@link #classesShouldBeAnnotatedWith(DescribedPredicate, String)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param annotationType the required annotation type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAnnotatedWith(String regex, String annotationType,
-      Configuration configuration) {
+  public JavaConfigurer classesShouldBeAnnotatedWith(DescribedPredicate<? super JavaClass> classes,
+      String annotationType, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
+        .that(classes)
         .should().beMetaAnnotatedWith(annotationType)
-        .as("Classes have name matching %s should be annotated with %s".formatted(regex,
+        .as("Classes %s should be annotated with %s".formatted(classes.getDescription(),
             annotationType)), configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * must not be annotated with a specific annotation.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param annotationType the forbidden annotation
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
-      Class<? extends Annotation> annotationType) {
-    return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(), defaultConfiguration());
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType) {
+    return classesShouldNotBeAnnotatedWith(classes, annotationType.getName(),
+        defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * must not be annotated with a specific annotation, using a custom configuration.
+   * See {@link #classesShouldNotBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param annotationType the forbidden annotation
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex,
-      Class<? extends Annotation> annotationType, Configuration configuration) {
-    return classesShouldNotBeAnnotatedWith(regex, annotationType.getName(), configuration);
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaClass> classes, Class<? extends Annotation> annotationType,
+      Configuration configuration) {
+    return classesShouldNotBeAnnotatedWith(classes, annotationType.getName(), configuration);
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * must not be annotated with a specific annotation by name.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param annotationType the forbidden annotation type name
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType) {
-    return classesShouldNotBeAnnotatedWith(regex, annotationType, defaultConfiguration());
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaClass> classes, String annotationType) {
+    return classesShouldNotBeAnnotatedWith(classes, annotationType, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * must not be annotated with a specific annotation by name, using a custom configuration.
+   * See {@link #classesShouldNotBeAnnotatedWith(DescribedPredicate, String)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param annotationType the forbidden annotation type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldNotBeAnnotatedWith(String regex, String annotationType,
+  public JavaConfigurer classesShouldNotBeAnnotatedWith(
+      DescribedPredicate<? super JavaClass> classes, String annotationType,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveNameMatching(regex)
+        .that(classes)
         .should().notBeMetaAnnotatedWith(annotationType)
-        .as("Classes have name matching %s should not be annotated with %s".formatted(regex,
+        .as("Classes %s should not be annotated with %s".formatted(classes.getDescription(),
             annotationType)), configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation
-   * must not also be annotated with another conflicting annotation.
-   *
-   * @param annotationType the base annotation
-   * @param notAnnotationType the disallowed annotation
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
-      Class<? extends Annotation> notAnnotationType) {
-    return classesAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation
-   * must not also be annotated with another conflicting annotation, using a custom configuration.
-   *
-   * @param annotationType the base annotation
-   * @param notAnnotationType the disallowed annotation
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(Class<? extends Annotation> annotationType,
-      Class<? extends Annotation> notAnnotationType, Configuration configuration) {
-    return classesAnnotatedWithShouldNotBeAnnotatedWith(annotationType.getName(), notAnnotationType.getName(), configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
-   * must not also be annotated with another annotation.
-   *
-   * @param annotationType the base annotation type name
-   * @param notAnnotationType the disallowed annotation type name
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType) {
-    return classesAnnotatedWithShouldNotBeAnnotatedWith(annotationType, notAnnotationType, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
-   * must not also be annotated with another annotation, using a custom configuration.
-   *
-   * @param annotationType the base annotation type name
-   * @param notAnnotationType the disallowed annotation type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotBeAnnotatedWith(String annotationType, String notAnnotationType,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-        .that().areAnnotatedWith(annotationType)
-        .should().notBeMetaAnnotatedWith(notAnnotationType)
-        .as("Classes annotated with %s should not be annotated with %s".formatted(annotationType,
-            notAnnotationType)), configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation
-   * must reside within a specific package.
-   *
-   * @param annotationType the annotation the classes must have
-   * @param packageIdentifier the package they must reside in
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
-      Class<? extends Annotation> annotationType, String packageIdentifier) {
-    return classesAnnotatedWithShouldResideInPackage(annotationType.getName(), packageIdentifier,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation
-   * must reside within a specific package, using a custom configuration.
-   *
-   * @param annotationType the annotation the classes must have
-   * @param packageIdentifier the package they must reside in
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
-      Class<? extends Annotation> annotationType, String packageIdentifier,
-      Configuration configuration) {
-    return classesAnnotatedWithShouldResideInPackage(annotationType.getName(), packageIdentifier,
-        configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
-   * must reside within a specific package.
-   *
-   * @param annotationType the annotation type name
-   * @param packageIdentifier the required package
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
-      String annotationType, String packageIdentifier) {
-    return classesAnnotatedWithShouldResideInPackage(annotationType, packageIdentifier,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a specific annotation (by name)
-   * must reside within a specific package, using a custom configuration.
-   *
-   * @param annotationType the annotation type name
-   * @param packageIdentifier the required package
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldResideInPackage(
-      String annotationType, String packageIdentifier, Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-        .that().areMetaAnnotatedWith(annotationType)
-        .should().resideInAPackage(packageIdentifier)
-        .as("Classes annotated with %s should reside in package %s".formatted(
-            annotationType, packageIdentifier)), configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * must have all the specified modifiers.
-   *
-   * @param annotationType the annotation type to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> requiredModifiers) {
-    return classesAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * must have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
-    return classesAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
-        configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name must have all the specified modifiers.
-   *
-   * @param annotationType the annotation type name to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldHaveModifiers(String annotationType,
-      Collection<JavaModifier> requiredModifiers) {
-    return classesAnnotatedWithShouldHaveModifiers(annotationType, requiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name must have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type name to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldHaveModifiers(String annotationType,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-            .that().areAnnotatedWith(annotationType)
-            .should(hasClassModifiers(requiredModifiers))
-            .as("Classes annotated with %s should have all of these modifiers %s".formatted(
-                annotationType,
-                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * must not have all the specified modifiers.
-   *
-   * @param annotationType the annotation type to check
-   * @param notRequiredModifiers the modifiers that the class must not have
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return classesAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * must not have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type to check
-   * @param notRequiredModifiers the modifiers that the class must not have
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
-    return classesAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
-        configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name must not have all the specified modifiers.
-   *
-   * @param annotationType the annotation type name to check
-   * @param notRequiredModifiers the modifiers that the class must not have
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotHaveModifiers(String annotationType,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return classesAnnotatedWithShouldNotHaveModifiers(annotationType, notRequiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name must not have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type name to check
-   * @param notRequiredModifiers the modifiers that the class must not have
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldNotHaveModifiers(String annotationType,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-            .that().areAnnotatedWith(annotationType)
-            .should(notHasClassModifiers(notRequiredModifiers))
-            .as("Classes annotated with %s should not have all of these modifiers %s".formatted(
-                annotationType,
-                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * must be declared as Java records.
-   *
-   * @param annotationType the annotation type to check
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBeRecords(Class<? extends Annotation> annotationType) {
-    return classesAnnotatedWithShouldBeRecords(annotationType.getName(), defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * must be declared as Java records, using a custom configuration.
-   *
-   * @param annotationType the annotation type to check
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBeRecords(
-      Class<? extends Annotation> annotationType, Configuration configuration) {
-    return classesAnnotatedWithShouldBeRecords(annotationType.getName(), configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name must be declared as Java records.
-   *
-   * @param annotationType the fully qualified name of the annotation type to check
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBeRecords(String annotationType) {
-    return classesAnnotatedWithShouldBeRecords(annotationType, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name must be declared as Java records, using a custom configuration.
-   *
-   * @param annotationType the fully qualified name of the annotation type to check
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBeRecords(String annotationType,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-            .that().areAnnotatedWith(annotationType)
-            .should().beRecords()
-            .as("Classes annotated with %s should be records".formatted(annotationType)),
-        configuration));
   }
 
   /**
    * Adds a rule enforcing that all classes implement both {@code hashCode()} and {@code equals()}.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer classesShouldImplementHashCodeAndEquals() {
     return classesShouldImplementHashCodeAndEquals(defaultConfiguration());
@@ -1390,8 +1491,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that all classes implement both {@code hashCode()} and {@code equals()},
    * using a custom configuration.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer classesShouldImplementHashCodeAndEquals(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -1400,313 +1501,244 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * should be assignable to a specific class type.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param clazz the target class type
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz) {
-    return classesShouldBeAssignableTo(regex, clazz.getName(), defaultConfiguration());
+  public JavaConfigurer classesShouldBeAssignableTo(DescribedPredicate<? super JavaClass> classes,
+      Class<?> clazz) {
+    return classesShouldBeAssignableTo(classes, clazz.getName(), defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * should be assignable to a specific class type, using a custom configuration.
+   * See {@link #classesShouldBeAssignableTo(DescribedPredicate, Class)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param clazz the target class type
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAssignableTo(String regex, Class<?> clazz,
-      Configuration configuration) {
-    return classesShouldBeAssignableTo(regex, clazz.getName(), configuration);
+  public JavaConfigurer classesShouldBeAssignableTo(DescribedPredicate<? super JavaClass> classes,
+      Class<?> clazz, Configuration configuration) {
+    return classesShouldBeAssignableTo(classes, clazz.getName(), configuration);
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * should be assignable to a specific type by name.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param typeName the target type name
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName) {
-    return classesShouldBeAssignableTo(regex, typeName, defaultConfiguration());
+  public JavaConfigurer classesShouldBeAssignableTo(DescribedPredicate<? super JavaClass> classes,
+      String typeName) {
+    return classesShouldBeAssignableTo(classes, typeName, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * should be assignable to a specific type by name, using a custom configuration.
+   * See {@link #classesShouldBeAssignableTo(DescribedPredicate, String)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param typeName the target type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBeAssignableTo(String regex, String typeName,
-      Configuration configuration) {
+  public JavaConfigurer classesShouldBeAssignableTo(DescribedPredicate<? super JavaClass> classes,
+      String typeName, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveSimpleNameEndingWith(regex)
+        .that(classes)
         .should().beAssignableTo(typeName)
-        .as("Classes have name matching %s should be assignable to %s".formatted(
-            regex, typeName)), configuration));
+        .as("Classes %s should be assignable to %s".formatted(
+            classes.getDescription(), typeName)), configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * should implement a specific interface type.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param clazz the interface class
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldImplement(String regex, Class<?> clazz) {
-    return classesShouldImplement(regex, clazz.getName(), defaultConfiguration());
+  public JavaConfigurer classesShouldImplement(DescribedPredicate<? super JavaClass> classes,
+      Class<?> clazz) {
+    return classesShouldImplement(classes, clazz.getName(), defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * should implement a specific interface type, using a custom configuration.
+   * See {@link #classesShouldImplement(DescribedPredicate, Class)}, with a custom configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param clazz the interface class
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldImplement(String regex, Class<?> clazz,
-      Configuration configuration) {
-    return classesShouldImplement(regex, clazz.getName(), configuration);
+  public JavaConfigurer classesShouldImplement(DescribedPredicate<? super JavaClass> classes,
+      Class<?> clazz, Configuration configuration) {
+    return classesShouldImplement(classes, clazz.getName(), configuration);
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * should implement a specific interface type by name.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param typeName the interface type name
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldImplement(String regex, String typeName) {
-    return classesShouldImplement(regex, typeName, defaultConfiguration());
+  public JavaConfigurer classesShouldImplement(DescribedPredicate<? super JavaClass> classes,
+      String typeName) {
+    return classesShouldImplement(classes, typeName, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * should implement a specific interface type by name, using a custom configuration.
+   * See {@link #classesShouldImplement(DescribedPredicate, String)}, with a custom configuration.
    *
-   * @param regex the regex for class names
+   * @param classes the classes to check
    * @param typeName the interface type name
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldImplement(String regex, String typeName,
-      Configuration configuration) {
+  public JavaConfigurer classesShouldImplement(DescribedPredicate<? super JavaClass> classes,
+      String typeName, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .that().haveSimpleNameEndingWith(regex)
+        .that(classes)
         .should().implement(typeName)
-        .as("Classes have name matching %s should implement %s".formatted(
-            regex, typeName)), configuration));
+        .as("Classes %s should implement %s".formatted(
+            classes.getDescription(), typeName)), configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
+   * Adds a rule enforcing that classes matching the given criteria
    * must have all specified modifiers.
    *
-   * @param regex the regex for class names
-   * @param requiredModifiers the required modifiers
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @param requiredModifiers the modifiers that must be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldHaveModifiers(String regex,
+  public JavaConfigurer classesShouldHaveModifiers(DescribedPredicate<? super JavaClass> classes,
       Collection<JavaModifier> requiredModifiers) {
-    return classesShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
+    return classesShouldHaveModifiers(classes, requiredModifiers, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * must have all specified modifiers, using a custom configuration.
+   * See {@link #classesShouldHaveModifiers(DescribedPredicate, Collection)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
-   * @param requiredModifiers the required modifiers
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check
+   * @param requiredModifiers the modifiers that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldHaveModifiers(String regex,
+  public JavaConfigurer classesShouldHaveModifiers(DescribedPredicate<? super JavaClass> classes,
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
+            .that(classes)
             .should(hasClassModifiers(requiredModifiers))
-            .as("Classes have name matching %s should have all of this modifiers %s".formatted(
-                regex,
+            .as("Classes %s should have all of these modifiers %s".formatted(
+                classes.getDescription(),
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * must not have all specified modifiers.
+   * Adds a rule enforcing that classes matching the given criteria
+   * must not have any of the specified modifiers.
    *
-   * @param regex the regex for class names
-   * @param notRequiredModifiers not the required modifiers
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldNotHaveModifiers(String regex,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return classesShouldNotHaveModifiers(regex, notRequiredModifiers, defaultConfiguration());
+  public JavaConfigurer classesShouldNotHaveModifiers(DescribedPredicate<? super JavaClass> classes,
+      Collection<JavaModifier> forbiddenModifiers) {
+    return classesShouldNotHaveModifiers(classes, forbiddenModifiers, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex
-   * must not have all specified modifiers, using a custom configuration.
+   * See {@link #classesShouldNotHaveModifiers(DescribedPredicate, Collection)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for class names
-   * @param notRequiredModifiers not the required modifiers
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldNotHaveModifiers(String regex,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+  public JavaConfigurer classesShouldNotHaveModifiers(DescribedPredicate<? super JavaClass> classes,
+      Collection<JavaModifier> forbiddenModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
-            .should(notHasClassModifiers(notRequiredModifiers))
-            .as("Classes have name matching %s should not have all of this modifiers %s".formatted(
-                regex,
-                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+            .that(classes)
+            .should(notHasClassModifiers(forbiddenModifiers))
+            .as("Classes %s should not have any of these modifiers %s".formatted(
+                classes.getDescription(),
+                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex should be package-private.
+   * Adds a rule enforcing that classes matching the given criteria should be package-private.
    *
-   * @param regex the regex for class names
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   *     or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBePackagePrivate(String regex) {
-    return classesShouldBePackagePrivate(regex, defaultConfiguration());
+  public JavaConfigurer classesShouldBePackagePrivate(
+      DescribedPredicate<? super JavaClass> classes) {
+    return classesShouldBePackagePrivate(classes, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that classes whose names match a regex should be package-private,
-   * using a custom configuration.
+   * See {@link #classesShouldBePackagePrivate(DescribedPredicate)}, with a custom configuration.
    *
-   * @param regex the regex for class names
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes to check
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer classesShouldBePackagePrivate(String regex, Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-            .that().haveNameMatching(regex)
-            .should().bePackagePrivate()
-            .as("Classes have name matching %s should be package-private".formatted(regex)),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * should be package-private (e.g. {@code jakarta.persistence.Entity}).
-   *
-   * @param annotationType the annotation type to check
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(
-      Class<? extends Annotation> annotationType) {
-    return classesAnnotatedWithShouldBePackagePrivate(annotationType.getName(),
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with a given annotation type
-   * should be package-private, using a custom configuration.
-   *
-   * @param annotationType the annotation type to check
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(
-      Class<? extends Annotation> annotationType, Configuration configuration) {
-    return classesAnnotatedWithShouldBePackagePrivate(annotationType.getName(), configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name should be package-private (e.g. {@code "jakarta.persistence.Entity"}).
-   *
-   * @param annotationType the annotation type name to check
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(String annotationType) {
-    return classesAnnotatedWithShouldBePackagePrivate(annotationType, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes annotated with an annotation whose name matches
-   * the given type name should be package-private, using a custom configuration.
-   *
-   * @param annotationType the annotation type name to check
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAnnotatedWithShouldBePackagePrivate(String annotationType,
+  public JavaConfigurer classesShouldBePackagePrivate(DescribedPredicate<? super JavaClass> classes,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-            .that().areAnnotatedWith(annotationType)
+            .that(classes)
             .should().bePackagePrivate()
-            .as("Classes annotated with %s should be package-private".formatted(annotationType)),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that classes assignable to the given type should be package-private
-   * (e.g. Spring Data repositories extending {@code org.springframework.data.repository.Repository}).
-   *
-   * @param clazz the type the classes are assignable to
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAssignableToShouldBePackagePrivate(Class<?> clazz) {
-    return classesAssignableToShouldBePackagePrivate(clazz.getName(), defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes assignable to the given type should be package-private,
-   * using a custom configuration.
-   *
-   * @param clazz the type the classes are assignable to
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAssignableToShouldBePackagePrivate(Class<?> clazz,
-      Configuration configuration) {
-    return classesAssignableToShouldBePackagePrivate(clazz.getName(), configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that classes assignable to the type with the given name
-   * should be package-private.
-   *
-   * @param typeName the fully qualified name of the type the classes are assignable to
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAssignableToShouldBePackagePrivate(String typeName) {
-    return classesAssignableToShouldBePackagePrivate(typeName, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that classes assignable to the type with the given name
-   * should be package-private, using a custom configuration.
-   *
-   * @param typeName the fully qualified name of the type the classes are assignable to
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer classesAssignableToShouldBePackagePrivate(String typeName,
-      Configuration configuration) {
-    return addRule(TaikaiRule.of(classes()
-            .that().areAssignableTo(typeName)
-            .and().doNotHaveFullyQualifiedName(typeName)
-            .should().bePackagePrivate()
-            .as("Classes assignable to %s should be package-private".formatted(typeName)),
+            .as("Classes %s should be package-private".formatted(classes.getDescription())),
         configuration));
   }
 
@@ -1714,7 +1746,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that fields should not be {@code public}
    * unless they are also {@code static}.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer fieldsShouldNotBePublic() {
     return fieldsShouldNotBePublic(defaultConfiguration());
@@ -1724,209 +1756,176 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that fields should not be {@code public}
    * unless they are also {@code static}, using a custom configuration.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer fieldsShouldNotBePublic(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should(notBePublicUnlessStatic())
         .as("Fields should not be public unless they are static"), configuration));
   }
 
   /**
-   * Adds a rule enforcing that fields whose names match a regex
-   * must have all specified modifiers.
+   * Adds a rule enforcing that fields matching the given criteria must have all specified
+   * modifiers. Synthetic fields generated by the compiler are ignored.
    *
-   * @param regex the regex for field names
-   * @param requiredModifiers the required modifiers
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
+   *     example {@code FieldCriteria.nameMatching("logger")}, or an ArchUnit predicate
+   * @param requiredModifiers the modifiers that must be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer fieldsShouldHaveModifiers(String regex,
-      Collection<JavaModifier> requiredModifiers) {
-    return fieldsShouldHaveModifiers(regex, requiredModifiers, defaultConfiguration());
+  public JavaConfigurer fieldsShouldHaveModifiers(
+      DescribedPredicate<? super JavaField> fields, Collection<JavaModifier> requiredModifiers) {
+    return fieldsShouldHaveModifiers(fields, requiredModifiers, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that fields whose names match a regex
-   * must have all specified modifiers, using a custom configuration.
+   * See {@link #fieldsShouldHaveModifiers(DescribedPredicate, Collection)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for field names
-   * @param requiredModifiers the required modifiers
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param fields the fields to check
+   * @param requiredModifiers the modifiers that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer fieldsShouldHaveModifiers(String regex,
-      Collection<JavaModifier> requiredModifiers,
+  public JavaConfigurer fieldsShouldHaveModifiers(
+      DescribedPredicate<? super JavaField> fields, Collection<JavaModifier> requiredModifiers,
       Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
-            .that().haveNameMatching(regex)
+            .that(fields)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(hasFieldModifiers(requiredModifiers))
-            .as("Fields have name matching %s should have all of this modifiers %s".formatted(
-                regex,
+            .as("Fields %s should have all of these modifiers %s".formatted(
+                fields.getDescription(),
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that fields whose names match a regex
-   * must not have the specified modifiers.
+   * Adds a rule enforcing that all fields declared in classes matching the given criteria
+   * must have the specified modifiers. Synthetic fields generated by the compiler are ignored.
    *
-   * @param regex the regex for field names
-   * @param notRequiredModifiers the modifiers that the field must not have
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared fields are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param requiredModifiers the modifiers that must be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer fieldsShouldNotHaveModifiers(String regex,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return fieldsShouldNotHaveModifiers(regex, notRequiredModifiers, defaultConfiguration());
+  public JavaConfigurer fieldsShouldHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> requiredModifiers) {
+    return fieldsShouldHaveModifiersForClass(classes, requiredModifiers, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that fields whose names match a regex
-   * must not have the specified modifiers, using a custom configuration.
+   * See {@link #fieldsShouldHaveModifiersForClass(DescribedPredicate, Collection)}, with a custom
+   * configuration.
    *
-   * @param regex the regex for field names
-   * @param notRequiredModifiers the modifiers that the field must not have
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param classes the classes whose declared fields are checked
+   * @param requiredModifiers the modifiers that must be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer fieldsShouldNotHaveModifiers(String regex,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+  public JavaConfigurer fieldsShouldHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes, Collection<JavaModifier> requiredModifiers,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
-            .that().haveNameMatching(regex)
-            .should(notHasFieldModifiers(notRequiredModifiers))
-            .as("Fields have name matching %s should not have all of this modifiers %s".formatted(
-                regex,
-                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
-        configuration));
-  }
-
-  /**
-   * Adds a rule enforcing that fields annotated with a given annotation type
-   * must have all the specified modifiers.
-   *
-   * @param annotationType the annotation type to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer fieldsAnnotatedWithShouldHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> requiredModifiers) {
-    return fieldsAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that fields annotated with a given annotation type
-   * must have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer fieldsAnnotatedWithShouldHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
-    return fieldsAnnotatedWithShouldHaveModifiers(annotationType.getName(), requiredModifiers,
-        configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that fields annotated with an annotation whose name matches
-   * the given type name must have all the specified modifiers.
-   *
-   * @param annotationType the annotation type name to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer fieldsAnnotatedWithShouldHaveModifiers(String annotationType,
-      Collection<JavaModifier> requiredModifiers) {
-    return fieldsAnnotatedWithShouldHaveModifiers(annotationType, requiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that fields annotated with an annotation whose name matches
-   * the given type name must have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type name to check
-   * @param requiredModifiers the required {@link JavaModifier}s
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer fieldsAnnotatedWithShouldHaveModifiers(String annotationType,
-      Collection<JavaModifier> requiredModifiers, Configuration configuration) {
-    return addRule(TaikaiRule.of(fields()
-            .that().areAnnotatedWith(annotationType)
+            .that().areDeclaredInClassesThat(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(hasFieldModifiers(requiredModifiers))
-            .as("Fields annotated with %s should have all of these modifiers %s".formatted(
-                annotationType,
+            .as("Fields declared in classes %s should have all of these modifiers %s".formatted(
+                classes.getDescription(),
                 requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
   /**
-   * Adds a rule enforcing that fields annotated with a given annotation type
-   * must not have all the specified modifiers.
+   * Adds a rule enforcing that fields matching the given criteria must not have any of the
+   * specified modifiers. Synthetic fields generated by the compiler are ignored.
    *
-   * @param annotationType the annotation type to check
-   * @param notRequiredModifiers the modifiers that the field must not have
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
+   *     example {@code FieldCriteria.nameMatching("logger")}, or an ArchUnit predicate
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer fieldsAnnotatedWithShouldNotHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return fieldsAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
-        defaultConfiguration());
+  public JavaConfigurer fieldsShouldNotHaveModifiers(
+      DescribedPredicate<? super JavaField> fields, Collection<JavaModifier> forbiddenModifiers) {
+    return fieldsShouldNotHaveModifiers(fields, forbiddenModifiers, defaultConfiguration());
   }
 
   /**
-   * Adds a rule enforcing that fields annotated with a given annotation type
-   * must not have all the specified modifiers, using a custom configuration.
+   * See {@link #fieldsShouldNotHaveModifiers(DescribedPredicate, Collection)}, with a custom
+   * configuration.
    *
-   * @param annotationType the annotation type to check
-   * @param notRequiredModifiers the modifiers that the field must not have
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param fields the fields to check
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.FieldCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JavaConfigurer fieldsAnnotatedWithShouldNotHaveModifiers(
-      Class<? extends Annotation> annotationType,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
-    return fieldsAnnotatedWithShouldNotHaveModifiers(annotationType.getName(), notRequiredModifiers,
-        configuration);
-  }
-
-  /**
-   * Adds a rule enforcing that fields annotated with an annotation whose name matches
-   * the given type name must not have all the specified modifiers.
-   *
-   * @param annotationType the annotation type name to check
-   * @param notRequiredModifiers the modifiers that the field must not have
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer fieldsAnnotatedWithShouldNotHaveModifiers(String annotationType,
-      Collection<JavaModifier> notRequiredModifiers) {
-    return fieldsAnnotatedWithShouldNotHaveModifiers(annotationType, notRequiredModifiers,
-        defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule enforcing that fields annotated with an annotation whose name matches
-   * the given type name must not have all the specified modifiers, using a custom configuration.
-   *
-   * @param annotationType the annotation type name to check
-   * @param notRequiredModifiers the modifiers that the field must not have
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer fieldsAnnotatedWithShouldNotHaveModifiers(String annotationType,
-      Collection<JavaModifier> notRequiredModifiers, Configuration configuration) {
+  public JavaConfigurer fieldsShouldNotHaveModifiers(
+      DescribedPredicate<? super JavaField> fields, Collection<JavaModifier> forbiddenModifiers,
+      Configuration configuration) {
     return addRule(TaikaiRule.of(fields()
-            .that().areAnnotatedWith(annotationType)
-            .should(notHasFieldModifiers(notRequiredModifiers))
-            .as("Fields annotated with %s should not have all of these modifiers %s".formatted(
-                annotationType,
-                notRequiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+            .that(fields)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should(notHasFieldModifiers(forbiddenModifiers))
+            .as("Fields %s should not have any of these modifiers %s".formatted(
+                fields.getDescription(),
+                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+        configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that all fields declared in classes matching the given criteria
+   * must not have the specified modifiers. Synthetic fields generated by the compiler are
+   * ignored.
+   *
+   * @param classes the classes whose declared fields are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer fieldsShouldNotHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      Collection<JavaModifier> forbiddenModifiers) {
+    return fieldsShouldNotHaveModifiersForClass(classes, forbiddenModifiers,
+        defaultConfiguration());
+  }
+
+  /**
+   * See {@link #fieldsShouldNotHaveModifiersForClass(DescribedPredicate, Collection)}, with a
+   * custom configuration.
+   *
+   * @param classes the classes whose declared fields are checked
+   * @param forbiddenModifiers the modifiers that must not be present
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer fieldsShouldNotHaveModifiersForClass(
+      DescribedPredicate<? super JavaClass> classes,
+      Collection<JavaModifier> forbiddenModifiers, Configuration configuration) {
+    return addRule(TaikaiRule.of(fields()
+            .that().areDeclaredInClassesThat(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should(notHasFieldModifiers(forbiddenModifiers))
+            .as("Fields declared in classes %s should not have any of these modifiers %s".formatted(
+                classes.getDescription(),
+                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
   }
 
@@ -1934,69 +1933,31 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule prohibiting usage of a specific class.
    *
    * @param clazz the class type that must not be used
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOf(Class<?> clazz) {
-    return noUsageOf(clazz.getName(), null, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule prohibiting usage of a specific class
-   * within a given package.
-   *
-   * @param clazz the class type that must not be used
-   * @param packageIdentifier the package where it is disallowed
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier) {
-    return noUsageOf(clazz.getName(), packageIdentifier, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule prohibiting usage of a specific class
-   * within a given package, using a custom configuration.
-   *
-   * @param clazz the class type that must not be used
-   * @param packageIdentifier the package where it is disallowed
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer noUsageOf(Class<?> clazz, String packageIdentifier,
-      Configuration configuration) {
-    return noUsageOf(clazz.getName(), packageIdentifier, configuration);
+    return noUsageOf(clazz.getName(), defaultConfiguration());
   }
 
   /**
    * Adds a rule prohibiting usage of a specific class, with a custom configuration.
    *
    * @param clazz the class type that must not be used
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOf(Class<?> clazz, Configuration configuration) {
-    return noUsageOf(clazz.getName(), null, configuration);
+    return noUsageOf(clazz.getName(), configuration);
   }
 
   /**
    * Adds a rule prohibiting usage of a specific type by name.
    *
    * @param typeName the fully qualified class name that must not be used
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOf(String typeName) {
-    return noUsageOf(typeName, null, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule prohibiting usage of a specific type by name
-   * within a given package.
-   *
-   * @param typeName the fully qualified class name that must not be used
-   * @param packageIdentifier the package where it is disallowed
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer noUsageOf(String typeName, String packageIdentifier) {
-    return noUsageOf(typeName, packageIdentifier, defaultConfiguration());
+    return noUsageOf(typeName, defaultConfiguration());
   }
 
   /**
@@ -2004,41 +1965,152 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * using a custom configuration.
    *
    * @param typeName the fully qualified class name that must not be used
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOf(String typeName, Configuration configuration) {
-    return noUsageOf(typeName, null, configuration);
-  }
-
-  /**
-   * Adds a rule prohibiting usage of a specific type by name
-   * within a given package, using a custom configuration.
-   *
-   * @param typeName the fully qualified class name that must not be used
-   * @param packageIdentifier the package where it is disallowed
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
-   */
-  public JavaConfigurer noUsageOf(String typeName, @Nullable String packageIdentifier,
-      Configuration configuration) {
-    if (packageIdentifier != null) {
-      return addRule(TaikaiRule.of(noClasses()
-          .that().resideInAPackage(packageIdentifier)
-          .should().dependOnClassesThat().areAssignableTo(typeName)
-          .as("Classes %s reside in %s should not be used".formatted(
-              typeName, packageIdentifier)), configuration));
-    }
-
     return addRule(TaikaiRule.of(noClasses()
         .should().dependOnClassesThat().areAssignableTo(typeName)
         .as("Classes %s should not be used".formatted(typeName)), configuration));
   }
 
   /**
+   * Adds a rule prohibiting usage of a specific class by classes matching the given criteria.
+   *
+   * @param classes the classes in which usage is disallowed, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param clazz the class type that must not be used, including its subtypes
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> classes, Class<?> clazz) {
+    return noUsageOf(classes, clazz.getName(), defaultConfiguration());
+  }
+
+  /**
+   * See {@link #noUsageOf(DescribedPredicate, Class)}, with a custom configuration.
+   *
+   * @param classes the classes in which usage is disallowed
+   * @param clazz the class type that must not be used, including its subtypes
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> classes, Class<?> clazz,
+      Configuration configuration) {
+    return noUsageOf(classes, clazz.getName(), configuration);
+  }
+
+  /**
+   * Adds a rule prohibiting usage of a specific type by name by classes matching the given
+   * criteria.
+   *
+   * @param classes the classes in which usage is disallowed, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param typeName the fully qualified class name that must not be used, including its subtypes
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> classes, String typeName) {
+    return noUsageOf(classes, typeName, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #noUsageOf(DescribedPredicate, String)}, with a custom configuration.
+   *
+   * @param classes the classes in which usage is disallowed
+   * @param typeName the fully qualified class name that must not be used, including its subtypes
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> classes, String typeName,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses()
+        .that(classes)
+        .should().dependOnClassesThat().areAssignableTo(typeName)
+        .as("Classes %s should not use %s".formatted(classes.getDescription(), typeName)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule prohibiting usage of any type matching the given criteria. Classes that match
+   * the criteria themselves are not checked, so the classes of a banned package may still use
+   * each other.
+   *
+   * @param forbiddenTypes the types that must not be used, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    return noUsageOf(forbiddenTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #noUsageOf(DescribedPredicate)}, with a custom configuration.
+   *
+   * @param forbiddenTypes the types that must not be used
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> forbiddenTypes,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses()
+        .that(DescribedPredicate.not(forbiddenTypes))
+        .should().dependOnClassesThat(forbiddenTypes)
+        .as("Classes %s should not be used".formatted(forbiddenTypes.getDescription())),
+        configuration));
+  }
+
+  /**
+   * Adds a rule prohibiting classes matching the given criteria from using any type matching
+   * other criteria. Selected classes that match the forbidden criteria themselves are not
+   * checked, so the classes of a banned package may still use each other.
+   *
+   * @param classes the classes in which usage is disallowed, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   * @param forbiddenTypes the types that must not be used
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    return noUsageOf(classes, forbiddenTypes, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #noUsageOf(DescribedPredicate, DescribedPredicate)}, with a custom configuration.
+   *
+   * @param classes the classes in which usage is disallowed
+   * @param forbiddenTypes the types that must not be used
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   * @see com.enofex.taikai.ClassCriteria
+   * @see com.tngtech.archunit.base.DescribedPredicate
+   */
+  public JavaConfigurer noUsageOf(DescribedPredicate<? super JavaClass> classes,
+      DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses()
+        .that(classes)
+        .and(DescribedPredicate.not(forbiddenTypes))
+        .should().dependOnClassesThat(forbiddenTypes)
+        .as("Classes %s should not use classes %s".formatted(
+            classes.getDescription(), forbiddenTypes.getDescription())), configuration));
+  }
+
+  /**
    * Adds a rule prohibiting the usage of {@code System.out} and {@code System.err}.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOfSystemOutOrErr() {
     return noUsageOfSystemOutOrErr(defaultConfiguration());
@@ -2048,8 +2120,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule prohibiting the usage of {@code System.out} and {@code System.err},
    * using a custom configuration.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer noUsageOfSystemOutOrErr(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -2060,7 +2132,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   /**
    * Adds a rule enforcing that {@code final} classes must not have any protected members.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers() {
     return finalClassesShouldNotHaveProtectedMembers(defaultConfiguration());
@@ -2070,8 +2142,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that {@code final} classes must not have any protected members,
    * using a custom configuration.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer finalClassesShouldNotHaveProtectedMembers(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
@@ -2084,7 +2156,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that {@code serialVersionUID} fields
    * must be {@code static final long}.
    *
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong() {
     return serialVersionUIDFieldsShouldBeStaticFinalLong(defaultConfiguration());
@@ -2094,8 +2166,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule enforcing that {@code serialVersionUID} fields
    * must be {@code static final long}, using a custom configuration.
    *
-   * @param configuration the configuration to use
-   * @return this {@link JavaConfigurer} for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public JavaConfigurer serialVersionUIDFieldsShouldBeStaticFinalLong(Configuration configuration) {
     return addRule(TaikaiRule.of(fields()

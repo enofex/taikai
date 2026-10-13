@@ -20,7 +20,7 @@ final class PackageNaming {
         String packageName = javaClass.getPackageName();
         if (!this.pattern.matcher(packageName).matches()) {
           events.add(SimpleConditionEvent.violated(javaClass,
-              "Package '%s' does not follow the naming convention".formatted(
+              "Package %s does not follow the naming convention".formatted(
                   packageName)));
         }
       }

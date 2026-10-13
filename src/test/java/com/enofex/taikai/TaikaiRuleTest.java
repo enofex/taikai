@@ -2,14 +2,17 @@ package com.enofex.taikai;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -40,6 +43,13 @@ class TaikaiRuleTest {
   @Test
   void shouldThrowNullPointerExceptionWhenConstructedWithNullArchRule() {
     assertThrows(NullPointerException.class, () -> TaikaiRule.of(null));
+  }
+
+  @Test
+  void shouldThrowNullPointerExceptionWhenConstructedWithNullConfiguration() {
+    ArchRule archRule = mock(ArchRule.class);
+
+    assertThrows(NullPointerException.class, () -> TaikaiRule.of(archRule, null));
   }
 
   @Test
@@ -217,6 +227,23 @@ class TaikaiRuleTest {
   }
 
   @Test
+  void shouldFilterClassesMatchingExcludedCriteriaInJavaClasses() {
+    ArchRule archRule = mock(ArchRule.class);
+    TaikaiRule rule = TaikaiRule.of(archRule);
+    long rawCount = Namespace.from("com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS)
+        .stream().count();
+
+    JavaClasses result = rule.javaClasses("com.enofex.taikai", null,
+        List.of("com.enofex.taikai.TaikaiRule"),
+        List.of(ClassCriteria.simpleNameMatching("TaikaiException"),
+                ClassCriteria.simpleNameMatching("ClassCriteria")));
+
+    assertEquals(rawCount - 3, result.stream().count());
+    assertFalse(result.contain(TaikaiException.class));
+    assertFalse(result.contain(ClassCriteria.class));
+  }
+
+  @Test
   void shouldFilterExcludedClassesFromConfigurationInJavaClasses() {
     ArchRule archRule = mock(ArchRule.class);
     JavaClasses rawClasses = Namespace.from("com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS);
@@ -231,5 +258,47 @@ class TaikaiRuleTest {
     long filteredCount = result.stream().count();
 
     assertEquals(rawCount - 1, filteredCount);
+  }
+
+  @Test
+  void shouldFilterExcludedClassesFromConfiguredJavaClasses() {
+    JavaClasses javaClasses = new ClassFileImporter().importClasses(Kept.class, ExcludedImpl.class);
+    TaikaiRule rule = TaikaiRule.of(mock(ArchRule.class),
+        Configuration.of(javaClasses, List.of(ExcludedImpl.class)));
+
+    JavaClasses result = rule.javaClasses(null, null, null);
+
+    assertTrue(result.contain(Kept.class));
+    assertFalse(result.contain(ExcludedImpl.class));
+  }
+
+  @Test
+  void shouldNotCheckExcludedClassesOfConfiguredJavaClasses() {
+    JavaClasses javaClasses = new ClassFileImporter().importClasses(Kept.class, ExcludedImpl.class);
+
+    Taikai taikai = Taikai.builder()
+        .java(java -> java.naming(naming -> naming.classesShouldNotMatch(".*Impl",
+            Configuration.of(javaClasses, List.of(ExcludedImpl.class.getName())))))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldCheckAllConfiguredJavaClassesWithoutExclusions() {
+    JavaClasses javaClasses = new ClassFileImporter().importClasses(Kept.class, ExcludedImpl.class);
+
+    Taikai taikai = Taikai.builder()
+        .java(java -> java.naming(naming -> naming.classesShouldNotMatch(".*Impl",
+            Configuration.of(javaClasses))))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  private static class Kept {
+  }
+
+  private static class ExcludedImpl {
   }
 }

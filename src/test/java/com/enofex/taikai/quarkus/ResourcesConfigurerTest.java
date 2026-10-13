@@ -1,5 +1,6 @@
 package com.enofex.taikai.quarkus;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 
 import jakarta.ws.rs.Path;
@@ -68,7 +69,7 @@ public class ResourcesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ResourcesConfigurerTest.UserResource.class)
           .quarkus(quarkus -> quarkus.resources(
-              res -> res.shouldBeAnnotatedWithPath(".+Resource")))
+              res -> res.shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".+Resource"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -79,7 +80,7 @@ public class ResourcesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ResourcesConfigurerTest.MissingRestResource.class)
           .quarkus(quarkus -> quarkus.resources(
-              res -> res.shouldBeAnnotatedWithPath(".+Resource")))
+              res -> res.shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".+Resource"))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -103,7 +104,7 @@ public class ResourcesConfigurerTest {
           .classes(ResourcesConfigurerTest.OrderResource.class,
               ResourcesConfigurerTest.DefaultOrderResource.class)
           .quarkus(quarkus -> quarkus.resources(
-              res -> res.shouldBeAnnotatedWithPath(".+Resource")))
+              res -> res.shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".+Resource"))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -337,7 +338,7 @@ public class ResourcesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(UserResource.class)
           .quarkus(quarkus -> quarkus.resources(r -> {
-            ResourcesConfigurer chained = r.shouldBeAnnotatedWithPath(".+Resource");
+            ResourcesConfigurer chained = r.shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".+Resource"));
             assertNotNull(chained, "shouldBeAnnotatedWithPath(String) must not return null");
           }))
           .build();
@@ -432,7 +433,7 @@ public class ResourcesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(MissingRestResource.class)
           .quarkus(quarkus -> quarkus.resources(
-              res -> res.shouldBeAnnotatedWithPath(".+Resource",
+              res -> res.shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".+Resource"),
                   com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
           .build();
 

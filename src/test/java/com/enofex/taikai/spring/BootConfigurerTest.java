@@ -3,7 +3,10 @@ package com.enofex.taikai.spring;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.TaikaiException;
+import com.enofex.taikai.TaikaiRule.Configuration;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -37,39 +40,11 @@ class BootConfigurerTest {
   }
 
   @Nested
-  class SpringBootApplicationShouldBeInDeprecated {
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void shouldNotThrowForDeprecatedMethodWhenApplicationInCorrectPackage() {
-      Taikai taikai = Taikai.builder()
-          .classes(CorrectPackageApplication.class)
-          .spring(spring -> spring.boot(
-              boot -> boot.springBootApplicationShouldBeIn("com.enofex.taikai.spring")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void shouldThrowForDeprecatedMethodWhenApplicationOutsidePackage() {
-      Taikai taikai = Taikai.builder()
-          .classes(WrongPackageApplication.class)
-          .spring(spring -> spring.boot(
-              boot -> boot.springBootApplicationShouldBeIn("com.example.other")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
   class ApplicationClassShouldResideInPackageZeroArg {
 
     @Test
-    void shouldThrowNPEWhenApplicationClassResideInPackageCalledWithoutNamespace() {
-      assertThrows(NullPointerException.class, () -> Taikai.builder()
+    void shouldThrowWhenApplicationClassResideInPackageCalledWithoutNamespace() {
+      assertThrows(TaikaiException.class, () -> Taikai.builder()
           .classes(CorrectPackageApplication.class)
           .spring(spring -> spring.boot(BootConfigurer::applicationClassShouldResideInPackage))
           .build());
@@ -89,19 +64,6 @@ class BootConfigurerTest {
   class ApplicationClassShouldResideInPackageWithConfiguration {
 
     @Test
-    @SuppressWarnings("deprecation")
-    void shouldNotThrowForDeprecatedMethodWithConfigurationWhenApplicationInCorrectPackage() {
-      Taikai taikai = Taikai.builder()
-          .classes(CorrectPackageApplication.class)
-          .spring(spring -> spring.boot(
-              boot -> boot.springBootApplicationShouldBeIn("com.enofex.taikai.spring",
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
     void shouldNotThrowWhenApplicationClassInCorrectPackageWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(CorrectPackageApplication.class)
@@ -113,6 +75,47 @@ class BootConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
 
+    @Test
+    void shouldUseNamespaceOfConfigurationAsRootPackage() {
+      Taikai taikai = Taikai.builder()
+          .namespace("com.enofex.taikai")
+          .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
+              Configuration.of("com.enofex.taikai.spring", Namespace.IMPORT.WITH_TESTS))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldFallBackToGlobalNamespaceAsRootPackage() {
+      Taikai taikai = Taikai.builder()
+          .namespace("com.enofex.taikai.spring")
+          .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
+              Configuration.of(Namespace.IMPORT.WITH_TESTS))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenApplicationClassOutsideGlobalNamespaceRootPackage() {
+      Taikai taikai = Taikai.builder()
+          .namespace("com.enofex.taikai")
+          .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
+              Configuration.of(Namespace.IMPORT.WITH_TESTS))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenNoNamespaceIsConfigured() {
+      assertThrows(TaikaiException.class, () -> Taikai.builder()
+          .classes(CorrectPackageApplication.class)
+          .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
+              Configuration.defaultConfiguration())))
+          .build());
+    }
   }
 
   @Nested

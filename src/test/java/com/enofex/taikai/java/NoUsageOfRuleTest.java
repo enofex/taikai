@@ -3,6 +3,8 @@ package com.enofex.taikai.java;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.ClassCriteria;
+import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.util.ArrayList;
@@ -19,7 +21,8 @@ class NoUsageOfRuleTest {
     void shouldRejectUncheckedExceptionsConstructedWithoutThrowsClause() {
       Taikai taikai = Taikai.builder()
           .classes(ThrowsHttpException.class)
-          .java(java -> java.noUsageOf(HttpStatusException.class, "com.enofex.taikai.java"))
+          .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.enofex.taikai.java"),
+              HttpStatusException.class))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -29,8 +32,8 @@ class NoUsageOfRuleTest {
     void shouldRejectExceptionSubclassesByTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(ThrowsHttpExceptionSubclass.class)
-          .java(java -> java.noUsageOf(HttpStatusException.class.getName(),
-              "com.enofex.taikai.java"))
+          .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.enofex.taikai.java"),
+              HttpStatusException.class.getName()))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -40,7 +43,8 @@ class NoUsageOfRuleTest {
     void shouldAllowExceptionUsageOutsideRestrictedLayer() {
       assertDoesNotThrow(() -> Taikai.builder()
           .classes(ThrowsHttpException.class)
-          .java(java -> java.noUsageOf(HttpStatusException.class, "com.company.service.."))
+          .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.company.service.."),
+              HttpStatusException.class))
           .build().check());
     }
 
@@ -48,7 +52,7 @@ class NoUsageOfRuleTest {
     void declarationRuleShouldAllowUncheckedThrowWithoutThrowsClause() {
       assertDoesNotThrow(() -> Taikai.builder()
           .classes(ThrowsHttpException.class)
-          .java(java -> java.methodsShouldNotDeclareException(".*", HttpStatusException.class))
+          .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), HttpStatusException.class))
           .build().check());
     }
   }
@@ -80,7 +84,8 @@ class NoUsageOfRuleTest {
     void shouldThrowWhenForbiddenTypeUsedWithinPackage() {
       Taikai taikai = Taikai.builder()
           .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
-          .java(java -> java.noUsageOf(ArrayList.class, "com.enofex.taikai.java"))
+          .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.enofex.taikai.java"),
+              ArrayList.class))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -90,7 +95,7 @@ class NoUsageOfRuleTest {
     void shouldNotThrowWhenPackageRestrictionDoesNotMatch() {
       Taikai taikai = Taikai.builder()
           .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
-          .java(java -> java.noUsageOf(ArrayList.class, "com.company.project"))
+          .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.company.project"), ArrayList.class))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -124,7 +129,8 @@ class NoUsageOfRuleTest {
     void shouldThrowWhenForbiddenTypeUsedWithinPackageByName() {
       Taikai taikai = Taikai.builder()
           .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
-          .java(java -> java.noUsageOf("java.util.ArrayList", "com.enofex.taikai.java"))
+          .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.enofex.taikai.java"),
+              "java.util.ArrayList"))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -134,7 +140,8 @@ class NoUsageOfRuleTest {
     void shouldNotThrowWhenPackageRestrictionDoesNotMatchByName() {
       Taikai taikai = Taikai.builder()
           .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
-          .java(java -> java.noUsageOf("java.util.ArrayList", "com.company.project"))
+          .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.company.project"),
+              "java.util.ArrayList"))
           .build();
 
       assertDoesNotThrow(taikai::check);

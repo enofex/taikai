@@ -61,7 +61,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * Configures {@code @ConfigurationProperties} rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link PropertiesConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer properties(Customizer<PropertiesConfigurer> customizer) {
     return customizer(customizer, () -> new PropertiesConfigurer(configurerContext()));
@@ -71,7 +71,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * Configures {@code @Configuration} class rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link ConfigurationsConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer configurations(
       Customizer<ConfigurationsConfigurer> customizer) {
@@ -83,7 +83,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link ControllersConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer controllers(
       Customizer<ControllersConfigurer> customizer) {
@@ -94,7 +94,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * Configures {@code @Service} class rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link ServicesConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer services(Customizer<ServicesConfigurer> customizer) {
     return customizer(customizer, () -> new ServicesConfigurer(configurerContext()));
@@ -104,7 +104,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * Configures {@code @Repository} class rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link RepositoriesConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer repositories(
       Customizer<RepositoriesConfigurer> customizer) {
@@ -115,7 +115,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * Configures Spring Boot application class rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link BootConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer boot(Customizer<BootConfigurer> customizer) {
     return customizer(customizer, () -> new BootConfigurer(configurerContext()));
@@ -125,7 +125,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * Configures {@code @Transactional} rules using the provided {@link Customizer}.
    *
    * @param customizer the customizer for {@link TransactionalConfigurer}
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer transactional(
       Customizer<TransactionalConfigurer> customizer) {
@@ -136,7 +136,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * Adds a rule that no fields in the codebase should be annotated with {@code @Autowired}.
    * Constructor injection should be preferred instead.
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer noAutowiredFields() {
     return noAutowiredFields(defaultConfiguration());
@@ -145,8 +145,8 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
   /**
    * See {@link #noAutowiredFields()}, but with {@link Configuration} for customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer noAutowiredFields(Configuration configuration) {
     return addRule(TaikaiRule.of(noFields()
@@ -182,10 +182,10 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    *
    * <p>Only annotations declared on the called method are taken into account. Since the receiver
    * of a call cannot be determined statically, calls on another instance of the same class, such
-   * as the self injection workaround, are reported as well. Use {@link Configuration} to exclude
+   * as the self-injection workaround, are reported as well. Use {@link Configuration} to exclude
    * those classes.</p>
    *
-   * @return this configurer instance for fluent chaining
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer noSelfInvocationOfProxiedMethods() {
     return noSelfInvocationOfProxiedMethods(ANNOTATIONS_APPLIED_BY_PROXY, defaultConfiguration());
@@ -195,8 +195,8 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * See {@link #noSelfInvocationOfProxiedMethods()}, but with {@link Configuration} for
    * customization.
    *
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
   public SpringConfigurer noSelfInvocationOfProxiedMethods(Configuration configuration) {
     return noSelfInvocationOfProxiedMethods(ANNOTATIONS_APPLIED_BY_PROXY, configuration);
@@ -206,27 +206,27 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
    * See {@link #noSelfInvocationOfProxiedMethods()}, but with a custom set of annotations instead
    * of the default ones.
    *
-   * @param annotations the fully qualified names of the annotations to check
-   * @return this configurer instance for fluent chaining
+   * @param annotationTypes the fully qualified names of the annotations to check
+   * @return this configurer for fluent chaining
    */
-  public SpringConfigurer noSelfInvocationOfProxiedMethods(Collection<String> annotations) {
-    return noSelfInvocationOfProxiedMethods(annotations, defaultConfiguration());
+  public SpringConfigurer noSelfInvocationOfProxiedMethods(Collection<String> annotationTypes) {
+    return noSelfInvocationOfProxiedMethods(annotationTypes, defaultConfiguration());
   }
 
   /**
    * See {@link #noSelfInvocationOfProxiedMethods(Collection)}, but with {@link Configuration} for
    * customization.
    *
-   * @param annotations   the fully qualified names of the annotations to check
-   * @param configuration the configuration for rule customization
-   * @return this configurer instance for fluent chaining
+   * @param annotationTypes the fully qualified names of the annotations to check
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
    */
-  public SpringConfigurer noSelfInvocationOfProxiedMethods(Collection<String> annotations,
+  public SpringConfigurer noSelfInvocationOfProxiedMethods(Collection<String> annotationTypes,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
-        .should(notSelfInvokeMethodsAnnotatedWith(annotations))
-        .as("Methods annotated with %s should not be self invoked, the call bypasses Spring's proxy and the annotation has no effect".formatted(
-            annotations)), configuration));
+        .should(notSelfInvokeMethodsAnnotatedWith(annotationTypes))
+        .as("Methods annotated with %s should not be self-invoked, the call bypasses Spring's proxy and the annotation has no effect".formatted(
+            String.join(" or ", annotationTypes))), configuration));
   }
 
   @Override
