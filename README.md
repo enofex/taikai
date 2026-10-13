@@ -58,12 +58,12 @@ void shouldFulfillConstraints() {
               .classesShouldNotMatch(".*Impl")
               .methodsShouldNotMatch("^(foo$|bar$).*")
               .fieldsShouldNotMatch(".*(List|Set|Map)$")
-              .fieldsShouldMatch("com.enofex.taikai.Matcher", "matcher")
+              .fieldsShouldMatch(FieldCriteria.ofType("com.enofex.taikai.Matcher"), "matcher")
               .constantsShouldFollowConventions()
               .enumConstantsShouldFollowConventions()
               .interfacesShouldNotHavePrefixI()))
       .logging(logging -> logging
-          .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))      
+          .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL)))
       .test(test -> test
           .junit(junit -> junit
               .classesShouldNotBeAnnotatedWithDisabled()
@@ -92,7 +92,7 @@ void shouldFulfillConstraints() {
           .transactional(transactional -> transactional
               .methodsShouldBePublic()
               .shouldNotBeSelfInvoked()
-              .shouldNotBeUsedInControllers()))      
+              .shouldNotBeUsedInControllers()))
       .addRule(TaikaiRule.of(...)) // Add custom ArchUnit rule here
       .build()
       .checkAll();
