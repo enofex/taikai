@@ -5,8 +5,6 @@ import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 
-import com.enofex.taikai.configures.AbstractConfigurer;
-import com.enofex.taikai.configures.Configurer;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
@@ -51,6 +49,9 @@ class Usage {
 
             .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
             .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+
+            .classesShouldHaveField(ClassCriteria.nameMatching("regex"), FieldCriteria.nameMatching("regex"))
+            .classesShouldHaveField(ClassCriteria.nameMatching("regex"), FieldCriteria.nameMatching("regex"), defaultConfiguration())
 
             .classesShouldImplement(ClassCriteria.nameMatching("regex"), Serializable.class)
             .classesShouldImplement(ClassCriteria.nameMatching("regex"), Serializable.class, defaultConfiguration())

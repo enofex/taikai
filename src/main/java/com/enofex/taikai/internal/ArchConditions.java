@@ -159,6 +159,33 @@ public final class ArchConditions {
   }
 
   /**
+   * Creates a condition that checks if a class has at least one field, declared or inherited,
+   * matching the given predicate. Synthetic fields are ignored.
+   *
+   * @param requiredFields the predicate selecting the required field
+   * @return an architectural condition for checking if a class has a matching field
+   */
+  public static ArchCondition<JavaClass> haveFieldMatching(
+      DescribedPredicate<? super JavaField> requiredFields) {
+    requireNonNull(requiredFields);
+    return new ArchCondition<>("have a field " + requiredFields.getDescription()) {
+      @Override
+      public void check(JavaClass item, ConditionEvents events) {
+        boolean hasField = item.getAllFields().stream()
+            .filter(field -> !field.getModifiers().contains(JavaModifier.SYNTHETIC))
+            .anyMatch(requiredFields);
+
+        if (!hasField) {
+          events.add(SimpleConditionEvent.violated(item,
+              "%s does not have a field %s %s".formatted(
+                  item.getName(), requiredFields.getDescription(),
+                  item.getSourceCodeLocation())));
+        }
+      }
+    };
+  }
+
+  /**
    * Creates a condition that checks if a field contains all the specified modifiers.
    *
    * @param requiredModifiers the collection of modifiers that the field is required to have
