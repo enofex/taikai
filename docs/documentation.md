@@ -628,6 +628,7 @@ Default import mode: `WITHOUT_TESTS`.
 | [`classesShouldBeAnnotatedWith`](#classesShouldBeAnnotatedWith) | matching classes carry an annotation |
 | [`classesShouldNotBeAnnotatedWith`](#classesShouldNotBeAnnotatedWith) | matching classes lack an annotation |
 | [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) | matching classes carry all given annotations |
+| [`classesShouldHaveField`](#classesShouldHaveField) | matching classes declare or inherit a matching field |
 | [`finalClassesShouldNotHaveProtectedMembers`](#finalClassesShouldNotHaveProtectedMembers) | `final` classes have no `protected` members |
 | [`utilityClassesShouldBeFinalAndHavePrivateConstructor`](#utilityClassesShouldBeFinalAndHavePrivateConstructor) | utility classes cannot be instantiated or extended |
 | [`fieldsShouldNotBePublic`](#fieldsShouldNotBePublic) | no `public` fields except `static` ones |
@@ -832,6 +833,24 @@ qualified annotation names.
         List.of(RestController.class.getName(), RequestMapping.class.getName()))
     .classesShouldBeAnnotatedWithAll(ClassCriteria.annotatedWith(RestController.class),
         List.of(RequestMapping.class.getName())))
+```
+
+#### `classesShouldHaveField` { #classesShouldHaveField }
+
+`classesShouldHaveField(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaField> requiredFields)`
+
+Classes matching the criteria must have at least one field matching the field criteria. Select the
+field by annotation, type or name with `FieldCriteria`, and combine criteria with `.and(...)` when a
+single field must satisfy all of them. The example requires an optimistic-locking `@Version` field
+in every entity, and a `Long` version in aggregates:
+
+```java
+.java(java -> java
+    .classesShouldHaveField(ClassCriteria.annotatedWith("jakarta.persistence.Entity"),
+        FieldCriteria.annotatedWith("jakarta.persistence.Version"))
+    .classesShouldHaveField(ClassCriteria.inPackage("..aggregate.."),
+        FieldCriteria.annotatedWith("jakarta.persistence.Version")
+            .and(FieldCriteria.ofType(Long.class))))
 ```
 
 #### `finalClassesShouldNotHaveProtectedMembers` { #finalClassesShouldNotHaveProtectedMembers }
