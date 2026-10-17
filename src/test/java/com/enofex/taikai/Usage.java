@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -80,6 +81,12 @@ class Usage {
 
             .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL))
             .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL), defaultConfiguration())
+
+            .fieldsShouldNotBeOfType(FieldCriteria.nameMatching("regex"), ClassCriteria.type(UUID.class))
+            .fieldsShouldNotBeOfType(FieldCriteria.nameMatching("regex"), ClassCriteria.type(UUID.class), defaultConfiguration())
+
+            .fieldsShouldNotBeOfTypeForClass(ClassCriteria.nameMatching("regex"), ClassCriteria.type(UUID.class))
+            .fieldsShouldNotBeOfTypeForClass(ClassCriteria.nameMatching("regex"), ClassCriteria.type(UUID.class), defaultConfiguration())
 
             .fieldsShouldNotBePublic()
             .fieldsShouldNotBePublic(defaultConfiguration())

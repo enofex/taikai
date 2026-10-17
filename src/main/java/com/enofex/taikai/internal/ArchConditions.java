@@ -75,6 +75,30 @@ public final class ArchConditions {
   }
 
   /**
+   * Prevents forbidden types in a field's declared type, including generic arguments, bounds, and
+   * array component types.
+   *
+   * @param forbiddenTypes the predicate selecting forbidden field types
+   * @return the field type condition
+   */
+  public static ArchCondition<JavaField> notHaveFieldTypesMatching(
+      DescribedPredicate<? super JavaClass> forbiddenTypes) {
+    requireNonNull(forbiddenTypes);
+    return new ArchCondition<>("not be of types " + forbiddenTypes.getDescription()) {
+      @Override
+      public void check(JavaField field, ConditionEvents events) {
+        field.getType().getAllInvolvedRawTypes().stream()
+            .filter(forbiddenTypes)
+            .sorted(Comparator.comparing(JavaClass::getName))
+            .forEach(type -> events.add(SimpleConditionEvent.violated(field,
+                "Field %s has forbidden type %s in signature %s %s".formatted(
+                    field.getFullName(), type.getName(), field.getType().getName(),
+                    field.getSourceCodeLocation()))));
+      }
+    };
+  }
+
+  /**
    * Creates a condition that checks if a method does not declare thrown exceptions.
    *
    * @return an architectural condition for checking thrown exceptions in methods
