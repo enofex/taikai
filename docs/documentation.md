@@ -487,7 +487,8 @@ that selects methods.
 
 `ClassCriteria` selects the classes a rule applies to. Rules that restrict sets of types, such as
 [`noUsageOf`](#noUsageOf), [`shouldNotImport`](#imports-shouldNotImport) or
-[`methodsShouldNotReturnForClass`](#methodsShouldNotReturnForClass), take class criteria for those
+[`methodsShouldNotReturnForClass`](#methodsShouldNotReturnForClass) or
+[`fieldsShouldNotBeOfType`](#fieldsShouldNotBeOfType), take class criteria for those
 types too, and `FieldCriteria.ofType(...)` selects fields by class criteria on their type.
 
 | Criterion | Matches |
@@ -634,6 +635,8 @@ Default import mode: `WITHOUT_TESTS`.
 | [`fieldsShouldNotHaveModifiers`](#fieldsShouldNotHaveModifiers) | matching fields lack modifiers |
 | [`fieldsShouldHaveModifiersForClass`](#fieldsShouldHaveModifiersForClass) | fields of matching classes carry modifiers |
 | [`fieldsShouldNotHaveModifiersForClass`](#fieldsShouldNotHaveModifiersForClass) | fields of matching classes lack modifiers |
+| [`fieldsShouldNotBeOfType`](#fieldsShouldNotBeOfType) | matching fields do not use forbidden types in their declared type |
+| [`fieldsShouldNotBeOfTypeForClass`](#fieldsShouldNotBeOfTypeForClass) | fields of matching classes do not use forbidden types in their declared type |
 | [`serialVersionUIDFieldsShouldBeStaticFinalLong`](#serialVersionUIDFieldsShouldBeStaticFinalLong) | `serialVersionUID` is `static final long` |
 | [`methodsShouldNotDeclareGenericExceptions`](#methodsShouldNotDeclareGenericExceptions) | no `throws Exception` / `RuntimeException` |
 | [`methodsShouldNotDeclareException`](#methodsShouldNotDeclareException) | matching methods do not declare a type |
@@ -920,6 +923,36 @@ Fails for a field that has any of the given modifiers.
 .java(java -> java
     .fieldsShouldNotHaveModifiersForClass(ClassCriteria.annotatedWith(RestController.class),
         List.of(STATIC)))
+```
+
+#### `fieldsShouldNotBeOfType` { #fieldsShouldNotBeOfType }
+
+`fieldsShouldNotBeOfType(DescribedPredicate<? super JavaField> fields, DescribedPredicate<? super JavaClass> forbiddenTypes)`
+
+Like [`fieldsShouldNotBeOfTypeForClass`](#fieldsShouldNotBeOfTypeForClass), with the same checks
+and limitations, but the fields are selected with field criteria, for example by name or
+annotation. The example keeps entity identifiers away from `UUID`:
+
+```java
+.java(java -> java
+    .fieldsShouldNotBeOfType(FieldCriteria.annotatedWith("jakarta.persistence.Id"),
+        ClassCriteria.type(UUID.class)))
+```
+
+#### `fieldsShouldNotBeOfTypeForClass` { #fieldsShouldNotBeOfTypeForClass }
+
+`fieldsShouldNotBeOfTypeForClass(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> forbiddenTypes)`
+
+Keeps types out of the fields of selected classes while allowing them to be used elsewhere, for
+example legacy date types in entities. `ClassCriteria.type` matches exactly the type, so combine it
+with `ClassCriteria.assignableTo` to ban subtypes such as `java.sql.Timestamp` as well:
+
+```java
+.java(java -> java
+    .fieldsShouldNotBeOfTypeForClass(ClassCriteria.annotatedWith("jakarta.persistence.Entity"),
+        ClassCriteria.type(Date.class).or(ClassCriteria.assignableTo(Date.class))
+            .or(ClassCriteria.type(Calendar.class))
+            .or(ClassCriteria.assignableTo(Calendar.class))))
 ```
 
 #### `serialVersionUIDFieldsShouldBeStaticFinalLong` { #serialVersionUIDFieldsShouldBeStaticFinalLong }
