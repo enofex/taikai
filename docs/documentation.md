@@ -385,11 +385,11 @@ Taikai.builder()
 
 Every rule group has `disable()`: `java`, `imports`, `naming`, `logging`, `test`, `junit`, `spring`,
 `boot`, `properties`, `configurations`, `controllers`, `services`, `repositories`, `transactional`,
-`quarkus`, `resources`, `panache` and `ai`.
+`quarkus`, `resources`, `panache`, `ai`, `jpa` and `entities`.
 
 `disable()` cascades to nested configurers: `java(...)` also clears `naming` and `imports`,
 `spring(...)` clears all its sub-configurers, `quarkus(...)` clears `resources`, `panache` and `ai`,
-and `test(...)` clears `junit`.
+`jpa(...)` clears `entities`, and `test(...)` clears `junit`.
 
 ### 5.10 Modifying an Existing Configuration
 
@@ -556,7 +556,7 @@ criteria.
 
 ## 6. How to Read the Rule Reference
 
-Sections 7 to 11 document every rule. To keep them readable, examples are shown as **fragments**
+Sections 7 to 12 document every rule. To keep them readable, examples are shown as **fragments**
 rather than complete tests. A fragment such as
 
 ```java
@@ -2303,7 +2303,45 @@ Applies to classes annotated `@RegisterAiService` (Quarkus LangChain4j).
 `shouldNotUseToolsAttributeInAiService` steers you towards `@Toolbox` on the method, which scopes
 tools per call instead of per service.
 
-## 12. Recommended Starter Configuration
+## 12. JPA Rules
+
+Default import mode: `WITHOUT_TESTS`.
+
+The rules only depend on the `jakarta.persistence` annotations, so they work with any JPA provider
+or framework, such as Spring Data JPA, Quarkus Hibernate ORM or plain Jakarta EE. Annotations are
+referenced by name, so Taikai does not need the JPA API at compile time. The older
+`javax.persistence` annotations are not supported.
+
+| Rule | Enforces |
+|------|----------|
+| [`entities.*`](#121-entities) | entity visibility, identifier and field types, optimistic locking and naming |
+
+### 12.1 Entities
+
+Applies to classes annotated `@Entity`, including composed annotations.
+
+| Rule | Enforces |
+|------|----------|
+| `shouldBePackagePrivate()` | entities are package-private |
+| `idsShouldNotBeOfType(DescribedPredicate<? super JavaClass> forbiddenTypes)` | `@Id` and `@EmbeddedId` fields of entities and mapped superclasses do not use forbidden types |
+| `shouldHaveFieldAnnotatedWithVersion()` | entities declare or inherit a `@Version` field |
+| `fieldsShouldNotBeOfType(DescribedPredicate<? super JavaClass> forbiddenTypes)` | fields of entities and mapped superclasses do not use forbidden types |
+| `namesShouldMatch(String regex)` | entity names match a regex |
+
+```java
+.jpa(jpa -> jpa
+    .entities(entities -> entities
+        .shouldBePackagePrivate()
+        .idsShouldNotBeOfType(ClassCriteria.type(UUID.class))
+        .shouldHaveFieldAnnotatedWithVersion()
+        .fieldsShouldNotBeOfType(
+            ClassCriteria.type(Date.class).or(ClassCriteria.assignableTo(Date.class))
+                .or(ClassCriteria.type(Calendar.class))
+                .or(ClassCriteria.assignableTo(Calendar.class)))
+        .namesShouldMatch(".+Entity")))
+```
+
+## 13. Recommended Starter Configuration
 
 A reasonable baseline for a new Spring Boot project. It is deliberately conservative: every rule
 here is one most teams already agree on. Add the stricter rules once this passes.
@@ -2385,7 +2423,7 @@ rollout:
   [`Configuration`](#58-per-rule-configuration) and work the list down.
 - Enable the rule groups one at a time, committing each as it goes green.
 
-## 13. Complete Example
+## 14. Complete Example
 
 The configuration Taikai applies to its own codebase, from
 [`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java):

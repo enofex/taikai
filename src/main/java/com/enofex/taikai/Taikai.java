@@ -7,6 +7,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
+import com.enofex.taikai.jpa.JpaConfigurer;
 import com.enofex.taikai.logging.LoggingConfigurer;
 import com.enofex.taikai.quarkus.QuarkusConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
@@ -469,6 +470,17 @@ public final class Taikai {
      */
     public Builder quarkus(Customizer<QuarkusConfigurer> customizer) {
       return configure(customizer, QuarkusConfigurer::new);
+    }
+
+    /**
+     * Configures Jakarta Persistence (JPA) architectural rules using the provided
+     * {@link Customizer}.
+     *
+     * @param customizer the customizer for {@link JpaConfigurer}
+     * @return this builder for fluent chaining
+     */
+    public Builder jpa(Customizer<JpaConfigurer> customizer) {
+      return configure(customizer, JpaConfigurer::new);
     }
 
     private <T extends Configurer> Builder configure(Customizer<T> customizer,
