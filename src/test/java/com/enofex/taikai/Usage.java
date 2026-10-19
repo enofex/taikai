@@ -332,6 +332,22 @@ class Usage {
 
                 .shouldNotDependOnOtherResources()
                 .shouldNotDependOnOtherResources(defaultConfiguration())))
+        .jpa(jpa -> jpa
+            .entities(entities -> entities
+                .fieldsShouldNotBeOfType(ClassCriteria.assignableTo(Date.class))
+                .fieldsShouldNotBeOfType(ClassCriteria.assignableTo(Date.class), defaultConfiguration())
+
+                .idsShouldNotBeOfType(ClassCriteria.type(UUID.class))
+                .idsShouldNotBeOfType(ClassCriteria.type(UUID.class), defaultConfiguration())
+
+                .namesShouldMatch("regex")
+                .namesShouldMatch("regex", defaultConfiguration())
+
+                .shouldBePackagePrivate()
+                .shouldBePackagePrivate(defaultConfiguration())
+
+                .shouldHaveFieldAnnotatedWithVersion()
+                .shouldHaveFieldAnnotatedWithVersion(defaultConfiguration())))
         .spring(spring -> spring
             .noAutowiredFields()
             .noAutowiredFields(defaultConfiguration())
