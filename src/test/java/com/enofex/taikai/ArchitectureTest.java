@@ -10,13 +10,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.TestFactory;
 
 class ArchitectureTest {
 
-  @Test
-  void shouldFulfillConstraints() {
-    Taikai.builder()
+  @DisplayName("Should fulfill constraints")
+  @TestFactory
+  Stream<DynamicTest> shouldFulfillConstraints() {
+    return Taikai.builder()
         .namespace("com.enofex.taikai")
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
@@ -49,6 +53,6 @@ class ArchitectureTest {
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))
         .build()
-        .checkAll();
+        .dynamicTests();
   }
 }
