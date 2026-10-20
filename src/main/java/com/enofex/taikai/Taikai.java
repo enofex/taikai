@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.DynamicTest;
 
 /**
  * Central entry point for defining and executing Taikai architectural rules.
@@ -33,10 +34,11 @@ import org.jspecify.annotations.Nullable;
  * through various {@code Configurer} implementations (Java, Spring, Logging, Test), and executes
  * rules against the imported {@link JavaClasses} for a given namespace.</p>
  *
- * <p>Rules can be executed in two modes:
+ * <p>Rules can be executed in three modes:
  * <ul>
  *   <li>{@link #check()} – stops at the first failure</li>
  *   <li>{@link #checkAll()} – evaluates all rules and aggregates failures</li>
+ *   <li>{@link #dynamicTests()} – runs every rule as a separate JUnit test</li>
  * </ul>
  *
  * <p>Use the {@link Builder} to configure and create an instance.</p>
@@ -201,6 +203,35 @@ public final class Taikai {
       throw new AssertionError(String.format("Found %d Taikai violations for %d rules!%n%s",
           allViolations, rulesViolated, report));
     }
+  }
+
+  /**
+   * Returns every configured rule as a separate JUnit Jupiter {@link DynamicTest}, named after the
+   * rule's description. Each rule passes or fails on its own in the IDE and in test reports, and a
+   * single rule can be rerun.
+   *
+   * <pre>{@code
+   * @TestFactory
+   * Stream<DynamicTest> architecture() {
+   *   return Taikai.builder()
+   *       .namespace("com.example.project")
+   *       .java(java -> java
+   *           .noUsageOfSystemOutOrErr()
+   *           .fieldsShouldNotBePublic())
+   *       .build()
+   *       .dynamicTests();
+   * }
+   * }</pre>
+   *
+   * <p>Requires {@code org.junit.jupiter:junit-jupiter-api} on the test classpath.</p>
+   *
+   * @return one dynamic test per rule, in the order the rules were configured
+   */
+  public Stream<DynamicTest> dynamicTests() {
+    return this.rules.stream()
+        .map(rule -> DynamicTest.dynamicTest(rule.archRule().getDescription(),
+            () -> rule.check(this.namespace, this.classes, this.excludedClasses,
+                this.excludedCriteria)));
   }
 
   /**
