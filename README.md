@@ -68,6 +68,16 @@ void shouldFulfillConstraints() {
           .junit(junit -> junit
               .classesShouldNotBeAnnotatedWithDisabled()
               .methodsShouldNotBeAnnotatedWithDisabled()))
+      .jpa(jpa -> jpa
+          .entities(entities -> entities
+              .shouldBePackagePrivate()
+              .idsShouldNotBeOfType(ClassCriteria.type(UUID.class))
+              .shouldHaveFieldAnnotatedWithVersion()
+              .fieldsShouldNotBeOfType(
+                  ClassCriteria.type(Date.class).or(ClassCriteria.assignableTo(Date.class))
+                      .or(ClassCriteria.type(Calendar.class))
+                      .or(ClassCriteria.assignableTo(Calendar.class)))
+              .namesShouldMatch(".+Entity")))    
       .spring(spring -> spring
           .noAutowiredFields()
           .noSelfInvocationOfProxiedMethods()
