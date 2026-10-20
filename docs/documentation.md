@@ -244,12 +244,13 @@ The default is `false`. Turning it on is recommended for any long-lived configur
 
 ### 5.6 Running the Checks
 
-Both methods evaluate every configured rule; they differ in how they report.
+All three methods evaluate every configured rule; they differ in how they report.
 
-| Method       | Behavior                                                                        |
-|--------------|----------------------------------------------------------------------------------|
-| `check()`    | Stops at the first violated rule and throws immediately.                        |
-| `checkAll()` | Evaluates all rules, aggregates every violation, then throws one combined report. |
+| Method           | Behavior                                                                        |
+|------------------|----------------------------------------------------------------------------------|
+| `check()`        | Stops at the first violated rule and throws immediately.                        |
+| `checkAll()`     | Evaluates all rules, aggregates every violation, then throws one combined report. |
+| `dynamicTests()` | Returns one JUnit dynamic test per rule, each passing or failing on its own.    |
 
 ```java
 Taikai.builder()
@@ -267,6 +268,29 @@ Taikai.builder()
 
 Prefer `checkAll()` when introducing Taikai to an existing codebase, so you see the whole backlog in
 one run. `check()` gives a shorter, more focused failure once the codebase is clean.
+
+`dynamicTests()` turns every rule into its own JUnit Jupiter test, named after the rule's
+description. The IDE and the test reports then show which rules pass and which fail, and a single
+rule can be rerun from the IDE. Return the stream from a `@TestFactory` method:
+
+```java
+@TestFactory
+Stream<DynamicTest> architecture() {
+  return Taikai.builder()
+      .namespace("com.company.project")
+      .java(java -> java
+          .noUsageOfSystemOutOrErr()
+          .fieldsShouldNotBePublic())
+      .build()
+      .dynamicTests();
+}
+```
+
+```text
+architecture()
+├─ ✔ Classes should not use System.out or System.err
+└─ ✘ Fields should not be public unless they are static
+```
 
 ### 5.7 Reading the Failure Report
 

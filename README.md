@@ -109,6 +109,22 @@ void shouldFulfillConstraints() {
 }
 ```
 
+## One Test per Rule
+
+Return `dynamicTests()` from a JUnit `@TestFactory` to see every rule as its own test in the IDE and
+in test reports:
+
+```java
+@TestFactory
+Stream<DynamicTest> architecture() {
+  return Taikai.builder()
+      .namespace("com.enofex.taikai")
+      .java(java -> java.noUsageOfSystemOutOrErr())
+      .build()
+      .dynamicTests();
+}
+```
+
 ## User Guide
 
 Explore the complete [documentation](https://enofex.github.io/taikai) for comprehensive information on all available rules.
