@@ -62,7 +62,7 @@ class ArchitectureTest {
                 .shouldNotBeSelfInvoked()
                 .shouldNotBeUsedInControllers()))
         .build()
-        .check();
+        .checkAll();
   }
 }
 ```
