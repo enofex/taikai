@@ -14,4 +14,14 @@ public final class TaikaiException extends RuntimeException {
   public TaikaiException(String message) {
     super(message);
   }
+
+  /**
+   * Creates an exception with the given message and cause.
+   *
+   * @param message the detail message
+   * @param cause the cause
+   */
+  public TaikaiException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

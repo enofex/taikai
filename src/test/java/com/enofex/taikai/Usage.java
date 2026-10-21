@@ -5,10 +5,19 @@ import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 
+import com.enofex.taikai.checks.ClassFileVersionCheck;
+import com.enofex.taikai.checks.ForbiddenFilesCheck;
+import com.enofex.taikai.checks.MavenWrapperCheck;
+import com.enofex.taikai.checks.RequiredFilesCheck;
+import com.enofex.taikai.checks.spi.CheckContext;
+import com.enofex.taikai.checks.spi.ForwardingCheckContext;
+import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -524,6 +533,73 @@ class Usage {
         .test(DEFAULT_TEST_PROFILE)
         .build()
         .checkAll();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .java(JavaConfigurer::noUsageOfSystemOutOrErr)
+        .build()
+        .dynamicTests();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .discoverChecks()
+        .build()
+        .checkAll();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .discoverChecks(checks -> checks
+            .projectDirectory(Path.of(".."))
+            .exclude(MavenWrapperCheck.class))
+        .build()
+        .checkAll();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .discoverChecks(checks -> checks
+            .configure(RequiredFilesCheck.class, RequiredFilesCheck.files("README.md", "LICENSE"))
+            .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17))
+            .configure(ForbiddenFilesCheck.class,
+                ForbiddenFilesCheck.files("src/main/**/*.key", "**/.env")))
+        .build()
+        .checkAll();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .discoverChecks(checks -> checks
+            .configure(LicenseCheck.class, "LICENSE")
+
+            .context(context -> new ForwardingCheckContext(context) {
+              @Override
+              public ClassLoader classLoader() {
+                return ClassLoader.getSystemClassLoader();
+              }
+            })
+            .context(LicenseCheck.class, context -> new ForwardingCheckContext(context) {
+              @Override
+              public Path projectDirectory() {
+                return super.projectDirectory().resolve("docs");
+              }
+            }))
+        .build()
+        .checkAll();
+  }
+
+  public static final class LicenseCheck implements TaikaiCheck {
+
+    @Override
+    public String description() {
+      return "Project should have a LICENSE";
+    }
+
+    @Override
+    public List<String> violations(CheckContext context) {
+      String fileName = context.configuration(String.class).orElse("LICENSE");
+
+      return Files.exists(context.projectDirectory().resolve(fileName))
+          ? List.of()
+          : List.of(fileName + " is missing in " + context.projectDirectory());
+    }
   }
 
   private static final Customizer<JavaConfigurer> DEFAULT_JAVA_PROFILE = java -> {

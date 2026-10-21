@@ -4,6 +4,11 @@ import static com.enofex.taikai.java.ImportPatterns.*;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
+import com.enofex.taikai.checks.ClassFileVersionCheck;
+import com.enofex.taikai.checks.ForbiddenFilesCheck;
+import com.enofex.taikai.checks.RequiredFilesCheck;
+import com.enofex.taikai.checks.spi.CheckContext;
+import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.Configurer;
 import java.text.SimpleDateFormat;
@@ -50,8 +55,17 @@ class ArchitectureTest {
                 .classesShouldNotMatch(".*Impl")
                 .classesShouldMatch(ClassCriteria.assignableTo(AbstractConfigurer.class), ".*Configurer")
                 .classesShouldMatch(ClassCriteria.implementing(Configurer.class), ".*Configurer")
+                .classesShouldMatch(ClassCriteria.implementing(TaikaiCheck.class), ".*Check")
+                .classesShouldMatch(ClassCriteria.implementing(CheckContext.class), ".*CheckContext")
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))
+        .discoverChecks(checks -> checks
+            .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
+                "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"))
+            .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
+                "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
+                "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
+            .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();
   }

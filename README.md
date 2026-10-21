@@ -125,6 +125,21 @@ Stream<DynamicTest> architecture() {
 }
 ```
 
+## Custom Checks
+
+A `TaikaiCheck` checks what ArchUnit cannot see, such as files in the project directory, resources
+or the classpath. Ship checks in a library, or use predefined ones such as
+`com.enofex.taikai.checks.RequiredFilesCheck`, register them in
+`META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck`, and discover them:
+
+```java
+Taikai.builder()
+    .namespace("com.enofex.taikai")
+    .discoverChecks()
+    .build()
+    .checkAll();
+```
+
 ## User Guide
 
 Explore the complete [documentation](https://enofex.github.io/taikai) for comprehensive information on all available rules.

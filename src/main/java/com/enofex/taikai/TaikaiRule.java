@@ -111,29 +111,36 @@ public final class TaikaiRule {
   JavaClasses javaClasses(@Nullable String globalNamespace, @Nullable JavaClasses classes,
       @Nullable Collection<String> excludedClasses,
       Collection<DescribedPredicate<? super JavaClass>> excludedCriteria) {
-    JavaClasses configuredClasses = this.configuration.javaClasses();
+    return javaClasses(this.configuration, globalNamespace, classes, excludedClasses,
+        excludedCriteria);
+  }
+
+  static JavaClasses javaClasses(Configuration configuration, @Nullable String globalNamespace,
+      @Nullable JavaClasses classes, @Nullable Collection<String> excludedClasses,
+      Collection<DescribedPredicate<? super JavaClass>> excludedCriteria) {
+    JavaClasses configuredClasses = configuration.javaClasses();
 
     if (configuredClasses != null) {
-      return this.configuration.excludedClasses.isEmpty()
+      return configuration.excludedClasses.isEmpty()
           ? configuredClasses
           : configuredClasses.that(
-              new ExcludeJavaClassDescribedPredicate(this.configuration.excludedClasses));
+              new ExcludeJavaClassDescribedPredicate(configuration.excludedClasses));
     }
 
     if (classes != null) {
       return classes;
     }
 
-    String namespace = this.configuration.namespace() != null
-        ? this.configuration.namespace()
+    String namespace = configuration.namespace() != null
+        ? configuration.namespace()
         : globalNamespace;
 
     if (namespace == null) {
       throw new TaikaiException("Namespace is not provided");
     }
 
-    Collection<String> allExcludedClasses = allExcludedClasses(excludedClasses);
-    JavaClasses javaClasses = Namespace.from(namespace, this.configuration.namespaceImport);
+    Collection<String> allExcludedClasses = allExcludedClasses(configuration, excludedClasses);
+    JavaClasses javaClasses = Namespace.from(namespace, configuration.namespaceImport);
 
     if (!allExcludedClasses.isEmpty()) {
       javaClasses = javaClasses.that(new ExcludeJavaClassDescribedPredicate(allExcludedClasses));
@@ -146,9 +153,10 @@ public final class TaikaiRule {
     return javaClasses;
   }
 
-  private Collection<String> allExcludedClasses(@Nullable Collection<String> excludedClasses) {
+  private static Collection<String> allExcludedClasses(Configuration configuration,
+      @Nullable Collection<String> excludedClasses) {
     return Stream.concat(
-        this.configuration.excludedClasses.stream(),
+        configuration.excludedClasses.stream(),
         excludedClasses != null
             ? excludedClasses.stream() : Stream.empty()
     ).toList();
