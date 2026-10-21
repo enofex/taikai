@@ -2,6 +2,8 @@ package com.enofex.taikai;
 
 import static java.util.Objects.requireNonNull;
 
+import com.enofex.taikai.checks.spi.CheckContext;
+import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.Configurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
@@ -21,8 +23,13 @@ import com.tngtech.archunit.lang.FailureReport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
@@ -32,7 +39,8 @@ import org.junit.jupiter.api.DynamicTest;
  *
  * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration
  * through various {@code Configurer} implementations (Java, Spring, Logging, Test), and executes
- * rules against the imported {@link JavaClasses} for a given namespace.</p>
+ * rules against the imported {@link JavaClasses} for a given namespace. Together with the rules,
+ * it runs {@link TaikaiCheck}s, which check the project beyond its classes.</p>
  *
  * <p>Rules can be executed in three modes:
  * <ul>
@@ -44,6 +52,7 @@ import org.junit.jupiter.api.DynamicTest;
  * <p>Use the {@link Builder} to configure and create an instance.</p>
  *
  * @see TaikaiRule
+ * @see TaikaiCheck
  * @see Configurer
  * @see Configurers
  * @see Namespace
@@ -58,6 +67,8 @@ public final class Taikai {
   private final Collection<String> excludedClasses;
   private final Collection<DescribedPredicate<? super JavaClass>> excludedCriteria;
   private final Collection<TaikaiRule> rules;
+  private final @Nullable ChecksConfigurer checksConfigurer;
+  private final List<ConfiguredCheck> checks;
 
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
@@ -69,6 +80,9 @@ public final class Taikai {
             builder.configurers.all().stream().flatMap(configurer -> configurer.rules().stream()),
             builder.rules.stream())
         .toList();
+    this.checksConfigurer = builder.checksConfigurer != null
+        ? new ChecksConfigurer(builder.checksConfigurer)
+        : null;
 
     if (this.namespace != null && this.classes != null) {
       throw new IllegalArgumentException("Setting namespace and classes are not supported");
@@ -76,6 +90,18 @@ public final class Taikai {
 
     ArchConfiguration.get()
         .setProperty("archRule.failOnEmptyShould", Boolean.toString(this.failOnEmpty));
+
+    this.checks = this.checksConfigurer != null
+        ? configuredChecks(this.checksConfigurer)
+        : List.of();
+  }
+
+  private List<ConfiguredCheck> configuredChecks(ChecksConfigurer configurer) {
+    return discoveredChecks(configurer).stream()
+        .map(check -> new ConfiguredCheck(check, configurer.decorate(new PerCheckContext(this,
+            configurer.projectDirectory(), check.getClass(),
+            configurer.configuration(check.getClass())))))
+        .toList();
   }
 
   /**
@@ -148,31 +174,47 @@ public final class Taikai {
   }
 
   /**
-   * Executes all configured rules and fails immediately on the first violation.
+   * Returns all active {@link TaikaiCheck} instances that will be executed after the rules: the
+   * discovered checks without the excluded ones, sorted by their description.
    *
-   * <p>Each rule is evaluated sequentially. If a rule fails, execution stops and
-   * an {@link AssertionError} is thrown with the failure details.</p>
+   * @return collection of active checks
+   * @see Builder#discoverChecks(Consumer)
+   */
+  public Collection<TaikaiCheck> checks() {
+    return this.checks.stream()
+        .map(ConfiguredCheck::check)
+        .toList();
+  }
+
+  /**
+   * Executes all configured rules and checks and fails immediately on the first violation.
    *
-   * @throws AssertionError if any rule fails
+   * <p>Each rule is evaluated sequentially, followed by each check. If a rule or check fails,
+   * execution stops and an {@link AssertionError} is thrown with the failure details.</p>
+   *
+   * @throws AssertionError if any rule or check fails
    */
   public void check() {
     this.rules.forEach(rule -> rule.check(this.namespace, this.classes, this.excludedClasses,
         this.excludedCriteria));
+
+    this.checks.forEach(Taikai::assertNoViolations);
   }
 
   /**
-   * Executes all rules and collects all violations before failing.
+   * Executes all rules and checks and collects all violations before failing.
    *
-   * <p>Unlike {@link #check()}, this method evaluates all rules and
+   * <p>Unlike {@link #check()}, this method evaluates all rules and checks and
    * aggregates all failures into a single report. If violations exist, an {@link AssertionError} is
    * thrown with a detailed failure summary.</p>
    *
-   * @throws AssertionError if any rule violations are found.
+   * @throws AssertionError if any rule or check violations are found.
    */
   public void checkAll() {
     StringBuilder report = new StringBuilder();
     int allViolations = 0;
     int rulesViolated = 0;
+    int checksViolated = 0;
 
     for (TaikaiRule rule : this.rules) {
       FailureReport ruleReport = rule
@@ -183,32 +225,102 @@ public final class Taikai {
 
       if (!ruleReport.isEmpty()) {
         rulesViolated++;
+        allViolations += appendViolations(report, "Rule", rule.archRule().getDescription(),
+            ruleReport.getDetails());
+      }
+    }
 
-        report.append(System.lineSeparator())
-            .append("Rule: ")
-            .append(rule.archRule().getDescription())
-            .append(System.lineSeparator());
+    for (ConfiguredCheck check : this.checks) {
+      List<String> violations = violations(check);
 
-        for (String detail : ruleReport.getDetails()) {
-          allViolations++;
-
-          report.append("\t")
-              .append(detail)
-              .append(System.lineSeparator());
-        }
+      if (!violations.isEmpty()) {
+        checksViolated++;
+        allViolations += appendViolations(report, "Check", check.check().description(),
+            violations);
       }
     }
 
     if (allViolations > 0) {
-      throw new AssertionError(String.format("Found %d Taikai violations for %d rules!%n%s",
-          allViolations, rulesViolated, report));
+      throw new AssertionError(String.format("Found %d Taikai violations for %s!%n%s",
+          allViolations, violated(rulesViolated, checksViolated), report));
     }
   }
 
+  private static String violated(int rulesViolated, int checksViolated) {
+    if (checksViolated == 0) {
+      return rulesViolated + " rules";
+    }
+
+    return rulesViolated == 0
+        ? checksViolated + " checks"
+        : "%d rules and %d checks".formatted(rulesViolated, checksViolated);
+  }
+
+  private static int appendViolations(StringBuilder report, String kind, String description,
+      List<String> violations) {
+    report.append(System.lineSeparator())
+        .append(kind)
+        .append(": ")
+        .append(description)
+        .append(System.lineSeparator());
+
+    for (String violation : violations) {
+      report.append("\t")
+          .append(violation)
+          .append(System.lineSeparator());
+    }
+
+    return violations.size();
+  }
+
+  private static void assertNoViolations(ConfiguredCheck check) {
+    List<String> violations = violations(check);
+
+    if (!violations.isEmpty()) {
+      throw new AssertionError("Check '%s' was violated (%d times):%n%s".formatted(
+          check.check().description(), violations.size(),
+          String.join(System.lineSeparator(), violations)));
+    }
+  }
+
+  private static List<String> violations(ConfiguredCheck check) {
+    try {
+      return List.copyOf(check.check().violations(check.context()));
+    } catch (RuntimeException | AssertionError | LinkageError e) {
+      return List.of("Check failed with " + e);
+    }
+  }
+
+  private static List<TaikaiCheck> discoveredChecks(ChecksConfigurer configurer) {
+    try {
+      List<ServiceLoader.Provider<TaikaiCheck>> providers =
+          ServiceLoader.load(TaikaiCheck.class, classLoader()).stream().toList();
+      Collection<Class<?>> excludedChecks = configurer.excludedChecks();
+
+      configurer.validate(providers.stream()
+          .map(ServiceLoader.Provider::type)
+          .collect(Collectors.toSet()));
+
+      return providers.stream()
+          .filter(provider -> !excludedChecks.contains(provider.type()))
+          .map(ServiceLoader.Provider::get)
+          .sorted(Comparator.comparing(TaikaiCheck::description))
+          .toList();
+    } catch (ServiceConfigurationError | LinkageError e) {
+      throw new TaikaiException("Could not discover the checks registered in "
+          + ChecksConfigurer.REGISTRATION_FILE, e);
+    }
+  }
+
+  static ClassLoader classLoader() {
+    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    return classLoader != null ? classLoader : Taikai.class.getClassLoader();
+  }
+
   /**
-   * Returns every configured rule as a separate JUnit Jupiter {@link DynamicTest}, named after the
-   * rule's description. Each rule passes or fails on its own in the IDE and in test reports, and a
-   * single rule can be rerun.
+   * Returns every configured rule and check as a separate JUnit Jupiter {@link DynamicTest}, named
+   * after the rule's or check's description. Each rule passes or fails on its own in the IDE and in
+   * test reports, and a single rule can be rerun.
    *
    * <pre>{@code
    * @TestFactory
@@ -225,13 +337,18 @@ public final class Taikai {
    *
    * <p>Requires {@code org.junit.jupiter:junit-jupiter-api} on the test classpath.</p>
    *
-   * @return one dynamic test per rule, in the order the rules were configured
+   * @return one dynamic test per rule, in the order the rules were configured, followed by one
+   *     dynamic test per check
    */
   public Stream<DynamicTest> dynamicTests() {
-    return this.rules.stream()
-        .map(rule -> DynamicTest.dynamicTest(rule.archRule().getDescription(),
-            () -> rule.check(this.namespace, this.classes, this.excludedClasses,
-                this.excludedCriteria)));
+    return Stream.concat(
+        this.rules.stream()
+            .map(rule -> DynamicTest.dynamicTest(rule.archRule().getDescription(),
+                () -> rule.check(this.namespace, this.classes, this.excludedClasses,
+                    this.excludedCriteria))),
+        this.checks.stream()
+            .map(check -> DynamicTest.dynamicTest(check.check().description(),
+                () -> assertNoViolations(check))));
   }
 
   /**
@@ -264,6 +381,10 @@ public final class Taikai {
     return new Builder(this);
   }
 
+  private record ConfiguredCheck(TaikaiCheck check, CheckContext context) {
+
+  }
+
   /**
    * Builder for constructing a {@link Taikai} instance with namespace, rules, and configurers.
    *
@@ -293,6 +414,7 @@ public final class Taikai {
     private final Collection<TaikaiRule> rules;
     private final Collection<String> excludedClasses;
     private final Collection<DescribedPredicate<? super JavaClass>> excludedCriteria;
+    private @Nullable ChecksConfigurer checksConfigurer;
     private boolean failOnEmpty;
     private @Nullable String namespace;
     private @Nullable JavaClasses classes;
@@ -309,6 +431,9 @@ public final class Taikai {
       this.rules = new ArrayList<>(taikai.rules());
       this.excludedClasses = new ArrayList<>(taikai.excludedClasses());
       this.excludedCriteria = new ArrayList<>(taikai.excludedCriteria());
+      this.checksConfigurer = taikai.checksConfigurer != null
+          ? new ChecksConfigurer(taikai.checksConfigurer)
+          : null;
       this.failOnEmpty = taikai.failOnEmpty();
       this.namespace = taikai.namespace();
       this.classes = taikai.classes();
@@ -333,6 +458,49 @@ public final class Taikai {
      */
     public Builder addRules(Collection<TaikaiRule> rules) {
       this.rules.addAll(rules);
+      return this;
+    }
+
+    /**
+     * Runs the {@link TaikaiCheck}s that are registered in
+     * {@code META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck} on the classpath after
+     * the rules, with the default settings. Same as {@code discoverChecks(checks -> {})}.
+     *
+     * @return this builder for fluent chaining
+     * @see #discoverChecks(Consumer)
+     */
+    public Builder discoverChecks() {
+      return discoverChecks(checks -> {
+      });
+    }
+
+    /**
+     * Runs the {@link TaikaiCheck}s that are registered in
+     * {@code META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck} on the classpath after
+     * the rules, configured with the given {@link ChecksConfigurer}. The checks are discovered when
+     * {@link #build()} is called and run sorted by their description.
+     *
+     * <p>Calling this method again customizes the same {@link ChecksConfigurer}, so the settings
+     * of all calls add up.</p>
+     *
+     * <pre>{@code
+     * .discoverChecks(checks -> checks
+     *     .projectDirectory(Path.of(".."))
+     *     .exclude(LicenseCheck.class))
+     * }</pre>
+     *
+     * @param customizer the customizer for {@link ChecksConfigurer}
+     * @return this builder for fluent chaining
+     * @see java.util.ServiceLoader
+     */
+    public Builder discoverChecks(Consumer<ChecksConfigurer> customizer) {
+      requireNonNull(customizer);
+
+      if (this.checksConfigurer == null) {
+        this.checksConfigurer = new ChecksConfigurer();
+      }
+
+      customizer.accept(this.checksConfigurer);
       return this;
     }
 
@@ -531,6 +699,9 @@ public final class Taikai {
      * @return a new {@link Taikai} instance ready for {@link Taikai#check()} or
      *         {@link Taikai#checkAll()}
      * @throws IllegalArgumentException if both {@link #namespace} and {@link #classes} are set
+     * @throws TaikaiException if a registered check cannot be loaded or instantiated, if an
+     *     excluded check is not registered, or if a configured check is not registered or is
+     *     excluded
      */
     public Taikai build() {
       return new Taikai(this);

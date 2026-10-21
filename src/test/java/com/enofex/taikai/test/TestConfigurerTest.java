@@ -12,7 +12,7 @@ class TestConfigurerTest {
     Taikai taikai = Taikai.builder()
         .classes(ValidTestClass.class)
         .test(test -> test.junit(
-            junit -> junit.methodsShouldBePackagePrivate()))
+            JUnitConfigurer::methodsShouldBePackagePrivate))
         .build();
 
     assertDoesNotThrow(taikai::check);
@@ -23,7 +23,7 @@ class TestConfigurerTest {
     Taikai taikai = Taikai.builder()
         .classes(ValidTestClass.class)
         .test(test -> {
-          test.junit(junit -> junit.methodsShouldBePackagePrivate());
+          test.junit(JUnitConfigurer::methodsShouldBePackagePrivate);
           test.disable();
         })
         .build();

@@ -244,13 +244,14 @@ The default is `false`. Turning it on is recommended for any long-lived configur
 
 ### 5.6 Running the Checks
 
-All three methods evaluate every configured rule; they differ in how they report.
+All three methods evaluate every configured rule and [custom check](#514-custom-checks); they
+differ in how they report.
 
-| Method           | Behavior                                                                        |
-|------------------|----------------------------------------------------------------------------------|
-| `check()`        | Stops at the first violated rule and throws immediately.                        |
-| `checkAll()`     | Evaluates all rules, aggregates every violation, then throws one combined report. |
-| `dynamicTests()` | Returns one JUnit dynamic test per rule, each passing or failing on its own.    |
+| Method           | Behavior                                                                                    |
+|------------------|---------------------------------------------------------------------------------------------|
+| `check()`        | Stops at the first violated rule or check and throws immediately.                           |
+| `checkAll()`     | Evaluates all rules and checks, aggregates every violation, then throws one combined report. |
+| `dynamicTests()` | Returns one JUnit dynamic test per rule and check, each passing or failing on its own.      |
 
 ```java
 Taikai.builder()
@@ -297,7 +298,9 @@ architecture()
 `check()` propagates ArchUnit's own `AssertionError` for the first failing rule.
 
 `checkAll()` produces an aggregated report with a violation count, a rule count, and the individual
-violations grouped per rule:
+violations grouped per rule. Violated [custom checks](#514-custom-checks) are counted separately,
+as in `Found 3 Taikai violations for 1 rules and 1 checks!`, and listed with `Check:` instead of
+`Rule:`:
 
 ```text
 java.lang.AssertionError: Found 2 Taikai violations for 2 rules!
@@ -578,9 +581,210 @@ To select fields or methods by their declaring class, use the `…ForClass` vari
 [`fieldsShouldHaveModifiersForClass`](#fieldsShouldHaveModifiersForClass), which take class
 criteria.
 
+### 5.14 Custom Checks
+
+Not every architecture or setup convention is visible in the compiled classes. A `TaikaiCheck`
+checks anything else a test run can see, such as files in the project directory, resources, or the
+classpath. Checks are shipped in a library, for example with the conventions of a whole company,
+and discovered with the Java `ServiceLoader`. They run after the rules and are part of `check()`,
+`checkAll()` and `dynamicTests()`, where each check becomes a test of its own.
+
+```java
+public final class LicenseCheck implements TaikaiCheck {
+
+  @Override
+  public String description() {
+    return "Project should have a LICENSE";
+  }
+
+  @Override
+  public List<String> violations(CheckContext context) {
+    return Files.exists(context.projectDirectory().resolve("LICENSE"))
+        ? List.of()
+        : List.of("LICENSE is missing in " + context.projectDirectory());
+  }
+}
+```
+
+`TaikaiCheck` and `CheckContext` are in the package `com.enofex.taikai.checks.spi`. A check
+returns one message per violation, or an empty list if it passes. Violations are reported like
+those of a rule, but labeled and counted as checks:
+
+```text
+java.lang.AssertionError: Found 1 Taikai violations for 1 checks!
+
+Check: Project should have a LICENSE
+	LICENSE is missing in /home/dev/project
+```
+
+The `CheckContext` describes the project that is checked:
+
+| Method | Returns |
+|--------|---------|
+| `check()` | The class of the check that receives the context. |
+| `projectDirectory()` | The working directory of the test run, which Maven and Gradle set to the directory of the module under test, unless [configured otherwise](#configuring-the-checks). |
+| `namespace()` | The configured namespace, or `null` if classes are configured instead. |
+| `classes()` | The configured classes without test classes and without the [globally excluded classes](#54-excluding-classes-globally). The import of a namespace is cached and shared with the rules. |
+| `classLoader()` | The class loader of the test run, for example to find resources with `getResources(String)`. |
+| `configuration(Class<T>)` | The [configuration](#configuring-a-single-check) of the check as an `Optional`, for example its settings. |
+| `requireConfiguration(Class<T>)` | The configuration of the check, or an `IllegalStateException` naming the check if it is not configured. |
+
+#### Registering and discovering checks
+
+The library lists the fully qualified class names of its checks in the file
+`META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck`, one per line:
+
+```text
+com.company.checks.LicenseCheck
+com.company.checks.CodeownersCheck
+```
+
+A project that has the library on its test classpath runs these checks with `discoverChecks()`:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .discoverChecks()
+    .build()
+    .checkAll();
+```
+
+Discovery is opt-in, so adding a library never changes what a test checks on its own. The rules
+for discovered checks are:
+
+- A check must be a public class with a public constructor without parameters.
+- Checks are discovered when `build()` is called, and run sorted by their description, so that the
+  order is the same in Maven, Gradle and the IDE.
+- A check that throws an exception, fails an assertion or misses a class does not abort the run.
+  The failure is reported as a violation of that check, and the other rules and checks still run.
+
+#### Predefined checks
+
+Taikai ships ready-made checks for common project conventions, such as required or forbidden
+files, the Maven Wrapper, or the Java version of the classes. They are documented in
+[Section 13](#13-predefined-checks).
+
+#### Configuring the checks
+
+`discoverChecks` also takes a customizer for a `ChecksConfigurer`, in the same style as the rule
+configurers:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .discoverChecks(checks -> checks
+        .projectDirectory(Path.of(".."))   // the repository root instead of the module directory
+        .exclude(LicenseCheck.class))      // switch off a single check
+    .build()
+    .checkAll();
+```
+
+| Method | Behavior |
+|--------|----------|
+| `projectDirectory(Path)` | Sets the project directory of the context. |
+| `exclude(Class<? extends TaikaiCheck>...)` | Switches off single checks. An excluded check is not even instantiated. |
+| `configure(Class<C>, Object)` | [Configures a single check](#configuring-a-single-check), for example with its settings. |
+| `context(UnaryOperator<CheckContext>)` | [Changes the context](#changing-the-context) of every check. |
+| `context(Class<C>, UnaryOperator<CheckContext>)` | Changes the context of a single check. |
+
+`discoverChecks()` is the same as `discoverChecks(checks -> {})`. Calling `discoverChecks` several
+times customizes the same `ChecksConfigurer`, so the settings add up, and `toBuilder()` keeps them.
+
+`build()` fails with a `TaikaiException` if a registered check cannot be loaded or instantiated,
+if `exclude(...)`, `configure(...)` or `context(...)` names a check that is not registered, or if
+`configure(...)` or `context(...)` names an excluded check. A misspelled or outdated configuration
+therefore does not go unnoticed.
+
+#### Configuring a single check
+
+A check is created through its constructor without parameters, so a project cannot pass settings
+to it directly. Instead, the project configures the check by its class, and the check reads its
+configuration from the context. A check in a library can define its settings as a record and fall
+back to defaults when the project does not configure it:
+
+```java
+public record ForbiddenDependencies(List<String> artifacts) {
+}
+
+public final class ForbiddenDependenciesCheck implements TaikaiCheck {
+
+  private static final ForbiddenDependencies DEFAULTS =
+      new ForbiddenDependencies(List.of("log4j:log4j"));
+
+  @Override
+  public String description() {
+    return "Forbidden dependencies should not be on the classpath";
+  }
+
+  @Override
+  public List<String> violations(CheckContext context) {
+    List<String> forbidden = context.configuration(ForbiddenDependencies.class)
+        .orElse(DEFAULTS)
+        .artifacts();
+    // ...
+  }
+}
+```
+
+The project configures the check:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .discoverChecks(checks -> checks
+        .configure(ForbiddenDependenciesCheck.class,
+            new ForbiddenDependencies(List.of("log4j:log4j", "commons-logging"))))
+    .build()
+    .checkAll();
+```
+
+- Every check only sees its own configuration, so two checks can use the same type, such as
+  `List<String>`, without getting each other's settings.
+- A check has one configuration, typically a record with all its settings. Configuring a check
+  again replaces its configuration.
+- `configuration(...)` also accepts a supertype of the configured object. It throws an
+  `IllegalStateException` if the check is configured with an object of another type, instead of
+  silently falling back to the defaults.
+- A check that cannot run without configuration uses `requireConfiguration(...)`; a missing
+  configuration is then reported as a violation of that check.
+
+#### Changing the context
+
+A `context(...)` function receives the context of a check, which already uses the configured
+project directory and contains the configuration of the check, and returns the context the check
+gets instead. Extend `ForwardingCheckContext` from `com.enofex.taikai.checks.spi` to override only
+the methods you want to change; it forwards all others to the wrapped context:
+
+```java
+.discoverChecks(checks -> checks
+    .context(context -> new ForwardingCheckContext(context) {                      // every check
+      @Override
+      public ClassLoader classLoader() {
+        return pluginClassLoader;
+      }
+    })
+    .context(PomCheck.class, context -> new ForwardingCheckContext(context) {      // one check
+      @Override
+      public Path projectDirectory() {
+        return super.projectDirectory().resolve("parent");
+      }
+    }))
+```
+
+The functions are applied in the order they are configured, each wrapping the result of the
+previous one; a function for a single check is skipped for all other checks. To give a function the
+last word, configure it last. A function can override every method of the context, including
+`configuration(...)`, although `configure(...)` is the usual way to configure a check.
+
+The functions are applied once per check and `Taikai` instance, and the resulting context is used
+by `check()`, `checkAll()` and `dynamicTests()` alike. Anything expensive, such as creating a class
+loader, belongs outside of the function. The context only changes what the checks see; checks are
+always discovered with the class loader of the test run.
+
 ## 6. How to Read the Rule Reference
 
-Sections 7 to 12 document every rule. To keep them readable, examples are shown as **fragments**
+Sections 7 to 12 document every rule, and Section 13 the predefined checks. To keep them readable,
+examples are shown as **fragments**
 rather than complete tests. A fragment such as
 
 ```java
@@ -2365,7 +2569,154 @@ Applies to classes annotated `@Entity`, including composed annotations.
         .namesShouldMatch(".+Entity")))
 ```
 
-## 13. Recommended Starter Configuration
+## 13. Predefined Checks
+
+Taikai ships [custom checks](#514-custom-checks) for common project conventions in the package
+`com.enofex.taikai.checks`. Taikai does not register them itself, so that a new Taikai version
+never adds checks on its own. To run them, list the checks you want in the file
+`src/test/resources/META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck` of the project,
+next to any other checks:
+
+```text
+com.enofex.taikai.checks.ClassFileVersionCheck
+com.enofex.taikai.checks.ForbiddenFilesCheck
+com.enofex.taikai.checks.MavenWrapperCheck
+com.enofex.taikai.checks.RequiredFilesCheck
+com.enofex.taikai.checks.ServiceRegistrationsCheck
+```
+
+Then discover them with `discoverChecks()`. Checks with settings are
+[configured](#configuring-a-single-check) by their class:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .discoverChecks(checks -> checks
+        .configure(RequiredFilesCheck.class, RequiredFilesCheck.files("README.md", "LICENSE"))
+        .configure(ForbiddenFilesCheck.class,
+            ForbiddenFilesCheck.files("src/main/**/*.key", "src/main/**/.env"))
+        .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
+    .build()
+    .checkAll();
+```
+
+| Check | Checks that | Configuration |
+|-------|-------------|---------------|
+| [`ClassFileVersionCheck`](#ClassFileVersionCheck) | classes are not compiled for a newer Java version than allowed | required |
+| [`ForbiddenFilesCheck`](#ForbiddenFilesCheck) | the project contains no forbidden files, such as private keys | required |
+| [`MavenWrapperCheck`](#MavenWrapperCheck) | the project has the Maven Wrapper | none |
+| [`RequiredFilesCheck`](#RequiredFilesCheck) | the project has the required files, none of them empty | required |
+| [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) | the `META-INF/services` registrations refer to valid providers | none |
+
+The checks that look at files resolve them against the [project directory](#configuring-the-checks),
+which is the directory of the module under test. In a multi-module build, files such as the README
+or the Maven Wrapper usually lie in the root directory instead. Point the checks there with
+`discoverChecks(checks -> checks.projectDirectory(Path.of("..")))`, or a single check with
+[`context(RequiredFilesCheck.class, ...)`](#changing-the-context).
+
+#### `ClassFileVersionCheck` { #ClassFileVersionCheck }
+
+*Classes should not be compiled for a newer Java version than configured*
+
+Reads the Java version from the header of every class file of the configuration, without test
+classes and without the [globally excluded classes](#54-excluding-classes-globally), and reports
+the classes compiled for a newer Java version than allowed. Use it to keep a library usable on
+older Java versions, even when the build runs on a newer JDK. The check needs the newest allowed
+Java version:
+
+```java
+.discoverChecks(checks -> checks
+    .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
+```
+
+```text
+Check: Classes should not be compiled for a newer Java version than configured
+	Class com.company.project.OrderService is compiled for Java 21, but at most Java 17 is allowed
+```
+
+#### `ForbiddenFilesCheck` { #ForbiddenFilesCheck }
+
+*Project should not contain forbidden files*
+
+Reports files that must not be in the project, for example private keys or `.env` files. The files
+are glob patterns relative to the project directory, as in `FileSystem.getPathMatcher(String)`. As
+in `.gitignore`, `**/` also matches no directory, so `**/.env` also finds the `.env` in the project
+directory itself.
+
+The check needs the patterns of the forbidden files. Patterns in `src/main` are a good start,
+because everything in there ends up in the artifact, whether it is committed or not: a key that
+`.gitignore` keeps out of the repository would still be packaged from there. `src/test`, on the
+other hand, often contains test keystores on purpose. A configuration for private keys and
+certificates, `.env` files, and compiled or packaged files could look like this:
+
+```java
+.discoverChecks(checks -> checks
+    .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
+        "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
+        "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar")))
+```
+
+Only the directory before the first wildcard of a pattern is searched, and only as deep as the
+pattern reaches, so `src/main/**/*.key` does not look into `target` or `.git`. A pattern such as
+`**/.env` searches the whole project directory, including files that `.gitignore` keeps out of the
+repository, such as a local `.env`.
+
+```text
+Check: Project should not contain forbidden files
+	src/main/resources/server.key is forbidden (matches src/main/**/*.key)
+```
+
+#### `MavenWrapperCheck` { #MavenWrapperCheck }
+
+*Project should have the Maven Wrapper*
+
+Checks that the project can be built without a local Maven installation: the scripts `mvnw` and
+`mvnw.cmd` and the file `.mvn/wrapper/maven-wrapper.properties` must exist in the project
+directory and must not be empty.
+
+```text
+Check: Project should have the Maven Wrapper
+	mvnw.cmd is missing in /home/dev/project
+```
+
+#### `RequiredFilesCheck` { #RequiredFilesCheck }
+
+*Project should have the required files*
+
+Reports required files that are missing in the project directory or empty; a directory with the
+name of a required file counts as missing. The check needs the required files; their paths are
+relative to the project directory and may point into subdirectories:
+
+```java
+.discoverChecks(checks -> checks
+    .configure(RequiredFilesCheck.class,
+        RequiredFilesCheck.files("README.md", "LICENSE", "SECURITY.md", ".github/CODEOWNERS")))
+```
+
+```text
+Check: Project should have the required files
+	SECURITY.md is missing in /home/dev/project
+	/home/dev/project/LICENSE is empty
+```
+
+#### `ServiceRegistrationsCheck` { #ServiceRegistrationsCheck }
+
+*Service registrations should refer to valid providers*
+
+Checks the `ServiceLoader` registrations of the project, the files in
+`src/main/resources/META-INF/services` and `src/test/resources/META-INF/services` of the project
+directory. Every registered service must exist, and every provider must exist, implement the
+service, and be a public class with a public constructor without parameters, as the
+`ServiceLoader` requires. Comments and blank lines are ignored, and the classes are loaded with the
+class loader of the context without being initialized. Taikai uses it to validate its own
+registration of the predefined checks.
+
+```text
+Check: Service registrations should refer to valid providers
+	Provider com.company.checks.LicenceCheck registered in src/test/resources/META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck does not exist
+```
+
+## 14. Recommended Starter Configuration
 
 A reasonable baseline for a new Spring Boot project. It is deliberately conservative: every rule
 here is one most teams already agree on. Add the stricter rules once this passes.
@@ -2447,10 +2798,11 @@ rollout:
   [`Configuration`](#58-per-rule-configuration) and work the list down.
 - Enable the rule groups one at a time, committing each as it goes green.
 
-## 14. Complete Example
+## 15. Complete Example
 
 The configuration Taikai applies to its own codebase, from
-[`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java):
+[`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java).
+Every rule and check runs as a test of its own:
 
 ```java
 import static com.enofex.taikai.java.ImportPatterns.lombok;
@@ -2460,9 +2812,10 @@ import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
 class ArchitectureTest {
 
-  @Test
-  void shouldFulfillConstraints() {
-    Taikai.builder()
+  @DisplayName("Should fulfill constraints")
+  @TestFactory
+  Stream<DynamicTest> shouldFulfillConstraints() {
+    return Taikai.builder()
         .namespace("com.enofex.taikai")
         .java(java -> java
             .noUsageOfDeprecatedAPIs()
@@ -2494,10 +2847,31 @@ class ArchitectureTest {
                 .classesShouldMatch(ClassCriteria.assignableTo(AbstractConfigurer.class),
                     ".*Configurer")
                 .classesShouldMatch(ClassCriteria.implementing(Configurer.class), ".*Configurer")
+                .classesShouldMatch(ClassCriteria.implementing(TaikaiCheck.class), ".*Check")
+                .classesShouldMatch(ClassCriteria.implementing(CheckContext.class),
+                    ".*CheckContext")
                 .interfacesShouldNotHavePrefixI()
                 .constantsShouldFollowConventions()))
+        .discoverChecks(checks -> checks
+            .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
+                "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"))
+            .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
+                "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
+                "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
+            .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
-        .checkAll();
+        .dynamicTests();
   }
 }
+```
+
+The [predefined checks](#13-predefined-checks) are registered in
+`src/test/resources/META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck`:
+
+```text
+com.enofex.taikai.checks.ClassFileVersionCheck
+com.enofex.taikai.checks.ForbiddenFilesCheck
+com.enofex.taikai.checks.MavenWrapperCheck
+com.enofex.taikai.checks.RequiredFilesCheck
+com.enofex.taikai.checks.ServiceRegistrationsCheck
 ```
