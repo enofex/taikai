@@ -135,7 +135,9 @@ or the classpath. Ship checks in a library, or use predefined ones such as
 ```java
 Taikai.builder()
     .namespace("com.enofex.taikai")
-    .discoverChecks()
+    .discoverChecks(checks -> checks
+        .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
+            "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md")))
     .build()
     .checkAll();
 ```
