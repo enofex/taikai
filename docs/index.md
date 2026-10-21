@@ -82,3 +82,7 @@ The Open Source Community and [Enofex](https://enofex.com)
 ## License
 
 See [LICENSE](https://github.com/enofex/taikai/blob/main/LICENSE).
+
+## Sponsor
+
+[Sponsor Taikai on GitHub :heart:](https://github.com/sponsors/mnhock){ .md-button }
