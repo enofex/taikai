@@ -5,12 +5,24 @@ import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DynamicNode;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -510,6 +522,67 @@ class JUnitConfigurerTest {
         assertThrows(AssertionError.class, taikai::check);
     }
 
+    @Test
+    void shouldApplyTestsShouldBeExecutable() {
+        Taikai taikai = Taikai.builder()
+                .classes(ValidTestDeclarationsTest.class, ValidTestDeclarationsTest.Inner.class,
+                        PrivateAbstractTest.class, NestedAnnotation.class, ValidMetaNestedTest.Inner.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::testsShouldBeExecutable
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @ParameterizedTest
+    @MethodSource("nonExecutableTests")
+    void shouldThrowWhenTestsAreNotExecutable(Class<?> fixture, String expectedViolation) {
+        Taikai taikai = Taikai.builder()
+                .classes(fixture)
+                .test(test -> test.junit(
+                        JUnitConfigurer::testsShouldBeExecutable
+                ))
+                .build();
+
+        AssertionError error = assertThrows(AssertionError.class, taikai::check);
+        assertTrue(error.getMessage().contains(fixture.getName()), error.getMessage());
+        assertTrue(error.getMessage().contains(expectedViolation), error.getMessage());
+    }
+
+    static Stream<Arguments> nonExecutableTests() {
+        return Stream.of(
+                Arguments.of(PrivateTestMethodTest.class, "annotated with @Test is private"),
+                Arguments.of(StaticTestMethodTest.class, "annotated with @Test is static"),
+                Arguments.of(TestMethodReturningValueTest.class, "annotated with @Test returns a value"),
+                Arguments.of(MetaAnnotatedPrivateTestMethodTest.class, "annotated with @UnitTest is private"),
+                Arguments.of(ParameterizedTestReturningValueTest.class, "annotated with @ParameterizedTest returns a value"),
+                Arguments.of(StaticRepeatedTestTest.class, "annotated with @RepeatedTest is static"),
+                Arguments.of(PrivateTestFactoryTest.class, "annotated with @TestFactory is private"),
+                Arguments.of(TestFactoryReturningVoidTest.class, "annotated with @TestFactory does not return a DynamicNode"),
+                Arguments.of(TestFactoryReturningStringsTest.class, "annotated with @TestFactory does not return a DynamicNode"),
+                Arguments.of(TestFactoryReturningStringArrayTest.class, "annotated with @TestFactory does not return a DynamicNode"),
+                Arguments.of(TestFactoryReturningLowerBoundTest.class, "annotated with @TestFactory does not return a DynamicNode"),
+                Arguments.of(StaticNestedClassTest.Inner.class, "annotated with @Nested is static"),
+                Arguments.of(PrivateNestedClassTest.Inner.class, "annotated with @Nested is private"),
+                Arguments.of(PrivateTestClass.class, "containing test methods is private"),
+                Arguments.of(localTestClass(), "containing test methods is a local class"),
+                Arguments.of(anonymousTestClass(), "containing test methods is an anonymous class"));
+    }
+
+    @Test
+    void shouldSupportConfigurationForTestsShouldBeExecutable() {
+        Taikai taikai = Taikai.builder()
+                .classes(PrivateTestMethodTest.class)
+                .test(test -> test.junit(
+                        junit -> junit.testsShouldBeExecutable(
+                                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())
+                ))
+                .build();
+
+        assertThrows(AssertionError.class, taikai::check);
+    }
+
     static class ValidTestMethodName {
         @Test
         void shouldDoSomething() {}
@@ -651,7 +724,197 @@ class JUnitConfigurerTest {
         }
     }
 
+    static class ValidTestDeclarationsTest {
+        @BeforeAll
+        static void setUp() {}
+
+        @Test
+        void shouldRun() {}
+
+        @UnitTest
+        void shouldRunMetaAnnotated() {}
+
+        @ParameterizedTest
+        @EmptySource
+        void shouldRunParameterized(String empty) {}
+
+        @RepeatedTest(2)
+        void shouldRunRepeated() {}
+
+        @TestFactory
+        DynamicTest shouldCreateDynamicTest() {
+            return DynamicTest.dynamicTest("test", () -> {});
+        }
+
+        @TestFactory
+        DynamicNode[] shouldCreateArray() {
+            return new DynamicNode[0];
+        }
+
+        @TestFactory
+        Stream<DynamicTest> shouldCreateStream() {
+            return Stream.empty();
+        }
+
+        @TestFactory
+        Collection<DynamicNode> shouldCreateCollection() {
+            return List.of();
+        }
+
+        @TestFactory
+        Iterator<? extends DynamicNode> shouldCreateIterator() {
+            return Collections.emptyIterator();
+        }
+
+        @TestFactory
+        Stream<?> shouldCreateUnboundedStream() {
+            return Stream.empty();
+        }
+
+        @TestFactory
+        DynamicTestProvider shouldCreateIteratorProvider() {
+            return new DynamicTestProvider();
+        }
+
+        @TestFactory
+        Object shouldCreateObject() {
+            return Stream.empty();
+        }
+
+        private void helper() {}
+
+        static String staticHelper() {
+            return "";
+        }
+
+        @Nested
+        class Inner {
+            @Test
+            void shouldRunNested() {}
+        }
+    }
+
+    static class DynamicTestProvider {
+        Iterator<DynamicTest> iterator() {
+            return Collections.emptyIterator();
+        }
+    }
+
+    private abstract static class PrivateAbstractTest {
+        @Test
+        void shouldRunInSubclass() {}
+    }
+
+    static class PrivateTestMethodTest {
+        @Test
+        private void shouldNotRun() {}
+    }
+
+    static class StaticTestMethodTest {
+        @Test
+        static void shouldNotRun() {}
+    }
+
+    static class TestMethodReturningValueTest {
+        @Test
+        String shouldNotRun() {
+            return "";
+        }
+    }
+
+    static class MetaAnnotatedPrivateTestMethodTest {
+        @UnitTest
+        private void shouldNotRun() {}
+    }
+
+    static class ParameterizedTestReturningValueTest {
+        @ParameterizedTest
+        @EmptySource
+        int shouldNotRun(String empty) {
+            return 0;
+        }
+    }
+
+    static class StaticRepeatedTestTest {
+        @RepeatedTest(2)
+        static void shouldNotRun() {}
+    }
+
+    static class PrivateTestFactoryTest {
+        @TestFactory
+        private Stream<DynamicTest> shouldNotRun() {
+            return Stream.empty();
+        }
+    }
+
+    static class TestFactoryReturningVoidTest {
+        @TestFactory
+        void shouldNotRun() {}
+    }
+
+    static class TestFactoryReturningStringsTest {
+        @TestFactory
+        List<String> shouldNotRun() {
+            return List.of();
+        }
+    }
+
+    static class TestFactoryReturningStringArrayTest {
+        @TestFactory
+        String[] shouldNotRun() {
+            return new String[0];
+        }
+    }
+
+    static class TestFactoryReturningLowerBoundTest {
+        @TestFactory
+        Stream<? super DynamicTest> shouldNotRun() {
+            return Stream.empty();
+        }
+    }
+
+    static class StaticNestedClassTest {
+        @Nested
+        static class Inner {
+            @Test
+            void shouldNotRun() {}
+        }
+    }
+
+    static class PrivateNestedClassTest {
+        @Nested
+        private class Inner {
+            @Test
+            void shouldNotRun() {}
+        }
+    }
+
+    private static class PrivateTestClass {
+        @Test
+        void shouldNotRun() {}
+    }
+
+    static Class<?> localTestClass() {
+        class LocalTest {
+            @Test
+            void shouldNotRun() {}
+        }
+
+        return LocalTest.class;
+    }
+
+    static Class<?> anonymousTestClass() {
+        return new Object() {
+            @Test
+            void shouldNotRun() {}
+        }.getClass();
+    }
+
     @Nested
     @interface NestedAnnotation {
+    }
+
+    @Test
+    @interface UnitTest {
     }
 }

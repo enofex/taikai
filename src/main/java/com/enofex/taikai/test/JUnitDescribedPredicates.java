@@ -10,6 +10,8 @@ final class JUnitDescribedPredicates {
 
   static final String ANNOTATION_TEST = "org.junit.jupiter.api.Test";
   static final String ANNOTATION_PARAMETRIZED_TEST = "org.junit.jupiter.params.ParameterizedTest";
+  static final String ANNOTATION_TEST_TEMPLATE = "org.junit.jupiter.api.TestTemplate";
+  static final String ANNOTATION_TEST_FACTORY = "org.junit.jupiter.api.TestFactory";
   static final String ANNOTATION_DISABLED = "org.junit.jupiter.api.Disabled";
   static final String ANNOTATION_DISPLAY_NAME = "org.junit.jupiter.api.DisplayName";
   static final String ANNOTATION_NESTED = "org.junit.jupiter.api.Nested";

@@ -1954,6 +1954,7 @@ Default import mode: `ONLY_TESTS`. All rules live in the nested `junit(...)` con
 | [`classesShouldBePackagePrivate`](#junit-classesShouldBePackagePrivate) | matching classes are package-private |
 | [`classesShouldNotBeAnnotatedWithDisabled`](#junit-classesShouldNotBeAnnotatedWithDisabled) | no `@Disabled` classes |
 | [`nestedClassesShouldBeAnnotatedWithNested`](#junit-nestedClassesShouldBeAnnotatedWithNested) | inner test classes carry `@Nested` |
+| [`testsShouldBeExecutable`](#junit-testsShouldBeExecutable) | JUnit does not skip invalid test classes or methods |
 | [`methodsShouldMatch`](#junit-methodsShouldMatch) | test method names match a regex |
 | [`methodsShouldBePackagePrivate`](#junit-methodsShouldBePackagePrivate) | test methods are package-private |
 | [`methodsShouldBeAnnotatedWithDisplayName`](#junit-methodsShouldBeAnnotatedWithDisplayName) | test methods carry `@DisplayName` |
@@ -2048,6 +2049,46 @@ classes. Meta-annotations carrying `@Nested` are accepted.
 !!! note
     A project without inner test classes matches nothing, so this rule fails under
     `failOnEmpty(true)`.
+
+#### `testsShouldBeExecutable` { #junit-testsShouldBeExecutable }
+
+JUnit does not execute invalid test declarations. It only reports a discovery warning, so the build
+stays green while the affected tests never run:
+
+```java
+class OrderServiceTest {
+
+  @Test
+  private void shouldRejectEmptyOrder() { ... }   // private, never runs
+
+  @Test
+  boolean shouldAcceptOrder() { ... }              // returns a value, never runs
+
+  @Nested
+  static class WhenCancelled { ... }               // static, only runs if discovered on its own
+}
+```
+
+The rule follows the discovery validation of JUnit Jupiter and reports:
+
+- methods annotated with `@Test`, `@TestTemplate` or `@TestFactory` that are `private` or
+  `static`, including meta-annotations such as `@ParameterizedTest`, `@RepeatedTest` or your own
+  composed annotations
+- such methods that return a value, except `@TestFactory` methods, which must return a
+  `DynamicNode` or a `Stream`, `Collection`, `Iterable`, `Iterator` or array of `DynamicNode`
+- static classes annotated with `@Nested`
+- private classes annotated with `@Nested` or containing test methods, unless they are abstract
+- local and anonymous classes containing test methods
+
+```java
+.test(test -> test
+    .junit(junit -> junit
+        .testsShouldBeExecutable()))
+```
+
+!!! note
+    Inner classes containing test methods without `@Nested` are skipped by JUnit as well. They are
+    reported by [`nestedClassesShouldBeAnnotatedWithNested`](#junit-nestedClassesShouldBeAnnotatedWithNested).
 
 #### `methodsShouldMatch` { #junit-methodsShouldMatch }
 
@@ -2795,7 +2836,8 @@ class ArchitectureTest {
                 .methodsShouldBePackagePrivate()
                 .methodsShouldNotBeAnnotatedWithDisabled()
                 .methodsShouldNotDeclareExceptions()
-                .methodsShouldContainAssertionsOrVerifications()))
+                .methodsShouldContainAssertionsOrVerifications()
+                .testsShouldBeExecutable()))
         .spring(spring -> spring
             .noAutowiredFields()
             .noInjectionIntoStaticFields()
