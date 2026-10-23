@@ -1,12 +1,15 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.spring.InjectedStaticMembers.notBeAnnotatedWithAnyOf;
 import static com.enofex.taikai.spring.SelfInvokedProxiedMethods.notSelfInvokeMethodsAnnotatedWith;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATIONS_APPLIED_BY_PROXY;
+import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATIONS_INJECTION;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_AUTOWIRED;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithAutowired;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.members;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 
 import com.enofex.taikai.TaikaiRule;
@@ -15,6 +18,7 @@ import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import java.util.Collection;
 
 /**
@@ -31,6 +35,7 @@ import java.util.Collection;
  *     .namespace("com.example.project")
  *     .spring(spring -> spring
  *         .noAutowiredFields()
+ *         .noInjectionIntoStaticFields()
  *         .noSelfInvocationOfProxiedMethods()
  *         .boot(boot -> boot
  *             .applicationClassShouldResideInPackage("com.example.project"))
@@ -153,6 +158,47 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
         .should(be(annotatedWithAutowired(true)))
         .as("No fields should be annotated with %s, use constructor injection".formatted(
             ANNOTATION_AUTOWIRED)), configuration));
+  }
+
+  /**
+   * Adds a rule that no static fields or methods are annotated with an annotation that Spring uses
+   * for injection.
+   *
+   * <p>Spring injects into bean instances only. It skips static fields and methods annotated with
+   * {@code @Autowired}, {@code @Value} or {@code @Inject} and merely logs this at info level, so a
+   * static field stays {@code null} and a static setter is never called. Composed annotations such
+   * as {@code @LocalServerPort}, which is meta-annotated with {@code @Value}, are checked as
+   * well.</p>
+   *
+   * <p>The following annotations are checked, none of them has to be on the classpath:</p>
+   * <ul>
+   *   <li>{@code org.springframework.beans.factory.annotation.Autowired}</li>
+   *   <li>{@code org.springframework.beans.factory.annotation.Value}</li>
+   *   <li>{@code jakarta.inject.Inject}</li>
+   *   <li>{@code javax.inject.Inject}</li>
+   * </ul>
+   *
+   * <p>Only annotations on the fields and methods themselves are taken into account, so a static
+   * {@code @Bean} method with parameters annotated with {@code @Value} is not reported.</p>
+   *
+   * @return this configurer for fluent chaining
+   */
+  public SpringConfigurer noInjectionIntoStaticFields() {
+    return noInjectionIntoStaticFields(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #noInjectionIntoStaticFields()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   */
+  public SpringConfigurer noInjectionIntoStaticFields(Configuration configuration) {
+    return addRule(TaikaiRule.of(members()
+        .that().haveModifier(JavaModifier.STATIC)
+        .should(notBeAnnotatedWithAnyOf(ANNOTATIONS_INJECTION))
+        .as("No static fields or methods should be annotated with %s, Spring does not inject into static members".formatted(
+            String.join(" or ", ANNOTATIONS_INJECTION))), configuration));
   }
 
   /**
