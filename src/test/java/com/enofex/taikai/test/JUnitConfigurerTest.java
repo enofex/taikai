@@ -248,6 +248,42 @@ class JUnitConfigurerTest {
         assertDoesNotThrow(taikai::check);
     }
 
+    @Test
+    void shouldApplyMethodsContainAssertionsOrVerificationsWithHelperMethod() {
+        Taikai taikai = Taikai.builder()
+                .classes(HelperMethodAssertionTest.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldApplyMethodsContainAssertionsOrVerificationsWithInheritedHelperMethod() {
+        Taikai taikai = Taikai.builder()
+                .classes(InheritedHelperMethodAssertionTest.class, BaseAssertionTest.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+                ))
+                .build();
+
+        assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenRecursiveHelperMethodsDoNotContainAssertionsOrVerifications() {
+        Taikai taikai = Taikai.builder()
+                .classes(RecursiveHelperMethodWithoutAssertionTest.class)
+                .test(test -> test.junit(
+                        JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+                ))
+                .build();
+
+        assertThrows(AssertionError.class, taikai::check);
+    }
+
    static class ValidAssertionTest {
         @Test
         void shouldContainAssertion() {
@@ -259,6 +295,58 @@ class JUnitConfigurerTest {
         @Test
         void shouldNotContainAssertion() {
             int a = 1 + 1; // no assertion here
+        }
+    }
+
+    static class HelperMethodAssertionTest {
+        @Test
+        void shouldContainAssertionInHelperMethod() {
+            assertHelper();
+        }
+
+        @Test
+        void shouldContainAssertionInNestedHelperMethod() {
+            nestedHelper();
+        }
+
+        private static void nestedHelper() {
+            assertHelper();
+        }
+
+        private static void assertHelper() {
+            assertTrue(true);
+        }
+    }
+
+    abstract static class BaseAssertionTest {
+        protected void assertHelper() {
+            assertTrue(true);
+        }
+    }
+
+    static class InheritedHelperMethodAssertionTest extends BaseAssertionTest {
+        @Test
+        void shouldContainAssertionInInheritedHelperMethod() {
+            assertHelper();
+        }
+    }
+
+    static class RecursiveHelperMethodWithoutAssertionTest {
+        @Test
+        void shouldNotContainAssertion() {
+            ping(1);
+        }
+
+        private static void ping(int n) {
+            if (n > 0) {
+                pong(n - 1);
+            }
+        }
+
+        private static void pong(int n) {
+            if (n > 0) {
+                ping(n - 1);
+            }
         }
     }
 

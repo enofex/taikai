@@ -5,6 +5,9 @@ import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 final class ContainAssertionsOrVerifications {
 
@@ -15,24 +18,46 @@ final class ContainAssertionsOrVerifications {
     return new ArchCondition<>("a unit test should assert or verify something") {
       @Override
       public void check(JavaMethod item, ConditionEvents events) {
-        for (JavaMethodCall call : item.getMethodCallsFromSelf()) {
-          if (junit(call) ||
-              mockito(call) ||
-              hamcrest(call) ||
-              assertJ(call) ||
-              truth(call) ||
-              cucumber(call) ||
-              springMockMvc(call) ||
-              archRule(call) ||
-              taikai(call)
-          ) {
-            return;
+        if (!assertsOrVerifies(item, new HashSet<>())) {
+          events.add(SimpleConditionEvent.violated(
+              item,
+              "%s does not assert or verify anything".formatted(item.getDescription()))
+          );
+        }
+      }
+
+      private boolean assertsOrVerifies(JavaMethod method, Set<JavaMethod> visited) {
+        if (!visited.add(method)) {
+          return false;
+        }
+
+        for (JavaMethodCall call : method.getMethodCallsFromSelf()) {
+          if (assertionOrVerification(call)) {
+            return true;
           }
         }
-        events.add(SimpleConditionEvent.violated(
-            item,
-            "%s does not assert or verify anything".formatted(item.getDescription()))
-        );
+
+        // Follow calls into imported methods, e.g. helper methods that assert on behalf of the test
+        for (JavaMethodCall call : method.getMethodCallsFromSelf()) {
+          Optional<JavaMethod> target = call.getTarget().resolveMember();
+          if (target.isPresent() && assertsOrVerifies(target.get(), visited)) {
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      private boolean assertionOrVerification(JavaMethodCall call) {
+        return junit(call) ||
+            mockito(call) ||
+            hamcrest(call) ||
+            assertJ(call) ||
+            truth(call) ||
+            cucumber(call) ||
+            springMockMvc(call) ||
+            archRule(call) ||
+            taikai(call);
       }
 
       private boolean junit(JavaMethodCall call) {

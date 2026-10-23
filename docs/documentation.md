@@ -2112,6 +2112,10 @@ following counts:
 | ArchUnit       | `com.tngtech.archunit.lang.ArchRule.check`                                   |
 | Taikai         | `com.enofex.taikai.Taikai.check` / `checkAll`                                |
 
+Calls made indirectly through helper methods also count, e.g. a private `assertValid(...)` method in
+the same test class, a method inherited from a base test class, or a shared assertion utility. Helper
+methods are followed transitively as long as their classes are part of the imported classes.
+
 ```java
 .test(test -> test
     .junit(junit -> junit
