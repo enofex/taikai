@@ -2129,6 +2129,7 @@ Default import mode: `WITHOUT_TESTS`.
 | Rule | Enforces |
 |------|----------|
 | [`noAutowiredFields`](#spring-noAutowiredFields) | constructor injection instead of `@Autowired` fields |
+| [`noInjectionIntoStaticFields`](#spring-noInjectionIntoStaticFields) | no injection annotations on static fields or methods |
 | [`noSelfInvocationOfProxiedMethods`](#spring-noSelfInvocationOfProxiedMethods) | proxied annotations are not bypassed |
 | [`boot.applicationClassShouldResideInPackage`](#spring-boot-applicationClassShouldResideInPackage) | `@SpringBootApplication` sits in the base package |
 | [`properties.*`](#103-properties) | `@ConfigurationProperties` conventions |
@@ -2149,6 +2150,39 @@ explicit and objects testable without a container.
 .spring(spring -> spring
     .noAutowiredFields())
 ```
+
+#### `noInjectionIntoStaticFields` { #spring-noInjectionIntoStaticFields }
+
+Spring injects into bean instances only. It skips static fields and methods annotated with
+`@Autowired`, `@Value` or `@Inject` and merely logs this at info level, so the application starts,
+a static field stays `null` and a static setter is never called. The rule reports these fields and
+methods, including those annotated with a composed annotation such as `@LocalServerPort`, which is
+meta-annotated with `@Value`.
+
+```java
+@Component
+class PaymentClient {
+
+  @Value("${payment.timeout}")
+  private static int timeout; // never injected, stays 0
+}
+```
+
+```java
+.spring(spring -> spring
+    .noInjectionIntoStaticFields())
+```
+
+These annotations are checked. None of them has to be on the classpath:
+
+- `org.springframework.beans.factory.annotation.Autowired`
+- `org.springframework.beans.factory.annotation.Value`
+- `jakarta.inject.Inject`
+- `javax.inject.Inject`
+
+!!! note
+    Only annotations on the fields and methods themselves are considered. A static `@Bean` method
+    whose parameters are annotated with `@Value` works as expected and is not reported.
 
 #### `noSelfInvocationOfProxiedMethods` { #spring-noSelfInvocationOfProxiedMethods }
 
@@ -2764,6 +2798,7 @@ class ArchitectureTest {
                 .methodsShouldContainAssertionsOrVerifications()))
         .spring(spring -> spring
             .noAutowiredFields()
+            .noInjectionIntoStaticFields()
             .noSelfInvocationOfProxiedMethods()
             .boot(boot -> boot
                 .applicationClassShouldResideInPackage())

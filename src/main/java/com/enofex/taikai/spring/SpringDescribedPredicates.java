@@ -20,6 +20,9 @@ final class SpringDescribedPredicates {
   static final String ANNOTATION_DATA_REPOSITORY = "org.springframework.data.repository.Repository";
   static final String ANNOTATION_SPRING_BOOT_APPLICATION = "org.springframework.boot.autoconfigure.SpringBootApplication";
   static final String ANNOTATION_AUTOWIRED = "org.springframework.beans.factory.annotation.Autowired";
+  static final String ANNOTATION_VALUE = "org.springframework.beans.factory.annotation.Value";
+  static final String ANNOTATION_JAKARTA_INJECT = "jakarta.inject.Inject";
+  static final String ANNOTATION_JAVAX_INJECT = "javax.inject.Inject";
   static final String ANNOTATION_VALIDATED = "org.springframework.validation.annotation.Validated";
   static final String ANNOTATION_TRANSACTIONAL = "org.springframework.transaction.annotation.Transactional";
   static final String ANNOTATION_JAKARTA_TRANSACTIONAL = "jakarta.transaction.Transactional";
@@ -49,6 +52,15 @@ final class SpringDescribedPredicates {
   static final Collection<String> ANNOTATIONS_TRANSACTIONAL = List.of(
       ANNOTATION_TRANSACTIONAL,
       ANNOTATION_JAKARTA_TRANSACTIONAL);
+
+  /**
+   * Annotations whose injection Spring silently skips on static fields and methods.
+   */
+  static final Collection<String> ANNOTATIONS_INJECTION = List.of(
+      ANNOTATION_AUTOWIRED,
+      ANNOTATION_VALUE,
+      ANNOTATION_JAKARTA_INJECT,
+      ANNOTATION_JAVAX_INJECT);
 
   private SpringDescribedPredicates() {
   }

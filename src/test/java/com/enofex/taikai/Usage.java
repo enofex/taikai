@@ -361,6 +361,9 @@ class Usage {
             .noAutowiredFields()
             .noAutowiredFields(defaultConfiguration())
 
+            .noInjectionIntoStaticFields()
+            .noInjectionIntoStaticFields(defaultConfiguration())
+
             .noSelfInvocationOfProxiedMethods()
             .noSelfInvocationOfProxiedMethods(defaultConfiguration())
             .noSelfInvocationOfProxiedMethods(List.of("jakarta.transaction.Transactional"))
