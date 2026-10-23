@@ -2090,6 +2090,17 @@ The rule follows the discovery validation of JUnit Jupiter and reports:
     Inner classes containing test methods without `@Nested` are skipped by JUnit as well. They are
     reported by [`nestedClassesShouldBeAnnotatedWithNested`](#junit-nestedClassesShouldBeAnnotatedWithNested).
 
+!!! tip
+    JUnit can fail the build on these warnings itself. Set the critical severity for discovery
+    issues to `WARNING` in `src/test/resources/junit-platform.properties`:
+
+    ```properties
+    junit.platform.discovery.issue.severity.critical=WARNING
+    ```
+
+    The rule is still useful for projects that do not set this property, and it fails the
+    architecture test directly with a precise message.
+
 #### `methodsShouldMatch` { #junit-methodsShouldMatch }
 
 `methodsShouldMatch(String regex)`
