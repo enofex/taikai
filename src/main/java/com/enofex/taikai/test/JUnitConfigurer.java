@@ -9,6 +9,7 @@ import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMET
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.annotatedWithTestOrParameterizedTest;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.containTestOrParameterizedTestMethods;
+import static com.enofex.taikai.test.ExecutableTests.beExecutable;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -53,6 +54,7 @@ import java.util.regex.Pattern;
  *             .classesShouldNotBeAnnotatedWithDisabled()
  *             .classesShouldEndWithTest()
  *             .nestedClassesShouldBeAnnotatedWithNested()
+ *             .testsShouldBeExecutable()
  *         )
  *     );
  * }</pre>
@@ -359,6 +361,46 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .should().beMetaAnnotatedWith(ANNOTATION_NESTED)
             .as("Inner classes containing methods annotated with %s or %s should be annotated with %s".formatted(
                 ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST, ANNOTATION_NESTED)),
+        configuration));
+  }
+
+  /**
+   * Adds a rule that test classes and test methods are declared in a way that JUnit executes them.
+   *
+   * <p>JUnit does not execute invalid test declarations. It only reports a discovery warning, so
+   * the build stays green while the affected tests are silently ignored. The rule reports:</p>
+   * <ul>
+   *   <li>methods annotated with {@code @Test}, {@code @TestTemplate} or {@code @TestFactory} that
+   *   are {@code private} or {@code static}, including meta-annotations such as
+   *   {@code @ParameterizedTest} and {@code @RepeatedTest}</li>
+   *   <li>such methods that return a value, except {@code @TestFactory} methods, which must return a
+   *   {@code DynamicNode} or a {@code Stream}, {@code Collection}, {@code Iterable},
+   *   {@code Iterator} or array of {@code DynamicNode}</li>
+   *   <li>static classes annotated with {@code @Nested}</li>
+   *   <li>private classes annotated with {@code @Nested} or containing test methods, unless they
+   *   are abstract</li>
+   *   <li>local and anonymous classes containing test methods</li>
+   * </ul>
+   *
+   * <p>Inner classes containing test methods without {@code @Nested} are covered by
+   * {@link #nestedClassesShouldBeAnnotatedWithNested()}.</p>
+   *
+   * @return this configurer for fluent chaining
+   */
+  public JUnitConfigurer testsShouldBeExecutable() {
+    return testsShouldBeExecutable(CONFIGURATION);
+  }
+
+  /**
+   * See {@link #testsShouldBeExecutable()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   */
+  public JUnitConfigurer testsShouldBeExecutable(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+            .should(beExecutable())
+            .as("Test classes and methods should be executable by JUnit"),
         configuration));
   }
 

@@ -523,7 +523,10 @@ class Usage {
                 .methodsShouldNotDeclareExceptions(defaultConfiguration())
 
                 .nestedClassesShouldBeAnnotatedWithNested()
-                .nestedClassesShouldBeAnnotatedWithNested(defaultConfiguration())))
+                .nestedClassesShouldBeAnnotatedWithNested(defaultConfiguration())
+
+                .testsShouldBeExecutable()
+                .testsShouldBeExecutable(defaultConfiguration())))
         .build()
         .check();
 
