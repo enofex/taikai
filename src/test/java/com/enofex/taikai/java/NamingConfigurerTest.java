@@ -368,6 +368,16 @@ class NamingConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenInterfaceIsNamedI() {
+      Taikai taikai = Taikai.builder()
+          .classes(I.class)
+          .java(java -> java.naming(NamingConfigurer::interfacesShouldNotHavePrefixI))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -839,5 +849,8 @@ class NamingConfigurerTest {
   }
 
   interface IInvalidInterface {
+  }
+
+  interface I {
   }
 }

@@ -642,9 +642,11 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
     return new ArchCondition<>("not be prefixed with I") {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        if (javaClass.getSimpleName().startsWith("I") && Character.isUpperCase(
-            javaClass.getSimpleName().charAt(1))) {
-          events.add(SimpleConditionEvent.violated(javaClass, javaClass.getSimpleName()));
+        String simpleName = javaClass.getSimpleName();
+
+        if (simpleName.length() > 1 && simpleName.charAt(0) == 'I'
+            && Character.isUpperCase(simpleName.charAt(1))) {
+          events.add(SimpleConditionEvent.violated(javaClass, simpleName));
         }
       }
     };
