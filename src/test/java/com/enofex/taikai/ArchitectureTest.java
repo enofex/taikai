@@ -58,6 +58,7 @@ class ArchitectureTest {
                 .classesShouldMatch(ClassCriteria.implementing(TaikaiCheck.class), ".*Check")
                 .classesShouldMatch(ClassCriteria.implementing(CheckContext.class), ".*CheckContext")
                 .interfacesShouldNotHavePrefixI()
+                .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))
         .discoverChecks(checks -> checks
             .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
@@ -68,5 +69,7 @@ class ArchitectureTest {
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();
+
+
   }
 }
