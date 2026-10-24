@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class Configurers implements Iterable<Configurer> {
 
@@ -33,7 +33,7 @@ public final class Configurers implements Iterable<Configurer> {
     this.configurers.putIfAbsent(clazz, configurer);
   }
 
-  public <C extends Configurer> C get(Class<C> clazz) {
+  public <C extends Configurer> @Nullable C get(Class<C> clazz) {
     return (C) this.configurers.get(clazz);
   }
 
@@ -42,7 +42,7 @@ public final class Configurers implements Iterable<Configurer> {
   }
 
   @Override
-  public @NonNull Iterator<Configurer>  iterator() {
+  public Iterator<Configurer> iterator() {
     return this.configurers.values().iterator();
   }
 }
