@@ -153,6 +153,13 @@ public final class TaikaiRule {
     return javaClasses;
   }
 
+  static boolean excludesAny(String excludedClass, JavaClasses classes) {
+    Pattern pattern = Pattern.compile(ExcludeJavaClassDescribedPredicate.toRegex(excludedClass));
+
+    return classes.stream()
+        .anyMatch(javaClass -> pattern.matcher(javaClass.getFullName()).matches());
+  }
+
   private static Collection<String> allExcludedClasses(Configuration configuration,
       @Nullable Collection<String> excludedClasses) {
     return Stream.concat(

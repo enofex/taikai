@@ -49,6 +49,10 @@ import org.junit.jupiter.api.DynamicTest;
  *   <li>{@link #dynamicTests()} – runs every rule as a separate JUnit test</li>
  * </ul>
  *
+ * <p>Before the rules run, each mode logs a warning through {@link System.Logger} for a namespace
+ * that contains no classes to check, such as a misspelled one, and for an exclusion that matches no
+ * class. Neither fails the rules.</p>
+ *
  * <p>Use the {@link Builder} to configure and create an instance.</p>
  *
  * @see TaikaiRule
@@ -195,6 +199,8 @@ public final class Taikai {
    * @throws AssertionError if any rule or check fails
    */
   public void check() {
+    logWarnings();
+
     this.rules.forEach(rule -> rule.check(this.namespace, this.classes, this.excludedClasses,
         this.excludedCriteria));
 
@@ -211,6 +217,8 @@ public final class Taikai {
    * @throws AssertionError if any rule or check violations are found.
    */
   public void checkAll() {
+    logWarnings();
+
     StringBuilder report = new StringBuilder();
     int allViolations = 0;
     int rulesViolated = 0;
@@ -312,6 +320,15 @@ public final class Taikai {
     }
   }
 
+  private void logWarnings() {
+    List<String> warnings = ConfigurationWarnings.of(this);
+
+    if (!warnings.isEmpty()) {
+      System.Logger logger = System.getLogger(Taikai.class.getName());
+      warnings.forEach(warning -> logger.log(System.Logger.Level.WARNING, warning));
+    }
+  }
+
   static ClassLoader classLoader() {
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     return classLoader != null ? classLoader : Taikai.class.getClassLoader();
@@ -341,6 +358,8 @@ public final class Taikai {
    *     dynamic test per check
    */
   public Stream<DynamicTest> dynamicTests() {
+    logWarnings();
+
     return Stream.concat(
         this.rules.stream()
             .map(rule -> DynamicTest.dynamicTest(rule.archRule().getDescription(),
