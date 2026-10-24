@@ -188,3 +188,9 @@ The Open Source Community
 ## Website
 
 Visit the [Taikai](https://enofex.github.io/taikai/) Website for general information and documentation.
+
+## Sponsor
+
+<a href="https://github.com/sponsors/mnhock">
+  <img src="https://img.shields.io/badge/Sponsor%20Taikai%20on%20GitHub-4051b5?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor Taikai on GitHub" />
+</a>
