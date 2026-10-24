@@ -66,7 +66,7 @@ class RequiredFilesCheckTest {
 
   @Test
   void shouldReportEmptyFile() throws IOException {
-    Path readme = Files.writeString(this.directory.resolve("README.md"), " \n\t\n");
+    Path readme = Files.writeString(this.directory.resolve("README.md"), " \n\t\u2003\n");
 
     assertEquals(List.of(readme + " is empty"),
         this.check.violations(readme()));

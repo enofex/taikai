@@ -661,7 +661,7 @@ for discovered checks are:
 #### Predefined checks
 
 Taikai ships ready-made checks for common project conventions, such as required or forbidden
-files, the Maven Wrapper, or the Java version of the classes. They are documented in
+files, the Maven or Gradle Wrapper, or the Java version of the classes. They are documented in
 [Section 13](#13-predefined-checks).
 
 #### Configuring the checks
@@ -2670,6 +2670,7 @@ next to any other checks:
 ```text
 com.enofex.taikai.checks.ClassFileVersionCheck
 com.enofex.taikai.checks.ForbiddenFilesCheck
+com.enofex.taikai.checks.GradleWrapperCheck
 com.enofex.taikai.checks.MavenWrapperCheck
 com.enofex.taikai.checks.RequiredFilesCheck
 com.enofex.taikai.checks.ServiceRegistrationsCheck
@@ -2694,14 +2695,15 @@ Taikai.builder()
 |-------|-------------|---------------|
 | [`ClassFileVersionCheck`](#ClassFileVersionCheck) | classes are not compiled for a newer Java version than allowed | required |
 | [`ForbiddenFilesCheck`](#ForbiddenFilesCheck) | the project contains no forbidden files, such as private keys | required |
+| [`GradleWrapperCheck`](#GradleWrapperCheck) | the project has the Gradle Wrapper | none |
 | [`MavenWrapperCheck`](#MavenWrapperCheck) | the project has the Maven Wrapper | none |
 | [`RequiredFilesCheck`](#RequiredFilesCheck) | the project has the required files, none of them empty | required |
 | [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) | the `META-INF/services` registrations refer to valid providers | none |
 
 The checks that look at files resolve them against the [project directory](#configuring-the-checks),
 which is the directory of the module under test. In a multi-module build, files such as the README
-or the Maven Wrapper usually lie in the root directory instead. Point the checks there with
-`discoverChecks(checks -> checks.projectDirectory(Path.of("..")))`, or a single check with
+or the Maven or Gradle Wrapper usually lie in the root directory instead. Point the checks there
+with `discoverChecks(checks -> checks.projectDirectory(Path.of("..")))`, or a single check with
 [`context(RequiredFilesCheck.class, ...)`](#changing-the-context).
 
 #### `ClassFileVersionCheck` { #ClassFileVersionCheck }
@@ -2754,6 +2756,20 @@ repository, such as a local `.env`.
 ```text
 Check: Project should not contain forbidden files
 	src/main/resources/server.key is forbidden (matches src/main/**/*.key)
+```
+
+#### `GradleWrapperCheck` { #GradleWrapperCheck }
+
+*Project should have the Gradle Wrapper*
+
+Checks that the project can be built without a local Gradle installation: the scripts `gradlew`
+and `gradlew.bat` and the files `gradle/wrapper/gradle-wrapper.jar` and
+`gradle/wrapper/gradle-wrapper.properties` must exist in the project directory and must not be
+empty.
+
+```text
+Check: Project should have the Gradle Wrapper
+	gradle/wrapper/gradle-wrapper.jar is missing in /home/dev/project
 ```
 
 #### `MavenWrapperCheck` { #MavenWrapperCheck }

@@ -2,6 +2,8 @@ package com.enofex.taikai.checks;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -31,7 +33,10 @@ final class ProjectFiles {
 
   private static boolean isBlank(Path file) {
     try {
-      return Files.readString(file).isBlank();
+      return Files.readString(file, StandardCharsets.UTF_8).isBlank();
+    } catch (CharacterCodingException e) {
+      // not UTF-8 text, such as the Gradle Wrapper JAR, so the file has content
+      return false;
     } catch (IOException e) {
       throw new UncheckedIOException("Could not read " + file, e);
     }
