@@ -115,8 +115,6 @@ Return `dynamicTests()` from a JUnit `@TestFactory` to see every rule as its own
 in test reports:
 
 ```java
-import org.junit.jupiter.api.DisplayName;
-
 @DisplayName("Check architecture constraints")
 @TestFactory
 Stream<DynamicTest> architecture() {
