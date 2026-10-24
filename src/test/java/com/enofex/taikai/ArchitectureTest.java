@@ -22,9 +22,9 @@ import org.junit.jupiter.api.TestFactory;
 
 class ArchitectureTest {
 
-  @DisplayName("Should fulfill constraints")
+  @DisplayName("Should fulfill architecture constraints")
   @TestFactory
-  Stream<DynamicTest> shouldFulfillConstraints() {
+  Stream<DynamicTest> architecture() {
     return Taikai.builder()
         .namespace("com.enofex.taikai")
         .java(java -> java

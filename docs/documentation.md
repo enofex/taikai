@@ -14,7 +14,7 @@ configured rule against them, and fails the build when a rule is violated.
 class ArchitectureTest {
 
   @Test
-  void shouldFulfillConstraints() {
+  void architecture() {
     Taikai.builder()
         .namespace("com.company.project")
         .java(java -> java
@@ -79,7 +79,7 @@ import org.slf4j.Logger;
 class ArchitectureTest {
 
   @Test
-  void shouldFulfillConstraints() {
+  void architecture() {
     Taikai.builder()
         .namespace("com.company.project")
         .failOnEmpty(true)
@@ -2831,7 +2831,7 @@ here is one most teams already agree on. Add the stricter rules once this passes
 class ArchitectureTest {
 
   @Test
-  void shouldFulfillConstraints() {
+  void architecture() {
     Taikai.builder()
         .namespace("com.company.project")
         .failOnEmpty(true)
@@ -2920,9 +2920,9 @@ import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
 class ArchitectureTest {
 
-  @DisplayName("Should fulfill constraints")
+  @DisplayName("Should fulfill architecture constraints")
   @TestFactory
-  Stream<DynamicTest> shouldFulfillConstraints() {
+  Stream<DynamicTest> architecture() {
     return Taikai.builder()
         .namespace("com.enofex.taikai")
         .java(java -> java

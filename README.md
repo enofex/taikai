@@ -44,7 +44,7 @@ Here's an example demonstrating the usage of some Taikai rules with JUnit. Custo
 
 ```java
 @Test
-void shouldFulfillConstraints() {
+void architecture() {
   Taikai.builder()
       .namespace("com.enofex.taikai")
       .java(java -> java
@@ -115,6 +115,9 @@ Return `dynamicTests()` from a JUnit `@TestFactory` to see every rule as its own
 in test reports:
 
 ```java
+import org.junit.jupiter.api.DisplayName;
+
+@DisplayName("Check architecture constraints")
 @TestFactory
 Stream<DynamicTest> architecture() {
   return Taikai.builder()
