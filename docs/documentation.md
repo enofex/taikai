@@ -123,6 +123,14 @@ Taikai.builder()
     .check();
 ```
 
+If the namespace contains no classes to check, for example because it is misspelled, the rules
+check nothing and pass. Taikai does not fail in that case, but logs a warning through
+`System.Logger` before the rules run:
+
+```text
+WARNING: Namespace com.compnay.project contains no production classes, so the rules for them check nothing. Is the namespace correct?
+```
+
 ### 5.2 Selecting Classes Directly
 
 Instead of a namespace you can hand Taikai an explicit set of
@@ -215,6 +223,14 @@ Taikai.builder()
     and `javax.annotation.processing.Generated`, which code generators commonly add, have `SOURCE`
     retention, so `ClassCriteria.annotatedWith(...)` never matches them. Exclude generated code by
     package, or by an annotation with `CLASS` or `RUNTIME` retention.
+
+An exclusion that matches no class has no effect, typically because the class was renamed or
+deleted. Taikai logs a warning for such an exclusion, whether it is global or belongs to a single
+rule, so stale exclusions can be removed:
+
+```text
+WARNING: Exclusion 'com.company.project.foo.ClassToExclude' matches no class, so it can be removed
+```
 
 To exclude classes from a single rule only, use [`Configuration`](#58-per-rule-configuration) instead.
 

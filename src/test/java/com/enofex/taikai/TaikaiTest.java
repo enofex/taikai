@@ -13,6 +13,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
@@ -129,6 +130,7 @@ class TaikaiTest {
   @Test
   void shouldCheckRules() {
     TaikaiRule mockRule = mock(TaikaiRule.class);
+    when(mockRule.configuration()).thenReturn(TaikaiRule.Configuration.defaultConfiguration());
 
     Taikai.builder()
         .namespace(VALID_NAMESPACE)
