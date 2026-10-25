@@ -1,5 +1,6 @@
 package com.enofex.taikai.demo
 
+import com.enofex.taikai.ClassCriteria
 import com.enofex.taikai.TaikaiRule
 import com.enofex.taikai.TaikaiRule.Configuration
 import com.enofex.taikai.java.ImportPatterns
@@ -12,6 +13,9 @@ import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 import java.util.stream.Stream
 
 private const val NAMESPACE = "com.enofex.taikai.demo"
@@ -24,11 +28,16 @@ class ArchitectureTest {
         taikai {
             namespace(NAMESPACE)
             java {
+                noUsageOf(Date::class.java)
+                noUsageOf(Calendar::class.java)
+                noUsageOf(SimpleDateFormat::class.java)
                 fieldsShouldNotBePublic()
                 classesShouldResideInPackage("$NAMESPACE..")
+                classesShouldImplementHashCodeAndEquals()
                 methodsShouldNotDeclareGenericExceptions()
                 imports {
-                    it.shouldHaveNoCycles().shouldNotImport(ImportPatterns.shaded())
+                    it.shouldHaveNoCycles()
+                        .shouldNotImport(ImportPatterns.shaded())
                 }
                 // No enums or interfaces yet; these rules guard code added later.
                 naming {
@@ -36,13 +45,40 @@ class ArchitectureTest {
                 }
             }
             spring {
-                services { it.namesShouldEndWithService().shouldNotDependOnControllers() }
-                repositories { it.namesShouldEndWithRepository().shouldNotDependOnServices().shouldNotDependOnControllers() }
-                controllers { it.namesShouldEndWithController().shouldNotDependOnRepositories() }
+                noAutowiredFields()
+                noInjectionIntoStaticFields()
+                // No proxied or transactional methods yet; these rules guard code added later.
+                noSelfInvocationOfProxiedMethods()
+                transactional { it.shouldNotBeUsedInControllers() }
+                boot { it.applicationClassShouldResideInPackage(NAMESPACE) }
+                controllers {
+                    it.shouldBeAnnotatedWithRestController()
+                        .namesShouldEndWithController()
+                        .shouldNotDependOnOtherControllers()
+                        .shouldNotDependOnRepositories()
+                        .methodsShouldReturn(ClassCriteria.simpleNameMatching(".*Response"))
+                }
+                services { it.shouldBeAnnotatedWithService().namesShouldEndWithService().shouldNotDependOnControllers() }
+                repositories {
+                    it.shouldBeAnnotatedWithRepository()
+                        .namesShouldEndWithRepository()
+                        .shouldNotDependOnServices()
+                        .shouldNotDependOnControllers()
+                }
+            }
+            test {
+                junit {
+                    it.classesShouldEndWithTest()
+                        .classesShouldNotBeAnnotatedWithDisabled()
+                        .methodsShouldNotBeAnnotatedWithDisabled()
+                        .methodsShouldContainAssertionsOrVerifications()
+                        .testsShouldBeExecutable()
+                }
             }
             kotlin {
                 noUsageOfDeprecatedAPIs()
                 classesShouldHaveVisibility(".*", KotlinVisibility.INTERNAL, Configuration.of("$NAMESPACE.task"))
+                propertiesShouldHaveVisibility("service|repository|tasks", KotlinVisibility.PRIVATE)
                 classesShouldNotMatch(".*Impl")
                 functionsShouldNotMatch("^(foo|bar)$")
                 propertiesShouldNotMatch(".*(List|Set|Map)$")
