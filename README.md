@@ -28,6 +28,16 @@ Add Taikai as a dependency in your `pom.xml`:
 
 Replace `${taikai.version}` with the appropriate version defined in your project. ArchUnit comes along transitively, so you do not need to declare it yourself.
 
+## Gradle Usage
+
+Add Taikai as a dependency in your `build.gradle` file:
+
+```groovy
+testImplementation "com.enofex:taikai:${taikaiVersion}"
+```
+
+Replace `${taikaiVersion}` with the appropriate version defined in your project. ArchUnit comes along transitively, so you do not need to declare it yourself.
+
 ## Kotlin/JVM
 
 Use `com.enofex:taikai-kotlin` for Kotlin-aware architecture rules and a receiver DSL.
@@ -47,16 +57,6 @@ taikai {
     }
 }.checkAll()
 ```
-
-## Gradle Usage
-
-Add Taikai as a dependency in your `build.gradle` file:
-
-```groovy
-testImplementation "com.enofex:taikai:${taikaiVersion}"
-```
-
-Replace `${taikaiVersion}` with the appropriate version defined in your project. ArchUnit comes along transitively, so you do not need to declare it yourself.
 
 ## JUnit Example Test
 
