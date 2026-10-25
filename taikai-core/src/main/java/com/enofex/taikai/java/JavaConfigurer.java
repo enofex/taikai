@@ -21,7 +21,7 @@ import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
 import static com.enofex.taikai.java.ProtectedMembers.notHaveProtectedMembers;
 import static com.enofex.taikai.java.SerialVersionUID.beStaticFinalLong;
 import static com.enofex.taikai.java.SerialVersionUID.namedSerialVersionUID;
-import static com.enofex.taikai.java.UtilityClasses.havePrivateConstructor;
+import static com.enofex.taikai.java.UtilityClasses.haveOnlyPrivateConstructors;
 import static com.enofex.taikai.java.UtilityClasses.utilityClasses;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beFinal;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
  *
  * <p>Common validations include:</p>
  * <ul>
- *   <li>Utility class design (must be {@code final} with a private constructor)</li>
+ *   <li>Utility class design (must be {@code final} with only private constructors)</li>
  *   <li>Method and field modifier enforcement</li>
  *   <li>Annotation consistency and exclusivity checks</li>
  *   <li>Prohibition of generic exception declarations</li>
@@ -281,7 +281,11 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
 
   /**
    * Adds a rule enforcing that utility classes must be {@code final}
-   * and have a private constructor.
+   * and have only private constructors.
+   *
+   * <p>A utility class is a class whose methods are all {@code static}, without a {@code main}
+   * method. Interfaces and classes extending another class than {@code Object}, such as enums and
+   * records, are not utility classes.</p>
    *
    * @return this configurer for fluent chaining
    */
@@ -291,7 +295,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
 
   /**
    * Adds a rule enforcing that utility classes must be {@code final}
-   * and have a private constructor, using a custom {@link Configuration}.
+   * and have only private constructors, using a custom {@link Configuration}.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -300,8 +304,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Configuration configuration) {
     return addRule(TaikaiRule.of(utilityClasses()
         .should(beFinal())
-        .andShould(havePrivateConstructor())
-        .as("Utility classes should be final and have a private constructor"), configuration));
+        .andShould(haveOnlyPrivateConstructors())
+        .as("Utility classes should be final and have only private constructors"), configuration));
   }
 
   /**

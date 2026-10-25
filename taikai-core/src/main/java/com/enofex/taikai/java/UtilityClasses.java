@@ -18,7 +18,8 @@ final class UtilityClasses {
   }
 
   static GivenClassesConjunction utilityClasses() {
-    return classes().that(haveOnlyStaticMethods()).and(doNot(extendAnyClass()));
+    return classes().that(haveOnlyStaticMethods()).and(doNot(extendAnyClass()))
+        .and().areNotInterfaces();
   }
 
   private static DescribedPredicate<JavaClass> haveOnlyStaticMethods() {
@@ -43,19 +44,14 @@ final class UtilityClasses {
     };
   }
 
-  static ArchCondition<JavaClass> havePrivateConstructor() {
-    return new ArchCondition<>("have a private constructor") {
+  static ArchCondition<JavaClass> haveOnlyPrivateConstructors() {
+    return new ArchCondition<>("have only private constructors") {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        if (hasNoPrivateConstructor(javaClass)) {
-          events.add(SimpleConditionEvent.violated(javaClass,
-              "Class %s does not have a private constructor".formatted(
-                  javaClass.getName())));
-        }
-      }
-
-      private static boolean hasNoPrivateConstructor(JavaClass javaClass) {
-        return javaClass.getConstructors().stream().noneMatch(Modifiers::isConstructorPrivate);
+        javaClass.getConstructors().stream()
+            .filter(constructor -> !Modifiers.isConstructorPrivate(constructor))
+            .forEach(constructor -> events.add(SimpleConditionEvent.violated(constructor,
+                "Constructor %s is not private".formatted(constructor.getFullName()))));
       }
     };
   }

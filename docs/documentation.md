@@ -1110,11 +1110,13 @@ or package-private.
 
 #### `utilityClassesShouldBeFinalAndHavePrivateConstructor` { #utilityClassesShouldBeFinalAndHavePrivateConstructor }
 
-Classes whose methods are all `static` must be `final` and expose only a private constructor, so they
+Classes whose methods are all `static` must be `final` and have only private constructors, so they
 can neither be extended nor instantiated.
 
 A class declaring a `main` method is not treated as a utility class and is left alone entirely, so
-application entry points do not need a private constructor.
+application entry points do not need a private constructor. Interfaces are not utility classes
+either, and neither are classes that extend a class other than `Object`, such as enums, records
+and exceptions with static factory methods.
 
 ```java
 .java(java -> java

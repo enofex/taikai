@@ -60,6 +60,26 @@ class UtilityClassesTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
+  @Test
+  void shouldThrowUtilityClassWithPrivateAndPublicConstructor() {
+    Taikai taikai = Taikai.builder()
+        .classes(FinalUtilityClassWithPrivateAndPublicConstructor.class)
+        .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  @Test
+  void shouldIgnoreInterfaceWithOnlyStaticMethods() {
+    Taikai taikai = Taikai.builder()
+        .classes(InterfaceWithOnlyStaticMethods.class)
+        .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
   private static final class ValidUtilityClass {
 
     public static int number() {
@@ -97,6 +117,26 @@ class UtilityClassesTest {
     }
 
     public FinalUtilityClassWithExplicitPublicConstructor() {
+    }
+  }
+
+  private static final class FinalUtilityClassWithPrivateAndPublicConstructor {
+
+    public static int number() {
+      return 42;
+    }
+
+    private FinalUtilityClassWithPrivateAndPublicConstructor() {
+    }
+
+    public FinalUtilityClassWithPrivateAndPublicConstructor(int number) {
+    }
+  }
+
+  private interface InterfaceWithOnlyStaticMethods {
+
+    static int number() {
+      return 42;
     }
   }
 
