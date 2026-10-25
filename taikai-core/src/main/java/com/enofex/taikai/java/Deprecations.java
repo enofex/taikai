@@ -24,8 +24,6 @@ final class Deprecations {
                     javaClass.getName()))));
 
         javaClass.getMethodCallsFromSelf().stream()
-            .filter(method -> !method.getTarget().getName().equals(Object.class.getName()))
-            .filter(method -> !method.getTarget().getName().equals(Enum.class.getName()))
             .filter(method -> method.getTarget().isAnnotatedWith(Deprecated.class) ||
                 method.getTarget().getRawReturnType().isAnnotatedWith(Deprecated.class) ||
                 method.getTarget().getParameterTypes().stream()

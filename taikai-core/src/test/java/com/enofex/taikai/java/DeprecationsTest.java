@@ -2,6 +2,7 @@ package com.enofex.taikai.java;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,17 @@ class DeprecationsTest {
         .build();
 
     assertThrows(AssertionError.class, taikai::check);
+  }
+
+  @Test
+  void shouldFailWhenCallingDeprecatedObjectMethod() {
+    Taikai taikai = Taikai.builder()
+        .classes(CallsDeprecatedObjectMethod.class)
+        .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
+        .build();
+
+    AssertionError error = assertThrows(AssertionError.class, taikai::check);
+    assertTrue(error.getMessage().contains("Method finalize"), error.getMessage());
   }
 
   @Test
@@ -111,5 +123,14 @@ class DeprecationsTest {
   static class AccessesDeprecatedField {
 
     Object value = DeprecatedHolder.DEPRECATED_OBJECT;
+  }
+
+  static class CallsDeprecatedObjectMethod {
+
+    @Override
+    @SuppressWarnings({"deprecation", "removal"})
+    protected void finalize() throws Throwable {
+      super.finalize();
+    }
   }
 }
