@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-This is an open source project that is provided as-is without warrenty or liability.  
+This is an open source project that is provided as-is without warranty or liability.  
 As such no supportability commitment. The maintainers will do the best they can to address any report promptly and responsibly.
 
 ## Reporting a Vulnerability

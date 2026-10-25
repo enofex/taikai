@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .test(test -> test
  *         .junit(junit -> junit
  *             .methodsShouldMatch("should[A-Z].*")

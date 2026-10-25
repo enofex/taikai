@@ -1,15 +1,16 @@
 package com.enofex.taikai.quarkus;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.configures.AbstractConfigurer;
-import com.enofex.taikai.configures.ConfigurerContext;
-import com.enofex.taikai.configures.Customizer;
-import com.enofex.taikai.configures.DisableableConfigurer;
-
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithInject;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
+
+import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.AbstractConfigurer;
+import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
  * Top-level configurer for Quarkus architectural rules using
@@ -22,7 +23,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .quarkus(quarkus -> quarkus
  *         .noInjectionFields()
  *         .resources(res -> res
@@ -59,12 +60,12 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #noInjectionFields()}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #noInjectionFields()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public QuarkusConfigurer noInjectionFields(TaikaiRule.Configuration configuration) {
+  public QuarkusConfigurer noInjectionFields(Configuration configuration) {
     return addRule(TaikaiRule.of(noFields()
         .should(be(annotatedWithInject(true)))
         .as("No fields should be annotated with %s, use constructor injection".formatted(

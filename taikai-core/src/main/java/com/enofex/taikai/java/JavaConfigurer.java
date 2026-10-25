@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .java(java -> java
  *         .utilityClassesShouldBeFinalAndHavePrivateConstructor()
  *         .methodsShouldNotDeclareGenericExceptions()

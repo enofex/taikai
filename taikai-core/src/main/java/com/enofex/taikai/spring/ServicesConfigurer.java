@@ -30,7 +30,7 @@ import com.tngtech.archunit.core.domain.JavaClass;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .spring(spring -> spring
  *         .services(services -> services
  *             .namesShouldEndWithService()
@@ -195,6 +195,28 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
             .should(not(dependOnClassesThat(annotatedWithControllerOrRestController(true))))
             .as("Services should not depend on Controllers or RestControllers"),
         configuration));
+  }
+
+  /**
+   * Adds a rule enforcing that service classes should have package-private visibility.
+   *
+   * @return this configurer for fluent chaining
+   */
+  public ServicesConfigurer shouldBePackagePrivate() {
+    return shouldBePackagePrivate(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #shouldBePackagePrivate()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   */
+  public ServicesConfigurer shouldBePackagePrivate(Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that(are(annotatedWithService(true)))
+        .should().bePackagePrivate()
+        .as("Services should be package-private"), configuration));
   }
 
   @Override

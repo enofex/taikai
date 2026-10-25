@@ -23,7 +23,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .spring(spring -> spring
  *         .configurations(config -> config
  *             .namesShouldEndWithConfiguration()

@@ -31,7 +31,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .jpa(jpa -> jpa
  *         .entities(entities -> entities
  *             .shouldBePackagePrivate()

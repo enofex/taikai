@@ -24,7 +24,7 @@ import com.tngtech.archunit.core.domain.JavaClass;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .java(java -> java
  *         .imports(imports -> imports
  *             .shouldNotImport(ImportPatterns.shaded())

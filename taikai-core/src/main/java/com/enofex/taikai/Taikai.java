@@ -64,10 +64,8 @@ import org.junit.jupiter.api.DynamicTest;
 public final class Taikai {
 
   private final boolean failOnEmpty;
-  @Nullable
-  private final String namespace;
-  @Nullable
-  private final JavaClasses classes;
+  private final @Nullable String namespace;
+  private final @Nullable JavaClasses classes;
   private final Collection<String> excludedClasses;
   private final Collection<DescribedPredicate<? super JavaClass>> excludedCriteria;
   private final Collection<TaikaiRule> rules;
@@ -344,7 +342,7 @@ public final class Taikai {
    * @TestFactory
    * Stream<DynamicTest> architecture() {
    *   return Taikai.builder()
-   *       .namespace("com.example.project")
+   *       .namespace("com.company.project")
    *       .java(java -> java
    *           .noUsageOfSystemOutOrErr()
    *           .fieldsShouldNotBePublic())
@@ -386,7 +384,7 @@ public final class Taikai {
    *
    * <pre>{@code
    * Taikai base = Taikai.builder()
-   *     .namespace("com.example.project")
+   *     .namespace("com.company.project")
    *     .java(java -> java.fieldsShouldNotBePublic())
    *     .build();
    *
@@ -416,7 +414,7 @@ public final class Taikai {
    * <h2>Example</h2>
    * <pre>{@code
    * Taikai.builder()
-   *     .namespace("com.example.project")
+   *     .namespace("com.company.project")
    *     .failOnEmpty(true)
    *     .java(java -> java
    *         .noUsageOfDeprecatedAPIs()
@@ -542,7 +540,7 @@ public final class Taikai {
      *
      * <p>Cannot be combined with {@link #classes(JavaClasses)}.</p>
      *
-     * @param namespace the root package (e.g., {@code "com.example.project"})
+     * @param namespace the root package (e.g., {@code "com.company.project"})
      * @return this builder for fluent chaining
      */
     public Builder namespace(@Nullable String namespace) {
@@ -595,9 +593,9 @@ public final class Taikai {
      * Excludes the specified classes from all rule checks by their fully qualified names.
      * Supports wildcard patterns:
      * <ul>
-     *   <li>{@code com.example.Foo} — single class</li>
-     *   <li>{@code com.example.*} — all classes directly in the package</li>
-     *   <li>{@code com.example..} — all classes in the package and subpackages</li>
+     *   <li>{@code com.company.project.Foo} — single class</li>
+     *   <li>{@code com.company.project.*} — all classes directly in the package</li>
+     *   <li>{@code com.company.project..} — all classes in the package and subpackages</li>
      * </ul>
      *
      * @param classNames the class names or patterns to exclude

@@ -4,7 +4,7 @@ import org.jspecify.annotations.Nullable;
 
 public final class ConfigurerContext {
 
-  @Nullable private final String namespace;
+  private final @Nullable String namespace;
   private final Configurers configurers;
 
   public ConfigurerContext(@Nullable String namespace, Configurers configurers) {

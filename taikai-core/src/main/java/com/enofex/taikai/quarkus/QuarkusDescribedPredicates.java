@@ -1,5 +1,7 @@
 package com.enofex.taikai.quarkus;
 
+import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
+
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaAnnotation;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -7,8 +9,6 @@ import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-
-import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
 
 final class QuarkusDescribedPredicates {
 

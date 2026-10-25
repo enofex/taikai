@@ -32,13 +32,13 @@ import java.util.Collection;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .spring(spring -> spring
  *         .noAutowiredFields()
  *         .noInjectionIntoStaticFields()
  *         .noSelfInvocationOfProxiedMethods()
  *         .boot(boot -> boot
- *             .applicationClassShouldResideInPackage("com.example.project"))
+ *             .applicationClassShouldResideInPackage("com.company.project"))
  *         .controllers(ctrl -> ctrl
  *             .namesShouldEndWithController()
  *             .shouldBeAnnotatedWithRestController()

@@ -39,7 +39,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .spring(spring -> spring
  *         .controllers(ctrl -> ctrl
  *             .namesShouldEndWithController()

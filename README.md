@@ -48,7 +48,7 @@ and the runnable [Spring Kotlin demo](examples/spring-kotlin).
 import com.enofex.taikai.kotlin.taikai
 
 taikai {
-    namespace("com.example")
+    namespace("com.company.project")
     spring { services { it.namesShouldEndWithService() } }
     kotlin {
         classesShouldBeDataClasses(".*Response")
@@ -67,7 +67,7 @@ The runnable [Spring Java demo](examples/spring-java) shows a complete applicati
 @Test
 void architecture() {
   Taikai.builder()
-      .namespace("com.enofex.taikai")
+      .namespace("com.company.project")
       .java(java -> java
           .noUsageOfDeprecatedAPIs()
           .methodsShouldNotDeclareGenericExceptions()
@@ -79,7 +79,7 @@ void architecture() {
               .classesShouldNotMatch(".*Impl")
               .methodsShouldNotMatch("^(foo$|bar$).*")
               .fieldsShouldNotMatch(".*(List|Set|Map)$")
-              .fieldsShouldMatch(FieldCriteria.ofType("com.enofex.taikai.Matcher"), "matcher")
+              .fieldsShouldMatch(FieldCriteria.ofType("com.company.project.Matcher"), "matcher")
               .constantsShouldFollowConventions()
               .enumConstantsShouldFollowConventions()
               .interfacesShouldNotHavePrefixI()))
@@ -103,7 +103,7 @@ void architecture() {
           .noAutowiredFields()
           .noSelfInvocationOfProxiedMethods()
           .boot(boot -> boot
-              .applicationClassShouldResideInPackage("com.enofex.taikai"))
+              .applicationClassShouldResideInPackage("com.company.project"))
           .configurations(configuration -> configuration
               .namesShouldEndWithConfiguration())
           .controllers(controllers -> controllers
@@ -140,7 +140,7 @@ in test reports:
 @TestFactory
 Stream<DynamicTest> architecture() {
   return Taikai.builder()
-      .namespace("com.enofex.taikai")
+      .namespace("com.company.project")
       .java(java -> java.noUsageOfSystemOutOrErr())
       .build()
       .dynamicTests();
@@ -156,7 +156,7 @@ or the classpath. Ship checks in a library, or use predefined ones such as
 
 ```java
 Taikai.builder()
-    .namespace("com.enofex.taikai")
+    .namespace("com.company.project")
     .discoverChecks(checks -> checks
         .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
             "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md")))

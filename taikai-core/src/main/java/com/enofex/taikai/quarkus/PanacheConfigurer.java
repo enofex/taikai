@@ -1,16 +1,17 @@
 package com.enofex.taikai.quarkus;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.configures.AbstractConfigurer;
-import com.enofex.taikai.configures.ConfigurerContext;
-import com.enofex.taikai.configures.DisableableConfigurer;
-
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.ANNOTATION_ENTITY;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.PANACHE_ENTITY;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithEntity;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+
+import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.AbstractConfigurer;
+import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
  * Configures and enforces conventions for Quarkus Panache entities and repositories
@@ -23,7 +24,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .quarkus(quarkus -> quarkus
  *         .panache(panache -> panache
  *             .shouldBeAnnotatedWithEntityWhenActiveRecordPattern()
@@ -58,12 +59,12 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithEntityWhenActiveRecordPattern()}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithEntityWhenActiveRecordPattern()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public PanacheConfigurer shouldBeAnnotatedWithEntityWhenActiveRecordPattern(TaikaiRule.Configuration configuration) {
+  public PanacheConfigurer shouldBeAnnotatedWithEntityWhenActiveRecordPattern(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areAssignableTo(PANACHE_ENTITY)
             .should(be(annotatedWithEntity(true)))
@@ -83,12 +84,12 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #namesShouldEndWithRepository()}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #namesShouldEndWithRepository()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public PanacheConfigurer namesShouldEndWithRepository(TaikaiRule.Configuration configuration) {
+  public PanacheConfigurer namesShouldEndWithRepository(Configuration configuration) {
     return namesShouldMatch(DEFAULT_REPOSITORY_NAME_MATCHING, configuration);
   }
 
@@ -104,13 +105,13 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #namesShouldMatch(String)}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #namesShouldMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that fully qualified class names must match
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public PanacheConfigurer namesShouldMatch(String regex, TaikaiRule.Configuration configuration) {
+  public PanacheConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that().implement(QuarkusDescribedPredicates.PANACHE_REPOSITORY_INTERFACE)
         .should().haveNameMatching(regex)

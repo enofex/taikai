@@ -1,6 +1,7 @@
 package com.enofex.taikai;
 
-import static com.enofex.taikai.java.ImportPatterns.*;
+import static com.enofex.taikai.java.ImportPatterns.lombok;
+import static com.enofex.taikai.java.ImportPatterns.shaded;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 

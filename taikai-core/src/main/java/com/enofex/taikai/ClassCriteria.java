@@ -166,7 +166,8 @@ public final class ClassCriteria {
    * Matches classes in a package using ArchUnit syntax: {@code *} matches within a package
    * segment and {@code ..} matches any number of segments.
    *
-   * @param packageIdentifier the package pattern, for example {@code com.company.internal..}
+   * @param packageIdentifier the package pattern, for example
+   *     {@code com.company.project.internal..}
    * @return the class predicate
    */
   public static DescribedPredicate<JavaClass> inPackage(String packageIdentifier) {

@@ -1,10 +1,5 @@
 package com.enofex.taikai.quarkus;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.configures.AbstractConfigurer;
-import com.enofex.taikai.configures.ConfigurerContext;
-import com.enofex.taikai.configures.DisableableConfigurer;
-
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.APPLICATION_SCOPED;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithRegisterAiService;
@@ -12,6 +7,12 @@ import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.notUseToolsAt
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+
+import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.AbstractConfigurer;
+import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
  * Configures and enforces conventions for LangChain4j AI services annotated with
@@ -25,7 +26,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .quarkus(quarkus -> quarkus
  *         .ai(ai -> ai
  *             .namesShouldEndWithAssistantOrService()
@@ -57,12 +58,12 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * See {@link #namesShouldEndWithAssistantOrService()}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #namesShouldEndWithAssistantOrService()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public AiConfigurer namesShouldEndWithAssistantOrService(TaikaiRule.Configuration configuration) {
+  public AiConfigurer namesShouldEndWithAssistantOrService(Configuration configuration) {
     return namesShouldMatch(DEFAULT_ASSISTANT_NAME_MATCHING, configuration);
   }
 
@@ -77,13 +78,13 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * See {@link #namesShouldMatch(String)}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #namesShouldMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that fully qualified class names must match
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public AiConfigurer namesShouldMatch(String regex, TaikaiRule.Configuration configuration) {
+  public AiConfigurer namesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithRegisterAiService(true)))
         .should().haveNameMatching(regex)
@@ -101,12 +102,12 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithApplicationScoped()}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithApplicationScoped()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public AiConfigurer shouldBeAnnotatedWithApplicationScoped(TaikaiRule.Configuration configuration) {
+  public AiConfigurer shouldBeAnnotatedWithApplicationScoped(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(are(annotatedWithRegisterAiService(true)))
             .should(be(QuarkusDescribedPredicates.annotatedWithApplicationScope(true)))
@@ -126,12 +127,12 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * See {@link #shouldNotUseToolsAttributeInAiService()}, but with {@link TaikaiRule.Configuration} for customization.
+   * See {@link #shouldNotUseToolsAttributeInAiService()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public AiConfigurer shouldNotUseToolsAttributeInAiService(TaikaiRule.Configuration configuration) {
+  public AiConfigurer shouldNotUseToolsAttributeInAiService(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(are(annotatedWithRegisterAiService(true)))
             .should(notUseToolsAttribute())

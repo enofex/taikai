@@ -165,6 +165,51 @@ class ServicesConfigurerTest {
   }
 
   @Nested
+  class ShouldBePackagePrivate {
+
+    @Test
+    void shouldNotThrowWhenServiceIsPackagePrivate() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldBePackagePrivate))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenServiceIsPublic() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldBePackagePrivate))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenPublicClassIsNotAnnotatedWithService() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicHelper.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldBePackagePrivate))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenServiceIsPublicWithConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicService.class)
+          .spring(spring -> spring.services(services -> services.shouldBePackagePrivate(
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
+
+  @Nested
   class NamesShouldMatch {
 
     @Test
@@ -252,6 +297,15 @@ class ServicesConfigurerTest {
 
   @Service
   static class InvalidNaming {
+
+  }
+
+  @Service
+  public static class PublicService {
+
+  }
+
+  public static class PublicHelper {
 
   }
 

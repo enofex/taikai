@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .logging(logging -> logging
  *             .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), "org.slf4j.Logger")
  *             .loggersShouldFollowConventions("org.slf4j.Logger", ".*", List.of(JavaModifier.PRIVATE, JavaModifier.STATIC))

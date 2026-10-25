@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
  *
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .discoverChecks(checks -> checks
  *         .projectDirectory(Path.of(".."))
  *         .exclude(LicenseCheck.class)

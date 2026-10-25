@@ -320,6 +320,37 @@ class NamingConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenAllFieldNamesMatchPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithStringField.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatch("my.*")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenFieldNameDoesNotMatchPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithStringField.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatch("other.*")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenFieldNameDoesNotMatchPatternWithConfiguration() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithStringField.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatch("other.*",
+              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
   @Nested

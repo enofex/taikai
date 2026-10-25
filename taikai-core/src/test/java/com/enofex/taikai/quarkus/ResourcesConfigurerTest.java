@@ -1,16 +1,14 @@
 package com.enofex.taikai.quarkus;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.Taikai;
-
-import jakarta.ws.rs.Path;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import com.enofex.taikai.ClassCriteria;
+import com.enofex.taikai.Taikai;
+import jakarta.ws.rs.Path;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 public class ResourcesConfigurerTest {
 

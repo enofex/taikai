@@ -43,7 +43,7 @@ class ArchitectureTest {
     @Test
     fun architecture() {
         Taikai.builder()
-            .namespace("com.example")
+            .namespace("com.company.project")
             .spring { spring ->
                 spring.services { it.namesShouldEndWithService() }
             }
@@ -66,11 +66,11 @@ Use `check()` to stop at the first failed rule or `checkAll()` to aggregate fail
 import com.enofex.taikai.kotlin.taikai
 
 val architecture = taikai {
-    namespace("com.example")
+    namespace("com.company.project")
     failOnEmpty()
     java {
         fieldsShouldNotBePublic()
-        classesShouldResideInPackage("com.example..")
+        classesShouldResideInPackage("com.company.project..")
     }
     spring {
         services { it.namesShouldEndWithService().shouldNotDependOnControllers() }
@@ -102,7 +102,7 @@ discoverChecks {
 
 Use `classes(MyType::class)` or `classes(importedJavaClasses)` instead of a namespace
 for explicit imports. `excludeClasses` takes patterns such as
-`"com.example.generated.."`, class literals such as `Generated::class`, or
+`"com.company.project.generated.."`, class literals such as `Generated::class`, or
 [criteria](documentation.md#513-selecting-with-criteria). `addRule(...)`,
 `addRules(...)`, and `failOnEmpty(false)` are also available. Namespace and explicit classes remain
 mutually exclusive. Kotlin blocks can be repeated, and `disable()` clears previously
@@ -152,7 +152,7 @@ import com.enofex.taikai.TaikaiRule.Configuration
 // Include test classes in this individual rule.
 functionsShouldNotExceedMaxParameters(
     4,
-    Configuration.of("com.example", Namespace.IMPORT.WITH_TESTS),
+    Configuration.of("com.company.project", Namespace.IMPORT.WITH_TESTS),
 )
 ```
 
@@ -175,7 +175,7 @@ import com.enofex.taikai.java.ImportPatterns
 import com.enofex.taikai.kotlin.taikai
 
 taikai {
-    namespace("com.example")
+    namespace("com.company.project")
     java {
         methodsShouldNotDeclareGenericExceptions()
         imports {
@@ -190,7 +190,7 @@ taikai {
         classesShouldNotMatch(".*Impl")
         functionsShouldNotMatch("^(foo|bar)$")
         propertiesShouldNotMatch(".*(List|Set|Map)$")
-        propertiesShouldMatch("com.enofex.taikai.Matcher", "matcher")
+        propertiesShouldMatch("com.company.project.Matcher", "matcher")
         constantsShouldFollowConventions()
         classesShouldBeObjects(".*(?:Utils|Utilities)")
     }
@@ -259,7 +259,7 @@ Java users can configure the optional rules without Kotlin extension functions:
 
 ```java
 Taikai.builder()
-    .namespace("com.example")
+    .namespace("com.company.project")
     .configure(kotlin -> kotlin
         .classesShouldBeDataClasses(".*Response")
         .dataClassesShouldBeImmutable(), KotlinConfigurer::new)

@@ -24,10 +24,10 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
- *     .namespace("com.example.project")
+ *     .namespace("com.company.project")
  *     .spring(spring -> spring
  *         .boot(boot -> boot
- *             .applicationClassShouldResideInPackage("com.example.project")
+ *             .applicationClassShouldResideInPackage("com.company.project")
  *         )
  *     );
  * }</pre>
@@ -84,7 +84,7 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * Adds a rule that classes annotated with {@code @SpringBootApplication} should reside in the
    * specified package.
    *
-   * @param packageIdentifier the target package identifier (e.g., {@code "com.example.project"})
+   * @param packageIdentifier the target package identifier (e.g., {@code "com.company.project"})
    * @return this configurer for fluent chaining
    */
   public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier) {
@@ -96,7 +96,7 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * See {@link #applicationClassShouldResideInPackage(String)}, but with {@link Configuration}
    * for customization.
    *
-   * @param packageIdentifier the target package identifier (e.g., {@code "com.example.project"})
+   * @param packageIdentifier the target package identifier (e.g., {@code "com.company.project"})
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
