@@ -38,6 +38,26 @@ testImplementation "com.enofex:taikai:${taikaiVersion}"
 
 Replace `${taikaiVersion}` with the appropriate version defined in your project. ArchUnit comes along transitively, so you do not need to declare it yourself.
 
+## Kotlin/JVM
+
+Use `com.enofex:taikai-kotlin` for Kotlin-aware architecture rules and a receiver DSL.
+The original Java API also works from Kotlin tests. See the [Kotlin manual](docs/kotlin.md)
+and the runnable [Spring Kotlin demo](examples/spring-kotlin).
+
+```kotlin
+import com.enofex.taikai.kotlin.taikai
+
+taikai {
+    namespace("com.example")
+    spring { services { it.namesShouldEndWithService() } }
+    kotlin {
+        classesShouldBeDataClasses(".*Response")
+        dataClassesShouldBeImmutable()
+        functionsShouldNotExceedMaxParameters(4)
+    }
+}.checkAll()
+```
+
 ## JUnit Example Test
 
 Here's an example demonstrating the usage of some Taikai rules with JUnit. Customize rules as needed using `TaikaiRule.of()`.

@@ -2999,3 +2999,11 @@ com.enofex.taikai.checks.MavenWrapperCheck
 com.enofex.taikai.checks.RequiredFilesCheck
 com.enofex.taikai.checks.ServiceRegistrationsCheck
 ```
+
+
+## Kotlin/JVM
+
+Taikai supports Kotlin callers and compiled Kotlin/JVM applications. The optional
+`taikai-kotlin` artifact adds source-aware rules and a receiver DSL without adding
+Kotlin dependencies to core. See the [Kotlin manual](kotlin.md) for installation,
+all rules, Java rule compatibility, and the Spring Kotlin demo.

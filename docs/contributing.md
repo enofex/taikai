@@ -55,6 +55,22 @@ to help make the project even better. Here are some ways you can get involved:
 Remember, contributions of all sizes are valuable and appreciated. We look forward to your
 involvement in the *Taikai* community. Thank you for considering contributing to the project!
 
-# Sponsor
 
-[Sponsor Taikai on GitHub :heart:](https://github.com/sponsors/mnhock){ .md-button }
+## Building the Java and Kotlin modules
+
+The root POM builds `taikai-core` (published as `com.enofex:taikai`),
+`taikai-kotlin`, and `examples/spring-kotlin`. Existing Java sources and tests live
+under `taikai-core/src`; Kotlin rules, DSL, and compatibility fixtures live under
+`taikai-kotlin/src`.
+
+Run `./mvnw clean verify` with JDK 17 or later. The demo's HTTP tests start a server
+on a random port. Deliberate architecture violations are isolated test fixtures;
+their tests assert the expected failures.
+
+Run `./mvnw -Prelease -DskipTests package` to validate source and documentation JARs
+without publishing. Both library artifacts share the reactor version. The Kotlin
+artifact uses Dokka for API documentation, and the demo skips deployment.
+
+## Sponsor
+
+[Sponsor Taikai on GitHub :heart:](https://github.com/sponsors/mnhock)

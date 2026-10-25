@@ -101,6 +101,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Documentation: documentation.md
+  - Kotlin: kotlin.md
   - Contributing: contributing.md
 
 extra_css:
