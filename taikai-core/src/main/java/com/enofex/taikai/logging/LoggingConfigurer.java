@@ -41,8 +41,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that classes matching the given criteria should contain a field of the specified
-   * logger type.
+   * Adds a rule that classes matching the given criteria should have a field of exactly the
+   * specified logger type. A field inherited from a superclass counts, a field of a subtype of the
+   * logger type does not.
    *
    * @param classes the classes expected to use the logger, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -73,8 +74,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that classes matching the given criteria should contain a field of the specified
-   * logger type.
+   * Adds a rule that classes matching the given criteria should have a field of exactly the
+   * specified logger type. A field inherited from a superclass counts, a field of a subtype of the
+   * logger type does not.
    *
    * @param classes the classes expected to use the logger, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -110,8 +112,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields follow naming and modifier conventions.
-   * Uses an empty list of required modifiers by default.
+   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
+   * type or a subtype of it, follow naming and modifier conventions. Uses an empty list of
+   * required modifiers by default.
    *
    * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
    * @param regex the regex that logger field names must match
@@ -137,8 +140,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields follow naming and modifier conventions.
-   * Uses an empty list of required modifiers by default.
+   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
+   * type or a subtype of it, follow naming and modifier conventions. Uses an empty list of
+   * required modifiers by default.
    *
    * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
    * @param regex the regex that logger field names must match
@@ -164,8 +168,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields follow naming and modifier conventions,
-   * requiring specific modifiers.
+   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
+   * type or a subtype of it, follow naming and modifier conventions, requiring specific
+   * modifiers.
    *
    * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
    * @param regex the regex that logger field names must match
@@ -179,8 +184,9 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields follow naming and modifier conventions,
-   * requiring specific modifiers.
+   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
+   * type or a subtype of it, follow naming and modifier conventions, requiring specific
+   * modifiers.
    *
    * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
    * @param regex the regex that logger field names must match

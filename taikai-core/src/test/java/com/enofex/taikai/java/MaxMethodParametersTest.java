@@ -8,57 +8,57 @@ import org.junit.jupiter.api.Test;
 
 class MaxMethodParametersTest {
 
-    @Test
-    void shouldNotThrowWhenMethodsDoNotExceedMaxParameters() {
-        Taikai taikai = Taikai.builder()
-                .classes(ValidMethods.class)
-                .java(java -> java.methodsShouldNotExceedMaxParameters(3))
-                .build();
+  @Test
+  void shouldNotThrowWhenMethodsDoNotExceedMaxParameters() {
+    Taikai taikai = Taikai.builder()
+        .classes(ValidMethods.class)
+        .java(java -> java.methodsShouldNotExceedMaxParameters(3))
+        .build();
 
-        assertDoesNotThrow(taikai::check);
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldThrowWhenMethodExceedsMaxParameters() {
+    Taikai taikai = Taikai.builder()
+        .classes(InvalidMethods.class)
+        .java(java -> java.methodsShouldNotExceedMaxParameters(2))
+        .build();
+
+    assertThrows(AssertionError.class, taikai::check);
+  }
+
+  @Test
+  void shouldAllowExactlyMaxParameters() {
+    Taikai taikai = Taikai.builder()
+        .classes(ExactlyMaxMethods.class)
+        .java(java -> java.methodsShouldNotExceedMaxParameters(3))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  static class ValidMethods {
+
+    void noParams() {
     }
 
-    @Test
-    void shouldThrowWhenMethodExceedsMaxParameters() {
-        Taikai taikai = Taikai.builder()
-                .classes(InvalidMethods.class)
-                .java(java -> java.methodsShouldNotExceedMaxParameters(2))
-                .build();
-
-        assertThrows(AssertionError.class, taikai::check);
+    void oneParam(String name) {
     }
 
-    @Test
-    void shouldAllowExactlyMaxParameters() {
-        Taikai taikai = Taikai.builder()
-                .classes(ExactlyMaxMethods.class)
-                .java(java -> java.methodsShouldNotExceedMaxParameters(3))
-                .build();
-
-        assertDoesNotThrow(taikai::check);
+    void twoParams(String name, int age) {
     }
+  }
 
-    static class ValidMethods {
+  static class InvalidMethods {
 
-        void noParams() {
-        }
-
-        void oneParam(String name) {
-        }
-
-        void twoParams(String name, int age) {
-        }
+    void tooManyParams(String a, String b, String c) {
     }
+  }
 
-    static class InvalidMethods {
+  static class ExactlyMaxMethods {
 
-        void tooManyParams(String a, String b, String c) {
-        }
+    void exactlyThree(String a, String b, String c) {
     }
-
-    static class ExactlyMaxMethods {
-
-        void exactlyThree(String a, String b, String c) {
-        }
-    }
+  }
 }

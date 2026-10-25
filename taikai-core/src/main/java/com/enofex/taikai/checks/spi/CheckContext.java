@@ -35,8 +35,10 @@ public interface CheckContext {
   @Nullable String namespace();
 
   /**
-   * Returns the classes of the configuration, without test classes and without the globally
-   * excluded classes. The import of a namespace is cached and shared with the rules and checks.
+   * Returns the classes of the configuration. Classes imported from the namespace exclude test
+   * classes and the globally excluded classes; classes set directly with
+   * {@code Taikai.Builder#classes} are returned as given, as for the rules. The import of a
+   * namespace is cached and shared with the rules and checks.
    *
    * @return the classes
    * @throws RuntimeException a {@code TaikaiException} if the configuration has neither a

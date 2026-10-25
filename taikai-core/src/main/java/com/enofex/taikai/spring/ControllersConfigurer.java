@@ -359,8 +359,9 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
 
   /**
    * Adds a rule enforcing that controller classes matching the given criteria
-   * should be annotated with {@code @Validated} when they contain validation annotations
-   * (e.g., {@code @RequestParam}, {@code @PathVariable} with {@code @Valid}).
+   * should be annotated with {@code @Validated} when a {@code @RequestParam} or
+   * {@code @PathVariable} parameter carries one of the constraints {@code @NotNull},
+   * {@code @NotBlank}, {@code @Size}, {@code @Min}, {@code @Max} or {@code @Pattern}.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -393,8 +394,10 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that all controllers with validation annotations
-   * (e.g., on {@code @RequestParam} or {@code @PathVariable}) must also be annotated with {@code @Validated}.
+   * Adds a rule enforcing that all controllers must be annotated with {@code @Validated} when a
+   * {@code @RequestParam} or {@code @PathVariable} parameter carries one of the constraints
+   * {@code @NotNull}, {@code @NotBlank}, {@code @Size}, {@code @Min}, {@code @Max} or
+   * {@code @Pattern}.
    *
    * @return this configurer for fluent chaining
    */

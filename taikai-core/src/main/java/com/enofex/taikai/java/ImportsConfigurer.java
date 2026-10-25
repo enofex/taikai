@@ -159,7 +159,13 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that the project's namespace has no cyclic dependencies between packages.
+   * Ensures that the project's namespace has no cyclic dependencies between its first-level
+   * subpackages. Each first-level subpackage forms one slice together with all its subpackages,
+   * so cycles inside a slice and cycles involving classes directly in the namespace are not
+   * reported.
+   *
+   * <p>The namespace is read when the rule is configured, so it must be set on the builder
+   * before {@code java(...)} is first configured.</p>
    *
    * @return this configurer for fluent chaining
    * @throws TaikaiException if no namespace is configured
@@ -170,8 +176,9 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that the project's namespace has no cyclic dependencies between packages, using the
-   * specified {@link Configuration}.
+   * Ensures that the project's namespace has no cyclic dependencies between its first-level
+   * subpackages, using the specified {@link Configuration}. The namespace of the configuration is
+   * used if it is set, otherwise the namespace of the builder.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining

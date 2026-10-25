@@ -170,10 +170,10 @@ Taikai.builder()
 
 Each rule group has a default mode, so in practice you rarely set this yourself:
 
-| Rule group                                                     | Default mode    |
-|----------------------------------------------------------------|-----------------|
-| `java(...)`, `logging(...)`, `spring(...)`, `quarkus(...)`      | `WITHOUT_TESTS` |
-| `test(...)` / `junit(...)`                                      | `ONLY_TESTS`    |
+| Rule group                                                                | Default mode    |
+|---------------------------------------------------------------------------|-----------------|
+| `java(...)`, `logging(...)`, `spring(...)`, `quarkus(...)`, `jpa(...)`     | `WITHOUT_TESTS` |
+| `test(...)` / `junit(...)`                                                 | `ONLY_TESTS`    |
 
 Override it per rule through [`Configuration`](#58-per-rule-configuration):
 
@@ -460,6 +460,18 @@ Taikai adapted = base.toBuilder()
 adapted.check();
 ```
 
+`toBuilder()` copies the rules of the instance. They stay in the new configuration even if you call
+`disable()` on the new builder, which only removes the rules added through that builder. To drop a
+rule group per module, share a [profile](#511-reusable-rule-profiles) instead of a built instance.
+
+!!! warning
+    Two rules read the namespace when their rule group is first configured, rather than when they
+    run: [`imports.shouldHaveNoCycles()`](#imports-shouldHaveNoCycles) and
+    [`boot.applicationClassShouldResideInPackage()`](#spring-boot-applicationClassShouldResideInPackage).
+    They throw a `TaikaiException` if no namespace is set yet, and they keep that namespace if it
+    changes later, also through `toBuilder().namespace(...)`. Call `namespace(...)` before
+    configuring them, or give them a namespace with `Configuration.of(String namespace)`.
+
 ### 5.11 Reusable Rule Profiles
 
 A profile is a `Customizer<T>`, where `T` is a configurer type such as `JavaConfigurer` or
@@ -641,7 +653,7 @@ The `CheckContext` describes the project that is checked:
 | `check()` | The class of the check that receives the context. |
 | `projectDirectory()` | The working directory of the test run, which Maven and Gradle set to the directory of the module under test, unless [configured otherwise](#configuring-the-checks). |
 | `namespace()` | The configured namespace, or `null` if classes are configured instead. |
-| `classes()` | The configured classes without test classes and without the [globally excluded classes](#54-excluding-classes-globally). The import of a namespace is cached and shared with the rules. |
+| `classes()` | The configured classes. Classes imported from the namespace exclude test classes and the [globally excluded classes](#54-excluding-classes-globally); classes set with [`classes(...)`](#52-selecting-classes-directly) are used as given, as for the rules. The import of a namespace is cached and shared with the rules. |
 | `classLoader()` | The class loader of the test run, for example to find resources with `getResources(String)`. |
 | `configuration(Class<T>)` | The [configuration](#configuring-a-single-check) of the check as an `Optional`, for example its settings. |
 | `requireConfiguration(Class<T>)` | The configuration of the check, or an `IllegalStateException` naming the check if it is not configured. |
@@ -825,9 +837,13 @@ Taikai.builder()
 Conventions used throughout the reference:
 
 - Rules are fluent and chainable; each returns its configurer.
-- Wherever a rule takes an annotation or a type, there are two overloads: one taking a
+- Wherever a rule takes a single annotation or type, there are two overloads: one taking a
   `Class<?>` literal and one taking a fully qualified name as a `String`. The `String` form exists so
-  you can reference types that are not on the test classpath. Only one form is shown per rule.
+  you can reference types that are not on the test classpath. Only one form is shown per rule. Rules
+  that take several annotations, such as
+  [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) or
+  [`noSelfInvocationOfProxiedMethods`](#spring-noSelfInvocationOfProxiedMethods), take their fully
+  qualified names only.
 - Rules that apply to a selection of classes take a `DescribedPredicate<? super JavaClass>`,
   usually built with [`ClassCriteria`](#513-selecting-with-criteria), listed as `classes`.
   Rules that select fields or methods by name take `FieldCriteria` or `MethodCriteria`, listed as
@@ -903,7 +919,7 @@ Default import mode: `WITHOUT_TESTS`.
 | [`methodsShouldNotHaveModifiers`](#methodsShouldNotHaveModifiers) | matching methods lack modifiers |
 | [`methodsShouldHaveModifiersForClass`](#methodsShouldHaveModifiersForClass) | methods of matching classes carry modifiers |
 | [`methodsShouldNotHaveModifiersForClass`](#methodsShouldNotHaveModifiersForClass) | methods of matching classes lack modifiers |
-| [`methodsShouldNotExceedMaxParameters`](#methodsShouldNotExceedMaxParameters) | parameter count stays under a limit |
+| [`methodsShouldNotExceedMaxParameters`](#methodsShouldNotExceedMaxParameters) | methods have at most a given number of parameters |
 | [`noUsageOf`](#noUsageOf) | a type is not used |
 | [`noUsageOfDeprecatedAPIs`](#noUsageOfDeprecatedAPIs) | nothing `@Deprecated` is used |
 | [`noUsageOfSystemOutOrErr`](#noUsageOfSystemOutOrErr) | no `System.out` / `System.err` |
@@ -1494,6 +1510,9 @@ Selects methods by the *declaring class*, so every method of a matching class is
 
 `methodsShouldNotExceedMaxParameters(int maxMethodParameters)`
 
+Methods must not declare more parameters than the given maximum; a method with exactly that many
+passes. Constructors are not checked.
+
 ```java
 .java(java -> java
     .methodsShouldNotExceedMaxParameters(6))
@@ -1565,19 +1584,28 @@ Import rules live in the nested `imports(...)` configurer.
 
 | Rule | Enforces |
 |------|----------|
-| [`shouldHaveNoCycles`](#imports-shouldHaveNoCycles) | no cyclic package dependencies |
+| [`shouldHaveNoCycles`](#imports-shouldHaveNoCycles) | no cycles between the first-level subpackages of the namespace |
 | [`shouldImport`](#imports-shouldImport) | matching classes import something |
 | [`shouldNotImport`](#imports-shouldNotImport) | a package or import is forbidden |
 
 #### `shouldHaveNoCycles` { #imports-shouldHaveNoCycles }
 
-Fails on cyclic dependencies between the slices of your namespace.
+Fails on cyclic dependencies between the slices of your namespace. Each first-level subpackage
+forms one slice together with all its subpackages: for `com.company.project`, everything in
+`com.company.project.order..` is one slice and everything in `com.company.project.billing..`
+another. Cycles inside a slice, such as between `order.api` and `order.internal`, are not reported,
+and neither are cycles involving classes directly in `com.company.project`.
 
 ```java
 .java(java -> java
     .imports(imports -> imports
         .shouldHaveNoCycles()))
 ```
+
+The rule needs a namespace, the global one or one given with `Configuration.of(String namespace)`.
+It throws a `TaikaiException` if the classes are [set directly](#52-selecting-classes-directly)
+without a namespace, and it reads the global namespace when `java(...)` is first configured, see
+[5.10](#510-modifying-an-existing-configuration).
 
 #### `shouldImport` { #imports-shouldImport }
 
@@ -1678,13 +1706,13 @@ Naming rules live in the nested `naming(...)` configurer.
 | [`methodsShouldNotMatch`](#naming-methodsShouldNotMatch) | method names do not match a regex |
 | [`methodsShouldMatchForClass`](#naming-methodsShouldMatchForClass) | methods of matching classes match a regex |
 | [`methodsShouldNotMatchForClass`](#naming-methodsShouldNotMatchForClass) | methods of matching classes do not match a regex |
-| [`fieldsShouldMatch`](#naming-fieldsShouldMatch) | fields of a type match a regex |
+| [`fieldsShouldMatch`](#naming-fieldsShouldMatch) | names of matching fields match a regex |
 | [`fieldsShouldNotMatch`](#naming-fieldsShouldNotMatch) | field names do not match a regex |
 | [`fieldsShouldMatchForClass`](#naming-fieldsShouldMatchForClass) | fields of matching classes match a regex |
 | [`fieldsShouldNotMatchForClass`](#naming-fieldsShouldNotMatchForClass) | fields of matching classes do not match a regex |
 | [`constantsShouldFollowConventions`](#naming-constantsShouldFollowConventions) | constants are `UPPER_SNAKE_CASE` |
 | [`enumConstantsShouldFollowConventions`](#naming-enumConstantsShouldFollowConventions) | enum constants are `UPPER_SNAKE_CASE` |
-| [`booleanMethodsShouldStartWith`](#naming-booleanMethodsShouldStartWith) | boolean getters use a prefix |
+| [`booleanMethodsShouldStartWith`](#naming-booleanMethodsShouldStartWith) | methods returning `boolean` use a prefix |
 | [`interfacesShouldNotHavePrefixI`](#naming-interfacesShouldNotHavePrefixI) | no `IFoo` interfaces |
 
 #### `packagesShouldMatchDefault` { #naming-packagesShouldMatchDefault }
@@ -1928,15 +1956,15 @@ Default import mode: `WITHOUT_TESTS`.
 | Rule | Enforces |
 |------|----------|
 | [`loggersShouldFollowConventions`](#loggersShouldFollowConventions) | logger fields have a fixed name and modifiers |
-| [`classesShouldUseLogger`](#classesShouldUseLogger) | matching classes declare a logger |
+| [`classesShouldUseLogger`](#classesShouldUseLogger) | matching classes have a logger field |
 
 #### `loggersShouldFollowConventions` { #loggersShouldFollowConventions }
 
 `loggersShouldFollowConventions(Class<?> clazz, String regex)`
 `loggersShouldFollowConventions(Class<?> clazz, String regex, Collection<JavaModifier> requiredModifiers)`
 
-Fields of the given logger type must have a name matching the regex and, optionally, the listed
-modifiers.
+Fields declared with the given logger type or a subtype of it must have a name matching the regex
+and, optionally, the listed modifiers.
 
 ```java
 .logging(logging -> logging
@@ -1954,9 +1982,9 @@ The `String` overload avoids a compile-time dependency on the logging API:
 
 `classesShouldUseLogger(DescribedPredicate<? super JavaClass> classes, Class<?> clazz)`
 
-Classes matching the criteria must declare a field of the given logger type. This is the
-complement of the rule above: one fixes *how* loggers are declared, the other *that* they are
-declared.
+Classes matching the criteria must have a field of exactly the given logger type. A field inherited
+from a superclass counts, a field of a subtype of the logger type does not. The rule complements the
+one above: one fixes *how* loggers are declared, the other *that* a class has one.
 
 ```java
 .logging(logging -> logging
@@ -1986,13 +2014,16 @@ Default import mode: `ONLY_TESTS`. All rules live in the nested `junit(...)` con
 Throughout this section, "test method" means a method meta-annotated `@Test` or
 `@ParameterizedTest`, and "test class" a class containing such methods.
 
-Three rules select differently, and the difference matters because these rules run over the
-`ONLY_TESTS` import, where every imported class is a test class anyway:
+Four rules select differently. This matters because the `ONLY_TESTS` import contains every class of
+the test sources, including helpers and fixtures without test methods:
 
 - `classesShouldBePackagePrivate(classes)` selects by criteria, and skips interfaces.
 - `classesShouldNotBeAnnotatedWithDisabled` applies to *all* imported classes.
 - `methodsShouldNotBeAnnotatedWithDisabled` applies to *all* imported methods, so it also catches
   `@Disabled` on a `@BeforeEach` or a helper.
+- [`testsShouldBeExecutable`](#junit-testsShouldBeExecutable) applies to all imported classes and
+  follows JUnit's own definition of a test method, which also includes `@TestTemplate` and
+  `@TestFactory` methods.
 
 #### `classesShouldEndWithTest` { #junit-classesShouldEndWithTest }
 
@@ -2332,7 +2363,8 @@ that package, so a misplaced application class silently changes which beans are 
 
 The no-argument overload uses the configured `namespace`, which is what you want in almost every
 project. Its `Configuration` overload uses the namespace of that configuration if one is set, and
-the global `namespace` otherwise:
+the global `namespace` otherwise. The global namespace is read when `spring(...)` is first
+configured, see [5.10](#510-modifying-an-existing-configuration):
 
 ```java
 .spring(spring -> spring
@@ -2371,7 +2403,8 @@ Applies to classes annotated `@ConfigurationProperties`, except
 
 ### 10.4 Configurations
 
-Applies to classes annotated `@Configuration`.
+Applies to classes annotated `@Configuration`, except the `@SpringBootApplication` class: it is a
+configuration class too, but its placement is covered by [Boot](#102-boot) instead.
 
 | Rule | Enforces |
 |------|----------|
@@ -2458,8 +2491,11 @@ methods. It has the [same semantics as the Java rule](#methodsShouldReturnForCla
 `Configuration` overload.
 
 `shouldBeAnnotatedWithValidated` only flags controllers that actually need it: those with a method
-parameter annotated `@PathVariable` or `@RequestParam` that also carries a validation constraint such
-as `@Min` or `@NotNull`. Without `@Validated` on the class, Spring never evaluates those constraints.
+parameter annotated `@PathVariable` or `@RequestParam` that also carries one of the constraints
+`@NotNull`, `@NotBlank`, `@Size`, `@Min`, `@Max` or `@Pattern`, from `jakarta.validation` or
+`javax.validation`, or an annotation that is annotated with one of them. Other constraints, such as
+`@Positive` or `@Email`, and `@Valid` are not recognized. Without `@Validated` on the class, Spring
+never evaluates those constraints.
 Use `shouldNotBeAnnotatedWithValidated` for the opposite convention, where validation is handled
 elsewhere.
 
@@ -2735,9 +2771,10 @@ itself, so when all checks point at the root directory,
 
 *Classes should not be compiled for a newer Java version than configured*
 
-Reads the Java version from the header of every class file of the configuration, without test
-classes and without the [globally excluded classes](#54-excluding-classes-globally), and reports
-the classes compiled for a newer Java version than allowed. Use it to keep a library usable on
+Reads the Java version from the header of every class file of the configuration and reports the
+classes compiled for a newer Java version than allowed. Classes imported from the namespace exclude
+test classes and the [globally excluded classes](#54-excluding-classes-globally); classes set with
+[`classes(...)`](#52-selecting-classes-directly) are checked as given. Use it to keep a library usable on
 older Java versions, even when the build runs on a newer JDK. The check needs the newest allowed
 Java version:
 
@@ -2826,8 +2863,8 @@ relative to the project directory and may point into subdirectories:
 
 ```text
 Check: Project should have the required files
-	SECURITY.md is missing in /home/dev/project
 	/home/dev/project/LICENSE is empty
+	SECURITY.md is missing in /home/dev/project
 ```
 
 #### `ServiceRegistrationsCheck` { #ServiceRegistrationsCheck }

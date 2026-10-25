@@ -47,7 +47,9 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * {@link com.enofex.taikai.Taikai.Builder#namespace(String)}).
    *
    * <p>This variant uses the namespace provided in the Taikai configuration
-   * and applies the rule without requiring an explicit package argument.</p>
+   * and applies the rule without requiring an explicit package argument. The namespace is read
+   * when the rule is configured, so it must be set on the builder before {@code spring(...)} is
+   * first configured.</p>
    *
    * @return this configurer for fluent chaining
    * @throws TaikaiException if no namespace is configured

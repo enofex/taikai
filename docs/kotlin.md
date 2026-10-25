@@ -107,7 +107,8 @@ for explicit imports. `excludeClasses` takes patterns such as
 `addRules(...)`, and `failOnEmpty(false)` are also available. Namespace and explicit classes remain
 mutually exclusive. Kotlin blocks can be repeated, and `disable()` clears previously
 registered Kotlin rules on that builder. `toBuilder()` preserves existing rules and
-allows new Kotlin rules without mutating the original instance.
+allows new Kotlin rules without mutating the original instance; `disable()` on such a
+builder only clears the Kotlin rules added after `toBuilder()`, not the preserved ones.
 
 ## Kotlin-specific rules
 
