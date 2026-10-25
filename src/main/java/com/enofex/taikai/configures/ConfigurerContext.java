@@ -12,7 +12,7 @@ public final class ConfigurerContext {
     this.configurers = configurers;
   }
 
-  public String namespace() {
+  public @Nullable String namespace() {
     return this.namespace;
   }
 

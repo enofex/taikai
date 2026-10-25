@@ -660,7 +660,7 @@ class JUnitConfigurerTest {
 
         @Test
         void shouldVerifyWithInOrder() {
-            Mockito.inOrder(mock);
+            Mockito.inOrder(this.mock);
         }
     }
 
@@ -669,7 +669,7 @@ class JUnitConfigurerTest {
 
         @Test
         void shouldVerifyArchRule() {
-            rule.check(new ClassFileImporter().importClasses(Object.class));
+          this.rule.check(new ClassFileImporter().importClasses(Object.class));
         }
     }
 

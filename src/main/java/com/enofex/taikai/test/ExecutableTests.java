@@ -195,7 +195,7 @@ final class ExecutableTests {
 
   private static boolean isConvertibleToStream(JavaClass javaClass) {
     return STREAM_CONVERTIBLE_TYPES.stream().anyMatch(javaClass::isAssignableTo)
-        || javaClass.getAllMethods().stream().anyMatch(method -> method.getName().equals("iterator")
+        || javaClass.getAllMethods().stream().anyMatch(method -> "iterator".equals(method.getName())
         && method.getRawParameterTypes().isEmpty()
         && method.getRawReturnType().isEquivalentTo(Iterator.class));
   }

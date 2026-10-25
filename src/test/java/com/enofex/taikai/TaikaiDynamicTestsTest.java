@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.enofex.taikai.java.JavaConfigurer;
+import com.enofex.taikai.spring.ControllersConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import java.util.List;
 import java.util.stream.Stream;
@@ -52,7 +54,7 @@ class TaikaiDynamicTestsTest {
   void shouldPassDynamicTestOfFollowedRule() {
     DynamicTest test = Taikai.builder()
         .classes(Printer.class)
-        .java(java -> java.fieldsShouldNotBePublic())
+        .java(JavaConfigurer::fieldsShouldNotBePublic)
         .build()
         .dynamicTests()
         .findFirst()
@@ -65,7 +67,7 @@ class TaikaiDynamicTestsTest {
   void shouldFailDynamicTestOfViolatedRule() {
     DynamicTest test = Taikai.builder()
         .classes(Printer.class)
-        .java(java -> java.noUsageOfSystemOutOrErr())
+        .java(JavaConfigurer::noUsageOfSystemOutOrErr)
         .build()
         .dynamicTests()
         .findFirst()
@@ -83,7 +85,7 @@ class TaikaiDynamicTestsTest {
         .namespace("com.enofex.taikai")
         .excludeClasses("com.enofex.taikai.spring.ValidatedController")
         .spring(spring -> spring
-            .controllers(controllers -> controllers.shouldBeAnnotatedWithController()))
+            .controllers(ControllersConfigurer::shouldBeAnnotatedWithController))
         .build()
         .dynamicTests()
         .findFirst()

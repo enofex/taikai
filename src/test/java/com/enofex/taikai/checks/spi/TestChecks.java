@@ -131,7 +131,7 @@ public final class TestChecks {
     @Override
     public List<String> violations(CheckContext context) {
       String value = context.requireConfiguration(Settings.class).value();
-      return value.equals("valid") ? List.of() : List.of("invalid setting " + value);
+      return "valid".equals(value) ? List.of() : List.of("invalid setting " + value);
     }
   }
 

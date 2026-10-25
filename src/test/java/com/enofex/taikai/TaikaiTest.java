@@ -147,8 +147,7 @@ class TaikaiTest {
         .namespace(VALID_NAMESPACE)
         .excludeClasses("com.enofex.taikai.ClassToExclude")
         .failOnEmpty(true)
-        .java(java -> java
-            .fieldsShouldNotBePublic())
+        .java(JavaConfigurer::fieldsShouldNotBePublic)
         .build();
 
     Taikai modifiedTaikai = taikai.toBuilder()

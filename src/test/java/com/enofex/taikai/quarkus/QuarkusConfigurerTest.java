@@ -18,8 +18,7 @@ public class QuarkusConfigurerTest {
 
       Taikai taikai = Taikai.builder()
           .classes(Injection.class)
-          .quarkus(quarkus ->
-              quarkus.noInjectionFields())
+          .quarkus(QuarkusConfigurer::noInjectionFields)
           .build();
       assertThrows(AssertionError.class, taikai::check);
     }
@@ -29,8 +28,7 @@ public class QuarkusConfigurerTest {
 
       Taikai taikai = Taikai.builder()
           .classes(InjectionWithConstructor.class)
-          .quarkus(quarkus ->
-              quarkus.noInjectionFields())
+          .quarkus(QuarkusConfigurer::noInjectionFields)
           .build();
       assertThrows(AssertionError.class, taikai::check);
     }
@@ -40,8 +38,7 @@ public class QuarkusConfigurerTest {
 
       Taikai taikai = Taikai.builder()
           .classes(NoInjection.class)
-          .quarkus(quarkus ->
-              quarkus.noInjectionFields())
+          .quarkus(QuarkusConfigurer::noInjectionFields)
           .build();
       assertDoesNotThrow(taikai::check);
     }

@@ -204,7 +204,7 @@ class PropertiesConfigurerTest {
 
     @Override
     public String host() {
-      return host;
+      return this.host;
     }
   }
 

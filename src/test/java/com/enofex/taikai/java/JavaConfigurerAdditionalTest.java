@@ -1,6 +1,5 @@
 package com.enofex.taikai.java;
 
-import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

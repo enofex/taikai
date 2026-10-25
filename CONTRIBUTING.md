@@ -56,4 +56,4 @@ committer for this project.
 ### Code Conventions
 
 #### Java
-Please follow the Google Java Style Guide when writing Java code for this project. You can also import the Intellij IDEA code style configuration file for Java from [here](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml).
+Please follow the Google Java Style Guide when writing Java code for this project. You can also import the IntelliJ IDEA code style configuration file for Java from [here](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml).

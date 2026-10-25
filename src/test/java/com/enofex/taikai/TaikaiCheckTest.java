@@ -13,6 +13,7 @@ import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.ForwardingCheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.checks.spi.TestChecks;
+import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import java.io.IOException;
@@ -225,7 +226,7 @@ class TaikaiCheckTest {
   void shouldRunChecksAfterRulesInDynamicTests() throws Throwable {
     List<DynamicTest> tests = build(Taikai.builder()
             .namespace(NAMESPACE)
-            .java(java -> java.noUsageOfSystemOutOrErr())
+            .java(JavaConfigurer::noUsageOfSystemOutOrErr)
             .discoverChecks(),
         TestChecks.Passing.class, TestChecks.Failing.class)
         .dynamicTests()

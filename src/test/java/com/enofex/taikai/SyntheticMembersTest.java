@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.IOException;
@@ -79,7 +80,7 @@ class SyntheticMembersTest {
 
     Taikai taikai = Taikai.builder()
         .classes(LoadingTask.class)
-        .java(java -> java.methodsShouldNotDeclareGenericExceptions())
+        .java(JavaConfigurer::methodsShouldNotDeclareGenericExceptions)
         .build();
 
     assertDoesNotThrow(taikai::check);
