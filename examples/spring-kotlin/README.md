@@ -1,7 +1,7 @@
 # Spring Kotlin demo
 
-A small Spring Boot task API whose architecture is checked by Taikai. All rules are
-configured with the receiver DSL in
+A small Spring Boot task API whose architecture is checked by Taikai. All rules and the
+predefined project checks are configured with the receiver DSL in
 [`ArchitectureTest`](src/test/kotlin/com/enofex/taikai/demo/ArchitectureTest.kt) and
 reported as one test each. The code is packaged by feature: everything in `task` is
 `internal`, Kotlin's closest equivalent to package-private.

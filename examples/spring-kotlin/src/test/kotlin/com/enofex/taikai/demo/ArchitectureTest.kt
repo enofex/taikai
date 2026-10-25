@@ -3,9 +3,12 @@ package com.enofex.taikai.demo
 import com.enofex.taikai.ClassCriteria
 import com.enofex.taikai.TaikaiRule
 import com.enofex.taikai.TaikaiRule.Configuration
-import com.enofex.taikai.java.ImportPatterns
-import com.enofex.taikai.demo.task.TaskService
+import com.enofex.taikai.checks.ClassFileVersionCheck
+import com.enofex.taikai.checks.ForbiddenFilesCheck
+import com.enofex.taikai.checks.RequiredFilesCheck
 import com.enofex.taikai.demo.task.TaskRepository
+import com.enofex.taikai.demo.task.TaskService
+import com.enofex.taikai.java.ImportPatterns
 import com.enofex.taikai.kotlin.KotlinVisibility
 import com.enofex.taikai.kotlin.kotlin
 import com.enofex.taikai.kotlin.taikai
@@ -94,5 +97,11 @@ class ArchitectureTest {
             }
             // Feature packages stay independent of each other as the application grows.
             addRule(TaikaiRule.of(slices().matching("$NAMESPACE.(*)..").should().notDependOnEachOther()))
+            discoverChecks {
+                configure(RequiredFilesCheck::class.java, RequiredFilesCheck.files("README.md", "pom.xml"))
+                configure(ForbiddenFilesCheck::class.java,
+                    ForbiddenFilesCheck.files("src/main/**/*.key", "src/main/**/.env"))
+                configure(ClassFileVersionCheck::class.java, ClassFileVersionCheck.javaVersion(17))
+            }
         }.dynamicTests()
 }

@@ -274,4 +274,4 @@ registration and accumulation behavior as the built-in configuration methods.
 ## Runnable example
 
 See the [Spring Kotlin demo](https://github.com/enofex/taikai/tree/main/examples/spring-kotlin)
-for an HTTP application and architecture tests using the receiver DSL.
+for an HTTP application with architecture tests and project checks using the receiver DSL.
