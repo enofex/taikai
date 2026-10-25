@@ -672,8 +672,10 @@ for discovered checks are:
 - A check must be a public class with a public constructor without parameters.
 - Checks are discovered when `build()` is called, and run sorted by their description, so that the
   order is the same in Maven, Gradle and the IDE.
-- A check that throws an exception, fails an assertion or misses a class does not abort the run.
-  The failure is reported as a violation of that check, and the other rules and checks still run.
+- A check that throws an exception, fails an assertion or misses a class does not escape as an
+  error of its own. The failure is reported as a violation of that check, like any other:
+  `checkAll()` and `dynamicTests()` still run the other rules and checks, while `check()` stops
+  there, as it does at every violation.
 
 #### Predefined checks
 

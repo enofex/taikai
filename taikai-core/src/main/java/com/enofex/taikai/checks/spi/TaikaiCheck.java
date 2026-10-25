@@ -51,7 +51,10 @@ public interface TaikaiCheck {
    * Runs this check and returns its violations.
    *
    * <p>If this method throws an exception, fails an assertion or misses a class, this is reported
-   * as a violation of this check, and the other rules and checks are still run.</p>
+   * as a violation of this check, like any other violation:
+   * {@link com.enofex.taikai.Taikai#checkAll()} and {@link com.enofex.taikai.Taikai#dynamicTests()}
+   * still run the other rules and checks, while {@link com.enofex.taikai.Taikai#check()} stops at
+   * it.</p>
    *
    * @param context the project that is checked
    * @return the violations, one message each, or an empty list if the check passes
