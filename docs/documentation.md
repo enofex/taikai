@@ -2717,13 +2717,17 @@ Taikai.builder()
 | [`GradleWrapperCheck`](#GradleWrapperCheck) | the project has the Gradle Wrapper | none |
 | [`MavenWrapperCheck`](#MavenWrapperCheck) | the project has the Maven Wrapper | none |
 | [`RequiredFilesCheck`](#RequiredFilesCheck) | the project has the required files, none of them empty | required |
-| [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) | the `META-INF/services` registrations refer to valid providers | none |
+| [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) | the `META-INF/services` registrations refer to valid providers | optional |
 
 The checks that look at files resolve them against the [project directory](#configuring-the-checks),
 which is the directory of the module under test. In a multi-module build, files such as the README
 or the Maven or Gradle Wrapper usually lie in the root directory instead. Point the checks there
 with `discoverChecks(checks -> checks.projectDirectory(Path.of("..")))`, or a single check with
 [`context(RequiredFilesCheck.class, ...)`](#changing-the-context).
+
+The registrations of [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) lie in the module
+itself, so when all checks point at the root directory,
+[configure](#ServiceRegistrationsCheck) its directories relative to the root.
 
 #### `ClassFileVersionCheck` { #ClassFileVersionCheck }
 
@@ -2835,6 +2839,19 @@ service, and be a public class with a public constructor without parameters, as 
 `ServiceLoader` requires. Comments and blank lines are ignored, and the classes are loaded with the
 class loader of the context without being initialized. Taikai uses it to validate its own
 registration of the predefined checks.
+
+The check needs no configuration. A project directory without these directories has nothing to
+check, so the check passes. When the registrations lie elsewhere, for example in a module while
+the [project directory](#configuring-the-checks) is the root of a multi-module build, configure
+the directories instead, relative to the project directory. Unlike the default directories, a
+configured directory must exist, so a wrong path is reported rather than silently checking nothing:
+
+```java
+.discoverChecks(checks -> checks
+    .projectDirectory(Path.of(".."))
+    .configure(ServiceRegistrationsCheck.class, ServiceRegistrationsCheck.directories(
+        "my-module/src/test/resources/META-INF/services")))
+```
 
 ```text
 Check: Service registrations should refer to valid providers
@@ -2978,13 +2995,19 @@ class ArchitectureTest {
                 .classesShouldMatch(ClassCriteria.implementing(CheckContext.class),
                     ".*CheckContext")
                 .interfacesShouldNotHavePrefixI()
+                .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))
         .discoverChecks(checks -> checks
+            .projectDirectory(Path.of(".."))
+            .configure(ServiceRegistrationsCheck.class, ServiceRegistrationsCheck.directories(
+                "taikai-core/src/test/resources/META-INF/services"))
             .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
                 "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"))
             .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
-                "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
-                "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
+                "taikai-core/src/main/**/*.pem", "taikai-core/src/main/**/*.key",
+                "taikai-core/src/main/**/*.p12", "taikai-core/src/main/**/*.jks",
+                "taikai-core/src/main/**/.env", "taikai-core/src/main/**/*.class",
+                "taikai-core/src/main/**/*.jar"))
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();

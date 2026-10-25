@@ -20,6 +20,18 @@ import java.util.stream.Stream;
  * must exist, and every provider must exist, implement the service, and be a public class with a
  * public constructor without parameters, as the {@code ServiceLoader} requires.
  *
+ * <p>The check needs no configuration. A project directory without these directories has nothing
+ * to check, so the check passes. When the registrations lie elsewhere, for example in a module
+ * while the project directory is the root of a multi-module build, configure the directories
+ * instead. A configured directory must exist:</p>
+ *
+ * <pre>
+ * .discoverChecks(checks -&gt; checks
+ *     .projectDirectory(Path.of(".."))
+ *     .configure(ServiceRegistrationsCheck.class, ServiceRegistrationsCheck.directories(
+ *         "my-module/src/test/resources/META-INF/services")))
+ * </pre>
+ *
  * <p>Taikai does not register its predefined checks itself, so that a new Taikai version never adds
  * checks on its own. To run this check, list its class name in the file
  * {@code src/test/resources/META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck} of the
@@ -27,8 +39,20 @@ import java.util.stream.Stream;
  */
 public final class ServiceRegistrationsCheck implements TaikaiCheck {
 
-  private static final List<String> SERVICE_DIRECTORIES = List.of(
+  private static final List<String> DEFAULT_DIRECTORIES = List.of(
       "src/main/resources/META-INF/services", "src/test/resources/META-INF/services");
+
+  /**
+   * Returns the settings that check the registrations in the given directories instead of the
+   * default ones. Unlike the default directories, a configured directory must exist.
+   *
+   * @param directories the paths of the directories with the registrations, relative to the
+   *     project directory
+   * @return the settings
+   */
+  public static Settings directories(String... directories) {
+    return new Settings(List.of(directories));
+  }
 
   @Override
   public String description() {
@@ -37,12 +61,20 @@ public final class ServiceRegistrationsCheck implements TaikaiCheck {
 
   @Override
   public List<String> violations(CheckContext context) {
+    Path projectDirectory = context.projectDirectory();
+    Optional<Settings> settings = context.configuration(Settings.class);
     List<String> violations = new ArrayList<>();
 
-    for (String directory : SERVICE_DIRECTORIES) {
-      for (Path registration : registrations(context.projectDirectory().resolve(directory))) {
-        violations.addAll(violations(context.projectDirectory().relativize(registration),
-            registration, context.classLoader()));
+    for (String directory : settings.map(Settings::directories).orElse(DEFAULT_DIRECTORIES)) {
+      Path path = projectDirectory.resolve(directory);
+
+      if (settings.isPresent() && !Files.isDirectory(path)) {
+        violations.add("%s is missing in %s".formatted(directory, projectDirectory));
+      } else {
+        for (Path registration : registrations(path)) {
+          violations.addAll(violations(projectDirectory.relativize(registration), registration,
+              context.classLoader()));
+        }
       }
     }
 
@@ -124,6 +156,30 @@ public final class ServiceRegistrationsCheck implements TaikaiCheck {
       return true;
     } catch (NoSuchMethodException e) {
       return false;
+    }
+  }
+
+  /**
+   * The settings of the {@link ServiceRegistrationsCheck}.
+   *
+   * @param directories the paths of the directories with the registrations, relative to the
+   *     project directory
+   */
+  public record Settings(List<String> directories) {
+
+    /**
+     * Creates the settings.
+     *
+     * @param directories the paths of the directories with the registrations, relative to the
+     *     project directory
+     * @throws IllegalArgumentException if no directory is given
+     */
+    public Settings {
+      directories = List.copyOf(directories);
+
+      if (directories.isEmpty()) {
+        throw new IllegalArgumentException("At least one directory must be given");
+      }
     }
   }
 }

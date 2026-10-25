@@ -1,6 +1,7 @@
 package com.enofex.taikai.checks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
@@ -15,6 +16,7 @@ class ServiceRegistrationsCheckTest {
 
   private static final String MAIN_SERVICES = "src/main/resources/META-INF/services";
   private static final String TEST_SERVICES = "src/test/resources/META-INF/services";
+  private static final String MODULE_SERVICES = "module/src/test/resources/META-INF/services";
   private static final String SERVICE = TaikaiCheck.class.getName();
 
   private final ServiceRegistrationsCheck check = new ServiceRegistrationsCheck();
@@ -74,6 +76,29 @@ class ServiceRegistrationsCheckTest {
     assertEquals(List.of("Service com.example.MissingService registered in %s does not exist"
             .formatted(Path.of(MAIN_SERVICES, "com.example.MissingService"))),
         this.check.violations(context()));
+  }
+
+  @Test
+  void shouldCheckConfiguredDirectoriesInsteadOfDefaultOnes() throws IOException {
+    register(MODULE_SERVICES, SERVICE, "com.example.MissingCheck");
+    register(TEST_SERVICES, SERVICE, "com.example.IgnoredCheck");
+
+    assertEquals(List.of("Provider com.example.MissingCheck registered in %s does not exist"
+            .formatted(Path.of(MODULE_SERVICES, SERVICE))),
+        this.check.violations(context()
+            .withConfiguration(ServiceRegistrationsCheck.directories(MODULE_SERVICES))));
+  }
+
+  @Test
+  void shouldReportMissingConfiguredDirectory() {
+    assertEquals(List.of("%s is missing in %s".formatted(MODULE_SERVICES, this.directory)),
+        this.check.violations(context()
+            .withConfiguration(ServiceRegistrationsCheck.directories(MODULE_SERVICES))));
+  }
+
+  @Test
+  void shouldRejectSettingsWithoutDirectories() {
+    assertThrows(IllegalArgumentException.class, ServiceRegistrationsCheck::directories);
   }
 
   private TestCheckContext context() {
