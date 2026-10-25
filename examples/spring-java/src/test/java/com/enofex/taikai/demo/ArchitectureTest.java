@@ -11,6 +11,7 @@ import com.enofex.taikai.checks.ForbiddenFilesCheck;
 import com.enofex.taikai.checks.RequiredFilesCheck;
 import com.enofex.taikai.java.ImportPatterns;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
@@ -19,6 +20,7 @@ class ArchitectureTest {
   private static final String NAMESPACE = "com.enofex.taikai.demo";
   private static final String TASK = NAMESPACE + ".task";
 
+  @DisplayName("Check architecture constraints")
   @TestFactory
   Stream<DynamicTest> architecture() {
     return Taikai.builder()

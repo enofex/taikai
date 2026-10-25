@@ -9,6 +9,7 @@ import com.enofex.taikai.kotlin.KotlinVisibility
 import com.enofex.taikai.kotlin.kotlin
 import com.enofex.taikai.kotlin.taikai
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import java.util.stream.Stream
@@ -17,6 +18,7 @@ private const val NAMESPACE = "com.enofex.taikai.demo"
 
 class ArchitectureTest {
 
+    @DisplayName("Check architecture constraints")
     @TestFactory
     fun architecture(): Stream<DynamicTest> =
         taikai {

@@ -291,6 +291,7 @@ description. The IDE and the test reports then show which rules pass and which f
 rule can be rerun from the IDE. Return the stream from a `@TestFactory` method:
 
 ```java
+@DisplayName("Check architecture constraints")
 @TestFactory
 Stream<DynamicTest> architecture() {
   return Taikai.builder()
@@ -304,7 +305,7 @@ Stream<DynamicTest> architecture() {
 ```
 
 ```text
-architecture()
+Check architecture constraints
 ├─ ✔ Classes should not use System.out or System.err
 └─ ✘ Fields should not be public unless they are static
 ```

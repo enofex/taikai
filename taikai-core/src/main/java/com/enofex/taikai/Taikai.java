@@ -340,6 +340,7 @@ public final class Taikai {
    * test reports, and a single rule can be rerun.
    *
    * <pre>{@code
+   * @DisplayName("Check architecture constraints")
    * @TestFactory
    * Stream<DynamicTest> architecture() {
    *   return Taikai.builder()
