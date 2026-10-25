@@ -37,8 +37,8 @@ import org.junit.jupiter.api.DynamicTest;
 /**
  * Central entry point for defining and executing Taikai architectural rules.
  *
- * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration
- * through various {@code Configurer} implementations (Java, Spring, Logging, Test), and executes
+ * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration through various
+ * {@code Configurer} implementations (Java, Logging, Test, Spring, Quarkus, JPA), and executes
  * rules against the imported {@link JavaClasses} for a given namespace. Together with the rules,
  * it runs {@link TaikaiCheck}s, which check the project beyond its classes.</p>
  *

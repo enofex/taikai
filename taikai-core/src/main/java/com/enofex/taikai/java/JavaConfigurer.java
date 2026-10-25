@@ -197,7 +197,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Requires each method declared in matching classes to have at least one matching type in
+   * Requires each method matching the given criteria to have at least one matching type in
    * its return signature, including generic arguments, bounds, and array components.
    * All method visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit
    * predicates to select the types.

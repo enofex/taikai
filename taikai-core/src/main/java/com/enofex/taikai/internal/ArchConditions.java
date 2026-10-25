@@ -117,9 +117,9 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a field is not public and not static.
+   * Creates a condition that checks if a field is not public, unless it is static.
    *
-   * @return an architectural condition for checking public except static fields
+   * @return an architectural condition for checking that non-static fields are not public
    */
   public static ArchCondition<JavaField> notBePublicUnlessStatic() {
     return new ArchCondition<>("not be public") {
