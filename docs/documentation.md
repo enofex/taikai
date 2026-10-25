@@ -2925,7 +2925,7 @@ rollout:
 ## 15. Complete Example
 
 The configuration Taikai applies to its own codebase, from
-[`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/src/test/java/com/enofex/taikai/ArchitectureTest.java).
+[`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/taikai-core/src/test/java/com/enofex/taikai/ArchitectureTest.java).
 Every rule and check runs as a test of its own:
 
 ```java
@@ -2999,6 +2999,9 @@ com.enofex.taikai.checks.MavenWrapperCheck
 com.enofex.taikai.checks.RequiredFilesCheck
 com.enofex.taikai.checks.ServiceRegistrationsCheck
 ```
+
+See the [Spring Java demo](https://github.com/enofex/taikai/tree/main/examples/spring-java)
+for an HTTP application with its architecture tests and project checks.
 
 
 ## Kotlin/JVM

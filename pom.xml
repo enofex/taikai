@@ -47,6 +47,7 @@
   <modules>
     <module>taikai-core</module>
     <module>taikai-kotlin</module>
+    <module>examples/spring-java</module>
     <module>examples/spring-kotlin</module>
   </modules>
 

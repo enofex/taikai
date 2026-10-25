@@ -61,6 +61,7 @@ taikai {
 ## JUnit Example Test
 
 Here's an example demonstrating the usage of some Taikai rules with JUnit. Customize rules as needed using `TaikaiRule.of()`.
+The runnable [Spring Java demo](examples/spring-java) shows a complete application with its architecture tests.
 
 ```java
 @Test

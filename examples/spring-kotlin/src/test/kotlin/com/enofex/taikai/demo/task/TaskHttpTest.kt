@@ -1,4 +1,4 @@
-package com.enofex.taikai.demo
+package com.enofex.taikai.demo.task
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test

@@ -1,12 +1,11 @@
-package com.enofex.taikai.demo.repository
+package com.enofex.taikai.demo.task
 
-import com.enofex.taikai.demo.model.Task
 import org.springframework.stereotype.Repository
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 @Repository
-class TaskRepository {
+internal class TaskRepository {
     private val tasks = ConcurrentHashMap<UUID, Task>()
 
     fun save(task: Task): Task = task.also { tasks[it.id] = it }
