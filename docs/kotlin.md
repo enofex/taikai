@@ -86,14 +86,25 @@ val architecture = taikai {
 architecture.checkAll()
 ```
 
-`java`, `spring`, `logging`, `test`, and `kotlin` blocks have configuration receivers.
-Nested Java configurers retain their existing callback API, as the `services`
-example shows. The DSL marker prevents accidental unqualified access to the outer
-builder inside these receiver blocks.
+`java`, `spring`, `logging`, `test`, `quarkus`, `jpa`, and `kotlin` blocks have
+configuration receivers. Nested Java configurers retain their existing callback API, as
+the `services` example shows. The DSL marker prevents accidental unqualified access to
+the outer builder inside these receiver blocks.
+
+`discoverChecks` runs the [project checks](documentation.md#514-custom-checks), with
+`ChecksConfigurer` as the receiver:
+
+```kotlin
+discoverChecks {
+    configure(RequiredFilesCheck::class.java, RequiredFilesCheck.files("README.md", "LICENSE"))
+}
+```
 
 Use `classes(MyType::class)` or `classes(importedJavaClasses)` instead of a namespace
-for explicit imports. `excludeClasses("com.example.generated..")`, `addRule(...)`,
-and `failOnEmpty(false)` are also available. Namespace and explicit classes remain
+for explicit imports. `excludeClasses` takes patterns such as
+`"com.example.generated.."`, class literals such as `Generated::class`, or
+[criteria](documentation.md#513-selecting-with-criteria). `addRule(...)`,
+`addRules(...)`, and `failOnEmpty(false)` are also available. Namespace and explicit classes remain
 mutually exclusive. Kotlin blocks can be repeated, and `disable()` clears previously
 registered Kotlin rules on that builder. `toBuilder()` preserves existing rules and
 allows new Kotlin rules without mutating the original instance.

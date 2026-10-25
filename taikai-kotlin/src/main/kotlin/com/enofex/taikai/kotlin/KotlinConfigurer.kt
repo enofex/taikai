@@ -18,6 +18,7 @@ enum class KotlinVisibility { PUBLIC, INTERNAL, PROTECTED, PRIVATE }
 
 /** Optional Kotlin/JVM rules. Java rule semantics remain unchanged. Patterns match entire source simple names. */
 class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context) {
+    /** Removes every Kotlin rule registered on this builder so far. */
     fun disable(): KotlinConfigurer = apply { clear() }
 
     /** Requires every declared Kotlin class simple name to match the regex. */

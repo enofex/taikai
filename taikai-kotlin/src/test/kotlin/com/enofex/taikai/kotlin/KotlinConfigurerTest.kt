@@ -1,11 +1,16 @@
 package com.enofex.taikai.kotlin
 
+import com.enofex.taikai.ClassCriteria
 import com.enofex.taikai.Namespace
 import com.enofex.taikai.Taikai
+import com.enofex.taikai.TaikaiException
+import com.enofex.taikai.TaikaiRule
 import com.enofex.taikai.TaikaiRule.Configuration
+import com.enofex.taikai.checks.RequiredFilesCheck
 import com.enofex.taikai.kotlin.fixtures.*
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.importer.ClassFileImporter
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -185,5 +190,44 @@ class KotlinConfigurerTest {
         instance.checkAll()
         val invalid = taikai { classes(MutableDto::class); kotlin { dataClassesShouldBeImmutable() } }
         assertThrows<AssertionError> { invalid.checkAll() }
+    }
+
+    @Test
+    fun `receiver DSL excludes classes by literal and by criteria`() {
+        val withTests = Configuration.of(Namespace.IMPORT.WITH_TESTS)
+        val fixtures = "com.enofex.taikai.kotlin.fixtures"
+        assertThrows<AssertionError> {
+            taikai { namespace(fixtures); kotlin { dataClassesShouldBeImmutable(withTests) } }.checkAll()
+        }
+        taikai {
+            namespace(fixtures)
+            excludeClasses(MutableDto::class)
+            kotlin { dataClassesShouldBeImmutable(withTests) }
+        }.checkAll()
+        taikai {
+            namespace(fixtures)
+            excludeClasses(ClassCriteria.simpleNameMatching("MutableDto"))
+            kotlin { dataClassesShouldBeImmutable(withTests) }
+        }.checkAll()
+    }
+
+    @Test
+    fun `receiver DSL registers rules for every rule group and discovers checks`() {
+        val rule = TaikaiRule.of(ArchRuleDefinition.classes().should().haveSimpleNameNotEndingWith("Impl"))
+        val instance = taikai {
+            classes(GoodDto::class)
+            addRules(listOf(rule, rule))
+            quarkus { noInjectionFields() }
+            jpa { entities { it.shouldBePackagePrivate() } }
+            discoverChecks()
+        }
+        assertEquals(4, instance.rules().size)
+        assertTrue(instance.checks().isEmpty())
+        assertThrows<TaikaiException> {
+            taikai {
+                classes(GoodDto::class)
+                discoverChecks { configure(RequiredFilesCheck::class.java, RequiredFilesCheck.files("README.md")) }
+            }
+        }
     }
 }
