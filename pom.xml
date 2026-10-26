@@ -38,7 +38,7 @@
     <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
     <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
     <jreleaser-maven-plugin.version>1.26.0</jreleaser-maven-plugin.version>
-    <spring.version>7.0.9</spring.version>
+    <spring.version>7.0.10</spring.version>
     <spring-boot.version>4.1.2</spring-boot.version>
     <quarkus.version>3.40.1.1</quarkus.version>
     <langchain4j.version>1.14.2</langchain4j.version>
