@@ -25,14 +25,34 @@ class GradleWrapperCheckTest {
 
   @Test
   void shouldPassWithGradleWrapper() throws IOException {
-    Files.writeString(this.directory.resolve("gradlew"), "#!/bin/sh");
-    Files.writeString(this.directory.resolve("gradlew.bat"), "@echo off");
-    Files.createDirectories(this.directory.resolve("gradle/wrapper"));
-    Files.write(this.directory.resolve("gradle/wrapper/gradle-wrapper.jar"), JAR);
-    Files.writeString(this.directory.resolve("gradle/wrapper/gradle-wrapper.properties"),
-        "distributionUrl=https\\://services.gradle.org/distributions/gradle-bin.zip");
+    writeGradleWrapper(this.directory);
 
     assertEquals(List.of(), this.check.violations(context()));
+  }
+
+  @Test
+  void shouldPassWithGradleWrapperInConfiguredDirectory() throws IOException {
+    Path subproject = Files.createDirectories(this.directory.resolve("subproject"));
+    writeGradleWrapper(this.directory);
+
+    assertEquals(List.of(), this.check.violations(TestCheckContext
+        .of(GradleWrapperCheck.class, subproject)
+        .withConfiguration(GradleWrapperCheck.directory(".."))));
+  }
+
+  @Test
+  void shouldReportMissingGradleWrapperFilesInConfiguredDirectory() throws IOException {
+    Path subproject = Files.createDirectories(this.directory.resolve("subproject"));
+    writeGradleWrapper(subproject);
+
+    assertEquals(List.of(
+            "gradlew is missing in " + this.directory,
+            "gradlew.bat is missing in " + this.directory,
+            "gradle/wrapper/gradle-wrapper.jar is missing in " + this.directory,
+            "gradle/wrapper/gradle-wrapper.properties is missing in " + this.directory),
+        this.check.violations(TestCheckContext
+            .of(GradleWrapperCheck.class, subproject)
+            .withConfiguration(GradleWrapperCheck.directory(".."))));
   }
 
   @Test
@@ -61,5 +81,14 @@ class GradleWrapperCheckTest {
 
   private TestCheckContext context() {
     return TestCheckContext.of(GradleWrapperCheck.class, this.directory);
+  }
+
+  private static void writeGradleWrapper(Path directory) throws IOException {
+    Files.writeString(directory.resolve("gradlew"), "#!/bin/sh");
+    Files.writeString(directory.resolve("gradlew.bat"), "@echo off");
+    Files.createDirectories(directory.resolve("gradle/wrapper"));
+    Files.write(directory.resolve("gradle/wrapper/gradle-wrapper.jar"), JAR);
+    Files.writeString(directory.resolve("gradle/wrapper/gradle-wrapper.properties"),
+        "distributionUrl=https\\://services.gradle.org/distributions/gradle-bin.zip");
   }
 }

@@ -2757,8 +2757,8 @@ Taikai.builder()
 |-------|-------------|---------------|
 | [`ClassFileVersionCheck`](#ClassFileVersionCheck) | classes are not compiled for a newer Java version than allowed | required |
 | [`ForbiddenFilesCheck`](#ForbiddenFilesCheck) | the project contains no forbidden files, such as private keys | required |
-| [`GradleWrapperCheck`](#GradleWrapperCheck) | the project has the Gradle Wrapper | none |
-| [`MavenWrapperCheck`](#MavenWrapperCheck) | the project has the Maven Wrapper | none |
+| [`GradleWrapperCheck`](#GradleWrapperCheck) | the project has the Gradle Wrapper | optional |
+| [`MavenWrapperCheck`](#MavenWrapperCheck) | the project has the Maven Wrapper | optional |
 | [`RequiredFilesCheck`](#RequiredFilesCheck) | the project has the required files, none of them empty | required |
 | [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) | the `META-INF/services` registrations refer to valid providers | optional |
 
@@ -2766,7 +2766,8 @@ The checks that look at files resolve them against the [project directory](#conf
 which is the directory of the module under test. In a multi-module build, files such as the README
 or the Maven or Gradle Wrapper usually lie in the root directory instead. Point the checks there
 with `discoverChecks(checks -> checks.projectDirectory(Path.of("..")))`, or a single check with
-[`context(RequiredFilesCheck.class, ...)`](#changing-the-context).
+[`context(RequiredFilesCheck.class, ...)`](#changing-the-context). The wrapper checks can also be
+[configured](#MavenWrapperCheck) with the directory of the wrapper.
 
 The registrations of [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) lie in the module
 itself, so when all checks point at the root directory,
@@ -2834,6 +2835,15 @@ and `gradlew.bat` and the files `gradle/wrapper/gradle-wrapper.jar` and
 `gradle/wrapper/gradle-wrapper.properties` must exist in the project directory and must not be
 empty.
 
+The check needs no configuration. When the wrapper lies elsewhere, for example in the root of a
+multi-project build while the [project directory](#configuring-the-checks) is the subproject under
+test, configure its directory instead, relative to the project directory:
+
+```java
+.discoverChecks(checks -> checks
+    .configure(GradleWrapperCheck.class, GradleWrapperCheck.directory("..")))
+```
+
 ```text
 Check: Project should have the Gradle Wrapper
 	gradle/wrapper/gradle-wrapper.jar is missing in /home/dev/project
@@ -2846,6 +2856,15 @@ Check: Project should have the Gradle Wrapper
 Checks that the project can be built without a local Maven installation: the scripts `mvnw` and
 `mvnw.cmd` and the file `.mvn/wrapper/maven-wrapper.properties` must exist in the project
 directory and must not be empty.
+
+The check needs no configuration. When the wrapper lies elsewhere, for example in the root of a
+multi-module build while the [project directory](#configuring-the-checks) is the module under test,
+configure its directory instead, relative to the project directory:
+
+```java
+.discoverChecks(checks -> checks
+    .configure(MavenWrapperCheck.class, MavenWrapperCheck.directory("..")))
+```
 
 ```text
 Check: Project should have the Maven Wrapper
