@@ -7,7 +7,7 @@
 
   <groupId>com.enofex</groupId>
   <artifactId>taikai-parent</artifactId>
-  <version>2.4.1-SNAPSHOT</version>
+  <version>2.6.0</version>
   <name>Taikai</name>
   <inceptionYear>2024</inceptionYear>
 
