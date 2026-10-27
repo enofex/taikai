@@ -6,7 +6,7 @@ import com.enofex.taikai.Taikai
 import com.enofex.taikai.TaikaiException
 import com.enofex.taikai.TaikaiRule
 import com.enofex.taikai.TaikaiRule.Configuration
-import com.enofex.taikai.checks.RequiredFilesCheck
+import com.enofex.taikai.checks.GradleWrapperCheck
 import com.enofex.taikai.kotlin.fixtures.*
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.importer.ClassFileImporter
@@ -222,11 +222,11 @@ class KotlinConfigurerTest {
             discoverChecks()
         }
         assertEquals(4, instance.rules().size)
-        assertTrue(instance.checks().isEmpty())
+        assertEquals(5, instance.checks().size)
         assertThrows<TaikaiException> {
             taikai {
                 classes(GoodDto::class)
-                discoverChecks { configure(RequiredFilesCheck::class.java, RequiredFilesCheck.files("README.md")) }
+                discoverChecks { configure(GradleWrapperCheck::class.java, GradleWrapperCheck.directory("..")) }
             }
         }
     }
