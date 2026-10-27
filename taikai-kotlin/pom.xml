@@ -9,6 +9,7 @@
   <artifactId>taikai-kotlin</artifactId>
   <name>Taikai Kotlin</name>
   <description>Kotlin/JVM architecture rules and DSL for Taikai</description>
+  <url>https://github.com/enofex/taikai</url>
   <dependencies>
     <dependency>
       <groupId>com.enofex</groupId>

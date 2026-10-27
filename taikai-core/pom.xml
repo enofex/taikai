@@ -8,6 +8,10 @@
   </parent>
   <artifactId>taikai</artifactId>
   <name>Taikai Core</name>
+  <description>
+    Taikai is a wrapper around the awesome ArchUnit and provides a set of common rules for different technologies.
+  </description>
+  <url>https://github.com/enofex/taikai</url>
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>

@@ -225,7 +225,9 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  <scm>
+  <scm child.scm.connection.inherit.append.path="false"
+    child.scm.developerConnection.inherit.append.path="false"
+    child.scm.url.inherit.append.path="false">
     <url>https://github.com/enofex/taikai</url>
     <connection>scm:git:git://github.com/enofex/taikai.git</connection>
     <developerConnection>
