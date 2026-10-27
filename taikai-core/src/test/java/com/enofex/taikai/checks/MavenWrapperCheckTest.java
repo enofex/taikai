@@ -23,13 +23,33 @@ class MavenWrapperCheckTest {
 
   @Test
   void shouldPassWithMavenWrapper() throws IOException {
-    Files.writeString(this.directory.resolve("mvnw"), "#!/bin/sh");
-    Files.writeString(this.directory.resolve("mvnw.cmd"), "@echo off");
-    Files.createDirectories(this.directory.resolve(".mvn/wrapper"));
-    Files.writeString(this.directory.resolve(".mvn/wrapper/maven-wrapper.properties"),
-        "distributionUrl=https://repo.maven.apache.org/maven2");
+    writeMavenWrapper(this.directory);
 
     assertEquals(List.of(), this.check.violations(context()));
+  }
+
+  @Test
+  void shouldPassWithMavenWrapperInConfiguredDirectory() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+    writeMavenWrapper(this.directory);
+
+    assertEquals(List.of(), this.check.violations(TestCheckContext
+        .of(MavenWrapperCheck.class, module)
+        .withConfiguration(MavenWrapperCheck.directory(".."))));
+  }
+
+  @Test
+  void shouldReportMissingMavenWrapperFilesInConfiguredDirectory() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+    writeMavenWrapper(module);
+
+    assertEquals(List.of(
+            "mvnw is missing in " + this.directory,
+            "mvnw.cmd is missing in " + this.directory,
+            ".mvn/wrapper/maven-wrapper.properties is missing in " + this.directory),
+        this.check.violations(TestCheckContext
+            .of(MavenWrapperCheck.class, module)
+            .withConfiguration(MavenWrapperCheck.directory(".."))));
   }
 
   @Test
@@ -54,5 +74,13 @@ class MavenWrapperCheckTest {
 
   private TestCheckContext context() {
     return TestCheckContext.of(MavenWrapperCheck.class, this.directory);
+  }
+
+  private static void writeMavenWrapper(Path directory) throws IOException {
+    Files.writeString(directory.resolve("mvnw"), "#!/bin/sh");
+    Files.writeString(directory.resolve("mvnw.cmd"), "@echo off");
+    Files.createDirectories(directory.resolve(".mvn/wrapper"));
+    Files.writeString(directory.resolve(".mvn/wrapper/maven-wrapper.properties"),
+        "distributionUrl=https://repo.maven.apache.org/maven2");
   }
 }
