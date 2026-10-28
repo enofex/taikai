@@ -247,12 +247,12 @@ class TaikaiCheckTest {
     build(Taikai.builder()
             .namespace(NAMESPACE)
             .excludeClasses(PerCheckContext.class)
-            .discoverChecks(checks -> checks.projectDirectory(this.directory)),
+            .discoverChecks(),
         TestChecks.ContextCapturing.class)
         .check();
 
     CheckContext context = TestChecks.ContextCapturing.lastContext();
-    assertEquals(this.directory.toAbsolutePath(), context.projectDirectory());
+    assertEquals(Path.of("").toAbsolutePath(), context.projectDirectory());
     assertEquals(NAMESPACE, context.namespace());
     assertSame(Thread.currentThread().getContextClassLoader(), context.classLoader());
     assertTrue(context.classes().contain(Taikai.class));
@@ -274,7 +274,7 @@ class TaikaiCheckTest {
   }
 
   @Test
-  void shouldUseWorkingDirectoryAsDefaultProjectDirectory() {
+  void shouldUseWorkingDirectoryAsProjectDirectory() {
     discover(TestChecks.ContextCapturing.class).check();
 
     assertEquals(Path.of("").toAbsolutePath(),
@@ -305,9 +305,7 @@ class TaikaiCheckTest {
   void shouldKeepChecksConfigurationInToBuilder() {
     Taikai base = build(Taikai.builder()
             .namespace(NAMESPACE)
-            .discoverChecks(checks -> checks
-                .projectDirectory(this.directory)
-                .exclude(TestChecks.Failing.class)),
+            .discoverChecks(checks -> checks.exclude(TestChecks.Failing.class)),
         TestChecks.ContextCapturing.class, TestChecks.Failing.class);
 
     Taikai extended = build(base.toBuilder()
@@ -316,10 +314,6 @@ class TaikaiCheckTest {
         TestChecks.AnotherFailing.class);
 
     assertEquals(List.of(TestChecks.ContextCapturing.class), classes(extended.checks()));
-
-    extended.check();
-    assertEquals(this.directory.toAbsolutePath(),
-        TestChecks.ContextCapturing.lastContext().projectDirectory());
   }
 
   @Test
@@ -566,7 +560,6 @@ class TaikaiCheckTest {
       build(Taikai.builder()
               .namespace(NAMESPACE)
               .discoverChecks(checks -> checks
-                  .projectDirectory(directory)
                   .context(context -> new ForwardingCheckContext(context) {
                     @Override
                     public Path projectDirectory() {
@@ -582,7 +575,7 @@ class TaikaiCheckTest {
           TestChecks.ContextCapturing.class)
           .check();
 
-      assertEquals(directory.toAbsolutePath().resolve("first").resolve("second"),
+      assertEquals(Path.of("").toAbsolutePath().resolve("first").resolve("second"),
           TestChecks.ContextCapturing.lastContext().projectDirectory());
     }
 
@@ -622,7 +615,6 @@ class TaikaiCheckTest {
       build(Taikai.builder()
               .namespace(NAMESPACE)
               .discoverChecks(checks -> checks
-                  .projectDirectory(directory)
                   .context(TestChecks.ContextCapturing.class, resolving("single"))
                   .context(resolving("all"))
                   .context(TestChecks.Passing.class, resolving("other"))
@@ -630,7 +622,7 @@ class TaikaiCheckTest {
           TestChecks.ContextCapturing.class, TestChecks.Passing.class)
           .check();
 
-      assertEquals(directory.toAbsolutePath().resolve("single").resolve("all")
+      assertEquals(Path.of("").toAbsolutePath().resolve("single").resolve("all")
               .resolve("single again"),
           TestChecks.ContextCapturing.lastContext().projectDirectory());
     }
@@ -724,13 +716,12 @@ class TaikaiCheckTest {
       Taikai base = build(Taikai.builder()
               .namespace(NAMESPACE)
               .discoverChecks(checks -> checks
-                  .projectDirectory(directory)
                   .context(TestChecks.ContextCapturing.class, resolving("single"))),
           TestChecks.ContextCapturing.class);
 
       build(base.toBuilder(), TestChecks.ContextCapturing.class).check();
 
-      assertEquals(directory.toAbsolutePath().resolve("single"),
+      assertEquals(Path.of("").toAbsolutePath().resolve("single"),
           TestChecks.ContextCapturing.lastContext().projectDirectory());
     }
 

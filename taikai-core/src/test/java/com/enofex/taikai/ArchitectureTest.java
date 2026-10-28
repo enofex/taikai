@@ -7,13 +7,12 @@ import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
 import com.enofex.taikai.checks.ClassFileVersionCheck;
 import com.enofex.taikai.checks.ForbiddenFilesCheck;
+import com.enofex.taikai.checks.MavenWrapperCheck;
 import com.enofex.taikai.checks.RequiredFilesCheck;
-import com.enofex.taikai.checks.ServiceRegistrationsCheck;
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.Configurer;
-import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -64,16 +63,13 @@ class ArchitectureTest {
                 .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))
         .discoverChecks(checks -> checks
-            .projectDirectory(Path.of(".."))
-            .configure(ServiceRegistrationsCheck.class, ServiceRegistrationsCheck.directories(
-                "taikai-core/src/test/resources/META-INF/services"))
             .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
-                "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"))
+                "../README.md", "../LICENSE", "../CONTRIBUTING.md", "../CODE_OF_CONDUCT.md",
+                "../SECURITY.md"))
+            .configure(MavenWrapperCheck.class, MavenWrapperCheck.directories(".."))
             .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
-                "taikai-core/src/main/**/*.pem", "taikai-core/src/main/**/*.key",
-                "taikai-core/src/main/**/*.p12", "taikai-core/src/main/**/*.jks",
-                "taikai-core/src/main/**/.env", "taikai-core/src/main/**/*.class",
-                "taikai-core/src/main/**/*.jar"))
+                "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
+                "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();

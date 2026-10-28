@@ -651,7 +651,7 @@ The `CheckContext` describes the project that is checked:
 | Method | Returns |
 |--------|---------|
 | `check()` | The class of the check that receives the context. |
-| `projectDirectory()` | The working directory of the test run, which Maven and Gradle set to the directory of the module under test, unless [configured otherwise](#configuring-the-checks). |
+| `projectDirectory()` | The working directory of the test run, which Maven and Gradle set to the directory of the module under test. The paths in the settings of a check are relative to it, and may point outside of it with `..`, for example to the root of a [multi-module build](#13-predefined-checks). |
 | `namespace()` | The configured namespace, or `null` if classes are configured instead. |
 | `classes()` | The configured classes. Classes imported from the namespace exclude test classes and the [globally excluded classes](#54-excluding-classes-globally); classes set with [`classes(...)`](#52-selecting-classes-directly) are used as given, as for the rules. The import of a namespace is cached and shared with the rules. |
 | `classLoader()` | The class loader of the test run, for example to find resources with `getResources(String)`. |
@@ -704,15 +704,14 @@ configurers:
 Taikai.builder()
     .namespace("com.company.project")
     .discoverChecks(checks -> checks
-        .projectDirectory(Path.of(".."))   // the repository root instead of the module directory
-        .exclude(LicenseCheck.class))      // switch off a single check
+        .configure(RequiredFilesCheck.class, RequiredFilesCheck.files("README.md")) // settings
+        .exclude(LicenseCheck.class))                                               // switch off
     .build()
     .checkAll();
 ```
 
 | Method | Behavior |
 |--------|----------|
-| `projectDirectory(Path)` | Sets the project directory of the context. |
 | `exclude(Class<? extends TaikaiCheck>...)` | Switches off single checks. An excluded check is not even instantiated. |
 | `configure(Class<C>, Object)` | [Configures a single check](#configuring-a-single-check), for example with its settings. |
 | `context(UnaryOperator<CheckContext>)` | [Changes the context](#changing-the-context) of every check. |
@@ -781,9 +780,8 @@ Taikai.builder()
 
 #### Changing the context
 
-A `context(...)` function receives the context of a check, which already uses the configured
-project directory and contains the configuration of the check, and returns the context the check
-gets instead. Extend `ForwardingCheckContext` from `com.enofex.taikai.checks.spi` to override only
+A `context(...)` function receives the context of a check, which already contains the
+configuration of the check, and returns the context the check gets instead. Extend `ForwardingCheckContext` from `com.enofex.taikai.checks.spi` to override only
 the methods you want to change; it forwards all others to the wrapped context:
 
 ```java
@@ -2762,16 +2760,18 @@ Taikai.builder()
 | [`RequiredFilesCheck`](#RequiredFilesCheck) | the project has the required files, none of them empty | required |
 | [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) | the `META-INF/services` registrations refer to valid providers | optional |
 
-The checks that look at files resolve them against the [project directory](#configuring-the-checks),
-which is the directory of the module under test. In a multi-module build, files such as the README
-or the Maven or Gradle Wrapper usually lie in the root directory instead. Point the checks there
-with `discoverChecks(checks -> checks.projectDirectory(Path.of("..")))`, or a single check with
-[`context(RequiredFilesCheck.class, ...)`](#changing-the-context). The wrapper checks can also be
-[configured](#MavenWrapperCheck) with the directory of the wrapper.
+The checks that look at files resolve them against the project directory, which is the directory
+of the module under test. Every path in the settings of a check is relative to it. In a
+multi-module build, files such as the README or the Maven or Gradle Wrapper usually lie in the root
+directory instead, so point the settings of these checks there with `..`, while the other checks
+keep looking at the module:
 
-The registrations of [`ServiceRegistrationsCheck`](#ServiceRegistrationsCheck) lie in the module
-itself, so when all checks point at the root directory,
-[configure](#ServiceRegistrationsCheck) its directories relative to the root.
+```java
+.discoverChecks(checks -> checks
+    .configure(RequiredFilesCheck.class, RequiredFilesCheck.files("../README.md", "../LICENSE"))
+    .configure(MavenWrapperCheck.class, MavenWrapperCheck.directories(".."))
+    .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files("src/main/**/*.key")))
+```
 
 #### `ClassFileVersionCheck` { #ClassFileVersionCheck }
 
@@ -2819,7 +2819,8 @@ certificates, `.env` files, and compiled or packaged files could look like this:
 Only the directory before the first wildcard of a pattern is searched, and only as deep as the
 pattern reaches, so `src/main/**/*.key` does not look into `target` or `.git`. A pattern such as
 `**/.env` searches the whole project directory, including files that `.gitignore` keeps out of the
-repository, such as a local `.env`.
+repository, such as a local `.env`. A pattern outside of the project directory starts with `..`,
+for example `../.env` in the root of a multi-module build.
 
 ```text
 Check: Project should not contain forbidden files
@@ -2836,12 +2837,13 @@ and `gradlew.bat` and the files `gradle/wrapper/gradle-wrapper.jar` and
 empty.
 
 The check needs no configuration. When the wrapper lies elsewhere, for example in the root of a
-multi-project build while the [project directory](#configuring-the-checks) is the subproject under
-test, configure its directory instead, relative to the project directory:
+multi-project build while the project directory is the subproject under test, configure its
+directories instead, relative to the project directory. Every configured directory must have the
+wrapper, so a repository with several builds can check all of them:
 
 ```java
 .discoverChecks(checks -> checks
-    .configure(GradleWrapperCheck.class, GradleWrapperCheck.directory("..")))
+    .configure(GradleWrapperCheck.class, GradleWrapperCheck.directories("..")))
 ```
 
 ```text
@@ -2858,12 +2860,13 @@ Checks that the project can be built without a local Maven installation: the scr
 directory and must not be empty.
 
 The check needs no configuration. When the wrapper lies elsewhere, for example in the root of a
-multi-module build while the [project directory](#configuring-the-checks) is the module under test,
-configure its directory instead, relative to the project directory:
+multi-module build while the project directory is the module under test, configure its directories
+instead, relative to the project directory. Every configured directory must have the wrapper, so a
+repository with several builds can check all of them:
 
 ```java
 .discoverChecks(checks -> checks
-    .configure(MavenWrapperCheck.class, MavenWrapperCheck.directory("..")))
+    .configure(MavenWrapperCheck.class, MavenWrapperCheck.directories("..")))
 ```
 
 ```text
@@ -2877,7 +2880,8 @@ Check: Project should have the Maven Wrapper
 
 Reports required files that are missing in the project directory or empty; a directory with the
 name of a required file counts as missing. The check needs the required files; their paths are
-relative to the project directory and may point into subdirectories:
+relative to the project directory and may point into subdirectories, or with `..` outside of it,
+for example to `../README.md` in the root of a multi-module build:
 
 ```java
 .discoverChecks(checks -> checks
@@ -2890,6 +2894,9 @@ Check: Project should have the required files
 	/home/dev/project/LICENSE is empty
 	SECURITY.md is missing in /home/dev/project
 ```
+
+A missing file outside of the project directory is reported with its path, such as
+`/home/dev/README.md is missing`.
 
 #### `ServiceRegistrationsCheck` { #ServiceRegistrationsCheck }
 
@@ -2904,16 +2911,14 @@ class loader of the context without being initialized. Taikai uses it to validat
 registration of the predefined checks.
 
 The check needs no configuration. A project directory without these directories has nothing to
-check, so the check passes. When the registrations lie elsewhere, for example in a module while
-the [project directory](#configuring-the-checks) is the root of a multi-module build, configure
-the directories instead, relative to the project directory. Unlike the default directories, a
-configured directory must exist, so a wrong path is reported rather than silently checking nothing:
+check, so the check passes. When the registrations lie elsewhere, configure the directories
+instead, relative to the project directory. Unlike the default directories, a configured directory
+must exist, so a wrong path is reported rather than silently checking nothing:
 
 ```java
 .discoverChecks(checks -> checks
-    .projectDirectory(Path.of(".."))
     .configure(ServiceRegistrationsCheck.class, ServiceRegistrationsCheck.directories(
-        "my-module/src/test/resources/META-INF/services")))
+        "src/integration-test/resources/META-INF/services")))
 ```
 
 ```text
@@ -3061,16 +3066,13 @@ class ArchitectureTest {
                 .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))
         .discoverChecks(checks -> checks
-            .projectDirectory(Path.of(".."))
-            .configure(ServiceRegistrationsCheck.class, ServiceRegistrationsCheck.directories(
-                "taikai-core/src/test/resources/META-INF/services"))
             .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
-                "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md"))
+                "../README.md", "../LICENSE", "../CONTRIBUTING.md", "../CODE_OF_CONDUCT.md",
+                "../SECURITY.md"))
+            .configure(MavenWrapperCheck.class, MavenWrapperCheck.directories(".."))
             .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
-                "taikai-core/src/main/**/*.pem", "taikai-core/src/main/**/*.key",
-                "taikai-core/src/main/**/*.p12", "taikai-core/src/main/**/*.jks",
-                "taikai-core/src/main/**/.env", "taikai-core/src/main/**/*.class",
-                "taikai-core/src/main/**/*.jar"))
+                "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
+                "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();

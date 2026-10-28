@@ -1,6 +1,7 @@
 package com.enofex.taikai.checks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,7 +38,7 @@ class GradleWrapperCheckTest {
 
     assertEquals(List.of(), this.check.violations(TestCheckContext
         .of(GradleWrapperCheck.class, subproject)
-        .withConfiguration(GradleWrapperCheck.directory(".."))));
+        .withConfiguration(GradleWrapperCheck.directories(".."))));
   }
 
   @Test
@@ -52,7 +53,28 @@ class GradleWrapperCheckTest {
             "gradle/wrapper/gradle-wrapper.properties is missing in " + this.directory),
         this.check.violations(TestCheckContext
             .of(GradleWrapperCheck.class, subproject)
-            .withConfiguration(GradleWrapperCheck.directory(".."))));
+            .withConfiguration(GradleWrapperCheck.directories(".."))));
+  }
+
+  @Test
+  void shouldCheckEveryConfiguredDirectory() throws IOException {
+    Path subproject = Files.createDirectories(this.directory.resolve("subproject"));
+    Path tools = Files.createDirectories(this.directory.resolve("tools"));
+    writeGradleWrapper(this.directory);
+
+    assertEquals(List.of(
+            "gradlew is missing in " + tools,
+            "gradlew.bat is missing in " + tools,
+            "gradle/wrapper/gradle-wrapper.jar is missing in " + tools,
+            "gradle/wrapper/gradle-wrapper.properties is missing in " + tools),
+        this.check.violations(TestCheckContext
+            .of(GradleWrapperCheck.class, subproject)
+            .withConfiguration(GradleWrapperCheck.directories("..", "../tools"))));
+  }
+
+  @Test
+  void shouldRejectSettingsWithoutDirectories() {
+    assertThrows(IllegalArgumentException.class, GradleWrapperCheck::directories);
   }
 
   @Test

@@ -36,7 +36,9 @@ import java.util.stream.Stream;
  *
  * <p>Only the directory before the first wildcard of a pattern is searched, and only as deep as
  * the pattern reaches, so <code>src/main/**&#47;*.key</code> does not look into {@code target} or
- * {@code .git}.</p>
+ * {@code .git}. A pattern outside of the project directory starts with {@code ..}, for example
+ * {@code ../.env} in the root of a multi-module build while the project directory is the module
+ * under test.</p>
  *
  * <p>Taikai does not register its predefined checks itself, so that a new Taikai version never adds
  * checks on its own. To run this check, list its class name in the file

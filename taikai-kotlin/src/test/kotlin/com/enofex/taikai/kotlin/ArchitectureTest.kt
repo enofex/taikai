@@ -3,15 +3,14 @@ package com.enofex.taikai.kotlin
 import com.enofex.taikai.ClassCriteria
 import com.enofex.taikai.checks.ClassFileVersionCheck
 import com.enofex.taikai.checks.ForbiddenFilesCheck
+import com.enofex.taikai.checks.MavenWrapperCheck
 import com.enofex.taikai.checks.RequiredFilesCheck
-import com.enofex.taikai.checks.ServiceRegistrationsCheck
 import com.enofex.taikai.configures.AbstractConfigurer
 import com.enofex.taikai.java.ImportPatterns.lombok
 import com.enofex.taikai.java.ImportPatterns.shaded
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
-import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -55,16 +54,13 @@ class ArchitectureTest {
                 dataClassesShouldBeImmutable()
             }
             discoverChecks {
-                projectDirectory(Path.of(".."))
-                configure(ServiceRegistrationsCheck::class.java, ServiceRegistrationsCheck.directories(
-                    "taikai-kotlin/src/test/resources/META-INF/services"))
                 configure(RequiredFilesCheck::class.java, RequiredFilesCheck.files(
-                    "README.md", "LICENSE", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "SECURITY.md", "docs/kotlin.md"))
+                    "../README.md", "../LICENSE", "../CONTRIBUTING.md", "../CODE_OF_CONDUCT.md",
+                    "../SECURITY.md", "../docs/kotlin.md"))
+                configure(MavenWrapperCheck::class.java, MavenWrapperCheck.directories(".."))
                 configure(ForbiddenFilesCheck::class.java, ForbiddenFilesCheck.files(
-                    "taikai-kotlin/src/main/**/*.pem", "taikai-kotlin/src/main/**/*.key",
-                    "taikai-kotlin/src/main/**/*.p12", "taikai-kotlin/src/main/**/*.jks",
-                    "taikai-kotlin/src/main/**/.env", "taikai-kotlin/src/main/**/*.class",
-                    "taikai-kotlin/src/main/**/*.jar"))
+                    "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
+                    "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
                 configure(ClassFileVersionCheck::class.java, ClassFileVersionCheck.javaVersion(17))
             }
         }.dynamicTests()

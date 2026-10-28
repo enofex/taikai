@@ -19,16 +19,25 @@ final class ProjectFiles {
     List<String> violations = new ArrayList<>();
 
     for (String file : files) {
-      Path path = projectDirectory.resolve(file);
+      Path path = projectDirectory.resolve(file).normalize();
 
       if (!Files.isRegularFile(path)) {
-        violations.add("%s is missing in %s".formatted(file, projectDirectory));
+        violations.add(missing(projectDirectory, file));
       } else if (isBlank(path)) {
         violations.add("%s is empty".formatted(path));
       }
     }
 
     return violations;
+  }
+
+  static String missing(Path projectDirectory, String file) {
+    Path path = projectDirectory.resolve(file).normalize();
+
+    // a file outside of the project directory, such as ../README.md, is named by its path
+    return path.startsWith(projectDirectory.normalize())
+        ? "%s is missing in %s".formatted(file, projectDirectory)
+        : "%s is missing".formatted(path);
   }
 
   private static boolean isBlank(Path file) {

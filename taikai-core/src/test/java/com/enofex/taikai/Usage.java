@@ -555,8 +555,18 @@ class Usage {
     Taikai.builder()
         .namespace("com.enofex.taikai")
         .discoverChecks(checks -> checks
-            .projectDirectory(Path.of(".."))
             .exclude(MavenWrapperCheck.class))
+        .build()
+        .checkAll();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .discoverChecks(checks -> checks
+            .configure(RequiredFilesCheck.class,
+                RequiredFilesCheck.files("../README.md", "../LICENSE"))
+            .configure(MavenWrapperCheck.class, MavenWrapperCheck.directories(".."))
+            .configure(ForbiddenFilesCheck.class,
+                ForbiddenFilesCheck.files("src/main/**/*.key", "../.env")))
         .build()
         .checkAll();
 

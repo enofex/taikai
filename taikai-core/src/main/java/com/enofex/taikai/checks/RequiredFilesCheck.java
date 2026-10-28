@@ -15,6 +15,10 @@ import java.util.List;
  *         RequiredFilesCheck.files("README.md", "LICENSE", ".github/CODEOWNERS")))
  * }</pre>
  *
+ * <p>A file outside of the project directory is given with {@code ..}, for example
+ * {@code ../README.md} in the root of a multi-module build while the project directory is the
+ * module under test.</p>
+ *
  * <p>Taikai does not register its predefined checks itself, so that a new Taikai version never adds
  * checks on its own. To run this check, list its class name in the file
  * {@code src/test/resources/META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck} of the

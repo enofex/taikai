@@ -226,7 +226,7 @@ class KotlinConfigurerTest {
         assertThrows<TaikaiException> {
             taikai {
                 classes(GoodDto::class)
-                discoverChecks { configure(GradleWrapperCheck::class.java, GradleWrapperCheck.directory("..")) }
+                discoverChecks { configure(GradleWrapperCheck::class.java, GradleWrapperCheck.directories("..")) }
             }
         }
     }

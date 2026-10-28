@@ -20,6 +20,7 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.FailureReport;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -99,9 +100,11 @@ public final class Taikai {
   }
 
   private List<ConfiguredCheck> configuredChecks(ChecksConfigurer configurer) {
+    Path projectDirectory = Path.of("").toAbsolutePath();
+
     return discoveredChecks(configurer).stream()
         .map(check -> new ConfiguredCheck(check, configurer.decorate(new PerCheckContext(this,
-            configurer.projectDirectory(), check.getClass(),
+            projectDirectory, check.getClass(),
             configurer.configuration(check.getClass())))))
         .toList();
   }
@@ -503,7 +506,7 @@ public final class Taikai {
      *
      * <pre>{@code
      * .discoverChecks(checks -> checks
-     *     .projectDirectory(Path.of(".."))
+     *     .configure(RequiredFilesCheck.class, RequiredFilesCheck.files("README.md", "LICENSE"))
      *     .exclude(LicenseCheck.class))
      * }</pre>
      *

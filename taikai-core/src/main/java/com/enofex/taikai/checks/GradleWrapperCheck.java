@@ -14,11 +14,11 @@ import java.util.List;
  *
  * <p>The check needs no configuration. When the wrapper lies elsewhere, for example in the root of
  * a multi-project build while the project directory is the subproject under test, configure its
- * directory instead:</p>
+ * directories instead. Every configured directory must have the wrapper:</p>
  *
  * <pre>{@code
  * .discoverChecks(checks -> checks
- *     .configure(GradleWrapperCheck.class, GradleWrapperCheck.directory("..")))
+ *     .configure(GradleWrapperCheck.class, GradleWrapperCheck.directories("..")))
  * }</pre>
  *
  * <p>Taikai does not register its predefined checks itself, so that a new Taikai version never adds
@@ -33,15 +33,15 @@ public final class GradleWrapperCheck implements TaikaiCheck {
       "gradle/wrapper/gradle-wrapper.properties");
 
   /**
-   * Returns the settings that look up the Gradle Wrapper in the given directory instead of the
+   * Returns the settings that look up the Gradle Wrapper in the given directories instead of the
    * project directory.
    *
-   * @param directory the path of the directory with the Gradle Wrapper, relative to the project
-   *     directory
+   * @param directories the paths of the directories with the Gradle Wrapper, relative to the
+   *     project directory
    * @return the settings
    */
-  public static Settings directory(String directory) {
-    return new Settings(directory);
+  public static Settings directories(String... directories) {
+    return new Settings(List.of(directories));
   }
 
   @Override
@@ -51,19 +51,38 @@ public final class GradleWrapperCheck implements TaikaiCheck {
 
   @Override
   public List<String> violations(CheckContext context) {
-    Path directory = context.configuration(Settings.class)
-        .map(settings -> context.projectDirectory().resolve(settings.directory()).normalize())
-        .orElse(context.projectDirectory());
+    List<Path> directories = context.configuration(Settings.class)
+        .map(settings -> settings.directories().stream()
+            .map(directory -> context.projectDirectory().resolve(directory).normalize())
+            .toList())
+        .orElse(List.of(context.projectDirectory()));
 
-    return ProjectFiles.missingOrEmpty(directory, WRAPPER_FILES);
+    return directories.stream()
+        .flatMap(directory -> ProjectFiles.missingOrEmpty(directory, WRAPPER_FILES).stream())
+        .toList();
   }
 
   /**
    * The settings of the {@link GradleWrapperCheck}.
    *
-   * @param directory the path of the directory with the Gradle Wrapper, relative to the project
-   *     directory
+   * @param directories the paths of the directories with the Gradle Wrapper, relative to the
+   *     project directory
    */
-  public record Settings(String directory) {
+  public record Settings(List<String> directories) {
+
+    /**
+     * Creates the settings.
+     *
+     * @param directories the paths of the directories with the Gradle Wrapper, relative to the
+     *     project directory
+     * @throws IllegalArgumentException if no directory is given
+     */
+    public Settings {
+      directories = List.copyOf(directories);
+
+      if (directories.isEmpty()) {
+        throw new IllegalArgumentException("At least one directory must be given");
+      }
+    }
   }
 }

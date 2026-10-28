@@ -21,15 +21,13 @@ import java.util.stream.Stream;
  * public constructor without parameters, as the {@code ServiceLoader} requires.
  *
  * <p>The check needs no configuration. A project directory without these directories has nothing
- * to check, so the check passes. When the registrations lie elsewhere, for example in a module
- * while the project directory is the root of a multi-module build, configure the directories
- * instead. A configured directory must exist:</p>
+ * to check, so the check passes. When the registrations lie elsewhere, configure the directories
+ * instead, relative to the project directory. A configured directory must exist:</p>
  *
  * <pre>
  * .discoverChecks(checks -&gt; checks
- *     .projectDirectory(Path.of(".."))
  *     .configure(ServiceRegistrationsCheck.class, ServiceRegistrationsCheck.directories(
- *         "my-module/src/test/resources/META-INF/services")))
+ *         "src/integration-test/resources/META-INF/services")))
  * </pre>
  *
  * <p>Taikai does not register its predefined checks itself, so that a new Taikai version never adds
@@ -69,7 +67,7 @@ public final class ServiceRegistrationsCheck implements TaikaiCheck {
       Path path = projectDirectory.resolve(directory);
 
       if (settings.isPresent() && !Files.isDirectory(path)) {
-        violations.add("%s is missing in %s".formatted(directory, projectDirectory));
+        violations.add(ProjectFiles.missing(projectDirectory, directory));
       } else {
         for (Path registration : registrations(path)) {
           violations.addAll(violations(projectDirectory.relativize(registration), registration,

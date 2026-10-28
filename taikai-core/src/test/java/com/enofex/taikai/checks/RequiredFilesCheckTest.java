@@ -73,6 +73,21 @@ class RequiredFilesCheckTest {
   }
 
   @Test
+  void shouldRequireFilesOutsideOfProjectDirectory() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+    Files.writeString(this.directory.resolve("README.md"), "# Project");
+    Path license = Files.writeString(this.directory.resolve("LICENSE"), "");
+
+    TestCheckContext context = TestCheckContext.of(RequiredFilesCheck.class, module)
+        .withConfiguration(RequiredFilesCheck.files("../README.md", "../LICENSE", "../SECURITY.md"));
+
+    assertEquals(List.of(
+            license + " is empty",
+            this.directory.resolve("SECURITY.md") + " is missing"),
+        this.check.violations(context));
+  }
+
+  @Test
   void shouldRejectSettingsWithoutFiles() {
     assertThrows(IllegalArgumentException.class, RequiredFilesCheck::files);
   }

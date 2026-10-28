@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.ForwardingCheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +25,6 @@ import org.jspecify.annotations.Nullable;
  * Taikai.builder()
  *     .namespace("com.company.project")
  *     .discoverChecks(checks -> checks
- *         .projectDirectory(Path.of(".."))
  *         .exclude(LicenseCheck.class)
  *         .configure(ForbiddenDependenciesCheck.class,
  *             new ForbiddenDependencies(List.of("log4j:log4j")))
@@ -49,33 +47,17 @@ public final class ChecksConfigurer {
   private final Collection<Class<?>> excludedChecks;
   private final Map<Class<?>, Object> configurations;
   private final Collection<ContextFunction> contextFunctions;
-  private Path projectDirectory;
 
   ChecksConfigurer() {
     this.excludedChecks = new ArrayList<>();
     this.configurations = new LinkedHashMap<>();
     this.contextFunctions = new ArrayList<>();
-    this.projectDirectory = Path.of("").toAbsolutePath();
   }
 
   ChecksConfigurer(ChecksConfigurer configurer) {
     this.excludedChecks = new ArrayList<>(configurer.excludedChecks);
     this.configurations = new LinkedHashMap<>(configurer.configurations);
     this.contextFunctions = new ArrayList<>(configurer.contextFunctions);
-    this.projectDirectory = configurer.projectDirectory;
-  }
-
-  /**
-   * Sets the project directory of the {@link CheckContext}. Defaults to the working
-   * directory of the test run, which Maven and Gradle set to the directory of the module under
-   * test.
-   *
-   * @param projectDirectory the project directory
-   * @return this configurer for fluent chaining
-   */
-  public ChecksConfigurer projectDirectory(Path projectDirectory) {
-    this.projectDirectory = projectDirectory.toAbsolutePath();
-    return this;
   }
 
   /**
@@ -190,10 +172,6 @@ public final class ChecksConfigurer {
 
   @Nullable Object configuration(Class<?> check) {
     return this.configurations.get(check);
-  }
-
-  Path projectDirectory() {
-    return this.projectDirectory;
   }
 
   CheckContext decorate(CheckContext context) {

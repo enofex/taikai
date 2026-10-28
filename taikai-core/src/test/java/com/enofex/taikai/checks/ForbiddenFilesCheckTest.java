@@ -111,6 +111,15 @@ class ForbiddenFilesCheckTest {
   }
 
   @Test
+  void shouldReportForbiddenFilesOutsideOfProjectDirectory() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+
+    assertEquals(List.of(path("../.env") + " is forbidden (matches ../.env)"),
+        this.check.violations(TestCheckContext.of(ForbiddenFilesCheck.class, module)
+            .withConfiguration(ForbiddenFilesCheck.files("../.env", "../src/main/**/*.key"))));
+  }
+
+  @Test
   void shouldRejectSettingsWithoutFiles() {
     assertThrows(IllegalArgumentException.class, ForbiddenFilesCheck::files);
   }

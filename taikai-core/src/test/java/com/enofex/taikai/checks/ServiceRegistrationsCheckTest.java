@@ -97,6 +97,15 @@ class ServiceRegistrationsCheckTest {
   }
 
   @Test
+  void shouldReportMissingConfiguredDirectoryOutsideOfProjectDirectory() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+
+    assertEquals(List.of(this.directory.resolve(TEST_SERVICES) + " is missing"),
+        this.check.violations(TestCheckContext.of(ServiceRegistrationsCheck.class, module)
+            .withConfiguration(ServiceRegistrationsCheck.directories("../" + TEST_SERVICES))));
+  }
+
+  @Test
   void shouldRejectSettingsWithoutDirectories() {
     assertThrows(IllegalArgumentException.class, ServiceRegistrationsCheck::directories);
   }

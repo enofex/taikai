@@ -1,6 +1,7 @@
 package com.enofex.taikai.checks;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +36,7 @@ class MavenWrapperCheckTest {
 
     assertEquals(List.of(), this.check.violations(TestCheckContext
         .of(MavenWrapperCheck.class, module)
-        .withConfiguration(MavenWrapperCheck.directory(".."))));
+        .withConfiguration(MavenWrapperCheck.directories(".."))));
   }
 
   @Test
@@ -49,7 +50,27 @@ class MavenWrapperCheckTest {
             ".mvn/wrapper/maven-wrapper.properties is missing in " + this.directory),
         this.check.violations(TestCheckContext
             .of(MavenWrapperCheck.class, module)
-            .withConfiguration(MavenWrapperCheck.directory(".."))));
+            .withConfiguration(MavenWrapperCheck.directories(".."))));
+  }
+
+  @Test
+  void shouldCheckEveryConfiguredDirectory() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+    Path tools = Files.createDirectories(this.directory.resolve("tools"));
+    writeMavenWrapper(this.directory);
+
+    assertEquals(List.of(
+            "mvnw is missing in " + tools,
+            "mvnw.cmd is missing in " + tools,
+            ".mvn/wrapper/maven-wrapper.properties is missing in " + tools),
+        this.check.violations(TestCheckContext
+            .of(MavenWrapperCheck.class, module)
+            .withConfiguration(MavenWrapperCheck.directories("..", "../tools"))));
+  }
+
+  @Test
+  void shouldRejectSettingsWithoutDirectories() {
+    assertThrows(IllegalArgumentException.class, MavenWrapperCheck::directories);
   }
 
   @Test

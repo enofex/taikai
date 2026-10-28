@@ -20,8 +20,10 @@ public interface CheckContext {
   Class<? extends TaikaiCheck> check();
 
   /**
-   * Returns the project directory. Unless configured otherwise, this is the working directory of
-   * the test run, which Maven and Gradle set to the directory of the module under test.
+   * Returns the project directory, the working directory of the test run, which Maven and Gradle
+   * set to the directory of the module under test. The paths in the settings of a check are
+   * relative to it, and may point outside of it with {@code ..}, for example to the root of a
+   * multi-module build.
    *
    * @return the absolute project directory
    */
