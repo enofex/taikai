@@ -7,6 +7,7 @@ import com.enofex.taikai.TaikaiRule
 import com.enofex.taikai.java.JavaConfigurer
 import com.enofex.taikai.jpa.JpaConfigurer
 import com.enofex.taikai.logging.LoggingConfigurer
+import com.enofex.taikai.metrics.MetricsConfigurer
 import com.enofex.taikai.quarkus.QuarkusConfigurer
 import com.enofex.taikai.spring.SpringConfigurer
 import com.enofex.taikai.test.TestConfigurer
@@ -48,6 +49,7 @@ class TaikaiDsl internal constructor(private val builder: Taikai.Builder) {
     fun test(block: @TaikaiDslMarker TestConfigurer.() -> Unit) { builder.test { it.block() } }
     fun quarkus(block: @TaikaiDslMarker QuarkusConfigurer.() -> Unit) { builder.quarkus { it.block() } }
     fun jpa(block: @TaikaiDslMarker JpaConfigurer.() -> Unit) { builder.jpa { it.block() } }
+    fun metrics(block: @TaikaiDslMarker MetricsConfigurer.() -> Unit) { builder.metrics { it.block() } }
     fun kotlin(block: @TaikaiDslMarker KotlinConfigurer.() -> Unit) { builder.kotlin(block) }
     internal fun build(): Taikai = builder.build()
 }

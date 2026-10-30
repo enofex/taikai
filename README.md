@@ -45,6 +45,7 @@ The original Java API also works from Kotlin tests. See the [Kotlin manual](docs
 and the runnable [Spring Kotlin demo](examples/spring-kotlin).
 
 ```kotlin
+import com.enofex.taikai.kotlin.functionsShouldNotExceedMaxParameters
 import com.enofex.taikai.kotlin.taikai
 
 taikai {
@@ -53,8 +54,8 @@ taikai {
     kotlin {
         classesShouldBeDataClasses(".*Response")
         dataClassesShouldBeImmutable()
-        functionsShouldNotExceedMaxParameters(4)
     }
+    metrics { functionsShouldNotExceedMaxParameters(4) }
 }.checkAll()
 ```
 
@@ -99,6 +100,9 @@ void architecture() {
                       .or(ClassCriteria.type(Calendar.class))
                       .or(ClassCriteria.assignableTo(Calendar.class)))
               .namesShouldMatch(".+Entity")))    
+      .metrics(metrics -> metrics
+          .classesShouldNotExceedMaxInheritanceDepth(3)
+          .classesShouldNotExceedMaxDependencies(20))
       .spring(spring -> spring
           .noAutowiredFields()
           .noSelfInvocationOfProxiedMethods()

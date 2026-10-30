@@ -246,20 +246,6 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         }
     }
 
-    /** Counts declared value parameters, excluding extension/context receivers and suspend continuations. */
-    @JvmOverloads
-    fun functionsShouldNotExceedMaxParameters(
-        max: Int,
-        configuration: Configuration = Configuration.defaultConfiguration(),
-    ): KotlinConfigurer {
-        require(max >= 0) { "Maximum parameter count must be non-negative" }
-        return rule("Kotlin functions should not have more than $max value parameters", configuration) { owner, declarations ->
-            declarations.functions.filter { it.valueParameters.size > max }.map {
-                "Function ${owner.name}.${it.name}${it.signature?.descriptor.orEmpty()} has ${it.valueParameters.size} value parameters, max allowed: $max"
-            }
-        }
-    }
-
     private fun propertyNamesForTypes(
         typeNames: Set<String>,
         regex: String,
@@ -286,20 +272,29 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         configuration: Configuration,
         check: (JavaClass, KotlinDeclarations) -> List<String>,
     ): KotlinConfigurer {
-        val condition = object : ArchCondition<JavaClass>(description) {
-            override fun check(item: JavaClass, events: ConditionEvents) {
-                val declarations = try {
-                    KotlinDeclarations.read(item)
-                } catch (exception: Exception) {
-                    events.add(SimpleConditionEvent.violated(item,
-                        "Cannot read Kotlin metadata for ${item.name}: ${exception.message}"))
-                    return
-                }
-                check(item, declarations).forEach { events.add(SimpleConditionEvent.violated(item, it)) }
-            }
-        }
-        addRule<KotlinConfigurer>(TaikaiRule.of(classes().that().areAnnotatedWith("kotlin.Metadata")
-            .should(condition).`as`(description), configuration))
+        addRule<KotlinConfigurer>(kotlinRule(description, configuration, check))
         return this
     }
+}
+
+/** A rule on Kotlin classes, checked against the declarations of their Kotlin metadata. */
+internal fun kotlinRule(
+    description: String,
+    configuration: Configuration,
+    check: (JavaClass, KotlinDeclarations) -> List<String>,
+): TaikaiRule {
+    val condition = object : ArchCondition<JavaClass>(description) {
+        override fun check(item: JavaClass, events: ConditionEvents) {
+            val declarations = try {
+                KotlinDeclarations.read(item)
+            } catch (exception: Exception) {
+                events.add(SimpleConditionEvent.violated(item,
+                    "Cannot read Kotlin metadata for ${item.name}: ${exception.message}"))
+                return
+            }
+            check(item, declarations).forEach { events.add(SimpleConditionEvent.violated(item, it)) }
+        }
+    }
+    return TaikaiRule.of(classes().that().areAnnotatedWith("kotlin.Metadata")
+        .should(condition).`as`(description), configuration)
 }

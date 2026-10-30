@@ -170,10 +170,10 @@ Taikai.builder()
 
 Each rule group has a default mode, so in practice you rarely set this yourself:
 
-| Rule group                                                                | Default mode    |
-|---------------------------------------------------------------------------|-----------------|
-| `java(...)`, `logging(...)`, `spring(...)`, `quarkus(...)`, `jpa(...)`     | `WITHOUT_TESTS` |
-| `test(...)` / `junit(...)`                                                 | `ONLY_TESTS`    |
+| Rule group                                                                             | Default mode    |
+|----------------------------------------------------------------------------------------|-----------------|
+| `java(...)`, `logging(...)`, `spring(...)`, `quarkus(...)`, `jpa(...)`, `metrics(...)` | `WITHOUT_TESTS` |
+| `test(...)` / `junit(...)`                                                             | `ONLY_TESTS`    |
 
 Override it per rule through [`Configuration`](#58-per-rule-configuration):
 
@@ -429,7 +429,7 @@ Taikai.builder()
 
 Every rule group has `disable()`: `java`, `imports`, `naming`, `logging`, `test`, `junit`, `spring`,
 `boot`, `properties`, `configurations`, `controllers`, `services`, `repositories`, `transactional`,
-`quarkus`, `resources`, `panache`, `ai`, `jpa` and `entities`.
+`quarkus`, `resources`, `panache`, `ai`, `jpa`, `entities` and `metrics`.
 
 `disable()` cascades to nested configurers: `java(...)` also clears `naming` and `imports`,
 `spring(...)` clears all its sub-configurers, `quarkus(...)` clears `resources`, `panache` and `ai`,
@@ -651,7 +651,7 @@ The `CheckContext` describes the project that is checked:
 | Method | Returns |
 |--------|---------|
 | `check()` | The class of the check that receives the context. |
-| `projectDirectory()` | The working directory of the test run, which Maven and Gradle set to the directory of the module under test. The paths in the settings of a check are relative to it, and may point outside of it with `..`, for example to the root of a [multi-module build](#13-predefined-checks). |
+| `projectDirectory()` | The working directory of the test run, which Maven and Gradle set to the directory of the module under test. The paths in the settings of a check are relative to it, and may point outside of it with `..`, for example to the root of a [multi-module build](#14-predefined-checks). |
 | `namespace()` | The configured namespace, or `null` if classes are configured instead. |
 | `classes()` | The configured classes. Classes imported from the namespace exclude test classes and the [globally excluded classes](#54-excluding-classes-globally); classes set with [`classes(...)`](#52-selecting-classes-directly) are used as given, as for the rules. The import of a namespace is cached and shared with the rules. |
 | `classLoader()` | The class loader of the test run, for example to find resources with `getResources(String)`. |
@@ -693,7 +693,7 @@ for discovered checks are:
 
 Taikai ships ready-made checks for common project conventions, such as required or forbidden
 files, the Maven or Gradle Wrapper, or the Java version of the classes. They are documented in
-[Section 13](#13-predefined-checks).
+[Section 14](#14-predefined-checks).
 
 #### Configuring the checks
 
@@ -964,7 +964,7 @@ for the ArchUnit priority `HIGH`, `MEDIUM` (the default) or `LOW`.
 
 ## 6. How to Read the Rule Reference
 
-Sections 7 to 12 document every rule, and Section 13 the predefined checks. To keep them readable,
+Sections 7 to 13 document every rule, and Section 14 the predefined checks. To keep them readable,
 examples are shown as **fragments**
 rather than complete tests. A fragment such as
 
@@ -1069,7 +1069,6 @@ Default import mode: `WITHOUT_TESTS`.
 | [`methodsShouldNotHaveModifiers`](#methodsShouldNotHaveModifiers) | matching methods lack modifiers |
 | [`methodsShouldHaveModifiersForClass`](#methodsShouldHaveModifiersForClass) | methods of matching classes carry modifiers |
 | [`methodsShouldNotHaveModifiersForClass`](#methodsShouldNotHaveModifiersForClass) | methods of matching classes lack modifiers |
-| [`methodsShouldNotExceedMaxParameters`](#methodsShouldNotExceedMaxParameters) | methods have at most a given number of parameters |
 | [`noUsageOf`](#noUsageOf) | a type is not used |
 | [`noUsageOfDeprecatedAPIs`](#noUsageOfDeprecatedAPIs) | nothing `@Deprecated` is used |
 | [`noUsageOfSystemOutOrErr`](#noUsageOfSystemOutOrErr) | no `System.out` / `System.err` |
@@ -1654,18 +1653,6 @@ Selects methods by the *declaring class*, so every method of a matching class is
         List.of(PUBLIC))
     .methodsShouldNotHaveModifiersForClass(ClassCriteria.inPackage("..internal.."),
         List.of(PUBLIC)))
-```
-
-#### `methodsShouldNotExceedMaxParameters` { #methodsShouldNotExceedMaxParameters }
-
-`methodsShouldNotExceedMaxParameters(int maxMethodParameters)`
-
-Methods must not declare more parameters than the given maximum; a method with exactly that many
-passes. Constructors are not checked.
-
-```java
-.java(java -> java
-    .methodsShouldNotExceedMaxParameters(6))
 ```
 
 ### 7.4 Usage Restrictions
@@ -2871,7 +2858,156 @@ Applies to classes annotated `@Entity`, including composed annotations.
         .namesShouldMatch(".+Entity")))
 ```
 
-## 13. Predefined Checks
+## 13. Metrics Rules
+
+Default import mode: `WITHOUT_TESTS`.
+
+A value equal to the maximum passes; a negative maximum throws an `IllegalArgumentException`. Only
+checked classes count, so the JDK, frameworks and
+[excluded classes](#54-excluding-classes-globally) never do. Every package counts as a component of
+its own, without its subpackages.
+
+The rules on inheritance depth, subclasses and dependencies, and
+[`methodsShouldNotExceedMaxParametersForClass`](#methodsShouldNotExceedMaxParametersForClass), take
+the classes to check, selected with `ClassCriteria`; `methodsShouldNotExceedMaxParameters` takes the
+methods to check, selected with `MethodCriteria` (see [5.13](#513-selecting-with-criteria)). Classes
+outside the selection still count.
+
+| Rule | Enforces |
+|------|----------|
+| [`classesShouldNotExceedMaxInheritanceDepth`](#classesShouldNotExceedMaxInheritanceDepth) | class hierarchies have at most a given number of levels |
+| [`classesShouldNotExceedMaxSubclasses`](#classesShouldNotExceedMaxSubclasses) | classes have at most a given number of direct subclasses |
+| [`methodsShouldNotExceedMaxParameters`](#methodsShouldNotExceedMaxParameters) | methods have at most a given number of parameters |
+| [`methodsShouldNotExceedMaxParametersForClass`](#methodsShouldNotExceedMaxParametersForClass) | methods of matching classes have at most a given number of parameters |
+| [`packagesShouldNotExceedMaxClasses`](#packagesShouldNotExceedMaxClasses) | packages contain at most a given number of classes |
+| [`classesShouldNotExceedMaxDependencies`](#classesShouldNotExceedMaxDependencies) | classes depend on at most a given number of classes |
+| [`packagesShouldNotExceedMaxDependencies`](#packagesShouldNotExceedMaxDependencies) | packages depend on at most a given number of packages |
+| [`packagesShouldNotExceedMaxRelativeVisibility`](#packagesShouldNotExceedMaxRelativeVisibility) | packages keep most of their classes non-public |
+
+```java
+.metrics(metrics -> metrics
+    .classesShouldNotExceedMaxInheritanceDepth(3)
+    .classesShouldNotExceedMaxDependencies(20)
+    .classesShouldNotExceedMaxDependencies(ClassCriteria.annotatedWith(RestController.class), 5))
+```
+
+### 13.1 Inheritance
+
+#### `classesShouldNotExceedMaxInheritanceDepth` { #classesShouldNotExceedMaxInheritanceDepth }
+
+`classesShouldNotExceedMaxInheritanceDepth(int maxInheritanceDepth)`
+`classesShouldNotExceedMaxInheritanceDepth(DescribedPredicate<? super JavaClass> classes, int maxInheritanceDepth)`
+
+A class must not have more superclasses than the given maximum. Interfaces and anonymous classes
+are not checked.
+
+```java
+.metrics(metrics -> metrics
+    .classesShouldNotExceedMaxInheritanceDepth(3))
+```
+
+#### `classesShouldNotExceedMaxSubclasses` { #classesShouldNotExceedMaxSubclasses }
+
+`classesShouldNotExceedMaxSubclasses(int maxSubclasses)`
+`classesShouldNotExceedMaxSubclasses(DescribedPredicate<? super JavaClass> classes, int maxSubclasses)`
+
+A class must not have more direct subclasses than the given maximum. Anonymous classes, including
+enum constant bodies, do not count. Interfaces are not checked.
+
+```java
+.metrics(metrics -> metrics
+    .classesShouldNotExceedMaxSubclasses(10))
+```
+
+### 13.2 Size
+
+#### `methodsShouldNotExceedMaxParameters` { #methodsShouldNotExceedMaxParameters }
+
+`methodsShouldNotExceedMaxParameters(int maxMethodParameters)`
+`methodsShouldNotExceedMaxParameters(DescribedPredicate<? super JavaMethod> methods, int maxMethodParameters)`
+
+Methods must not declare more parameters than the given maximum. Constructors and synthetic methods
+are not checked. For Kotlin, see `functionsShouldNotExceedMaxParameters` in the
+[Kotlin manual](kotlin.md).
+
+```java
+.metrics(metrics -> metrics
+    .methodsShouldNotExceedMaxParameters(6)
+    .methodsShouldNotExceedMaxParameters(MethodCriteria.annotatedWith(GetMapping.class), 3))
+```
+
+#### `methodsShouldNotExceedMaxParametersForClass` { #methodsShouldNotExceedMaxParametersForClass }
+
+`methodsShouldNotExceedMaxParametersForClass(DescribedPredicate<? super JavaClass> classes, int maxMethodParameters)`
+
+Selects methods by their *declaring class*, so no method of a matching class may declare more
+parameters than the given maximum.
+
+```java
+.metrics(metrics -> metrics
+    .methodsShouldNotExceedMaxParametersForClass(
+        ClassCriteria.annotatedWith(RestController.class), 3))
+```
+
+#### `packagesShouldNotExceedMaxClasses` { #packagesShouldNotExceedMaxClasses }
+
+`packagesShouldNotExceedMaxClasses(int maxClasses)`
+
+A package must not contain more top-level classes than the given maximum.
+
+```java
+.metrics(metrics -> metrics
+    .packagesShouldNotExceedMaxClasses(40))
+```
+
+### 13.3 Coupling
+
+#### `classesShouldNotExceedMaxDependencies` { #classesShouldNotExceedMaxDependencies }
+
+`classesShouldNotExceedMaxDependencies(int maxDependencies)`
+`classesShouldNotExceedMaxDependencies(DescribedPredicate<? super JavaClass> classes, int maxDependencies)`
+
+A class must not depend on more classes than the given maximum. Dependencies are counted per
+top-level class: those of nested, local and anonymous classes count for their top-level class, and
+`Order`, `Order.Status` and `Order.Builder` count once. Only top-level classes are checked.
+
+```java
+.metrics(metrics -> metrics
+    .classesShouldNotExceedMaxDependencies(20))
+```
+
+#### `packagesShouldNotExceedMaxDependencies` { #packagesShouldNotExceedMaxDependencies }
+
+`packagesShouldNotExceedMaxDependencies(int maxDependencies)`
+
+A package must not depend on more packages than the given maximum. The violation lists them.
+
+```java
+.metrics(metrics -> metrics
+    .packagesShouldNotExceedMaxDependencies(10))
+```
+
+### 13.4 Visibility
+
+#### `packagesShouldNotExceedMaxRelativeVisibility` { #packagesShouldNotExceedMaxRelativeVisibility }
+
+`packagesShouldNotExceedMaxRelativeVisibility(double maxRelativeVisibility)`
+
+The share of public top-level classes in a package, its relative visibility, must not exceed the
+given maximum between 0 and 1. The share is rounded to two decimal places; a maximum outside 0 to 1
+throws an `IllegalArgumentException`.
+
+```java
+.metrics(metrics -> metrics
+    .packagesShouldNotExceedMaxRelativeVisibility(0.5))
+```
+
+### 13.5 Metrics of Other Modules
+
+Other modules, such as `taikai-kotlin`, add rules to the group through
+`configure(customizer, supplier)`. `disable()` removes them with the rest of the group.
+
+## 14. Predefined Checks
 
 Taikai ships [custom checks](#514-custom-checks) for common project conventions in the package
 `com.enofex.taikai.checks`. Taikai does not register them itself, so that a new Taikai version
@@ -3078,7 +3214,7 @@ Check: Service registrations should refer to valid providers
 	Provider com.company.checks.LicenceCheck registered in src/test/resources/META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck does not exist
 ```
 
-## 14. Recommended Starter Configuration
+## 15. Recommended Starter Configuration
 
 A reasonable baseline for a new Spring Boot project. It is deliberately conservative: every rule
 here is one most teams already agree on. Add the stricter rules once this passes.
@@ -3162,7 +3298,7 @@ rollout:
   [`Configuration`](#58-per-rule-configuration) and work the list down.
 - Enable the rule groups one at a time, committing each as it goes green.
 
-## 15. Complete Example
+## 16. Complete Example
 
 The configuration Taikai applies to its own codebase, from
 [`ArchitectureTest.java`](https://github.com/enofex/taikai/blob/main/taikai-core/src/test/java/com/enofex/taikai/ArchitectureTest.java).
@@ -3173,6 +3309,7 @@ import static com.enofex.taikai.java.ImportPatterns.lombok;
 import static com.enofex.taikai.java.ImportPatterns.shaded;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
+
 
 class ArchitectureTest {
 
@@ -3217,6 +3354,10 @@ class ArchitectureTest {
                 .interfacesShouldNotHavePrefixI()
                 .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))
+        .metrics(metrics -> metrics
+            .classesShouldNotExceedMaxInheritanceDepth(2)
+            .packagesShouldNotExceedMaxClasses(20)
+            .classesShouldNotExceedMaxDependencies(25))
         .discoverChecks(checks -> checks
             .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
                 "../README.md", "../LICENSE", "../CONTRIBUTING.md", "../CODE_OF_CONDUCT.md",
@@ -3232,7 +3373,7 @@ class ArchitectureTest {
 }
 ```
 
-The [predefined checks](#13-predefined-checks) are registered in
+The [predefined checks](#14-predefined-checks) are registered in
 `src/test/resources/META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck`:
 
 ```text
@@ -3246,7 +3387,7 @@ com.enofex.taikai.checks.ServiceRegistrationsCheck
 See the [Spring Java demo](https://github.com/enofex/taikai/tree/main/examples/spring-java)
 for an HTTP application with its architecture tests and project checks.
 
-## 16. Kotlin/JVM
+## 17. Kotlin/JVM
 
 Taikai supports Kotlin callers and compiled Kotlin/JVM applications. The optional
 `taikai-kotlin` artifact adds source-aware rules and a receiver DSL without adding

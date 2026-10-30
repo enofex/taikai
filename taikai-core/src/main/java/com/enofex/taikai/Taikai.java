@@ -13,6 +13,7 @@ import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.jpa.JpaConfigurer;
 import com.enofex.taikai.logging.LoggingConfigurer;
+import com.enofex.taikai.metrics.MetricsConfigurer;
 import com.enofex.taikai.quarkus.QuarkusConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
@@ -41,10 +42,11 @@ import org.junit.jupiter.api.DynamicTest;
  * Central entry point for defining and executing Taikai architectural rules.
  *
  * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration through various
- * {@code Configurer} implementations (Java, Logging, Test, Spring, Quarkus, JPA), and executes
- * rules against the imported {@link JavaClasses} for a given namespace. Together with the rules,
- * it runs {@link TaikaiCheck}s, which check the project beyond its classes. {@link #export()} runs
- * {@link TaikaiExport}s, which export the configuration, for example into files.</p>
+ * {@code Configurer} implementations (Java, Logging, Test, Spring, Quarkus, JPA, Metrics), and
+ * executes rules against the imported {@link JavaClasses} for a given namespace. Together with the
+ * rules, it runs {@link TaikaiCheck}s, which check the project beyond its classes.
+ * {@link #export()} runs {@link TaikaiExport}s, which export the configuration, for example into
+ * files.</p>
  *
  * <p>Rules can be executed in three modes:
  * <ul>
@@ -823,6 +825,17 @@ public final class Taikai {
      */
     public Builder jpa(Customizer<JpaConfigurer> customizer) {
       return configure(customizer, JpaConfigurer::new);
+    }
+
+    /**
+     * Configures rules that limit code metrics, such as the depth of inheritance and the coupling
+     * between classes and packages, using the provided {@link Customizer}.
+     *
+     * @param customizer the customizer for {@link MetricsConfigurer}
+     * @return this builder for fluent chaining
+     */
+    public Builder metrics(Customizer<MetricsConfigurer> customizer) {
+      return configure(customizer, MetricsConfigurer::new);
     }
 
     /**

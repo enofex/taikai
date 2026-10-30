@@ -63,6 +63,7 @@ The `taikai` function builds a `Taikai` instance. It does not execute rules.
 Use `check()` to stop at the first failed rule or `checkAll()` to aggregate failures.
 
 ```kotlin
+import com.enofex.taikai.kotlin.functionsShouldNotExceedMaxParameters
 import com.enofex.taikai.kotlin.taikai
 
 val architecture = taikai {
@@ -80,13 +81,15 @@ val architecture = taikai {
         dataClassesShouldBeImmutable()
         functionsShouldMatch("[a-z][a-zA-Z0-9]*")
         propertiesShouldMatch("[a-z][a-zA-Z0-9]*")
+    }
+    metrics {
         functionsShouldNotExceedMaxParameters(4)
     }
 }
 architecture.checkAll()
 ```
 
-`java`, `spring`, `logging`, `test`, `quarkus`, `jpa`, and `kotlin` blocks have
+`java`, `spring`, `logging`, `test`, `quarkus`, `jpa`, `metrics`, and `kotlin` blocks have
 configuration receivers. Nested Java configurers retain their existing callback API, as
 the `services` example shows. The DSL marker prevents accidental unqualified access to
 the outer builder inside these receiver blocks.
@@ -146,7 +149,10 @@ The class regex on requirement rules selects which Kotlin declarations to check.
 | `classesShouldHaveVisibility(regex, visibility)` | Selected class declarations have the specified source visibility. |
 | `functionsShouldHaveVisibility(regex, visibility)` | Selected declared functions have the specified source visibility. |
 | `propertiesShouldHaveVisibility(regex, visibility)` | Selected declared properties have the specified source visibility. Accessor visibility is not checked separately. |
-| `functionsShouldNotExceedMaxParameters(max)` | Count declared function value parameters, excluding receivers, suspend continuations, default-argument machinery, generated overloads, and constructors. |
+
+`metrics { functionsShouldNotExceedMaxParameters(max) }` counts declared function value
+parameters, excluding receivers, suspend continuations, default-argument machinery, generated
+overloads, and constructors. Import it from `com.enofex.taikai.kotlin`.
 
 Visibility uses `KotlinVisibility.PUBLIC`, `INTERNAL`, `PROTECTED`, or `PRIVATE`.
 For example, `functionsShouldHaveVisibility("load.*", KotlinVisibility.INTERNAL)`
@@ -162,8 +168,8 @@ import com.enofex.taikai.Namespace
 import com.enofex.taikai.TaikaiRule.Configuration
 
 // Include test classes in this individual rule.
-functionsShouldNotExceedMaxParameters(
-    4,
+functionsShouldMatch(
+    "[a-z][a-zA-Z0-9]*",
     Configuration.of("com.company.project", Namespace.IMPORT.WITH_TESTS),
 )
 ```
