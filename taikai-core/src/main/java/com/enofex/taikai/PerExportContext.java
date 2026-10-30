@@ -6,6 +6,7 @@ import static java.util.Objects.requireNonNull;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.lang.EvaluationResult;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -50,6 +51,12 @@ final class PerExportContext implements ExportContext {
   @Override
   public Collection<TaikaiRule> rules() {
     return this.taikai.rules();
+  }
+
+  @Override
+  public EvaluationResult evaluate(TaikaiRule rule) {
+    return rule.archRule().evaluate(rule.javaClasses(this.taikai.namespace(),
+        this.taikai.classes(), this.taikai.excludedClasses(), this.taikai.excludedCriteria()));
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.enofex.taikai.exports.spi;
 
 import com.enofex.taikai.TaikaiRule;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.lang.EvaluationResult;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -54,6 +55,27 @@ public interface ExportContext {
    * @return the rules
    */
   Collection<TaikaiRule> rules();
+
+  /**
+   * Evaluates a rule against its classes, as {@code check()} and {@code checkAll()} do: with the
+   * namespace, classes and excluded classes of the rule's own configuration, or else of the
+   * global configuration. Unlike {@code check()}, it does not fail on violations, so that an
+   * export can report them.
+   *
+   * <pre>{@code
+   * for (TaikaiRule rule : context.rules()) {
+   *   context.evaluate(rule).handleViolations((Collection<Object> objects, String message) ->
+   *       report.add(rule.archRule().getDescription() + ": " + message));
+   * }
+   * }</pre>
+   *
+   * @param rule the rule to evaluate, usually one of {@link #rules()}
+   * @return the result of the evaluation, with the violations of the rule
+   * @throws RuntimeException a {@code TaikaiException} if the configuration has neither a
+   *     namespace nor classes
+   * @throws AssertionError if the rule checks no classes and {@code failOnEmpty} is set
+   */
+  EvaluationResult evaluate(TaikaiRule rule);
 
   /**
    * Returns the class loader of the test run, for example to find resources or classpath entries

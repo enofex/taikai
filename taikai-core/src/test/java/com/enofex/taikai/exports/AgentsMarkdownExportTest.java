@@ -33,6 +33,7 @@ class AgentsMarkdownExportTest {
             .noUsageOfSystemOutOrErr()
             .fieldsShouldNotBePublic())
         .discoverExports(exports -> exports
+            .exclude(SarifExport.class)
             .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
         .build()
         .export();
@@ -57,6 +58,7 @@ class AgentsMarkdownExportTest {
         .classes(AgentsMarkdownExportTest.class)
         .java(JavaConfigurer::noUsageOfSystemOutOrErr)
         .discoverExports(exports -> exports
+            .exclude(SarifExport.class)
             .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
         .build()
         .export();
@@ -83,6 +85,7 @@ class AgentsMarkdownExportTest {
         .addRule(rule)
         .addRule(rule)
         .discoverExports(exports -> exports
+            .exclude(SarifExport.class)
             .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
         .build()
         .export();
@@ -102,6 +105,7 @@ class AgentsMarkdownExportTest {
     Taikai.builder()
         .namespace("com.company.project")
         .discoverExports(exports -> exports
+            .exclude(SarifExport.class)
             .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
         .build()
         .export();
@@ -114,7 +118,7 @@ class AgentsMarkdownExportTest {
   void shouldFailWithoutConfiguredFile() {
     Taikai taikai = Taikai.builder()
         .namespace("com.company.project")
-        .discoverExports()
+        .discoverExports(exports -> exports.exclude(SarifExport.class))
         .build();
 
     TaikaiException exception = assertThrows(TaikaiException.class, taikai::export);
