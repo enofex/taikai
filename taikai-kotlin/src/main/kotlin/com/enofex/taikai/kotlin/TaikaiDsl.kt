@@ -1,6 +1,7 @@
 package com.enofex.taikai.kotlin
 
 import com.enofex.taikai.ChecksConfigurer
+import com.enofex.taikai.ExportsConfigurer
 import com.enofex.taikai.Taikai
 import com.enofex.taikai.TaikaiRule
 import com.enofex.taikai.java.JavaConfigurer
@@ -40,6 +41,7 @@ class TaikaiDsl internal constructor(private val builder: Taikai.Builder) {
     fun addRule(rule: TaikaiRule) { builder.addRule(rule) }
     fun addRules(rules: Collection<TaikaiRule>) { builder.addRules(rules) }
     fun discoverChecks(block: @TaikaiDslMarker ChecksConfigurer.() -> Unit = {}) { builder.discoverChecks { it.block() } }
+    fun discoverExports(block: @TaikaiDslMarker ExportsConfigurer.() -> Unit = {}) { builder.discoverExports { it.block() } }
     fun java(block: @TaikaiDslMarker JavaConfigurer.() -> Unit) { builder.java { it.block() } }
     fun spring(block: @TaikaiDslMarker SpringConfigurer.() -> Unit) { builder.spring { it.block() } }
     fun logging(block: @TaikaiDslMarker LoggingConfigurer.() -> Unit) { builder.logging { it.block() } }

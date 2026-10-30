@@ -7,6 +7,7 @@ import com.enofex.taikai.TaikaiException
 import com.enofex.taikai.TaikaiRule
 import com.enofex.taikai.TaikaiRule.Configuration
 import com.enofex.taikai.checks.GradleWrapperCheck
+import com.enofex.taikai.exports.AgentsMarkdownExport
 import com.enofex.taikai.kotlin.fixtures.*
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.importer.ClassFileImporter
@@ -229,5 +230,14 @@ class KotlinConfigurerTest {
                 discoverChecks { configure(GradleWrapperCheck::class.java, GradleWrapperCheck.directories("..")) }
             }
         }
+    }
+
+    @Test
+    fun `receiver DSL discovers exports`() {
+        val instance = taikai {
+            classes(GoodDto::class)
+            discoverExports { configure(AgentsMarkdownExport::class.java, AgentsMarkdownExport.file("ARCHITECTURE.md")) }
+        }
+        assertEquals(listOf(AgentsMarkdownExport::class.java), instance.exports().map { it.javaClass })
     }
 }
