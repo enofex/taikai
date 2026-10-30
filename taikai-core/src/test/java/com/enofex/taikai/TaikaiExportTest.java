@@ -1,5 +1,6 @@
 package com.enofex.taikai;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -12,8 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.enofex.taikai.exports.spi.TestExports;
+import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -195,6 +198,20 @@ class TaikaiExportTest {
     assertSame(Thread.currentThread().getContextClassLoader(), context.classLoader());
     assertTrue(context.classes().contain(Taikai.class));
     assertFalse(context.classes().contain(TaikaiExportTest.class));
+  }
+
+  @Test
+  void shouldEvaluateRulesWithTheirOwnConfiguration() {
+    TaikaiRule global = TaikaiRule.of(noClasses().should().haveSimpleName("Printer"));
+    TaikaiRule own = TaikaiRule.of(noClasses().should().haveSimpleName("Printer"),
+        Configuration.of(new ClassFileImporter().importClasses(Taikai.class)));
+
+    build(Taikai.builder().classes(Printer.class).addRule(global).addRule(own).discoverExports(),
+        TestExports.ContextCapturing.class).export();
+    ExportContext context = TestExports.ContextCapturing.lastContext();
+
+    assertTrue(context.evaluate(global).hasViolation());
+    assertFalse(context.evaluate(own).hasViolation());
   }
 
   @Test

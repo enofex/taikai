@@ -425,8 +425,9 @@ public final class Taikai {
    *     .export();
    * }</pre>
    *
-   * <p>Exporting does not run the rules or checks. If an export fails, the exports after it are
-   * not run.</p>
+   * <p>Exporting does not check the rules or checks, so it does not fail on violations; exports
+   * that report violations evaluate the rules themselves. If an export fails, the exports after
+   * it are not run.</p>
    *
    * @throws TaikaiException if an export fails, with the failure as its cause
    * @see Builder#discoverExports(Consumer)

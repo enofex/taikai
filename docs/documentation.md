@@ -874,6 +874,7 @@ The package `com.enofex.taikai.exports` contains the exports Taikai provides.
 | Export | Settings | Content |
 |--------|----------|---------|
 | `AgentsMarkdownExport` | `AgentsMarkdownExport.file(String)`, required | The rules as Markdown instructions for coding agents. |
+| `SarifExport` | `SarifExport.file(String)`, required, optionally `.withSourceDirectories(String...)` | The rule violations as a SARIF 2.1.0 report. |
 
 #### Configuring the exports
 
@@ -890,7 +891,9 @@ configured export is not registered, or if a configured export is excluded.
 
 `ExportContext` offers the same as `CheckContext` (the project directory, the namespace, the
 classes, the class loader and the configuration of the export), and in addition the configured
-rules with `rules()`. The paths in the settings of an export are relative to the project directory.
+rules with `rules()`. `evaluate(rule)` evaluates a rule as `check()` does, with the rule's own
+configuration, and returns the ArchUnit `EvaluationResult` with its violations instead of failing.
+The paths in the settings of an export are relative to the project directory.
 
 #### Instructions for coding agents
 
@@ -923,6 +926,41 @@ The export replaces the whole file and creates missing parent directories. To ke
 written by hand, export to a file of its own, as above, and reference it from `AGENTS.md`, or
 import it into `CLAUDE.md` with `@ARCHITECTURE.md`. The lines end with `\n` on every platform, so
 the file only changes when the rules change.
+
+#### Reporting violations as SARIF
+
+`SarifExport` evaluates the rules and writes their violations as a SARIF 2.1.0 report, with the
+file and line of each violation. The export writes the report even if there are violations, so the
+architecture test fails the build and the export runs in a test of its own:
+
+```java
+@Test
+void architecture() {
+  taikai().checkAll();
+}
+
+@Test
+void architectureReport() {
+  taikai().export();
+}
+
+private static Taikai taikai() {
+  return Taikai.builder()
+      .namespace("com.company.project")
+      .java(java -> java.noUsageOfSystemOutOrErr())
+      .discoverExports(exports -> exports
+          .configure(SarifExport.class, SarifExport.file("target/taikai.sarif")))
+      .build();
+}
+```
+
+The export finds the source file of a violation in the source directories `src/main/java`,
+`src/main/kotlin`, `src/test/java` and `src/test/kotlin`, by the package of its class, or by its
+file name if exactly one source file has that name. Other directories are configured with
+`SarifExport.file("target/taikai.sarif").withSourceDirectories("src", "generated")`. Violations
+without a line, such as of classes, point to the first line of their file, and violations without
+a source file are reported without location. The level of a rule is `error`, `warning` or `note`
+for the ArchUnit priority `HIGH`, `MEDIUM` (the default) or `LOW`.
 
 ## 6. How to Read the Rule Reference
 

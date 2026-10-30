@@ -189,6 +189,10 @@ The architecture test enforces these rules for `com.company.project`, so code th
 - Classes should not use System.out or System.err
 ```
 
+The predefined `com.enofex.taikai.exports.SarifExport` writes the rule violations as a SARIF
+report, for example with `SarifExport.file("target/taikai.sarif")`, with the file and line of each
+violation.
+
 ## User Guide
 
 Explore the complete [documentation](https://enofex.github.io/taikai) for comprehensive information on all available rules.
