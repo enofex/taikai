@@ -16,7 +16,6 @@ import static com.enofex.taikai.internal.DescribedPredicates.annotatedWithAll;
 import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
-import static com.enofex.taikai.java.MaxMethodParameters.notExceedMaxParameters;
 import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
 import static com.enofex.taikai.java.ProtectedMembers.notHaveProtectedMembers;
 import static com.enofex.taikai.java.SerialVersionUID.beStaticFinalLong;
@@ -1095,31 +1094,6 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
                 classes.getDescription(),
                 forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
         configuration));
-  }
-
-  /**
-   * Adds a rule ensuring methods do not exceed a specific number of parameters.
-   *
-   * @param maxMethodParameters maximum number of allowed parameters
-   * @return this configurer for fluent chaining
-   */
-  public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters) {
-    return methodsShouldNotExceedMaxParameters(maxMethodParameters, defaultConfiguration());
-  }
-
-  /**
-   * Adds a rule ensuring methods do not exceed a specific number of parameters,
-   * using a custom configuration.
-   *
-   * @param maxMethodParameters maximum number of allowed parameters
-   * @param configuration the rule configuration
-   * @return this configurer for fluent chaining
-   */
-  public JavaConfigurer methodsShouldNotExceedMaxParameters(int maxMethodParameters, Configuration configuration) {
-    return addRule(TaikaiRule.of(methods()
-        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
-        .should(notExceedMaxParameters(maxMethodParameters))
-        .as("Methods should not have more than %d parameters".formatted(maxMethodParameters)), configuration));
   }
 
   /**

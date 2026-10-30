@@ -159,8 +159,6 @@ class Usage {
             .methodsShouldNotDeclareGenericExceptions()
             .methodsShouldNotDeclareGenericExceptions(defaultConfiguration())
 
-            .methodsShouldNotExceedMaxParameters(10)
-            .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
 
             .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC))
             .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
@@ -357,6 +355,37 @@ class Usage {
 
                 .shouldHaveFieldAnnotatedWithVersion()
                 .shouldHaveFieldAnnotatedWithVersion(defaultConfiguration())))
+        .metrics(metrics -> metrics
+            .classesShouldNotExceedMaxInheritanceDepth(3)
+            .classesShouldNotExceedMaxInheritanceDepth(3, defaultConfiguration())
+            .classesShouldNotExceedMaxInheritanceDepth(ClassCriteria.nameMatching(".*Service"), 2)
+            .classesShouldNotExceedMaxInheritanceDepth(ClassCriteria.nameMatching(".*Service"), 2, defaultConfiguration())
+
+            .classesShouldNotExceedMaxSubclasses(10)
+            .classesShouldNotExceedMaxSubclasses(10, defaultConfiguration())
+            .classesShouldNotExceedMaxSubclasses(ClassCriteria.nameMatching(".*Base"), 5)
+            .classesShouldNotExceedMaxSubclasses(ClassCriteria.nameMatching(".*Base"), 5, defaultConfiguration())
+
+            .methodsShouldNotExceedMaxParameters(10)
+            .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
+            .methodsShouldNotExceedMaxParameters(MethodCriteria.nameMatching("handle.*"), 4)
+            .methodsShouldNotExceedMaxParameters(MethodCriteria.nameMatching("handle.*"), 4, defaultConfiguration())
+            .methodsShouldNotExceedMaxParametersForClass(ClassCriteria.nameMatching(".*Controller"), 4)
+            .methodsShouldNotExceedMaxParametersForClass(ClassCriteria.nameMatching(".*Controller"), 4, defaultConfiguration())
+
+            .packagesShouldNotExceedMaxClasses(40)
+            .packagesShouldNotExceedMaxClasses(40, defaultConfiguration())
+
+            .classesShouldNotExceedMaxDependencies(20)
+            .classesShouldNotExceedMaxDependencies(20, defaultConfiguration())
+            .classesShouldNotExceedMaxDependencies(ClassCriteria.nameMatching(".*Controller"), 5)
+            .classesShouldNotExceedMaxDependencies(ClassCriteria.nameMatching(".*Controller"), 5, defaultConfiguration())
+
+            .packagesShouldNotExceedMaxDependencies(10)
+            .packagesShouldNotExceedMaxDependencies(10, defaultConfiguration())
+
+            .packagesShouldNotExceedMaxRelativeVisibility(0.5)
+            .packagesShouldNotExceedMaxRelativeVisibility(0.5, defaultConfiguration()))
         .spring(spring -> spring
             .noAutowiredFields()
             .noAutowiredFields(defaultConfiguration())

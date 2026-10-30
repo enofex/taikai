@@ -66,6 +66,10 @@ class ArchitectureTest {
                 .interfacesShouldNotHavePrefixI()
                 .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))
+        .metrics(metrics -> metrics
+            .classesShouldNotExceedMaxInheritanceDepth(2)
+            .packagesShouldNotExceedMaxClasses(20)
+            .classesShouldNotExceedMaxDependencies(25))
         .discoverChecks(checks -> checks
             .configure(RequiredFilesCheck.class, RequiredFilesCheck.files(
                 "../README.md", "../LICENSE", "../CONTRIBUTING.md", "../CODE_OF_CONDUCT.md",

@@ -10,6 +10,7 @@ import com.enofex.taikai.demo.task.TaskRepository
 import com.enofex.taikai.demo.task.TaskService
 import com.enofex.taikai.java.ImportPatterns
 import com.enofex.taikai.kotlin.KotlinVisibility
+import com.enofex.taikai.kotlin.functionsShouldNotExceedMaxParameters
 import com.enofex.taikai.kotlin.kotlin
 import com.enofex.taikai.kotlin.taikai
 import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices
@@ -93,6 +94,8 @@ class ArchitectureTest {
                 dataClassesShouldBeImmutable()
                 functionsShouldMatch("[a-z][a-zA-Z0-9]*")
                 propertiesShouldMatch("[a-z][a-zA-Z0-9]*")
+            }
+            metrics {
                 functionsShouldNotExceedMaxParameters(3)
             }
             // Feature packages stay independent of each other as the application grows.

@@ -47,7 +47,6 @@ class ArchitectureTest {
             .finalClassesShouldNotHaveProtectedMembers()
             .methodsShouldNotHaveModifiers(MethodCriteria.annotatedWith(RequestMapping.class), List.of(PUBLIC))
             .methodsShouldNotDeclareGenericExceptions()
-            .methodsShouldNotExceedMaxParameters(3)
             .imports(imports -> imports
                 .shouldHaveNoCycles()
                 .shouldNotImport(ImportPatterns.shaded()))
@@ -63,6 +62,8 @@ class ArchitectureTest {
                 .constantsShouldFollowConventions()
                 .enumConstantsShouldFollowConventions()
                 .interfacesShouldNotHavePrefixI()))
+        .metrics(metrics -> metrics
+            .methodsShouldNotExceedMaxParameters(3))
         .spring(spring -> spring
             .noAutowiredFields()
             .noInjectionIntoStaticFields()
