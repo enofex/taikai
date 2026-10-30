@@ -100,6 +100,18 @@ discoverChecks {
 }
 ```
 
+`discoverExports` discovers the [exports](documentation.md#515-custom-exports), with
+`ExportsConfigurer` as the receiver; `export()` on the built instance runs them:
+
+```kotlin
+taikai {
+    namespace("com.company.project")
+    discoverExports {
+        configure(AgentsMarkdownExport::class.java, AgentsMarkdownExport.file("ARCHITECTURE.md"))
+    }
+}.export()
+```
+
 Use `classes(MyType::class)` or `classes(importedJavaClasses)` instead of a namespace
 for explicit imports. `excludeClasses` takes patterns such as
 `"com.company.project.generated.."`, class literals such as `Generated::class`, or

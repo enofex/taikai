@@ -8,6 +8,8 @@ import com.enofex.taikai.configures.Configurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.exports.spi.ExportContext;
+import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.jpa.JpaConfigurer;
 import com.enofex.taikai.logging.LoggingConfigurer;
@@ -41,7 +43,8 @@ import org.junit.jupiter.api.DynamicTest;
  * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration through various
  * {@code Configurer} implementations (Java, Logging, Test, Spring, Quarkus, JPA), and executes
  * rules against the imported {@link JavaClasses} for a given namespace. Together with the rules,
- * it runs {@link TaikaiCheck}s, which check the project beyond its classes.</p>
+ * it runs {@link TaikaiCheck}s, which check the project beyond its classes. {@link #export()} runs
+ * {@link TaikaiExport}s, which export the configuration, for example into files.</p>
  *
  * <p>Rules can be executed in three modes:
  * <ul>
@@ -58,6 +61,7 @@ import org.junit.jupiter.api.DynamicTest;
  *
  * @see TaikaiRule
  * @see TaikaiCheck
+ * @see TaikaiExport
  * @see Configurer
  * @see Configurers
  * @see Namespace
@@ -72,6 +76,8 @@ public final class Taikai {
   private final Collection<TaikaiRule> rules;
   private final @Nullable ChecksConfigurer checksConfigurer;
   private final List<ConfiguredCheck> checks;
+  private final @Nullable ExportsConfigurer exportsConfigurer;
+  private final List<ConfiguredExport> exports;
 
   private Taikai(Builder builder) {
     this.failOnEmpty = builder.failOnEmpty;
@@ -86,6 +92,9 @@ public final class Taikai {
     this.checksConfigurer = builder.checksConfigurer != null
         ? new ChecksConfigurer(builder.checksConfigurer)
         : null;
+    this.exportsConfigurer = builder.exportsConfigurer != null
+        ? new ExportsConfigurer(builder.exportsConfigurer)
+        : null;
 
     if (this.namespace != null && this.classes != null) {
       throw new IllegalArgumentException("Setting namespace and classes are not supported");
@@ -97,15 +106,29 @@ public final class Taikai {
     this.checks = this.checksConfigurer != null
         ? configuredChecks(this.checksConfigurer)
         : List.of();
+    this.exports = this.exportsConfigurer != null
+        ? configuredExports(this.exportsConfigurer)
+        : List.of();
   }
 
   private List<ConfiguredCheck> configuredChecks(ChecksConfigurer configurer) {
     Path projectDirectory = Path.of("").toAbsolutePath();
 
-    return discoveredChecks(configurer).stream()
+    return discovered(TaikaiCheck.class, "checks", configurer.excludedChecks(),
+        configurer::validate, TaikaiCheck::description).stream()
         .map(check -> new ConfiguredCheck(check, configurer.decorate(new PerCheckContext(this,
             projectDirectory, check.getClass(),
             configurer.configuration(check.getClass())))))
+        .toList();
+  }
+
+  private List<ConfiguredExport> configuredExports(ExportsConfigurer configurer) {
+    Path projectDirectory = Path.of("").toAbsolutePath();
+
+    return discovered(TaikaiExport.class, "exports", configurer.excludedExports(),
+        configurer::validate, TaikaiExport::description).stream()
+        .map(export -> new ConfiguredExport(export, new PerExportContext(this, projectDirectory,
+            export.getClass(), configurer.configuration(export.getClass()))))
         .toList();
   }
 
@@ -188,6 +211,19 @@ public final class Taikai {
   public Collection<TaikaiCheck> checks() {
     return this.checks.stream()
         .map(ConfiguredCheck::check)
+        .toList();
+  }
+
+  /**
+   * Returns all active {@link TaikaiExport} instances that {@link #export()} runs: the discovered
+   * exports without the excluded ones, sorted by their description.
+   *
+   * @return collection of active exports
+   * @see Builder#discoverExports(Consumer)
+   */
+  public Collection<TaikaiExport> exports() {
+    return this.exports.stream()
+        .map(ConfiguredExport::export)
         .toList();
   }
 
@@ -300,24 +336,25 @@ public final class Taikai {
     }
   }
 
-  private static List<TaikaiCheck> discoveredChecks(ChecksConfigurer configurer) {
+  private static <T> List<T> discovered(Class<T> service, String kind,
+      Collection<Class<?>> excluded, Consumer<Collection<? extends Class<?>>> validate,
+      Function<T, String> description) {
     try {
-      List<ServiceLoader.Provider<TaikaiCheck>> providers =
-          ServiceLoader.load(TaikaiCheck.class, classLoader()).stream().toList();
-      Collection<Class<?>> excludedChecks = configurer.excludedChecks();
+      List<ServiceLoader.Provider<T>> providers =
+          ServiceLoader.load(service, classLoader()).stream().toList();
 
-      configurer.validate(providers.stream()
+      validate.accept(providers.stream()
           .map(ServiceLoader.Provider::type)
           .collect(Collectors.toSet()));
 
       return providers.stream()
-          .filter(provider -> !excludedChecks.contains(provider.type()))
+          .filter(provider -> !excluded.contains(provider.type()))
           .map(ServiceLoader.Provider::get)
-          .sorted(Comparator.comparing(TaikaiCheck::description))
+          .sorted(Comparator.comparing(description))
           .toList();
     } catch (ServiceConfigurationError | LinkageError e) {
-      throw new TaikaiException("Could not discover the checks registered in "
-          + ChecksConfigurer.REGISTRATION_FILE, e);
+      throw new TaikaiException("Could not discover the %s registered in META-INF/services/%s"
+          .formatted(kind, service.getName()), e);
     }
   }
 
@@ -373,6 +410,39 @@ public final class Taikai {
   }
 
   /**
+   * Runs all discovered {@link TaikaiExport}s, sorted by their description, for example to write
+   * the rules into a file that coding agents read:
+   *
+   * <pre>{@code
+   * Taikai.builder()
+   *     .namespace("com.company.project")
+   *     .java(java -> java
+   *         .noUsageOfSystemOutOrErr()
+   *         .fieldsShouldNotBePublic())
+   *     .discoverExports(exports -> exports
+   *         .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file("ARCHITECTURE.md")))
+   *     .build()
+   *     .export();
+   * }</pre>
+   *
+   * <p>Exporting does not run the rules or checks. If an export fails, the exports after it are
+   * not run.</p>
+   *
+   * @throws TaikaiException if an export fails, with the failure as its cause
+   * @see Builder#discoverExports(Consumer)
+   */
+  public void export() {
+    for (ConfiguredExport export : this.exports) {
+      try {
+        export.export().export(export.context());
+      } catch (RuntimeException | AssertionError | LinkageError e) {
+        throw new TaikaiException("Export '%s' failed".formatted(export.export().description()),
+            e);
+      }
+    }
+  }
+
+  /**
    * Creates a new {@link Builder} instance for fluent configuration of Taikai.
    *
    * @return a new {@link Builder}
@@ -406,6 +476,10 @@ public final class Taikai {
 
   }
 
+  private record ConfiguredExport(TaikaiExport export, ExportContext context) {
+
+  }
+
   /**
    * Builder for constructing a {@link Taikai} instance with namespace, rules, and configurers.
    *
@@ -436,6 +510,7 @@ public final class Taikai {
     private final Collection<String> excludedClasses;
     private final Collection<DescribedPredicate<? super JavaClass>> excludedCriteria;
     private @Nullable ChecksConfigurer checksConfigurer;
+    private @Nullable ExportsConfigurer exportsConfigurer;
     private boolean failOnEmpty;
     private @Nullable String namespace;
     private @Nullable JavaClasses classes;
@@ -454,6 +529,9 @@ public final class Taikai {
       this.excludedCriteria = new ArrayList<>(taikai.excludedCriteria());
       this.checksConfigurer = taikai.checksConfigurer != null
           ? new ChecksConfigurer(taikai.checksConfigurer)
+          : null;
+      this.exportsConfigurer = taikai.exportsConfigurer != null
+          ? new ExportsConfigurer(taikai.exportsConfigurer)
           : null;
       this.failOnEmpty = taikai.failOnEmpty();
       this.namespace = taikai.namespace();
@@ -522,6 +600,49 @@ public final class Taikai {
       }
 
       customizer.accept(this.checksConfigurer);
+      return this;
+    }
+
+    /**
+     * Runs the {@link TaikaiExport}s that are registered in
+     * {@code META-INF/services/com.enofex.taikai.exports.spi.TaikaiExport} on the classpath when
+     * {@link Taikai#export()} is called, with the default settings. Same as
+     * {@code discoverExports(exports -> {})}.
+     *
+     * @return this builder for fluent chaining
+     * @see #discoverExports(Consumer)
+     */
+    public Builder discoverExports() {
+      return discoverExports(exports -> {
+      });
+    }
+
+    /**
+     * Runs the {@link TaikaiExport}s that are registered in
+     * {@code META-INF/services/com.enofex.taikai.exports.spi.TaikaiExport} on the classpath when
+     * {@link Taikai#export()} is called, configured with the given {@link ExportsConfigurer}. The
+     * exports are discovered when {@link #build()} is called and run sorted by their description.
+     *
+     * <p>Calling this method again customizes the same {@link ExportsConfigurer}, so the settings
+     * of all calls add up.</p>
+     *
+     * <pre>{@code
+     * .discoverExports(exports -> exports
+     *     .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file("ARCHITECTURE.md")))
+     * }</pre>
+     *
+     * @param customizer the customizer for {@link ExportsConfigurer}
+     * @return this builder for fluent chaining
+     * @see java.util.ServiceLoader
+     */
+    public Builder discoverExports(Consumer<ExportsConfigurer> customizer) {
+      requireNonNull(customizer);
+
+      if (this.exportsConfigurer == null) {
+        this.exportsConfigurer = new ExportsConfigurer();
+      }
+
+      customizer.accept(this.exportsConfigurer);
       return this;
     }
 
@@ -729,9 +850,9 @@ public final class Taikai {
      * @return a new {@link Taikai} instance ready for {@link Taikai#check()} or
      *         {@link Taikai#checkAll()}
      * @throws IllegalArgumentException if both {@link #namespace} and {@link #classes} are set
-     * @throws TaikaiException if a registered check cannot be loaded or instantiated, if an
-     *     excluded check is not registered, or if a configured check is not registered or is
-     *     excluded
+     * @throws TaikaiException if a registered check or export cannot be loaded or instantiated,
+     *     if an excluded check or export is not registered, or if a configured check or export is
+     *     not registered or is excluded
      */
     public Taikai build() {
       return new Taikai(this);

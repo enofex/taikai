@@ -164,6 +164,31 @@ Taikai.builder()
     .checkAll();
 ```
 
+## Custom Exports
+
+A `TaikaiExport` exports the configuration, for example into a file. Exports are registered like
+checks, in `META-INF/services/com.enofex.taikai.exports.spi.TaikaiExport`, and run with
+`export()`. The predefined `com.enofex.taikai.exports.AgentsMarkdownExport` writes the rules as
+Markdown for coding agents, to reference from `AGENTS.md` or `CLAUDE.md`:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java.noUsageOfSystemOutOrErr())
+    .discoverExports(exports -> exports
+        .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file("ARCHITECTURE.md")))
+    .build()
+    .export();
+```
+
+```markdown
+# Architecture Rules
+
+The architecture test enforces these rules for `com.company.project`, so code that breaks one of them fails the build.
+
+- Classes should not use System.out or System.err
+```
+
 ## User Guide
 
 Explore the complete [documentation](https://enofex.github.io/taikai) for comprehensive information on all available rules.

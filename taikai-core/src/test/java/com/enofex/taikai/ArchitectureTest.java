@@ -13,6 +13,8 @@ import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.Configurer;
+import com.enofex.taikai.exports.spi.ExportContext;
+import com.enofex.taikai.exports.spi.TaikaiExport;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -58,7 +60,9 @@ class ArchitectureTest {
                 .classesShouldMatch(ClassCriteria.assignableTo(AbstractConfigurer.class), ".*Configurer")
                 .classesShouldMatch(ClassCriteria.implementing(Configurer.class), ".*Configurer")
                 .classesShouldMatch(ClassCriteria.implementing(TaikaiCheck.class), ".*Check")
+                .classesShouldMatch(ClassCriteria.implementing(TaikaiExport.class), ".*Export")
                 .classesShouldMatch(ClassCriteria.implementing(CheckContext.class), ".*CheckContext")
+                .classesShouldMatch(ClassCriteria.implementing(ExportContext.class), ".*ExportContext")
                 .interfacesShouldNotHavePrefixI()
                 .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))
@@ -73,7 +77,5 @@ class ArchitectureTest {
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();
-
-
   }
 }

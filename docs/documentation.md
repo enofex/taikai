@@ -810,6 +810,120 @@ by `check()`, `checkAll()` and `dynamicTests()` alike. Anything expensive, such 
 loader, belongs outside of the function. The context only changes what the checks see; checks are
 always discovered with the class loader of the test run.
 
+### 5.15 Custom Exports
+
+A `TaikaiExport` exports the configuration, for example its rules into a file that coding agents
+read. Exports work like [custom checks](#514-custom-checks): they are registered and discovered
+through the Java `ServiceLoader`, configured per export, and get an `ExportContext` with the
+project. They only run when `export()` is called, never with the rules and checks.
+
+```java
+public final class RuleCountExport implements TaikaiExport {
+
+  @Override
+  public String description() {
+    return "Number of rules";
+  }
+
+  @Override
+  public void export(ExportContext context) {
+    try {
+      Files.writeString(context.projectDirectory().resolve("rules.txt"),
+          context.rules().size() + " rules");
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+}
+```
+
+`description()` names the export in failure messages. If an export throws, `export()` stops and
+throws a `TaikaiException` that names the export, with the failure as its cause.
+
+#### Registering and discovering exports
+
+List the fully qualified class name of every export in
+`src/test/resources/META-INF/services/com.enofex.taikai.exports.spi.TaikaiExport`, or in
+`src/main/resources/...` of a library that ships exports:
+
+```text
+com.enofex.taikai.exports.AgentsMarkdownExport
+com.company.architecture.RuleCountExport
+```
+
+`discoverExports()` finds them when `build()` is called, and `export()` runs them sorted by their
+description:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java.noUsageOfSystemOutOrErr())
+    .discoverExports()
+    .build()
+    .export();
+```
+
+Like checks, an export must be a public class with a public constructor without parameters, and
+Taikai does not register its predefined exports itself, so that a new Taikai version never writes
+files on its own. `exports()` returns the discovered exports.
+
+#### Predefined exports
+
+The package `com.enofex.taikai.exports` contains the exports Taikai provides.
+
+| Export | Settings | Content |
+|--------|----------|---------|
+| `AgentsMarkdownExport` | `AgentsMarkdownExport.file(String)`, required | The rules as Markdown instructions for coding agents. |
+
+#### Configuring the exports
+
+`ExportsConfigurer` excludes exports and configures them with their settings, like
+`ChecksConfigurer`. An export gets its settings with `ExportContext.configuration(...)` or
+`requireConfiguration(...)`; other exports do not see them. `build()` fails if an excluded or
+configured export is not registered, or if a configured export is excluded.
+
+```java
+.discoverExports(exports -> exports
+    .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file("ARCHITECTURE.md"))
+    .exclude(RuleCountExport.class))
+```
+
+`ExportContext` offers the same as `CheckContext` (the project directory, the namespace, the
+classes, the class loader and the configuration of the export), and in addition the configured
+rules with `rules()`. The paths in the settings of an export are relative to the project directory.
+
+#### Instructions for coding agents
+
+Coding agents such as Claude Code or Codex read files like `AGENTS.md` or `CLAUDE.md` before they
+change code. `AgentsMarkdownExport` writes the description of every configured rule to the
+configured file, so agents know the rules before the architecture test fails:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .java(java -> java
+        .noUsageOfSystemOutOrErr()
+        .fieldsShouldNotBePublic())
+    .discoverExports(exports -> exports
+        .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file("ARCHITECTURE.md")))
+    .build()
+    .export();
+```
+
+```markdown
+# Architecture Rules
+
+The architecture test enforces these rules for `com.company.project`, so code that breaks one of them fails the build.
+
+- Classes should not use System.out or System.err
+- Fields should not be public unless they are static
+```
+
+The export replaces the whole file and creates missing parent directories. To keep instructions
+written by hand, export to a file of its own, as above, and reference it from `AGENTS.md`, or
+import it into `CLAUDE.md` with `@ARCHITECTURE.md`. The lines end with `\n` on every platform, so
+the file only changes when the rules change.
+
 ## 6. How to Read the Rule Reference
 
 Sections 7 to 12 document every rule, and Section 13 the predefined checks. To keep them readable,
