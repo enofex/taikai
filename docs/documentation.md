@@ -3017,6 +3017,7 @@ next to any other checks:
 
 ```text
 com.enofex.taikai.checks.ClassFileVersionCheck
+com.enofex.taikai.checks.FileContentCheck
 com.enofex.taikai.checks.ForbiddenFilesCheck
 com.enofex.taikai.checks.GradleWrapperCheck
 com.enofex.taikai.checks.MavenWrapperCheck
@@ -3042,6 +3043,7 @@ Taikai.builder()
 | Check | Checks that | Configuration |
 |-------|-------------|---------------|
 | [`ClassFileVersionCheck`](#ClassFileVersionCheck) | classes are not compiled for a newer Java version than allowed | required |
+| [`FileContentCheck`](#FileContentCheck) | the content of the project files follows the configured rules | required |
 | [`ForbiddenFilesCheck`](#ForbiddenFilesCheck) | the project contains no forbidden files, such as private keys | required |
 | [`GradleWrapperCheck`](#GradleWrapperCheck) | the project has the Gradle Wrapper | optional |
 | [`MavenWrapperCheck`](#MavenWrapperCheck) | the project has the Maven Wrapper | optional |
@@ -3080,6 +3082,33 @@ Java version:
 ```text
 Check: Classes should not be compiled for a newer Java version than configured
 	Class com.company.project.OrderService is compiled for Java 21, but at most Java 17 is allowed
+```
+
+#### `FileContentCheck` { #FileContentCheck }
+
+*Project files should follow the content rules*
+
+Checks the content of project files, for what the compiled classes do not show, such as imports,
+comments or source-only annotations. A rule applies to the files matching a glob pattern, as in the
+[`ForbiddenFilesCheck`](#ForbiddenFilesCheck). The check needs its rules:
+
+```java
+.discoverChecks(checks -> checks
+    .configure(FileContentCheck.class, FileContentCheck.rules(
+        FileContentCheck.forbid("src/main/**/*.java", "^import .*\\*;"),
+        FileContentCheck.require("src/main/**/package-info.java", "@NullMarked"),
+        FileContentCheck.rule("src/main/**/*.java", (file, content) -> content.lines().count() > 500
+            ? List.of(file + " has more than 500 lines") : List.of()))))
+```
+
+`forbid` reports every line that matches, `require` every file that does not, and `rule` the
+violations of a custom `Condition`. In regular expressions, `^` and `$` match at every line. Files
+are read as UTF-8; binary files are skipped.
+
+```text
+Check: Project files should follow the content rules
+	src/main/java/com/company/project/OrderService.java:3 contains forbidden content (matches ^import .*\*;)
+	src/main/java/com/company/project/order/package-info.java does not contain required content (should match @NullMarked)
 ```
 
 #### `ForbiddenFilesCheck` { #ForbiddenFilesCheck }
@@ -3366,6 +3395,10 @@ class ArchitectureTest {
             .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
                 "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
                 "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
+            .configure(FileContentCheck.class, FileContentCheck.rules(
+                FileContentCheck.forbid("src/main/**/*.java", "^import .*\\*;"),
+                FileContentCheck.require("src/main/**/package-info.java",
+                    "^@org\\.jspecify\\.annotations\\.NullMarked$")))
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();
@@ -3378,6 +3411,7 @@ The [predefined checks](#14-predefined-checks) are registered in
 
 ```text
 com.enofex.taikai.checks.ClassFileVersionCheck
+com.enofex.taikai.checks.FileContentCheck
 com.enofex.taikai.checks.ForbiddenFilesCheck
 com.enofex.taikai.checks.MavenWrapperCheck
 com.enofex.taikai.checks.RequiredFilesCheck

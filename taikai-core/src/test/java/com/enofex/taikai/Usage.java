@@ -6,6 +6,7 @@ import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
 import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 
 import com.enofex.taikai.checks.ClassFileVersionCheck;
+import com.enofex.taikai.checks.FileContentCheck;
 import com.enofex.taikai.checks.ForbiddenFilesCheck;
 import com.enofex.taikai.checks.MavenWrapperCheck;
 import com.enofex.taikai.checks.RequiredFilesCheck;
@@ -606,6 +607,19 @@ class Usage {
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17))
             .configure(ForbiddenFilesCheck.class,
                 ForbiddenFilesCheck.files("src/main/**/*.key", "**/.env")))
+        .build()
+        .checkAll();
+
+    Taikai.builder()
+        .namespace("com.enofex.taikai")
+        .discoverChecks(checks -> checks
+            .configure(FileContentCheck.class, FileContentCheck.rules(
+                FileContentCheck.forbid("src/main/**/*.java", "^import .*\\*;"),
+                FileContentCheck.require("src/main/**/package-info.java", "@NullMarked"),
+                FileContentCheck.rule("src/main/**/*.java", (file, content) ->
+                    content.lines().count() > 500
+                        ? List.of(file + " has more than 500 lines")
+                        : List.of()))))
         .build()
         .checkAll();
 

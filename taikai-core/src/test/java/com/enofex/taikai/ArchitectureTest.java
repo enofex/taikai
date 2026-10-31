@@ -6,6 +6,7 @@ import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
 import com.enofex.taikai.checks.ClassFileVersionCheck;
+import com.enofex.taikai.checks.FileContentCheck;
 import com.enofex.taikai.checks.ForbiddenFilesCheck;
 import com.enofex.taikai.checks.MavenWrapperCheck;
 import com.enofex.taikai.checks.RequiredFilesCheck;
@@ -78,6 +79,10 @@ class ArchitectureTest {
             .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files(
                 "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
                 "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
+            .configure(FileContentCheck.class, FileContentCheck.rules(
+                FileContentCheck.forbid("src/main/**/*.java", "^import .*\\*;"),
+                FileContentCheck.require("src/main/**/package-info.java",
+                    "^@org\\.jspecify\\.annotations\\.NullMarked$")))
             .configure(ClassFileVersionCheck.class, ClassFileVersionCheck.javaVersion(17)))
         .build()
         .dynamicTests();
