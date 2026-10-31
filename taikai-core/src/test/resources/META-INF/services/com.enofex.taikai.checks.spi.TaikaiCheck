@@ -1,4 +1,5 @@
 com.enofex.taikai.checks.ClassFileVersionCheck
+com.enofex.taikai.checks.FileContentCheck
 com.enofex.taikai.checks.ForbiddenFilesCheck
 com.enofex.taikai.checks.MavenWrapperCheck
 com.enofex.taikai.checks.RequiredFilesCheck

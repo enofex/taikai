@@ -2,20 +2,10 @@ package com.enofex.taikai.checks;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Stream;
 
 /**
  * Checks that the project contains no forbidden files, for example private keys or {@code .env}
@@ -64,79 +54,18 @@ public final class ForbiddenFilesCheck implements TaikaiCheck {
 
   @Override
   public List<String> violations(CheckContext context) {
-    Path projectDirectory = context.projectDirectory();
-    Map<Search, List<Path>> filesBySearch = new HashMap<>();
+    ProjectFileSearch search = new ProjectFileSearch(context.projectDirectory());
     Map<String, String> patternsByFile = new TreeMap<>();
 
     for (String pattern : context.requireConfiguration(Settings.class).files()) {
-      List<PathMatcher> matchers = matchers(pattern);
-      Search search = Search.of(projectDirectory, pattern);
-
-      for (Path file : filesBySearch.computeIfAbsent(search, Search::files)) {
-        Path relativeFile = projectDirectory.relativize(file);
-
-        if (matchers.stream().anyMatch(matcher -> matcher.matches(relativeFile))) {
-          patternsByFile.putIfAbsent(relativeFile.toString(), pattern);
-        }
+      for (Path file : search.files(pattern)) {
+        patternsByFile.putIfAbsent(file.toString(), pattern);
       }
     }
 
     return patternsByFile.entrySet().stream()
         .map(entry -> "%s is forbidden (matches %s)".formatted(entry.getKey(), entry.getValue()))
         .toList();
-  }
-
-  private static List<PathMatcher> matchers(String pattern) {
-    Set<String> variants = new LinkedHashSet<>(List.of(pattern));
-    boolean added = true;
-
-    while (added) {
-      added = false;
-
-      for (String variant : List.copyOf(variants)) {
-        for (int index = variant.indexOf("**/"); index >= 0;
-            index = variant.indexOf("**/", index + 1)) {
-          added |= variants.add(variant.substring(0, index) + variant.substring(index + 3));
-        }
-      }
-    }
-
-    return variants.stream()
-        .map(variant -> FileSystems.getDefault().getPathMatcher("glob:" + variant))
-        .toList();
-  }
-
-  private record Search(Path directory, int depth) {
-
-    static Search of(Path projectDirectory, String pattern) {
-      String[] segments = pattern.split("/");
-      int fixedSegments = 0;
-
-      while (fixedSegments < segments.length - 1 && !isWildcard(segments[fixedSegments])) {
-        fixedSegments++;
-      }
-
-      return new Search(
-          projectDirectory.resolve(String.join("/",
-              Arrays.asList(segments).subList(0, fixedSegments))),
-          pattern.contains("**") ? Integer.MAX_VALUE : segments.length - fixedSegments);
-    }
-
-    private static boolean isWildcard(String segment) {
-      return segment.chars().anyMatch(character -> "*?[{".indexOf(character) >= 0);
-    }
-
-    List<Path> files() {
-      if (!Files.isDirectory(this.directory)) {
-        return List.of();
-      }
-
-      try (Stream<Path> files = Files.walk(this.directory, this.depth)) {
-        return files.filter(Files::isRegularFile).toList();
-      } catch (IOException e) {
-        throw new UncheckedIOException("Could not search " + this.directory, e);
-      }
-    }
   }
 
   /**
