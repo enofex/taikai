@@ -5,6 +5,10 @@ import static java.util.Objects.requireNonNull;
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
+import com.tngtech.archunit.core.Convertible;
+import com.tngtech.archunit.core.domain.Dependency;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaPackage;
 import com.tngtech.archunit.core.domain.SourceCodeLocation;
 import com.tngtech.archunit.core.domain.properties.HasSourceCodeLocation;
 import com.tngtech.archunit.lang.EvaluationResult;
@@ -52,7 +56,10 @@ import org.jspecify.annotations.Nullable;
  * be in the directory of their package. The report names source files by absolute {@code file}
  * URIs, so that they do not depend on the directory the report is read from, also in
  * multi-module builds. Violations without a line, such as of classes or fields, point to the
- * first line of their file; violations without a source file have no location.</p>
+ * first line of their file. Code scanning on GitHub only shows violations with a location, so
+ * violations of a package point to its {@code package-info}, or else to its first class by name,
+ * and violations of a cycle to its first dependency. Violations without a source file have no
+ * location.</p>
  *
  * <p>Taikai does not register its predefined exports itself, so that a new Taikai version never
  * writes files on its own. To run this export, list its class name in the file
@@ -135,12 +142,39 @@ public final class SarifExport implements TaikaiExport {
 
   private static @Nullable Location location(Collection<?> objects, SourceFiles sourceFiles) {
     return objects.stream()
-        .filter(HasSourceCodeLocation.class::isInstance)
-        .map(object -> ((HasSourceCodeLocation) object).getSourceCodeLocation())
+        .map(SarifExport::sourceCodeLocation)
+        .flatMap(Optional::stream)
         .findFirst()
         .flatMap(location -> sourceFiles.find(location)
             .map(file -> new Location(file, location.getLineNumber())))
         .orElse(null);
+  }
+
+  /**
+   * Returns where a violating object is in the source code. A package has no location of its own,
+   * so its {@code package-info} stands for it, or else its first class by name. A cycle has none
+   * either, so its first dependency stands for it, in the order ArchUnit sorts dependencies.
+   */
+  private static Optional<SourceCodeLocation> sourceCodeLocation(Object object) {
+    if (object instanceof HasSourceCodeLocation hasSourceCodeLocation) {
+      return Optional.of(hasSourceCodeLocation.getSourceCodeLocation());
+    }
+
+    if (object instanceof JavaPackage javaPackage) {
+      return javaPackage.tryGetPackageInfo()
+          .flatMap(SarifExport::sourceCodeLocation)
+          .or(() -> javaPackage.getClasses().stream()
+              .min(Comparator.comparing(JavaClass::getName))
+              .map(JavaClass::getSourceCodeLocation));
+    }
+
+    if (object instanceof Convertible convertible) {
+      return convertible.convertTo(Dependency.class).stream()
+          .min(Comparator.naturalOrder())
+          .map(Dependency::getSourceCodeLocation);
+    }
+
+    return Optional.empty();
   }
 
   private static Map<String, Object> sarif(List<Rule> rules, List<Result> results) {

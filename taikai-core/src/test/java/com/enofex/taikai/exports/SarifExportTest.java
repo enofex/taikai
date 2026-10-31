@@ -2,6 +2,7 @@ package com.enofex.taikai.exports;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.priority;
+import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -12,6 +13,8 @@ import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiException;
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.java.JavaConfigurer;
+import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.Priority;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +32,7 @@ class SarifExportTest {
   private static final Path SOURCE_FILE =
       Path.of("src/test/java/com/enofex/taikai/exports/SarifExportTest.java");
   private static final Pattern RULE_ID = Pattern.compile("\"id\": \"(taikai-[0-9a-f]{12})\"");
+  private static final Path CYCLE = Path.of("src/test/java/com/enofex/taikai/exports/cycle");
 
   @TempDir
   Path directory;
@@ -130,6 +134,29 @@ class SarifExportTest {
     assertTrue(sarif.contains("\"uri\": \"" + SOURCE_FILE.toAbsolutePath().toUri() + "\""),
         sarif);
     assertTrue(sarif.contains("\"startLine\": 1\n"), sarif);
+  }
+
+  @Test
+  void shouldPointCyclesToTheirFirstDependency() throws IOException {
+    String sarif = export(Taikai.builder()
+        .classes(cycle())
+        .addRule(TaikaiRule.of(slices().matching("com.enofex.taikai.exports.cycle.(*)..")
+            .should().beFreeOfCycles())), SarifExport.file(sarifFile()));
+
+    assertEquals(1, occurrences(sarif, "\"locations\""), sarif);
+    assertTrue(sarif.contains(cycleUri("left/Left.java")), sarif);
+  }
+
+  @Test
+  void shouldPointPackagesToTheirPackageInfoOrElseToTheirFirstClass() throws IOException {
+    String sarif = export(Taikai.builder()
+        .classes(cycle())
+        .metrics(metrics -> metrics.packagesShouldNotExceedMaxClasses(0)),
+        SarifExport.file(sarifFile()));
+
+    assertEquals(2, occurrences(sarif, "\"locations\""), sarif);
+    assertTrue(sarif.contains(cycleUri("left/Left.java")), sarif);
+    assertTrue(sarif.contains(cycleUri("right/package-info.java")), sarif);
   }
 
   @Test
@@ -241,6 +268,18 @@ class SarifExportTest {
 
   private static long occurrences(String text, String part) {
     return Pattern.compile(Pattern.quote(part)).matcher(text).results().count();
+  }
+
+  /**
+   * Imports the packages {@code left} and {@code right}, which depend on each other. Only
+   * {@code right} has a {@code package-info}.
+   */
+  private static JavaClasses cycle() {
+    return new ClassFileImporter().importPackages("com.enofex.taikai.exports.cycle");
+  }
+
+  private static String cycleUri(String file) {
+    return "\"uri\": \"" + CYCLE.resolve(file).toAbsolutePath().toUri() + "\"";
   }
 
   static final class Printer {

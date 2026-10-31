@@ -958,9 +958,12 @@ The export finds the source file of a violation in the source directories `src/m
 `src/main/kotlin`, `src/test/java` and `src/test/kotlin`, by the package of its class, or by its
 file name if exactly one source file has that name. Other directories are configured with
 `SarifExport.file("target/taikai.sarif").withSourceDirectories("src", "generated")`. Violations
-without a line, such as of classes, point to the first line of their file, and violations without
-a source file are reported without location. The level of a rule is `error`, `warning` or `note`
-for the ArchUnit priority `HIGH`, `MEDIUM` (the default) or `LOW`.
+without a line, such as of classes, point to the first line of their file. Code scanning on GitHub
+only shows violations with a location, so violations of a package, such as of the
+[metrics rules](#13-metrics-rules), point to its `package-info.java`, or else to its first class
+by name, and violations of a cycle to one of its dependencies. Violations without a source file
+are reported without location. The level of a rule is `error`, `warning` or `note` for the
+ArchUnit priority `HIGH`, `MEDIUM` (the default) or `LOW`.
 
 ## 6. How to Read the Rule Reference
 
