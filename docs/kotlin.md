@@ -261,7 +261,7 @@ individual rule in a category has Kotlin-specific coverage.
 | Fields and properties | Java field rules inspect backing fields, not source properties. Prefer Kotlin property rules for source intent. |
 | Boolean method naming | Java rules can reject the generated `getActive()` accessor. Prefer Kotlin function/property naming rules. |
 | Deprecation | The Java rule checks Java deprecation annotations. The Kotlin rule handles Kotlin and Java deprecation, including source-property carriers and default helpers. |
-| Method parameter counts | Java rules count JVM parameters. Prefer the Kotlin counterpart for suspend, extension, and default-argument functions. |
+| Method parameter counts | The `metrics` rule `methodsShouldNotExceedMaxParameters` counts JVM parameters. Prefer the Kotlin counterpart for suspend, extension, and default-argument functions. |
 | Utility classes and constants | Java static-member conventions do not map cleanly to file facades, companions, objects, and ordinary `val` properties. Use Kotlin object and constant rules. |
 | Logging, framework methods, test methods | Retain JVM semantics; annotation use-site targets, accessors, generated methods, and suspend signatures may matter. No automatic source adaptation is applied. |
 | Dependency cycles and forbidden dependencies | Include compiler-generated dependencies. Helpers are not globally removed from imported classes. |

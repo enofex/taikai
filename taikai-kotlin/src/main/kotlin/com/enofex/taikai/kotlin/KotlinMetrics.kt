@@ -18,7 +18,7 @@ fun MetricsConfigurer.functionsShouldNotExceedMaxParameters(
     max: Int,
     configuration: Configuration = Configuration.defaultConfiguration(),
 ): MetricsConfigurer {
-    require(max >= 0) { "Maximum parameter count must be non-negative" }
+    require(max >= 0) { "max must not be negative, but was $max" }
     return configure({ it.functionsShouldNotExceedMaxParameters(max, configuration) }, ::KotlinMetricsConfigurer)
 }
 

@@ -2882,7 +2882,7 @@ outside the selection still count.
 | [`packagesShouldNotExceedMaxClasses`](#packagesShouldNotExceedMaxClasses) | packages contain at most a given number of classes |
 | [`classesShouldNotExceedMaxDependencies`](#classesShouldNotExceedMaxDependencies) | classes depend on at most a given number of classes |
 | [`packagesShouldNotExceedMaxDependencies`](#packagesShouldNotExceedMaxDependencies) | packages depend on at most a given number of packages |
-| [`packagesShouldNotExceedMaxRelativeVisibility`](#packagesShouldNotExceedMaxRelativeVisibility) | packages keep most of their classes non-public |
+| [`packagesShouldNotExceedMaxRelativeVisibility`](#packagesShouldNotExceedMaxRelativeVisibility) | packages have at most a given share of public classes |
 
 ```java
 .metrics(metrics -> metrics
@@ -3339,7 +3339,6 @@ import static com.enofex.taikai.java.ImportPatterns.shaded;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
 
-
 class ArchitectureTest {
 
   @DisplayName("Should fulfill architecture constraints")
@@ -3378,8 +3377,11 @@ class ArchitectureTest {
                     ".*Configurer")
                 .classesShouldMatch(ClassCriteria.implementing(Configurer.class), ".*Configurer")
                 .classesShouldMatch(ClassCriteria.implementing(TaikaiCheck.class), ".*Check")
+                .classesShouldMatch(ClassCriteria.implementing(TaikaiExport.class), ".*Export")
                 .classesShouldMatch(ClassCriteria.implementing(CheckContext.class),
                     ".*CheckContext")
+                .classesShouldMatch(ClassCriteria.implementing(ExportContext.class),
+                    ".*ExportContext")
                 .interfacesShouldNotHavePrefixI()
                 .enumConstantsShouldFollowConventions()
                 .constantsShouldFollowConventions()))

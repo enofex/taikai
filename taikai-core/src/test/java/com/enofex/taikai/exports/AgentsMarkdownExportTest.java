@@ -97,6 +97,34 @@ class AgentsMarkdownExportTest {
   }
 
   @Test
+  void shouldIndentFurtherLinesOfMultiLineDescriptions() throws IOException {
+    Path file = this.directory.resolve("ARCHITECTURE.md");
+
+    Taikai.builder()
+        .namespace("com.company.project")
+        .addRule(TaikaiRule.of(ArchRuleDefinition.classes()
+            .should().haveSimpleNameNotEndingWith("Impl")
+            .as("Layered architecture, consisting of\nlayer 'Api'\r\nlayer 'Domain'")))
+        .discoverExports(exports -> exports
+            .exclude(SarifExport.class)
+            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
+        .build()
+        .export();
+
+    assertEquals("""
+            # Architecture Rules
+
+            The architecture test enforces these rules for `com.company.project`, so code that \
+            breaks one of them fails the build.
+
+            - Layered architecture, consisting of
+              layer 'Api'
+              layer 'Domain'
+            """,
+        Files.readString(file, StandardCharsets.UTF_8));
+  }
+
+  @Test
   void shouldReplaceFileAndCreateMissingDirectories() throws IOException {
     Path file = this.directory.resolve("docs/agents/ARCHITECTURE.md");
     Files.createDirectories(file.getParent());

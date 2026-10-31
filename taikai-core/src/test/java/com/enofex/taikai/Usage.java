@@ -160,7 +160,6 @@ class Usage {
             .methodsShouldNotDeclareGenericExceptions()
             .methodsShouldNotDeclareGenericExceptions(defaultConfiguration())
 
-
             .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC))
             .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
 

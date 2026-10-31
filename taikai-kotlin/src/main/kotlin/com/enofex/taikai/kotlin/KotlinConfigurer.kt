@@ -278,6 +278,7 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
 }
 
 /** A rule on Kotlin classes, checked against the declarations of their Kotlin metadata. */
+@JvmSynthetic
 internal fun kotlinRule(
     description: String,
     configuration: Configuration,

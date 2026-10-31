@@ -87,7 +87,8 @@ class KotlinConfigurerTest {
         assertTrue(failure.message!!.contains("overloaded(Ljava/lang/String;Ljava/lang/String;)"))
         assertTrue(failure.message!!.contains("defaults"))
         assertFalse(failure.message!!.contains("suspended"))
-        assertThrows<IllegalArgumentException> { measured(Plain::class.java) { functionsShouldNotExceedMaxParameters(-1) } }
+        val negative = assertThrows<IllegalArgumentException> { measured(Plain::class.java) { functionsShouldNotExceedMaxParameters(-1) } }
+        assertEquals("max must not be negative, but was -1", negative.message)
     }
 
     @Test

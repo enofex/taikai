@@ -1,6 +1,7 @@
 package com.enofex.taikai.exports;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
 
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
@@ -81,9 +82,18 @@ public final class AgentsMarkdownExport implements TaikaiExport {
     rules.stream()
         .map(rule -> rule.archRule().getDescription())
         .distinct()
-        .forEach(description -> markdown.append("- ").append(description).append('\n'));
+        .forEach(description -> markdown.append(listItem(description)));
 
     return markdown.toString();
+  }
+
+  /**
+   * Returns a description as a list item. Its further lines are indented, so that they belong to
+   * the item, and every line ends with {@code \n}, also for descriptions whose lines ArchUnit
+   * separates with the line separator of the platform, such as of layered architectures.
+   */
+  private static String listItem(String description) {
+    return description.lines().collect(joining("\n  ", "- ", "\n"));
   }
 
   private static void write(Path file, String content) {
