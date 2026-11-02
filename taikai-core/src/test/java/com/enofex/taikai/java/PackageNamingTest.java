@@ -28,7 +28,6 @@ class PackageNamingTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
-
   static class ValidPackageClass {
 
   }

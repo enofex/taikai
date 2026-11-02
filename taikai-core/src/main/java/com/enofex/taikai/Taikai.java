@@ -177,7 +177,7 @@ public final class Taikai {
    * </ul>
    *
    * <p>Patterns are matched against the fully qualified class name
-   * (e.g. {@code com.enofex.taikai.internal.a.MyClass}).</p>
+   * (e.g., {@code com.enofex.taikai.internal.a.MyClass}).</p>
    *
    * @return collection of class exclusion patterns
    */
@@ -253,7 +253,7 @@ public final class Taikai {
    * aggregates all failures into a single report. If violations exist, an {@link AssertionError} is
    * thrown with a detailed failure summary.</p>
    *
-   * @throws AssertionError if any rule or check violations are found.
+   * @throws AssertionError if any rule or check violations are found
    */
   public void checkAll() {
     logWarnings();
@@ -491,7 +491,7 @@ public final class Taikai {
    * then call {@link #build()} to produce a {@link Taikai} ready for {@link Taikai#check()} or
    * {@link Taikai#checkAll()}.</p>
    *
-   * <h2>Example</h2>
+   * <h2>Example Usage</h2>
    * <pre>{@code
    * Taikai.builder()
    *     .namespace("com.company.project")
@@ -845,7 +845,7 @@ public final class Taikai {
      * @param customizer the configuration callback
      * @param supplier factory receiving this builder's configuration context
      * @param <T> the extension configurer type
-     * @return this builder
+     * @return this builder for fluent chaining
      */
     public <T extends Configurer> Builder configure(Customizer<T> customizer,
         Function<ConfigurerContext, T> supplier) {
@@ -862,8 +862,9 @@ public final class Taikai {
      * Builds the configured {@link Taikai} instance.
      *
      * @return a new {@link Taikai} instance ready for {@link Taikai#check()} or
-     *         {@link Taikai#checkAll()}
-     * @throws IllegalArgumentException if both {@link #namespace} and {@link #classes} are set
+     *     {@link Taikai#checkAll()}
+     * @throws IllegalArgumentException if both {@link #namespace(String)} and
+     *     {@link #classes(JavaClasses)} are set
      * @throws TaikaiException if a registered check or export cannot be loaded or instantiated,
      *     if an excluded check or export is not registered, or if a configured check or export is
      *     not registered or is excluded

@@ -89,7 +89,7 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
    *
    * <p>Only annotations declared on the called method are taken into account. Since the receiver
    * of a call cannot be determined statically, calls on another instance of the same class, such
-   * as the self injection workaround, are reported as well. Use {@link Configuration} to exclude
+   * as the self-injection workaround, are reported as well. Use {@link Configuration} to exclude
    * those classes.</p>
    *
    * @return this configurer for fluent chaining

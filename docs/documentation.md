@@ -542,7 +542,7 @@ that selects methods.
 #### Class criteria
 
 `ClassCriteria` selects the classes a rule applies to. Rules that restrict sets of types, such as
-[`noUsageOf`](#noUsageOf), [`shouldNotImport`](#imports-shouldNotImport) or
+[`noUsageOf`](#noUsageOf), [`shouldNotImport`](#imports-shouldNotImport),
 [`methodsShouldNotReturnForClass`](#methodsShouldNotReturnForClass) or
 [`fieldsShouldNotBeOfType`](#fieldsShouldNotBeOfType), take class criteria for those
 types too, and `FieldCriteria.ofType(...)` selects fields by class criteria on their type.

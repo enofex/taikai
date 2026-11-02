@@ -12,7 +12,7 @@ package com.enofex.taikai.exports.spi;
  * name in the file {@code META-INF/services/com.enofex.taikai.exports.spi.TaikaiExport}. An export
  * must be a public class with a public constructor without parameters.</p>
  *
- * <h2>Example</h2>
+ * <h2>Example Usage</h2>
  * <pre>{@code
  * public final class RuleCountExport implements TaikaiExport {
  *
@@ -50,8 +50,9 @@ public interface TaikaiExport {
   /**
    * Runs this export, usually by writing a file.
    *
-   * <p>If this method throws an exception, {@link com.enofex.taikai.Taikai#export()} stops and
-   * throws a {@code TaikaiException} that names this export.</p>
+   * <p>If this method throws an exception, fails an assertion or misses a class,
+   * {@link com.enofex.taikai.Taikai#export()} stops and throws a {@code TaikaiException} that
+   * names this export.</p>
    *
    * @param context the project that is exported
    */

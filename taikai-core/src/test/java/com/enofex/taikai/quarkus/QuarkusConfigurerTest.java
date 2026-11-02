@@ -8,38 +8,38 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-public class QuarkusConfigurerTest {
+class QuarkusConfigurerTest {
 
   @Nested
   class FieldsNotUsingInject {
 
     @Test
     void shouldThrowAnExceptionWhenFieldsAreAnnotatedWithInject() {
-
       Taikai taikai = Taikai.builder()
           .classes(Injection.class)
           .quarkus(QuarkusConfigurer::noInjectionFields)
           .build();
+
       assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
     void shouldThrowAnExceptionWhenFieldsAreAnnotatedWithInjectAndAParameterConstructor() {
-
       Taikai taikai = Taikai.builder()
           .classes(InjectionWithConstructor.class)
           .quarkus(QuarkusConfigurer::noInjectionFields)
           .build();
+
       assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
-    void shoutNotThrowAnExceptionIfOnlyConstructorUsed() {
-
+    void shouldNotThrowAnExceptionIfOnlyConstructorUsed() {
       Taikai taikai = Taikai.builder()
           .classes(NoInjection.class)
           .quarkus(QuarkusConfigurer::noInjectionFields)
           .build();
+
       assertDoesNotThrow(taikai::check);
     }
   }
@@ -103,5 +103,4 @@ public class QuarkusConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
   }
-
 }

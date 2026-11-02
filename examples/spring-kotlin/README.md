@@ -8,7 +8,7 @@ reported as one test each. The code is packaged by feature: everything in `task`
 
 From the repository root, with JDK 17 or later:
 
-```sh
+```shell
 ./mvnw -pl examples/spring-kotlin -am verify
 java -jar examples/spring-kotlin/target/taikai-spring-kotlin-demo-*.jar
 

@@ -189,7 +189,7 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
             } else emptyList()
         }
 
-    /** Companion objects are distinct and do not satisfy the regular-object requirement. */
+    /** Requires Kotlin classes selected by simple-name regex to be objects. Companion objects do not satisfy this. */
     @JvmOverloads
     fun classesShouldBeObjects(
         regex: String,

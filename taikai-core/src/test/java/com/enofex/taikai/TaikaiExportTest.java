@@ -10,10 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.enofex.taikai.exports.spi.TestExports;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.importer.ClassFileImporter;

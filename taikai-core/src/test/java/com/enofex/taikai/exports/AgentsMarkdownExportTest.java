@@ -21,7 +21,7 @@ import org.junit.jupiter.api.io.TempDir;
 class AgentsMarkdownExportTest {
 
   @TempDir
-  Path directory;
+  private Path directory;
 
   @Test
   void shouldWriteDescriptionsOfRules() throws IOException {

@@ -94,7 +94,6 @@ class ProtectedMembersTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
-
   static final class ValidFinalClass {
 
     private int privateField;

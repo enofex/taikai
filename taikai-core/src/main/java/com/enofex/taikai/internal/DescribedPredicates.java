@@ -8,7 +8,8 @@ import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import java.util.Collection;
 
 /**
- * Internal utility class for defining general DescribedPredicate used in architectural rules.
+ * Internal utility class for defining general {@link DescribedPredicate}s used in architectural
+ * rules.
  * <p>
  * This class is intended for internal use only and is not part of the public API. Developers should
  * not rely on this class for any public API usage.

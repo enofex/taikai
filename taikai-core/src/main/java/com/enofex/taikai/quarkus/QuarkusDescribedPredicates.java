@@ -12,7 +12,6 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 
 final class QuarkusDescribedPredicates {
 
-
   static final String ANNOTATION_INJECT = "jakarta.inject.Inject";
   static final String ANNOTATION_PATH = "jakarta.ws.rs.Path";
   static final String ANNOTATION_ENTITY = "jakarta.persistence.Entity";

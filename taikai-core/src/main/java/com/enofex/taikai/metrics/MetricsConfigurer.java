@@ -31,9 +31,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Configures rules that limit code metrics using {@link com.tngtech.archunit ArchUnit} through
- * the Taikai framework: the depth of inheritance, the number of method parameters, the size of
- * packages, and the coupling between classes and between packages.
+ * Configures and enforces rules that limit code metrics using {@link com.tngtech.archunit ArchUnit}
+ * through the Taikai framework: the depth of inheritance, the number of method parameters, the size
+ * of packages, and the coupling between classes and between packages.
  *
  * <p>Only checked classes count, never those of the JDK or of frameworks. Rules that take criteria
  * check only the matching classes or methods, but still count all checked classes. Every package
@@ -46,7 +46,8 @@ import java.util.function.Function;
  *     .metrics(metrics -> metrics
  *         .classesShouldNotExceedMaxInheritanceDepth(3)
  *         .classesShouldNotExceedMaxDependencies(20)
- *         .classesShouldNotExceedMaxDependencies(ClassCriteria.nameMatching(".*Controller"), 5));
+ *         .classesShouldNotExceedMaxDependencies(ClassCriteria.nameMatching(".*Controller"), 5)
+ *     );
  * }</pre>
  */
 public final class MetricsConfigurer extends AbstractConfigurer implements DisableableConfigurer {

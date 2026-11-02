@@ -30,7 +30,7 @@ class ArchitectureTest {
                 .fieldsShouldNotMatch(".*(List|Set|Map)$")
                 .constantsShouldFollowConventions()
                 .enumConstantsShouldFollowConventions()
-                .interfacesShouldNotHavePrefixI()))            
+                .interfacesShouldNotHavePrefixI()))
         .test(test -> test
             .junit(junit -> junit
                 .classesShouldNotBeAnnotatedWithDisabled()

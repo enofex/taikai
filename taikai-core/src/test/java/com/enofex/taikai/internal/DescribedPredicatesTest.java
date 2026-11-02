@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import java.util.Collections;
 import java.util.Set;
@@ -62,8 +63,7 @@ class DescribedPredicatesTest {
 
   @Test
   void shouldReturnTrueWhenClassIsFinal() {
-    when(this.javaClass.getModifiers()).thenReturn(
-        Set.of(com.tngtech.archunit.core.domain.JavaModifier.FINAL));
+    when(this.javaClass.getModifiers()).thenReturn(Set.of(JavaModifier.FINAL));
 
     assertTrue(DescribedPredicates.areFinal().test(this.javaClass));
   }

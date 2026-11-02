@@ -134,8 +134,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotReturn(DescribedPredicate, DescribedPredicate)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldNotReturn(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param forbiddenTypes the forbidden return types
@@ -161,7 +161,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * generic arguments, bounds, and array components. All method visibilities are checked.
    * Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the types.
    *
-   * @param classes the classes whose declared methods are checked
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @param forbiddenTypes the forbidden return types
    * @return this configurer for fluent chaining
    * @see com.enofex.taikai.ClassCriteria
@@ -174,8 +175,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotReturnForClass(DescribedPredicate, DescribedPredicate)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldNotReturnForClass(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param forbiddenTypes the forbidden return types
@@ -216,8 +217,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldReturn(DescribedPredicate, DescribedPredicate)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldReturn(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param requiredTypes the required return types
@@ -244,7 +245,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * All method visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit
    * predicates to select the types.
    *
-   * @param classes the classes whose declared methods are checked
+   * @param classes the classes whose declared methods are checked, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @param requiredTypes the required return types
    * @return this configurer for fluent chaining
    * @see com.enofex.taikai.ClassCriteria
@@ -257,8 +259,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldReturnForClass(DescribedPredicate, DescribedPredicate)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldReturnForClass(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param requiredTypes the required return types
@@ -283,7 +285,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    * and have only private constructors.
    *
    * <p>A utility class is a class whose methods are all {@code static}, without a {@code main}
-   * method. Interfaces and classes extending another class than {@code Object}, such as enums and
+   * method. Interfaces and classes extending a class other than {@code Object}, such as enums and
    * records, are not utility classes.</p>
    *
    * @return this configurer for fluent chaining
@@ -328,7 +330,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
     return addRule(TaikaiRule.of(methods()
         .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().notDeclareThrowableOfType(Exception.class)
-         .andShould().notDeclareThrowableOfType(RuntimeException.class)
+        .andShould().notDeclareThrowableOfType(RuntimeException.class)
         .as("Methods should not declare generic Exception or RuntimeException"), configuration));
   }
 
@@ -349,8 +351,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param clazz the exception type that must not be declared
@@ -382,8 +384,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param typeName the fully qualified name of the exception type that must not be declared
@@ -424,8 +426,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, DescribedPredicate)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldNotDeclareException(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param forbiddenTypes the exception types that must not be declared, selected with
@@ -467,8 +469,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate, Class)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param clazz the exception type
@@ -500,8 +502,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate, String)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param typeName the exception type name
@@ -540,8 +542,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate,
-   * DescribedPredicate)}, with a custom configuration.
+   * See {@link #methodsShouldNotDeclareExceptionForClass(DescribedPredicate, DescribedPredicate)},
+   * but with {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param forbiddenTypes the forbidden exception types
@@ -578,8 +580,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldBeAnnotatedWith(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param annotationType the annotation that must be present
@@ -600,7 +602,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
-   * @param annotationType the annotation that must be present
+   * @param annotationType the fully qualified name of the annotation that must be present
    * @return this configurer for fluent chaining
    * @see com.enofex.taikai.MethodCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
@@ -611,11 +613,11 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldBeAnnotatedWith(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldBeAnnotatedWith(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
-   * @param annotationType the annotation that must be present
+   * @param annotationType the fully qualified name of the annotation that must be present
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @see com.enofex.taikai.MethodCriteria
@@ -653,8 +655,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldBeAnnotatedWithForClass(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldBeAnnotatedWithForClass(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param annotationType the required annotation class
@@ -688,8 +690,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldBeAnnotatedWithForClass(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldBeAnnotatedWithForClass(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param annotationType the required annotation type name
@@ -727,8 +729,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldBeAnnotatedWithAll(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldBeAnnotatedWithAll(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param requiredAnnotationTypes the required annotation type names
@@ -767,8 +769,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldBeAnnotatedWithAllForClass(DescribedPredicate, Collection)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldBeAnnotatedWithAllForClass(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param requiredAnnotationTypes the required annotation type names
@@ -807,8 +809,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotBeAnnotatedWith(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param annotationType the forbidden annotation
@@ -840,8 +842,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotBeAnnotatedWith(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotBeAnnotatedWith(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param annotationType the forbidden annotation type name
@@ -879,8 +881,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotBeAnnotatedWithForClass(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotBeAnnotatedWithForClass(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param annotationType the forbidden annotation
@@ -913,8 +915,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotBeAnnotatedWithForClass(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotBeAnnotatedWithForClass(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param annotationType the forbidden annotation type name
@@ -951,8 +953,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldHaveModifiers(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldHaveModifiers(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param requiredModifiers the modifiers that must be present
@@ -991,8 +993,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldHaveModifiersForClass(DescribedPredicate, Collection)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldHaveModifiersForClass(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param requiredModifiers the modifiers that must be present
@@ -1031,8 +1033,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotHaveModifiers(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #methodsShouldNotHaveModifiers(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param methods the methods to check
    * @param forbiddenModifiers the modifiers that must not be present
@@ -1073,8 +1075,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #methodsShouldNotHaveModifiersForClass(DescribedPredicate, Collection)}, with a
-   * custom configuration.
+   * See {@link #methodsShouldNotHaveModifiersForClass(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param forbiddenModifiers the modifiers that must not be present
@@ -1161,8 +1163,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldResideInPackage(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #classesShouldResideInPackage(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param packageIdentifier the required package
@@ -1198,8 +1200,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldResideOutsidePackage(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #classesShouldResideOutsidePackage(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param packageIdentifier the forbidden package
@@ -1234,7 +1236,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBeRecords(DescribedPredicate)}, with a custom configuration.
+   * See {@link #classesShouldBeRecords(DescribedPredicate)}, but with {@link Configuration} for
+   * customization.
    *
    * @param classes the classes to check
    * @param configuration the rule configuration
@@ -1267,7 +1270,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBeInterfaces(DescribedPredicate)}, with a custom configuration.
+   * See {@link #classesShouldBeInterfaces(DescribedPredicate)}, but with {@link Configuration} for
+   * customization.
    *
    * @param classes the classes to check
    * @param configuration the rule configuration
@@ -1303,8 +1307,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBeAnnotatedWithAll(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #classesShouldBeAnnotatedWithAll(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param requiredAnnotationTypes the required annotation type names
@@ -1349,8 +1353,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldHaveField(DescribedPredicate, DescribedPredicate)}, with a custom
-   * configuration.
+   * See {@link #classesShouldHaveField(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param requiredFields the field that must be present
@@ -1389,8 +1393,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #classesShouldBeAnnotatedWith(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param annotationType the required annotation
@@ -1421,8 +1425,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBeAnnotatedWith(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #classesShouldBeAnnotatedWith(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param annotationType the required annotation type name
@@ -1459,8 +1463,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldNotBeAnnotatedWith(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #classesShouldNotBeAnnotatedWith(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param annotationType the forbidden annotation
@@ -1492,8 +1496,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldNotBeAnnotatedWith(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #classesShouldNotBeAnnotatedWith(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param annotationType the forbidden annotation type name
@@ -1514,7 +1518,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all classes implement both {@code hashCode()} and {@code equals()}.
+   * Adds a rule enforcing that classes implementing one of {@code hashCode()} or {@code equals()}
+   * implement both.
    *
    * @return this configurer for fluent chaining
    */
@@ -1523,8 +1528,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all classes implement both {@code hashCode()} and {@code equals()},
-   * using a custom configuration.
+   * Adds a rule enforcing that classes implementing one of {@code hashCode()} or {@code equals()}
+   * implement both, using a custom configuration.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -1552,8 +1557,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBeAssignableTo(DescribedPredicate, Class)}, with a custom
-   * configuration.
+   * See {@link #classesShouldBeAssignableTo(DescribedPredicate, Class)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param clazz the target class type
@@ -1584,8 +1589,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBeAssignableTo(DescribedPredicate, String)}, with a custom
-   * configuration.
+   * See {@link #classesShouldBeAssignableTo(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param typeName the target type name
@@ -1621,7 +1626,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldImplement(DescribedPredicate, Class)}, with a custom configuration.
+   * See {@link #classesShouldImplement(DescribedPredicate, Class)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the classes to check
    * @param clazz the interface class
@@ -1652,7 +1658,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldImplement(DescribedPredicate, String)}, with a custom configuration.
+   * See {@link #classesShouldImplement(DescribedPredicate, String)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the classes to check
    * @param typeName the interface type name
@@ -1688,8 +1695,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldHaveModifiers(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #classesShouldHaveModifiers(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param requiredModifiers the modifiers that must be present
@@ -1727,8 +1734,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldNotHaveModifiers(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #classesShouldNotHaveModifiers(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param forbiddenModifiers the modifiers that must not be present
@@ -1764,7 +1771,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #classesShouldBePackagePrivate(DescribedPredicate)}, with a custom configuration.
+   * See {@link #classesShouldBePackagePrivate(DescribedPredicate)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the classes to check
    * @param configuration the rule configuration
@@ -1823,8 +1831,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #fieldsShouldHaveModifiers(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #fieldsShouldHaveModifiers(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param fields the fields to check
    * @param requiredModifiers the modifiers that must be present
@@ -1863,8 +1871,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #fieldsShouldHaveModifiersForClass(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #fieldsShouldHaveModifiersForClass(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared fields are checked
    * @param requiredModifiers the modifiers that must be present
@@ -1903,8 +1911,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #fieldsShouldNotHaveModifiers(DescribedPredicate, Collection)}, with a custom
-   * configuration.
+   * See {@link #fieldsShouldNotHaveModifiers(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param fields the fields to check
    * @param forbiddenModifiers the modifiers that must not be present
@@ -1946,8 +1954,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #fieldsShouldNotHaveModifiersForClass(DescribedPredicate, Collection)}, with a
-   * custom configuration.
+   * See {@link #fieldsShouldNotHaveModifiersForClass(DescribedPredicate, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared fields are checked
    * @param forbiddenModifiers the modifiers that must not be present
@@ -1991,8 +1999,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #fieldsShouldNotBeOfType(DescribedPredicate, DescribedPredicate)}, with a custom
-   * configuration.
+   * See {@link #fieldsShouldNotBeOfType(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param fields the fields to check
    * @param forbiddenTypes the forbidden field types
@@ -2034,8 +2042,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #fieldsShouldNotBeOfTypeForClass(DescribedPredicate, DescribedPredicate)}, with a
-   * custom configuration.
+   * See {@link #fieldsShouldNotBeOfTypeForClass(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared fields are checked
    * @param forbiddenTypes the forbidden field types
@@ -2067,7 +2075,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of a specific class, with a custom configuration.
+   * Adds a rule prohibiting usage of a specific class, using a custom configuration.
    *
    * @param clazz the class type that must not be used
    * @param configuration the rule configuration
@@ -2116,7 +2124,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #noUsageOf(DescribedPredicate, Class)}, with a custom configuration.
+   * See {@link #noUsageOf(DescribedPredicate, Class)}, but with {@link Configuration} for
+   * customization.
    *
    * @param classes the classes in which usage is disallowed
    * @param clazz the class type that must not be used, including its subtypes
@@ -2146,7 +2155,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #noUsageOf(DescribedPredicate, String)}, with a custom configuration.
+   * See {@link #noUsageOf(DescribedPredicate, String)}, but with {@link Configuration} for
+   * customization.
    *
    * @param classes the classes in which usage is disallowed
    * @param typeName the fully qualified class name that must not be used, including its subtypes
@@ -2180,7 +2190,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #noUsageOf(DescribedPredicate)}, with a custom configuration.
+   * See {@link #noUsageOf(DescribedPredicate)}, but with {@link Configuration} for customization.
    *
    * @param forbiddenTypes the types that must not be used
    * @param configuration the rule configuration
@@ -2215,7 +2225,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * See {@link #noUsageOf(DescribedPredicate, DescribedPredicate)}, with a custom configuration.
+   * See {@link #noUsageOf(DescribedPredicate, DescribedPredicate)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the classes in which usage is disallowed
    * @param forbiddenTypes the types that must not be used

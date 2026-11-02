@@ -39,7 +39,6 @@ class SerialVersionUIDTest {
     assertDoesNotThrow(taikai::check);
   }
 
-
   static class ValidSerialVersionUID implements Serializable {
 
     private static final long serialVersionUID = 1L;

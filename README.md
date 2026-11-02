@@ -99,7 +99,7 @@ void architecture() {
                   ClassCriteria.type(Date.class).or(ClassCriteria.assignableTo(Date.class))
                       .or(ClassCriteria.type(Calendar.class))
                       .or(ClassCriteria.assignableTo(Calendar.class)))
-              .namesShouldMatch(".+Entity")))    
+              .namesShouldMatch(".+Entity")))
       .metrics(metrics -> metrics
           .classesShouldNotExceedMaxInheritanceDepth(3)
           .classesShouldNotExceedMaxDependencies(20))
@@ -195,7 +195,7 @@ Explore the complete [documentation](https://enofex.github.io/taikai) for compre
 
 ## Contributing
 
-Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved. Note, that we expect everyone to follow the [Code of Conduct](https://github.com/enofex/taikai/blob/main/CODE_OF_CONDUCT.md).
+Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved. Note that we expect everyone to follow the [Code of Conduct](https://github.com/enofex/taikai/blob/main/CODE_OF_CONDUCT.md).
 
 ### What you will need
 

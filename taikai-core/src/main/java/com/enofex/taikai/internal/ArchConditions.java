@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 
 /**
- * Internal utility class for defining general ArchCondition used in architectural rules.
+ * Internal utility class for defining general {@link ArchCondition}s used in architectural rules.
  * <p>
  * This class is intended for internal use only and is not part of the public API. Developers should
  * not rely on this class for any public API usage.

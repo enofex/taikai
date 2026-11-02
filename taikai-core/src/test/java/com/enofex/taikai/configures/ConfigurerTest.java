@@ -24,7 +24,6 @@ class ConfigurerTest {
     assertTrue(configurer.rules().isEmpty());
   }
 
-
   private static final class TestConfigurer implements Configurer {
 
     private final Collection<TaikaiRule> rules = new ArrayList<>();

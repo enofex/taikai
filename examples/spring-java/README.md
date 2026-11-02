@@ -8,7 +8,7 @@ package-private, and only `TaskApplication` is public.
 
 From the repository root, with JDK 17 or later:
 
-```sh
+```shell
 ./mvnw -pl examples/spring-java -am verify
 java -jar examples/spring-java/target/taikai-spring-java-demo-*.jar
 

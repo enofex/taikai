@@ -1,4 +1,3 @@
-
 package com.enofex.taikai;
 
 import static java.util.Collections.emptyList;
@@ -202,7 +201,7 @@ class TaikaiTest {
   void shouldExcludeClassesUsingCollectionOverload() {
     Taikai taikai = Taikai.builder()
         .namespace(VALID_NAMESPACE)
-        .excludeClasses(java.util.List.of("com.enofex.taikai.Excluded1",
+        .excludeClasses(List.of("com.enofex.taikai.Excluded1",
             "com.enofex.taikai.Excluded2"))
         .build();
 

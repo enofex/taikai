@@ -35,7 +35,7 @@ class SarifExportTest {
   private static final Path CYCLE = Path.of("src/test/java/com/enofex/taikai/exports/cycle");
 
   @TempDir
-  Path directory;
+  private Path directory;
 
   @Test
   void shouldWriteViolationsWithTheirLocation() throws IOException {

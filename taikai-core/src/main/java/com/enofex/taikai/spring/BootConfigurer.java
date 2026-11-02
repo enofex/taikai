@@ -110,7 +110,6 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
             ANNOTATION_SPRING_BOOT_APPLICATION, packageIdentifier)), configuration));
   }
 
-
   @Override
   public BootConfigurer disable() {
     disable(BootConfigurer.class);

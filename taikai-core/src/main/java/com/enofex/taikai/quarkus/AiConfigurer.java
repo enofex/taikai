@@ -49,7 +49,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that an AI Service have names ending with {@code Assistant} or {@code Service}.
+   * Adds a rule enforcing that AI services have names ending with {@code Assistant} or
+   * {@code Service}.
    *
    * @return this configurer for fluent chaining
    */
@@ -58,7 +59,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * See {@link #namesShouldEndWithAssistantOrService()}, but with {@link Configuration} for customization.
+   * See {@link #namesShouldEndWithAssistantOrService()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -68,7 +70,7 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that AI Service class names match the given regex.
+   * Adds a rule enforcing that AI service class names match the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -92,8 +94,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code RegisterAiService}
-   * are annotated with {@code ApplicationScoped}.
+   * Adds a rule enforcing that classes annotated with {@code @RegisterAiService}
+   * are annotated with {@code @ApplicationScoped}.
    *
    * @return this configurer for fluent chaining
    */
@@ -102,7 +104,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithApplicationScoped()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithApplicationScoped()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -117,8 +120,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code RegisterAiService}
-   * are not using {@code tools} attribute to define Tools.
+   * Adds a rule enforcing that classes annotated with {@code @RegisterAiService}
+   * do not use the {@code tools} attribute to define tools.
    *
    * @return this configurer for fluent chaining
    */
@@ -127,7 +130,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * See {@link #shouldNotUseToolsAttributeInAiService()}, but with {@link Configuration} for customization.
+   * See {@link #shouldNotUseToolsAttributeInAiService()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -140,10 +144,10 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
         configuration));
   }
 
-
   @Override
   public AiConfigurer disable() {
     disable(AiConfigurer.class);
+
     return this;
   }
 }

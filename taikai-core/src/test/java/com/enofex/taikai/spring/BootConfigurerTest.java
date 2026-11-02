@@ -69,7 +69,7 @@ class BootConfigurerTest {
           .classes(CorrectPackageApplication.class)
           .spring(spring -> spring.boot(
               boot -> boot.applicationClassShouldResideInPackage("com.enofex.taikai.spring",
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);

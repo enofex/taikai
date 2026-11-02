@@ -39,7 +39,7 @@ class LoggingConfigurerTest {
 
   /**
    * Violations in base classes should not be reported, as the base class may be part
-   * of an external library, which is not under control of the developer.
+   * of an external library, which is not under the control of the developer.
    */
   @Test
   void shouldApplyLoggerConventionsEvenIfLoggerInBaseClassDoesNotFollowConventions() {

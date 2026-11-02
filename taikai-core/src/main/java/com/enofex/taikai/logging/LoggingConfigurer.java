@@ -29,8 +29,9 @@ import java.util.stream.Collectors;
  * Taikai.builder()
  *     .namespace("com.company.project")
  *     .logging(logging -> logging
- *             .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), "org.slf4j.Logger")
- *             .loggersShouldFollowConventions("org.slf4j.Logger", ".*", List.of(JavaModifier.PRIVATE, JavaModifier.STATIC))
+ *         .classesShouldUseLogger(ClassCriteria.nameMatching(".*Service"), "org.slf4j.Logger")
+ *         .loggersShouldFollowConventions("org.slf4j.Logger", ".*",
+ *             List.of(JavaModifier.PRIVATE, JavaModifier.STATIC))
  *     );
  * }</pre>
  */
@@ -127,7 +128,8 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #loggersShouldFollowConventions(String, String)}, but with {@link Configuration} for customization.
+   * See {@link #loggersShouldFollowConventions(String, String)}, but with {@link Configuration}
+   * for customization.
    *
    * @param typeName the fully qualified logger type
    * @param regex the regex that logger field names must match
@@ -155,7 +157,8 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #loggersShouldFollowConventions(Class, String)}, but with {@link Configuration} for customization.
+   * See {@link #loggersShouldFollowConventions(Class, String)}, but with {@link Configuration}
+   * for customization.
    *
    * @param clazz the logger type
    * @param regex the regex that logger field names must match
@@ -201,7 +204,8 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #loggersShouldFollowConventions(Class, String, Collection)}, but with {@link Configuration} for customization.
+   * See {@link #loggersShouldFollowConventions(Class, String, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param clazz the logger type
    * @param regex the regex that logger field names must match
@@ -216,7 +220,8 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #loggersShouldFollowConventions(String, String, Collection)}, but with {@link Configuration} for customization.
+   * See {@link #loggersShouldFollowConventions(String, String, Collection)}, but with
+   * {@link Configuration} for customization.
    *
    * @param typeName the fully qualified logger type
    * @param regex the regex that logger field names must match

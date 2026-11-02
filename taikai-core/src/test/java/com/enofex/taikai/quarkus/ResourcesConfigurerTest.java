@@ -10,7 +10,7 @@ import jakarta.ws.rs.Path;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-public class ResourcesConfigurerTest {
+class ResourcesConfigurerTest {
 
   @Nested
   class NamesShouldEndWithResources {
@@ -34,7 +34,6 @@ public class ResourcesConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
-
   }
 
   @Nested
@@ -132,7 +131,6 @@ public class ResourcesConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
   }
-
 
   @Nested
   class NamesShouldMatch {
@@ -474,5 +472,4 @@ public class ResourcesConfigurerTest {
       assertThrows(AssertionError.class, taikai::check);
     }
   }
-
 }

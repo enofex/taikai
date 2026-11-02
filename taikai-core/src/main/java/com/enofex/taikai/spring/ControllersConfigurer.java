@@ -80,7 +80,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #methodsShouldNotReturn(DescribedPredicate)}, with a custom configuration.
+   * See {@link #methodsShouldNotReturn(DescribedPredicate)}, but with {@link Configuration} for
+   * customization.
    *
    * @param forbiddenTypes the forbidden return types
    * @param configuration the rule configuration
@@ -116,7 +117,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #methodsShouldReturn(DescribedPredicate)}, with a custom configuration.
+   * See {@link #methodsShouldReturn(DescribedPredicate)}, but with {@link Configuration} for
+   * customization.
    *
    * @param requiredTypes the required return types
    * @param configuration the rule configuration
@@ -189,7 +191,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithRestController()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithRestController()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -215,7 +218,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithRestController(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithRestController(DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the controller classes
    * @param configuration the rule configuration
@@ -246,7 +250,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithController()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithController()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -272,7 +277,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithController(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithController(DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the controller classes
    * @param configuration the rule configuration
@@ -323,7 +329,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldNotDependOnOtherControllers()}, but with {@link Configuration} for customization.
+   * See {@link #shouldNotDependOnOtherControllers()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -377,7 +384,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithValidated(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithValidated(DescribedPredicate)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the controller classes
    * @param configuration the rule configuration
@@ -409,7 +417,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithValidated()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithValidated()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -439,7 +448,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldNotBeAnnotatedWithValidated(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldNotBeAnnotatedWithValidated(DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the controller classes
    * @param configuration the rule configuration
@@ -459,7 +469,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that all controllers should not be annotated with validation.
+   * Adds a rule enforcing that all controllers should not be annotated with {@code @Validated}.
    *
    * @return this configurer for fluent chaining
    */
@@ -468,7 +478,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * See {@link #shouldNotBeAnnotatedWithValidated()}, but with {@link Configuration} for customization.
+   * See {@link #shouldNotBeAnnotatedWithValidated()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining

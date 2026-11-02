@@ -161,12 +161,12 @@ class KotlinConfigurerTest {
 
     @Test
     fun `generated default helpers retain forbidden bytecode dependencies`() {
-        val rule = com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses()
+        val rule = ArchRuleDefinition.noClasses()
             .that().haveSimpleName("DefaultDependency")
             .should().dependOnClassesThat().haveSimpleName("JavaDependency")
         val imported = ClassFileImporter().importClasses(DefaultDependency::class.java, JavaDependency::class.java)
         val failure = assertThrows<AssertionError> {
-            Taikai.builder().classes(imported).addRule(com.enofex.taikai.TaikaiRule.of(rule))
+            Taikai.builder().classes(imported).addRule(TaikaiRule.of(rule))
                 .build().checkAll()
         }
         assertTrue(failure.message!!.contains("text$" + "default"))

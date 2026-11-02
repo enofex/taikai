@@ -16,7 +16,7 @@ class ClassRecordTest {
   class ClassesShouldBeRecordsByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassesAreRecords_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedClassesAreRecordsUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
           .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class)))
@@ -26,7 +26,7 @@ class ClassRecordTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassesAreNotRecords_ClassVersion() {
+    void shouldThrowWhenAnnotatedClassesAreNotRecordsUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(InvalidNonRecord.class)
           .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class)))
@@ -36,7 +36,7 @@ class ClassRecordTest {
     }
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassesAreRecords_StringVersion() {
+    void shouldNotThrowWhenAnnotatedClassesAreRecordsUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
           .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class.getName())))
@@ -46,7 +46,7 @@ class ClassRecordTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassesAreNotRecords_StringVersion() {
+    void shouldThrowWhenAnnotatedClassesAreNotRecordsUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(InvalidNonRecord.class)
           .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class.getName())))
@@ -56,7 +56,7 @@ class ClassRecordTest {
     }
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassesAreRecords_ClassWithConfiguration() {
+    void shouldNotThrowWhenAnnotatedClassesAreRecordsUsingClassWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(ValidRecord.class)
           .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(TestAnnotation.class),

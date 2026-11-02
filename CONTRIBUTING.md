@@ -59,7 +59,7 @@ committer for this project.
 Please follow the Google Java Style Guide when writing Java code for this project. You can also import the IntelliJ IDEA code style configuration file for Java from [here](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml).
 
 
-## Building the Java and Kotlin modules
+### Building the Java and Kotlin modules
 
 The root POM builds `taikai-core` (published as `com.enofex:taikai`),
 `taikai-kotlin`, `examples/spring-java`, and `examples/spring-kotlin`. Existing Java

@@ -25,7 +25,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that service-layer classes follow consistent naming conventions,
- * are properly annotated with {@code @Service}, and maintain clean architecture boundaries
+ * are properly annotated with {@code @Service}, and maintain clean architectural boundaries
  * by not depending on controller-layer components.</p>
  *
  * <h2>Example Usage</h2>
@@ -133,7 +133,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithService(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithService(DescribedPredicate)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the service classes
    * @param configuration the rule configuration
@@ -162,7 +163,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * See {@link #shouldNotDependOnOtherServices()}, but with {@link Configuration} for customization.
+   * See {@link #shouldNotDependOnOtherServices()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining

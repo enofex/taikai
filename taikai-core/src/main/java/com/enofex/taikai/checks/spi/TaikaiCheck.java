@@ -15,7 +15,7 @@ import java.util.List;
  * name in the file {@code META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck}. A check
  * must be a public class with a public constructor without parameters.</p>
  *
- * <h2>Example</h2>
+ * <h2>Example Usage</h2>
  * <pre>{@code
  * public final class LicenseCheck implements TaikaiCheck {
  *

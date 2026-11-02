@@ -34,10 +34,9 @@ import java.util.List;
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that naming across a Java codebase remains consistent and
- * predictable,
- * enforcing rules for package naming patterns, class prefixes/suffixes, method naming styles, field
- * names, and constant conventions. It allows customization for specific naming schemes and
- * integrates with the Taikai builder to apply these checks automatically.</p>
+ * predictable, enforcing rules for package naming patterns, class prefixes/suffixes, method naming
+ * styles, field names, and constant conventions. It allows customization for specific naming
+ * schemes and integrates with the Taikai builder to apply these checks automatically.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -99,7 +98,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that packages match the given regular expression.
+   * Enforces that packages match the given regex.
    *
    * @param regex the regex that package names must match
    * @return this configurer for fluent chaining
@@ -109,7 +108,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that packages match the given regular expression using a custom configuration.
+   * Enforces that packages match the given regex using a custom configuration.
    *
    * @param regex the regex that package names must match
    * @param configuration the rule configuration
@@ -122,7 +121,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all classes to have names matching the given regular expression.
+   * Requires all classes to have names matching the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -132,8 +131,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all classes to have names matching the given regular expression using a custom
-   * configuration.
+   * Requires all classes to have names matching the given regex using a custom configuration.
    *
    * @param regex the regex that fully qualified class names must match
    * @param configuration the rule configuration
@@ -147,7 +145,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits classes whose names match the given regular expression.
+   * Prohibits classes whose names match the given regex.
    *
    * @param regex the regex that fully qualified class names must not match
    * @return this configurer for fluent chaining
@@ -157,7 +155,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits classes whose names match the given regular expression using a custom configuration.
+   * Prohibits classes whose names match the given regex using a custom configuration.
    *
    * @param regex the regex that fully qualified class names must not match
    * @param configuration the rule configuration
@@ -284,7 +282,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * See {@link #methodsShouldMatch(DescribedPredicate, String)}, with a custom configuration.
+   * See {@link #methodsShouldMatch(DescribedPredicate, String)}, but with {@link Configuration} for
+   * customization.
    *
    * @param methods the methods to check
    * @param regex the regex that method names must match
@@ -345,7 +344,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * See {@link #methodsShouldNotMatch(DescribedPredicate, String)}, with a custom configuration.
+   * See {@link #methodsShouldNotMatch(DescribedPredicate, String)}, but with {@link Configuration}
+   * for customization.
    *
    * @param methods the methods to check
    * @param regex the regex that method names must not match
@@ -483,7 +483,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * See {@link #fieldsShouldMatch(DescribedPredicate, String)}, with a custom configuration.
+   * See {@link #fieldsShouldMatch(DescribedPredicate, String)}, but with {@link Configuration} for
+   * customization.
    *
    * @param fields the fields to check
    * @param regex the regex that field names must match
@@ -544,7 +545,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * See {@link #fieldsShouldNotMatch(DescribedPredicate, String)}, with a custom configuration.
+   * See {@link #fieldsShouldNotMatch(DescribedPredicate, String)}, but with {@link Configuration}
+   * for customization.
    *
    * @param fields the fields to check
    * @param regex the regex that field names must not match
@@ -639,7 +641,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that interfaces are not prefixed with an upper-case {@code I} (e.g., {@code IFoo}).
+   * Enforces that interfaces are not prefixed with an uppercase {@code I} (e.g., {@code IFoo}).
    *
    * @return this configurer for fluent chaining
    */
@@ -648,7 +650,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that interfaces are not prefixed with an upper-case {@code I} using a custom
+   * Enforces that interfaces are not prefixed with an uppercase {@code I} using a custom
    * configuration.
    *
    * @param configuration the rule configuration

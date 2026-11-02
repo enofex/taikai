@@ -96,7 +96,7 @@ class JavaConfigurerAdditionalTest {
   class ClassesShouldBeAnnotatedWithAll {
 
     @Test
-    void shouldNotThrowWhenClassHasAllRequiredAnnotations_ClassVersion() {
+    void shouldNotThrowWhenClassHasAllRequiredAnnotationsUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(DoublyAnnotatedClass.class)
           .java(java -> java.classesShouldBeAnnotatedWithAll(
@@ -107,7 +107,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenClassMissingRequiredAnnotations_ClassVersion() {
+    void shouldThrowWhenClassMissingRequiredAnnotationsUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldBeAnnotatedWithAll(
@@ -157,7 +157,7 @@ class JavaConfigurerAdditionalTest {
   class ClassesShouldBeAnnotatedWith {
 
     @Test
-    void shouldNotThrowWhenClassHasAnnotation_ClassVersion() {
+    void shouldNotThrowWhenClassHasAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldBeAnnotatedWith(
@@ -168,7 +168,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenClassMissingAnnotation_ClassVersion() {
+    void shouldThrowWhenClassMissingAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.classesShouldBeAnnotatedWith(
@@ -191,7 +191,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenClassHasAnnotation_StringVersion() {
+    void shouldNotThrowWhenClassHasAnnotationUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldBeAnnotatedWith(
@@ -218,7 +218,7 @@ class JavaConfigurerAdditionalTest {
   class ClassesShouldNotBeAnnotatedWith {
 
     @Test
-    void shouldNotThrowWhenClassLacksAnnotation_ClassVersion() {
+    void shouldNotThrowWhenClassLacksAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.classesShouldNotBeAnnotatedWith(
@@ -229,7 +229,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenClassHasForbiddenAnnotation_ClassVersion() {
+    void shouldThrowWhenClassHasForbiddenAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldNotBeAnnotatedWith(
@@ -252,7 +252,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenClassLacksAnnotation_StringVersion() {
+    void shouldNotThrowWhenClassLacksAnnotationUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.classesShouldNotBeAnnotatedWith(
@@ -279,7 +279,7 @@ class JavaConfigurerAdditionalTest {
   class ClassesShouldNotBeAnnotatedWithByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassDoesNotHaveForbiddenAnnotation_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedClassDoesNotHaveForbiddenAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldNotBeAnnotatedWith(
@@ -290,7 +290,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassHasForbiddenAnnotation_ClassVersion() {
+    void shouldThrowWhenAnnotatedClassHasForbiddenAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(DoublyAnnotatedClass.class)
           .java(java -> java.classesShouldNotBeAnnotatedWith(
@@ -313,7 +313,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassDoesNotHaveForbiddenAnnotation_StringVersion() {
+    void shouldNotThrowWhenAnnotatedClassDoesNotHaveForbiddenAnnotationUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldNotBeAnnotatedWith(
@@ -340,7 +340,7 @@ class JavaConfigurerAdditionalTest {
   class ClassesShouldResideInPackageByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassResidingInExpectedPackage_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedClassResidingInExpectedPackageUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldResideInPackage(
@@ -351,7 +351,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassNotResidingInExpectedPackage_ClassVersion() {
+    void shouldThrowWhenAnnotatedClassNotResidingInExpectedPackageUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldResideInPackage(
@@ -374,7 +374,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassResidingInExpectedPackage_StringVersion() {
+    void shouldNotThrowWhenAnnotatedClassResidingInExpectedPackageUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(SingleAnnotatedClass.class)
           .java(java -> java.classesShouldResideInPackage(
@@ -401,7 +401,7 @@ class JavaConfigurerAdditionalTest {
   class ClassesShouldBeAssignableTo {
 
     @Test
-    void shouldNotThrowWhenClassAssignable_ClassVersion() {
+    void shouldNotThrowWhenClassAssignableUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ConcreteImpl.class)
           .java(java -> java.classesShouldBeAssignableTo(ClassCriteria.nameMatching(".*ConcreteImpl"), BaseInterface.class))
@@ -411,7 +411,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenClassNotAssignable_ClassVersion() {
+    void shouldThrowWhenClassNotAssignableUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.classesShouldBeAssignableTo(ClassCriteria.nameMatching(".*InPackageClass"), BaseInterface.class))
@@ -432,7 +432,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenClassAssignable_StringVersion() {
+    void shouldNotThrowWhenClassAssignableUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(ConcreteImpl.class)
           .java(java -> java.classesShouldBeAssignableTo(ClassCriteria.nameMatching(".*ConcreteImpl"),
@@ -458,7 +458,7 @@ class JavaConfigurerAdditionalTest {
   class MethodsShouldNotDeclareException {
 
     @Test
-    void shouldNotThrowWhenMethodDoesNotDeclareException_ClassVersion() {
+    void shouldNotThrowWhenMethodDoesNotDeclareExceptionUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithCleanMethod.class)
           .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching("doWork"), RuntimeException.class))
@@ -468,7 +468,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenMethodDeclaresException_ClassVersion() {
+    void shouldThrowWhenMethodDeclaresExceptionUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithDeclaredException.class)
           .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching("doWork"), Exception.class))
@@ -493,7 +493,7 @@ class JavaConfigurerAdditionalTest {
   class MethodsShouldBeAnnotatedWith {
 
     @Test
-    void shouldNotThrowWhenMethodHasAnnotation_ClassVersion() {
+    void shouldNotThrowWhenMethodHasAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedMethod.class)
           .java(java -> java.methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("markedMethod"), MarkerAnnotation.class))
@@ -503,7 +503,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenMethodMissingAnnotation_ClassVersion() {
+    void shouldThrowWhenMethodMissingAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedMethod.class)
           .java(java -> java.methodsShouldBeAnnotatedWith(MethodCriteria.nameMatching("unannotatedMethod"),
@@ -529,7 +529,7 @@ class JavaConfigurerAdditionalTest {
   class MethodsShouldBeAnnotatedWithAll {
 
     @Test
-    void shouldNotThrowWhenMethodHasAllAnnotations_ClassVersion() {
+    void shouldNotThrowWhenMethodHasAllAnnotationsUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithDoublyAnnotatedMethod.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
@@ -540,7 +540,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenMethodMissingOneAnnotation_ClassVersion() {
+    void shouldThrowWhenMethodMissingOneAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedMethod.class)
           .java(java -> java.methodsShouldBeAnnotatedWithAll(
@@ -567,7 +567,7 @@ class JavaConfigurerAdditionalTest {
   class MethodsShouldNotBeAnnotatedWithByAnnotation {
 
     @Test
-    void shouldNotThrowWhenMethodDoesNotHaveForbiddenAnnotation_ClassVersion() {
+    void shouldNotThrowWhenMethodDoesNotHaveForbiddenAnnotationUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedMethod.class)
           .java(java -> java.methodsShouldNotBeAnnotatedWith(
@@ -578,7 +578,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenMethodHasBothAnnotations_ClassVersion() {
+    void shouldThrowWhenMethodHasBothAnnotationsUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithDoublyAnnotatedMethod.class)
           .java(java -> java.methodsShouldNotBeAnnotatedWith(
@@ -605,7 +605,7 @@ class JavaConfigurerAdditionalTest {
   class MethodsShouldHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedMethodHasRequiredModifiers_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedMethodHasRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithStaticAnnotatedMethod.class)
           .java(java -> java.methodsShouldHaveModifiers(
@@ -616,7 +616,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedMethodMissingModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedMethodMissingModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedMethod.class)
           .java(java -> java.methodsShouldHaveModifiers(
@@ -643,7 +643,7 @@ class JavaConfigurerAdditionalTest {
   class MethodsShouldNotHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedMethodDoesNotHaveForbiddenModifiers_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedMethodDoesNotHaveForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedMethod.class)
           .java(java -> java.methodsShouldNotHaveModifiers(
@@ -654,7 +654,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedMethodHasForbiddenModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedMethodHasForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithStaticAnnotatedMethod.class)
           .java(java -> java.methodsShouldNotHaveModifiers(
@@ -681,7 +681,7 @@ class JavaConfigurerAdditionalTest {
   class FieldsShouldHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedFieldHasRequiredModifiers_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedFieldHasRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedField.class)
           .java(java -> java.fieldsShouldHaveModifiers(
@@ -692,7 +692,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedFieldMissingModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedFieldMissingModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithPublicAnnotatedField.class)
           .java(java -> java.fieldsShouldHaveModifiers(
@@ -719,7 +719,7 @@ class JavaConfigurerAdditionalTest {
   class FieldsShouldNotHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedFieldDoesNotHaveForbiddenModifiers_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedFieldDoesNotHaveForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithAnnotatedField.class)
           .java(java -> java.fieldsShouldNotHaveModifiers(
@@ -730,7 +730,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedFieldHasForbiddenModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedFieldHasForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithStaticAnnotatedField.class)
           .java(java -> java.fieldsShouldNotHaveModifiers(
@@ -757,7 +757,7 @@ class JavaConfigurerAdditionalTest {
   class NoUsageOf {
 
     @Test
-    void shouldNotThrowWhenClassNotUsed_WithPackageIdentifier() {
+    void shouldNotThrowWhenClassNotUsedWithPackageIdentifier() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.example.other"), String.class))
@@ -767,7 +767,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenClassNotUsed_ClassWithConfiguration() {
+    void shouldNotThrowWhenClassNotUsedUsingClassWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.noUsageOf(String.class,
@@ -778,7 +778,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenClassNotUsed_StringWithConfiguration() {
+    void shouldNotThrowWhenClassNotUsedUsingTypeNameWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.noUsageOf(String.class.getName(),
@@ -789,7 +789,7 @@ class JavaConfigurerAdditionalTest {
     }
 
     @Test
-    void shouldNotThrowWhenClassNotUsed_ClassWithPackageAndConfiguration() {
+    void shouldNotThrowWhenClassNotUsedUsingClassWithPackageAndConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(InPackageClass.class)
           .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.example.other"), String.class,

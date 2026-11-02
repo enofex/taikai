@@ -10,10 +10,11 @@ import jakarta.persistence.Entity;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-public class PanacheConfigurerTest {
+class PanacheConfigurerTest {
 
   @Nested
   class NamesShouldEndWithRepository {
+
     @Test
     void shouldNotThrowWhenRepositoryPatternClassEndsWithRepository() {
       Taikai taikai = Taikai.builder()
@@ -25,7 +26,7 @@ public class PanacheConfigurerTest {
     }
 
     @Test
-    void shouldThrowWhenRepositoryPatternClassNotEndsWithRepository() {
+    void shouldThrowWhenRepositoryPatternClassDoesNotEndWithRepository() {
       Taikai taikai = Taikai.builder()
           .classes(PersonDAO.class)
           .quarkus(quarkus -> quarkus.panache(PanacheConfigurer::namesShouldEndWithRepository))
@@ -37,6 +38,7 @@ public class PanacheConfigurerTest {
 
   @Nested
   class ActiveRecordPatternShouldBeAnnotatedWithEntity {
+
     @Test
     void shouldNotThrowWhenActiveRecordPatternIsAnnotated() {
       Taikai taikai = Taikai.builder()
@@ -57,7 +59,6 @@ public class PanacheConfigurerTest {
       assertThrows(AssertionError.class, taikai::check);
     }
   }
-
 
   @Nested
   class NamesShouldMatch {
@@ -142,5 +143,4 @@ public class PanacheConfigurerTest {
 
   static class PersonDAO implements PanacheRepository<String> {
   }
-
 }

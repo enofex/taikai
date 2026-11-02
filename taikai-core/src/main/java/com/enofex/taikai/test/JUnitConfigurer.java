@@ -31,8 +31,8 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.regex.Pattern;
 
 /**
- * Configures and enforces best practices for JUnit tests using {@link com.tngtech.archunit ArchUnit}
- * through the Taikai framework.
+ * Configures and enforces best practices for JUnit tests using
+ * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer helps ensure that test classes and methods follow consistent standards,
  * including naming, visibility, annotation usage, and content (assertions or verifications).
@@ -111,7 +111,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * See {@link #methodsShouldNotDeclareExceptions()}, but with {@link Configuration} for customization.
+   * See {@link #methodsShouldNotDeclareExceptions()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -137,7 +138,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * See {@link #methodsShouldBeAnnotatedWithDisplayName()}, but with {@link Configuration} for customization.
+   * See {@link #methodsShouldBeAnnotatedWithDisplayName()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -190,7 +192,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * See {@link #methodsShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for customization.
+   * See {@link #methodsShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -214,7 +217,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * See {@link #methodsShouldContainAssertionsOrVerifications()}, but with {@link Configuration} for customization.
+   * See {@link #methodsShouldContainAssertionsOrVerifications()}, but with {@link Configuration}
+   * for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -253,7 +257,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * See {@link #classesShouldBePackagePrivate(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #classesShouldBePackagePrivate(DescribedPredicate)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the classes to check
    * @param configuration the rule configuration
@@ -271,7 +276,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * See {@link #classesShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for customization.
+   * See {@link #classesShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -351,7 +357,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * See {@link #nestedClassesShouldBeAnnotatedWithNested()}, but with {@link Configuration} for customization.
+   * See {@link #nestedClassesShouldBeAnnotatedWithNested()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -376,8 +383,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
    *   <li>methods annotated with {@code @Test}, {@code @TestTemplate} or {@code @TestFactory} that
    *   are {@code private} or {@code static}, including meta-annotations such as
    *   {@code @ParameterizedTest} and {@code @RepeatedTest}</li>
-   *   <li>such methods that return a value, except {@code @TestFactory} methods, which must return a
-   *   {@code DynamicNode} or a {@code Stream}, {@code Collection}, {@code Iterable},
+   *   <li>such methods that return a value, except {@code @TestFactory} methods, which must return
+   *   a {@code DynamicNode} or a {@code Stream}, {@code Collection}, {@code Iterable},
    *   {@code Iterator} or array of {@code DynamicNode}</li>
    *   <li>static classes annotated with {@code @Nested}</li>
    *   <li>private classes annotated with {@code @Nested} or containing test methods, unless they

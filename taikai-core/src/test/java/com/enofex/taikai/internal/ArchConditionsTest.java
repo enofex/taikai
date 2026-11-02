@@ -1,6 +1,5 @@
 package com.enofex.taikai.internal;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -39,7 +38,6 @@ class ArchConditionsTest {
   @Mock
   private ThrowsClause mockThrowsClause;
 
-
   @Test
   void shouldNotDeclareThrownExceptions() {
     when(this.mockMethod.getThrowsClause()).thenReturn(this.mockThrowsClause);
@@ -75,7 +73,6 @@ class ArchConditionsTest {
             this.mockField.getName(), this.mockClass.getFullName()),
         eventCaptor.getValue().getDescriptionLines().get(0));
   }
-
 
   @Test
   void shouldHaveRequiredModifiers() {

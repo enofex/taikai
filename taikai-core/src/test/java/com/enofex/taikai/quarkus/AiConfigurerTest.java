@@ -9,10 +9,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-public class AiConfigurerTest {
+class AiConfigurerTest {
 
   @Nested
   class NamesShouldEndWithAssistantOrService {
+
     @Test
     void shouldNotThrowWhenAiServiceEndsWithAssistant() {
       Taikai taikai = Taikai.builder()
@@ -33,9 +34,8 @@ public class AiConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
 
-
     @Test
-    void shouldThrowWhenAiServiceNotEndsWithAssistantOrService() {
+    void shouldThrowWhenAiServiceDoesNotEndWithAssistantOrService() {
       Taikai taikai = Taikai.builder()
           .classes(Hello.class)
           .quarkus(quarkus -> quarkus.ai(AiConfigurer::namesShouldEndWithAssistantOrService))
@@ -59,7 +59,7 @@ public class AiConfigurerTest {
     }
 
     @Test
-    void shouldThrowWhenAiServiceIsAnnotatedWithApplicationScoped() {
+    void shouldThrowWhenAiServiceIsNotAnnotatedWithApplicationScoped() {
       Taikai taikai = Taikai.builder()
           .classes(Hello.class)
           .quarkus(quarkus -> quarkus.ai(AiConfigurer::shouldBeAnnotatedWithApplicationScoped))
@@ -71,6 +71,7 @@ public class AiConfigurerTest {
 
   @Nested
   class AiServicesShouldNotUseToolsToRegisterTools {
+
     @Test
     void shouldNotThrowWhenAiServiceIsNotUsingTools() {
       Taikai taikai = Taikai.builder()
@@ -90,7 +91,6 @@ public class AiConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-
   }
 
   @Nested
@@ -177,5 +177,4 @@ public class AiConfigurerTest {
   @RegisterAiService(tools = Hello.class)
   public interface Hello {
   }
-
 }

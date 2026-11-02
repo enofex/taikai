@@ -1,6 +1,5 @@
 package com.enofex.taikai.internal;
 
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -28,7 +27,6 @@ class ModifiersTest {
   private JavaField field;
   @Mock
   private JavaMethod method;
-
 
   @Test
   void shouldReturnTrueWhenClassIsFinal() {

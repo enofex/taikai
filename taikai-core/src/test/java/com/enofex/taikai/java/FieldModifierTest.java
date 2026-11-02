@@ -19,7 +19,7 @@ class FieldModifierTest {
   class FieldsShouldHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAllAnnotatedFieldsHaveRequiredModifiers_ClassVersion() {
+    void shouldNotThrowWhenAllAnnotatedFieldsHaveRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalFields.class)
           .java(java -> java.fieldsShouldHaveModifiers(
@@ -30,7 +30,7 @@ class FieldModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedFieldsLackRequiredModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedFieldsLackRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(NonPublicFields.class)
           .java(java -> java.fieldsShouldHaveModifiers(
@@ -41,7 +41,7 @@ class FieldModifierTest {
     }
 
     @Test
-    void shouldNotThrowWhenAllAnnotatedFieldsHaveRequiredModifiers_StringVersion() {
+    void shouldNotThrowWhenAllAnnotatedFieldsHaveRequiredModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalFields.class)
           .java(java -> java.fieldsShouldHaveModifiers(
@@ -52,7 +52,7 @@ class FieldModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedFieldsLackRequiredModifiers_StringVersion() {
+    void shouldThrowWhenAnnotatedFieldsLackRequiredModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(NonPublicFields.class)
           .java(java -> java.fieldsShouldHaveModifiers(
@@ -67,7 +67,7 @@ class FieldModifierTest {
   class FieldsShouldNotHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedFieldsDoNotHaveForbiddenModifiers_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedFieldsDoNotHaveForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(NonStaticFields.class)
           .java(java -> java.fieldsShouldNotHaveModifiers(
@@ -78,7 +78,7 @@ class FieldModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedFieldsHaveForbiddenModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedFieldsHaveForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(StaticFields.class)
           .java(java -> java.fieldsShouldNotHaveModifiers(
@@ -89,7 +89,7 @@ class FieldModifierTest {
     }
 
     @Test
-    void shouldNotThrowWhenAnnotatedFieldsDoNotHaveForbiddenModifiers_StringVersion() {
+    void shouldNotThrowWhenAnnotatedFieldsDoNotHaveForbiddenModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(NonStaticFields.class)
           .java(java -> java.fieldsShouldNotHaveModifiers(
@@ -100,7 +100,7 @@ class FieldModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedFieldsHaveForbiddenModifiers_StringVersion() {
+    void shouldThrowWhenAnnotatedFieldsHaveForbiddenModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(StaticFields.class)
           .java(java -> java.fieldsShouldNotHaveModifiers(

@@ -34,7 +34,6 @@ class Usage {
     Taikai.builder()
         .namespace("com.enofex.taikai")
         .java(java -> java
-
             .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching("regex"), DisplayName.class)
             .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching("regex"), DisplayName.class, defaultConfiguration())
             .classesShouldBeAnnotatedWith(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName")
@@ -165,15 +164,15 @@ class Usage {
 
             .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
             .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+
             .methodsShouldNotReturn(MethodCriteria.nameMatching("find.*"), ClassCriteria.type(Optional.class))
             .methodsShouldNotReturn(MethodCriteria.nameMatching("find.*"), ClassCriteria.type(Optional.class), defaultConfiguration())
 
-
             .methodsShouldNotReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*Optional"))
             .methodsShouldNotReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*Optional"), defaultConfiguration())
+
             .methodsShouldReturn(MethodCriteria.annotatedWith(DisplayName.class), ClassCriteria.nameMatching(".*ResponseEntity"))
             .methodsShouldReturn(MethodCriteria.annotatedWith(DisplayName.class), ClassCriteria.nameMatching(".*ResponseEntity"), defaultConfiguration())
-
 
             .methodsShouldReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*ResponseEntity"))
             .methodsShouldReturnForClass(ClassCriteria.nameMatching(".*Controller"), ClassCriteria.nameMatching(".*ResponseEntity"), defaultConfiguration())
@@ -370,6 +369,7 @@ class Usage {
             .methodsShouldNotExceedMaxParameters(10, defaultConfiguration())
             .methodsShouldNotExceedMaxParameters(MethodCriteria.nameMatching("handle.*"), 4)
             .methodsShouldNotExceedMaxParameters(MethodCriteria.nameMatching("handle.*"), 4, defaultConfiguration())
+
             .methodsShouldNotExceedMaxParametersForClass(ClassCriteria.nameMatching(".*Controller"), 4)
             .methodsShouldNotExceedMaxParametersForClass(ClassCriteria.nameMatching(".*Controller"), 4, defaultConfiguration())
 

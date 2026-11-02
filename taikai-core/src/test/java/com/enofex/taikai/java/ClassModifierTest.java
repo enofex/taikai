@@ -20,7 +20,7 @@ class ClassModifierTest {
   class ClassesShouldHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiers_ClassVersion() {
+    void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
@@ -31,7 +31,7 @@ class ClassModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassesLackRequiredModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedClassesLackRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
@@ -42,7 +42,7 @@ class ClassModifierTest {
     }
 
     @Test
-    void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiers_StringVersion() {
+    void shouldNotThrowWhenAllAnnotatedClassesHaveRequiredModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(PublicFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
@@ -53,7 +53,7 @@ class ClassModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassesLackRequiredModifiers_StringVersion() {
+    void shouldThrowWhenAnnotatedClassesLackRequiredModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
           .java(java -> java.classesShouldHaveModifiers(
@@ -68,7 +68,7 @@ class ClassModifierTest {
   class ClassesShouldNotHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiers_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(
@@ -79,7 +79,7 @@ class ClassModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(AbstractClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(
@@ -90,7 +90,7 @@ class ClassModifierTest {
     }
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiers_StringVersion() {
+    void shouldNotThrowWhenAnnotatedClassesDoNotHaveForbiddenModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(PublicNonFinalClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(
@@ -101,7 +101,7 @@ class ClassModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiers_StringVersion() {
+    void shouldThrowWhenAnnotatedClassesHaveForbiddenModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(AbstractClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(

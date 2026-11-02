@@ -13,6 +13,7 @@ import kotlin.Metadata;
 import org.junit.jupiter.api.Test;
 
 class JavaIntegrationTest {
+
   @Test
   void shouldConfigureKotlinRulesFromJava() {
     Taikai.builder().classes(GoodDto.class)

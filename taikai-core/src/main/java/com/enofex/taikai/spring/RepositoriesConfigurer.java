@@ -112,7 +112,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithRepository()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithRepository()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -138,7 +139,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithRepository(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithRepository(DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the repository classes
    * @param configuration the rule configuration

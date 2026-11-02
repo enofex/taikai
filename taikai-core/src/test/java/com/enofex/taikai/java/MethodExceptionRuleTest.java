@@ -39,7 +39,7 @@ class MethodExceptionRuleTest {
   class MethodsShouldNotDeclareSpecificException {
 
     @Test
-    void shouldNotThrowWhenMethodsDoNotDeclareGivenException_ClassVersion() {
+    void shouldNotThrowWhenMethodsDoNotDeclareGivenExceptionUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(NoIOExceptionDeclared.class)
           .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class))
@@ -49,7 +49,7 @@ class MethodExceptionRuleTest {
     }
 
     @Test
-    void shouldThrowWhenMethodsDeclareGivenException_ClassVersion() {
+    void shouldThrowWhenMethodsDeclareGivenExceptionUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(DeclaresIOException.class)
           .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class))
@@ -59,7 +59,7 @@ class MethodExceptionRuleTest {
     }
 
     @Test
-    void shouldNotThrowWhenMethodsDoNotDeclareGivenException_StringVersion() {
+    void shouldNotThrowWhenMethodsDoNotDeclareGivenExceptionUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(NoIOExceptionDeclared.class)
           .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class.getName()))
@@ -69,7 +69,7 @@ class MethodExceptionRuleTest {
     }
 
     @Test
-    void shouldThrowWhenMethodsDeclareGivenException_StringVersion() {
+    void shouldThrowWhenMethodsDeclareGivenExceptionUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(DeclaresIOException.class)
           .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), IOException.class.getName()))

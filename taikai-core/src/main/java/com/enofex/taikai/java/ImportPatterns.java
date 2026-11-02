@@ -6,8 +6,8 @@ import com.tngtech.archunit.core.domain.JavaClass;
 
 /**
  * Predefined criteria for commonly used Java and framework packages, created with
- * {@link ClassCriteria#inPackage(String)}. They can be used wherever criteria are accepted, for example
- * with Taikai import rules:
+ * {@link ClassCriteria#inPackage(String)}. They can be used wherever criteria are accepted, for
+ * example with Taikai import rules:
  *
  * <pre>
  *   .imports(imports -> imports

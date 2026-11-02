@@ -217,10 +217,10 @@ class ControllersConfigurerTest {
     @Test
     void shouldNotThrowWhenControllerHasNoValidationAnnotations() {
       Taikai taikai = Taikai.builder()
-              .classes(UnvalidatedUserController.class)
-              .spring(spring -> spring.controllers(
-                      ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
-              .build();
+          .classes(UnvalidatedUserController.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
+          .build();
 
       assertDoesNotThrow(taikai::check);
     }
@@ -239,10 +239,10 @@ class ControllersConfigurerTest {
     @Test
     void shouldNotThrowWhenControllerHasMinAndSizeValidationAnnotationsButMissingValidated() {
       Taikai taikai = Taikai.builder()
-              .classes(ControllerWithMinAndSizeAnnotations.class)
-              .spring(spring -> spring.controllers(
-                      ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
-              .build();
+          .classes(ControllerWithMinAndSizeAnnotations.class)
+          .spring(spring -> spring.controllers(
+              ControllersConfigurer::shouldNotBeAnnotatedWithValidated))
+          .build();
 
       assertDoesNotThrow(taikai::check);
     }
@@ -635,7 +635,7 @@ class ControllersConfigurerTest {
           .classes(ValidUserController.class)
           .spring(spring -> spring.controllers(
               ctrl -> ctrl.namesShouldEndWithController(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -647,7 +647,7 @@ class ControllersConfigurerTest {
           .classes(ValidUserController.class)
           .spring(spring -> spring.controllers(
               ctrl -> ctrl.shouldBeAnnotatedWithRestController(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -659,7 +659,7 @@ class ControllersConfigurerTest {
           .classes(BasicController.class)
           .spring(spring -> spring.controllers(
               ctrl -> ctrl.shouldBeAnnotatedWithController(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -683,17 +683,18 @@ class ControllersConfigurerTest {
     }
 
     @Test
-    void disable_returnsThisForChaining() {
+    void shouldReturnSameConfigurerFromDisable() {
       Configurers configurers = new Configurers();
       ConfigurerContext context = new ConfigurerContext("test", configurers);
       ControllersConfigurer configurer = new ControllersConfigurer(context);
       ControllersConfigurer result = configurer.disable();
+
       assertNotNull(result);
       assertSame(configurer, result);
     }
 
     @Test
-    void allFluentMethods_returnThisForChaining() {
+    void shouldReturnSameConfigurerFromAllFluentMethods() {
       Configurers configurers = new Configurers();
       ConfigurerContext context = new ConfigurerContext("test", configurers);
       ControllersConfigurer configurer = new ControllersConfigurer(context);
@@ -733,55 +734,60 @@ class ControllersConfigurerTest {
   class NegativeTests {
 
     @Test
-    void namesShouldEndWithController_whenNameViolates_thenThrows() {
+    void shouldThrowWhenAnnotatedControllerDoesNotEndWithController() {
       Taikai taikai = Taikai.builder()
           .classes(ViolatingHandler.class)
           .spring(spring -> spring.controllers(ControllersConfigurer::namesShouldEndWithController))
           .build();
+
       assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
-    void namesShouldEndWithController_withConfig_whenNameViolates_thenThrows() {
+    void shouldThrowWhenAnnotatedControllerDoesNotEndWithControllerWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(ViolatingHandler.class)
           .spring(spring -> spring.controllers(
               ctrl -> ctrl.namesShouldEndWithController(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
+
       assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
-    void shouldBeAnnotatedWithRestController_withConfig_whenNotAnnotated_thenThrows() {
+    void shouldThrowWhenControllerMissingRestControllerAnnotationWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(UnannotatedController.class)
           .spring(spring -> spring.controllers(
               ctrl -> ctrl.shouldBeAnnotatedWithRestController(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
+
       assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
-    void shouldBeAnnotatedWithController_withConfig_whenNotAnnotated_thenThrows() {
+    void shouldThrowWhenMissingControllerAnnotationWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(UnannotatedController.class)
           .spring(spring -> spring.controllers(
               ctrl -> ctrl.shouldBeAnnotatedWithController(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
+
       assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
-    void shouldBePackagePrivate_withConfig_whenPublic_thenThrows() {
+    void shouldThrowWhenControllerIsPublicWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(PublicController.class)
           .spring(spring -> spring.controllers(
               ctrl -> ctrl.shouldBePackagePrivate(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                  Configuration.defaultConfiguration())))
           .build();
+
       assertThrows(AssertionError.class, taikai::check);
     }
   }

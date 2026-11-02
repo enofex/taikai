@@ -7,7 +7,7 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * This class provides utility methods for checking Java modifiers.
+ * Internal utility class for checking Java modifiers.
  * <p>
  * This class is intended for internal use only and is not part of the public API. Developers should
  * not rely on this class for any public API usage.

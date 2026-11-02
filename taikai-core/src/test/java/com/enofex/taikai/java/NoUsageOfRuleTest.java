@@ -49,7 +49,7 @@ class NoUsageOfRuleTest {
     }
 
     @Test
-    void declarationRuleShouldAllowUncheckedThrowWithoutThrowsClause() {
+    void shouldAllowUncheckedThrowWithoutThrowsClauseInDeclarationRule() {
       assertDoesNotThrow(() -> Taikai.builder()
           .classes(ThrowsHttpException.class)
           .java(java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"), HttpStatusException.class))

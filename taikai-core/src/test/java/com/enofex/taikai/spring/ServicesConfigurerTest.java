@@ -1,6 +1,8 @@
 package com.enofex.taikai.spring;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.ClassCriteria;
@@ -438,110 +440,113 @@ class ServicesConfigurerTest {
     }
 
     @Test
-    void namesShouldEndWithServiceShouldReturnConfigurer() {
+    void shouldReturnNonNullFromNamesShouldEndWithService() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.namesShouldEndWithService());
+
+      assertNotNull(configurer.namesShouldEndWithService());
     }
 
     @Test
-    void namesShouldEndWithServiceWithConfigShouldReturnConfigurer() {
+    void shouldReturnNonNullFromNamesShouldEndWithServiceWithConfig() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.namesShouldEndWithService(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
+
+      assertNotNull(configurer.namesShouldEndWithService(
+          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
     }
 
     @Test
-    void namesShouldMatchShouldReturnConfigurer() {
+    void shouldReturnNonNullFromNamesShouldMatch() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.namesShouldMatch(".+Service"));
+
+      assertNotNull(configurer.namesShouldMatch(".+Service"));
     }
 
     @Test
-    void namesShouldMatchWithConfigShouldReturnConfigurer() {
+    void shouldReturnNonNullFromNamesShouldMatchWithConfig() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.namesShouldMatch(".+Service",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
+
+      assertNotNull(configurer.namesShouldMatch(".+Service",
+          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
     }
 
     @Test
-    void shouldBeAnnotatedWithServiceNoArgShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceNoArg() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldBeAnnotatedWithService());
+
+      assertNotNull(configurer.shouldBeAnnotatedWithService());
     }
 
     @Test
-    void shouldBeAnnotatedWithServiceWithConfigShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceWithConfig() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldBeAnnotatedWithService(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
+
+      assertNotNull(configurer.shouldBeAnnotatedWithService(
+          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
     }
 
     @Test
-    void shouldBeAnnotatedWithServiceWithRegexShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceWithRegex() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
+
+      assertNotNull(
           configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service")));
     }
 
     @Test
-    void shouldBeAnnotatedWithServiceWithRegexAndConfigShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceWithRegexAndConfig() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"),
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
+
+      assertNotNull(configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"),
+          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
     }
 
     @Test
-    void shouldNotDependOnOtherServicesShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldNotDependOnOtherServices() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldNotDependOnOtherServices());
+
+      assertNotNull(configurer.shouldNotDependOnOtherServices());
     }
 
     @Test
-    void shouldNotDependOnOtherServicesWithConfigShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldNotDependOnOtherServicesWithConfig() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldNotDependOnOtherServices(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
+
+      assertNotNull(configurer.shouldNotDependOnOtherServices(
+          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
     }
 
     @Test
-    void shouldNotDependOnControllersShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldNotDependOnControllers() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldNotDependOnControllers());
+
+      assertNotNull(configurer.shouldNotDependOnControllers());
     }
 
     @Test
-    void shouldNotDependOnControllersWithConfigShouldReturnConfigurer() {
+    void shouldReturnNonNullFromShouldNotDependOnControllersWithConfig() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(
-          configurer.shouldNotDependOnControllers(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
+
+      assertNotNull(configurer.shouldNotDependOnControllers(
+          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
     }
 
     @Test
-    void disableShouldReturnConfigurer() {
+    void shouldReturnNonNullFromDisable() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      org.junit.jupiter.api.Assertions.assertNotNull(configurer.disable());
+
+      assertNotNull(configurer.disable());
     }
 
     @Test
-    void chainingMultipleRulesShouldWork() {
+    void shouldSupportChainingMultipleRules() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
       ServicesConfigurer result = configurer
           .namesShouldEndWithService()
           .shouldBeAnnotatedWithService()
           .shouldNotDependOnOtherServices()
           .shouldNotDependOnControllers();
-      org.junit.jupiter.api.Assertions.assertSame(configurer, result);
+
+      assertSame(configurer, result);
     }
   }
 

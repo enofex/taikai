@@ -95,7 +95,8 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * See {@link #idsShouldNotBeOfType(DescribedPredicate)}, with a custom configuration.
+   * See {@link #idsShouldNotBeOfType(DescribedPredicate)}, but with {@link Configuration} for
+   * customization.
    *
    * @param forbiddenTypes the forbidden identifier types
    * @param configuration the rule configuration
@@ -157,7 +158,8 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * See {@link #fieldsShouldNotBeOfType(DescribedPredicate)}, with a custom configuration.
+   * See {@link #fieldsShouldNotBeOfType(DescribedPredicate)}, but with {@link Configuration} for
+   * customization.
    *
    * @param forbiddenTypes the forbidden field types
    * @param configuration the rule configuration
@@ -202,6 +204,7 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
   @Override
   public EntitiesConfigurer disable() {
     disable(EntitiesConfigurer.class);
+
     return this;
   }
 }

@@ -39,7 +39,8 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *     );
  * }</pre>
  *
- * <p>By default, this configurer applies to classes annotated with {@code @ConfigurationProperties}.</p>
+ * <p>By default, this configurer applies to classes annotated with
+ * {@code @ConfigurationProperties}.</p>
  */
 public final class PropertiesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -105,7 +106,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithValidated()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithValidated()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -120,7 +122,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * Adds a rule enforcing that classes (by default ending with {@code Properties})
+   * Adds a rule enforcing that classes with names ending in {@code Properties}
    * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
@@ -131,7 +133,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithConfigurationProperties()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithConfigurationProperties()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -145,8 +148,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * Adds a rule enforcing that classes matching the given criteria
    * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
    *
-   * @param classes the classes expected to be configuration properties, selected with {@link com.enofex.taikai.ClassCriteria}
-   *     or an ArchUnit predicate
+   * @param classes the classes expected to be configuration properties, selected with
+   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
@@ -156,7 +159,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes expected to be configuration properties
    * @param configuration the rule configuration

@@ -20,7 +20,7 @@ class MethodModifierTest {
   class MethodsShouldHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiers_ClassVersion() {
+    void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
           .java(java -> java.methodsShouldHaveModifiers(
@@ -31,7 +31,7 @@ class MethodModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedMethodsLackRequiredModifiers_ClassVersion() {
+    void shouldThrowWhenAnnotatedMethodsLackRequiredModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(NonPublicMethods.class)
           .java(java -> java.methodsShouldHaveModifiers(
@@ -42,7 +42,7 @@ class MethodModifierTest {
     }
 
     @Test
-    void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiers_StringVersion() {
+    void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
           .java(java -> java.methodsShouldHaveModifiers(
@@ -53,7 +53,7 @@ class MethodModifierTest {
     }
 
     @Test
-    void shouldThrowWhenAnnotatedMethodsLackRequiredModifiers_StringVersion() {
+    void shouldThrowWhenAnnotatedMethodsLackRequiredModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(NonPublicMethods.class)
           .java(java -> java.methodsShouldHaveModifiers(
@@ -68,7 +68,7 @@ class MethodModifierTest {
   class MethodsShouldNotHaveModifiersByAnnotation {
 
     @Test
-    void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiers_ClassVersion() {
+    void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiersUsingClass() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
           .java(java -> java.methodsShouldNotHaveModifiers(
@@ -79,7 +79,7 @@ class MethodModifierTest {
     }
 
     @Test
-    void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiers_StringVersion() {
+    void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiersUsingTypeName() {
       Taikai taikai = Taikai.builder()
           .classes(PublicMethods.class)
           .java(java -> java.methodsShouldNotHaveModifiers(

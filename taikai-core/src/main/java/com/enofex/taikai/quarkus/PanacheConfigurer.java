@@ -49,8 +49,8 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule enforcing that classes implementing {@code PanacheEntity}
-   * are annotated with {@code Entity}.
+   * Adds a rule enforcing that classes extending {@code PanacheEntity}
+   * are annotated with {@code @Entity}.
    *
    * @return this configurer for fluent chaining
    */
@@ -59,7 +59,8 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithEntityWhenActiveRecordPattern()}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithEntityWhenActiveRecordPattern()}, but with
+   * {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -121,6 +122,7 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   @Override
   public PanacheConfigurer disable() {
     disable(PanacheConfigurer.class);
+
     return this;
   }
 }

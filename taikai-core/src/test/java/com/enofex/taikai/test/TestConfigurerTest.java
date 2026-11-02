@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 class TestConfigurerTest {
 
   @Test
-  void shouldApplyJunitCustomizer() {
+  void shouldApplyJUnitCustomizer() {
     Taikai taikai = Taikai.builder()
         .classes(ValidTestClass.class)
         .test(test -> test.junit(

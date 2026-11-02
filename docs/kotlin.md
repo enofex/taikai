@@ -25,7 +25,7 @@ testImplementation("com.enofex:taikai-kotlin:$taikaiVersion")
 ```
 
 Compile production Kotlin before running architecture tests. The Kotlin library,
-compiler fixtures, and metadata reader use Kotlin 2.3.21 and target JVM 17. Metadata
+compiler fixtures, and metadata reader use Kotlin 2.4.21 and target JVM 17. Metadata
 from unsupported compiler versions produces an explicit failure identifying the
 class; it is never silently treated as compliant. Keep your resolved Kotlin runtime
 and metadata reader versions compatible with your application's compiler.
@@ -132,7 +132,7 @@ source name**, including names before JVM mangling; they are not package pattern
 The class regex on requirement rules selects which Kotlin declarations to check.
 
 | Method | Behavior |
-| --- | --- |
+|--------|----------|
 | `classesShouldNotMatch(regex)` | Forbid matching source class names, excluding file facades and synthetic helpers. |
 | `classesShouldMatch(regex)` | All source class names, including objects and companions, match the pattern. File facades and synthetic helpers are excluded. |
 | `objectsShouldMatch(regex)` | Object and companion-object names match the pattern; other class kinds are ignored. |
@@ -254,7 +254,7 @@ These categories describe intended semantics; they do not promise that every
 individual rule in a category has Kotlin-specific coverage.
 
 | Existing rule category | Kotlin/JVM behavior |
-| --- | --- |
+|------------------------|---------------------|
 | Package placement and dependency boundaries | Shared bytecode rules work across Java and Kotlin. The suite verifies package placement and cross-language dependencies. |
 | Spring class annotations and naming | Shared rules work for Kotlin Spring classes. The demo verifies controller/service/repository names and layer dependencies. |
 | Class inheritance and JVM modifiers | Operate on compiled JVM declarations. Kotlin source visibility and default finality can differ from Java conventions. |
@@ -286,7 +286,7 @@ Taikai.builder()
 ```
 
 Import `com.enofex.taikai.kotlin.KotlinConfigurer`. The public generic
-`Builder.configure(customizer, factory)` extension point uses the same per-configurer
+`Builder.configure(customizer, supplier)` extension point uses the same per-configurer
 registration and accumulation behavior as the built-in configuration methods.
 
 ## Runnable example

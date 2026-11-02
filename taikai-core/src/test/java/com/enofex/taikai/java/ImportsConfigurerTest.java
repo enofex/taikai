@@ -83,7 +83,7 @@ class ImportsConfigurerTest {
         .classes(ClassUsingAllowedImport.class)
         .java(java -> java.imports(
             imports -> imports.shouldHaveNoCycles(
-                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+                TaikaiRule.Configuration.defaultConfiguration())))
         .build());
   }
 

@@ -20,10 +20,10 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for Quarkus (and Jakarta EE) Rest APIs
+ * Configures and enforces conventions for Quarkus (and Jakarta EE) REST APIs
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
- * <p>This configurer ensures that resources classes follow consistent naming,
+ * <p>This configurer ensures that resource classes follow consistent naming,
  * annotations, and dependency rules, promoting clarity and maintainability.</p>
  *
  * <h2>Example Usage</h2>
@@ -31,7 +31,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * Taikai.builder()
  *     .namespace("com.company.project")
  *     .quarkus(quarkus -> quarkus
- *         .resources(ctrl -> ctrl
+ *         .resources(res -> res
  *             .namesShouldEndWithResource()
  *             .shouldBeAnnotatedWithPath()
  *             .shouldBePublic()
@@ -51,7 +51,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule enforcing that resource have names ending with {@code Resource}.
+   * Adds a rule enforcing that resources have names ending with {@code Resource}.
    *
    * @return this configurer for fluent chaining
    */
@@ -152,7 +152,8 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * See {@link #shouldBeAnnotatedWithPath(DescribedPredicate)}, but with {@link Configuration} for customization.
+   * See {@link #shouldBeAnnotatedWithPath(DescribedPredicate)}, but with {@link Configuration} for
+   * customization.
    *
    * @param classes the resource classes
    * @param configuration the rule configuration
@@ -180,7 +181,8 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * See {@link #shouldNotDependOnOtherResources()}, but with {@link Configuration} for customization.
+   * See {@link #shouldNotDependOnOtherResources()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -198,5 +200,4 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
 
     return this;
   }
-
 }
