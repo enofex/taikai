@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
 class JUnitConfigurerTest {
@@ -107,6 +109,18 @@ class JUnitConfigurerTest {
   void shouldApplyPackagePrivateMethodRule() {
     Taikai taikai = Taikai.builder()
         .classes(ValidPackagePrivateMethodTest.class)
+        .test(test -> test.junit(
+            JUnitConfigurer::methodsShouldBePackagePrivate
+        ))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldNotCheckTestMethodsDeclaredInInterfacesForPackagePrivate() {
+    Taikai taikai = Taikai.builder()
+        .classes(ComparableContract.class, ComparableContractTest.class)
         .test(test -> test.junit(
             JUnitConfigurer::methodsShouldBePackagePrivate
         ))
@@ -261,9 +275,33 @@ class JUnitConfigurerTest {
   }
 
   @Test
+  void shouldApplyMethodsContainAssertionsOrVerificationsCalledThroughSubtypes() {
+    Taikai taikai = Taikai.builder()
+        .classes(SubtypeAssertionTest.class)
+        .test(test -> test.junit(
+            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+        ))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
   void shouldApplyMethodsContainAssertionsOrVerificationsWithHelperMethod() {
     Taikai taikai = Taikai.builder()
         .classes(HelperMethodAssertionTest.class)
+        .test(test -> test.junit(
+            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+        ))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldApplyMethodsContainAssertionsOrVerificationsWithMethodReference() {
+    Taikai taikai = Taikai.builder()
+        .classes(MethodReferenceAssertionTest.class)
         .test(test -> test.junit(
             JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
         ))
@@ -327,6 +365,22 @@ class JUnitConfigurerTest {
 
     private static void assertHelper() {
       assertTrue(true);
+    }
+  }
+
+  static class MethodReferenceAssertionTest {
+    @Test
+    void shouldContainAssertionInReferencedHelperMethod() {
+      List.of(1, 2).forEach(this::assertPositive);
+    }
+
+    @Test
+    void shouldContainReferencedAssertion() {
+      List.of("value").forEach(Assertions::assertNotNull);
+    }
+
+    private void assertPositive(Integer value) {
+      assertTrue(value > 0);
     }
   }
 
@@ -618,6 +672,18 @@ class JUnitConfigurerTest {
     void shouldFail() {}
   }
 
+  interface ComparableContract {
+
+    @Test
+    default void returnsZeroWhenComparedToItself() {
+      assertTrue("value".compareTo("value") == 0);
+    }
+  }
+
+  static class ComparableContractTest implements ComparableContract {
+
+  }
+
   static class ValidPackagePrivateMethodTest {
     @Test
     void shouldBePackagePrivate() {}
@@ -662,6 +728,29 @@ class JUnitConfigurerTest {
     void shouldVerifyWithInOrder() {
       Mockito.inOrder(this.mock);
     }
+  }
+
+  static class SubtypeAssertionTest {
+    @Test
+    void shouldCheckFluentArchRule() {
+      ArchRuleDefinition.classes().should().bePublic()
+          .check(new ClassFileImporter().importClasses(Object.class));
+    }
+
+    @Test
+    void shouldVerifyWithBddMockito() {
+      List<?> list = BDDMockito.mock(List.class);
+      list.size();
+      BDDMockito.verify(list).size();
+    }
+
+    @Test
+    void shouldAssertWithAssertionsSubclass() {
+      CustomAssertions.assertEquals(2, 1 + 1);
+    }
+  }
+
+  static class CustomAssertions extends Assertions {
   }
 
   static class ArchRuleCheckTest {

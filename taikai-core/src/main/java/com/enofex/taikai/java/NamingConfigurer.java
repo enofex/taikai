@@ -141,6 +141,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
    */
   public NamingConfigurer classesShouldMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().haveNameMatching(regex)
         .as("Classes should have names matching %s".formatted(regex)), configuration));
   }
@@ -164,6 +165,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
    */
   public NamingConfigurer classesShouldNotMatch(String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().haveNameMatching(regex)
         .as("Classes should not have names matching %s".formatted(regex)), configuration));
   }
@@ -198,6 +200,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
       String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().haveNameMatching(regex)
         .as("Classes %s should have names matching %s".formatted(
             classes.getDescription(), regex)), configuration));
@@ -234,6 +237,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
       String regex, Configuration configuration) {
     return addRule(TaikaiRule.of(noClasses()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().haveNameMatching(regex)
         .as("Classes %s should not have names matching %s".formatted(
             classes.getDescription(), regex)), configuration));

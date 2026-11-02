@@ -105,6 +105,7 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
       String typeName, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(haveFieldOfType(typeName))
             .as("Classes %s should use a logger of type %s".formatted(classes.getDescription(),
                 typeName)),

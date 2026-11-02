@@ -4,8 +4,8 @@ import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaMethodCall;
+import com.tngtech.archunit.core.domain.JavaCodeUnit;
+import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -13,9 +13,11 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 final class SelfInvokedProxiedMethods {
 
@@ -34,13 +36,13 @@ final class SelfInvokedProxiedMethods {
         String.join(" or ", annotations))) {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        for (JavaMethodCall call : javaClass.getMethodCallsFromSelf()) {
+        for (JavaCodeUnitAccess<?> call : methodCallsAndReferences(javaClass)) {
           if (!call.getTargetOwner().equals(javaClass)
               || call.getOrigin().getModifiers().contains(JavaModifier.SYNTHETIC)) {
             continue;
           }
 
-          Optional<JavaMethod> target = call.getTarget().resolveMember();
+          Optional<? extends JavaCodeUnit> target = call.getTarget().resolveMember();
 
           if (target.isEmpty()) {
             continue;
@@ -61,5 +63,15 @@ final class SelfInvokedProxiedMethods {
         }
       }
     };
+  }
+
+  /**
+   * Returns the method calls and the method references, such as {@code orders.forEach(this::save)},
+   * which invoke the referenced method on {@code this} as well.
+   */
+  private static List<JavaCodeUnitAccess<?>> methodCallsAndReferences(JavaClass javaClass) {
+    return Stream.<JavaCodeUnitAccess<?>>concat(javaClass.getMethodCallsFromSelf().stream(),
+            javaClass.getMethodReferencesFromSelf().stream())
+        .toList();
   }
 }

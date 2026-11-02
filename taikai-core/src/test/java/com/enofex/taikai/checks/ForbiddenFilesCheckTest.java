@@ -3,10 +3,15 @@ package com.enofex.taikai.checks;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -120,6 +125,56 @@ class ForbiddenFilesCheckTest {
   }
 
   @Test
+  void shouldFindFilesOfProjectDirectoryWithPatternOutsideOfIt() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+    create("module/.env");
+    create("other/.env");
+
+    assertEquals(List.of(
+            path("../.env") + " is forbidden (matches ../**/.env)",
+            path("../other/.env") + " is forbidden (matches ../**/.env)",
+            path(".env") + " is forbidden (matches ../**/.env)"),
+        this.check.violations(TestCheckContext.of(ForbiddenFilesCheck.class, module)
+            .withConfiguration(ForbiddenFilesCheck.files("../**/.env"))));
+  }
+
+  @Test
+  void shouldFindFilesWithPatternStartingWithCurrentDirectory() {
+    assertEquals(List.of(path(".env") + " is forbidden (matches ./.env)"),
+        this.check.violations(context()
+            .withConfiguration(ForbiddenFilesCheck.files("./.env"))));
+  }
+
+  @Test
+  void shouldSkipUnreadableDirectories() throws IOException {
+    Path data = Files.createDirectories(this.directory.resolve("docker/postgres-data"));
+
+    try {
+      makeUnreadable(data);
+
+      assertEquals(List.of(path(".env") + " is forbidden (matches **/.env)"),
+          this.check.violations(context()
+              .withConfiguration(ForbiddenFilesCheck.files("**/.env"))));
+    } finally {
+      makeReadable(data);
+    }
+  }
+
+  @Test
+  void shouldFailWhenSearchedDirectoryCannotBeRead() throws IOException {
+    Path secrets = Files.createDirectories(this.directory.resolve("secrets"));
+
+    try {
+      makeUnreadable(secrets);
+
+      assertThrows(UncheckedIOException.class, () -> this.check.violations(context()
+          .withConfiguration(ForbiddenFilesCheck.files("secrets/**"))));
+    } finally {
+      makeReadable(secrets);
+    }
+  }
+
+  @Test
   void shouldRejectSettingsWithoutFiles() {
     assertThrows(IllegalArgumentException.class, ForbiddenFilesCheck::files);
   }
@@ -132,6 +187,22 @@ class ForbiddenFilesCheckTest {
     Path path = this.directory.resolve(file);
     Files.createDirectories(path.getParent());
     Files.writeString(path, "content");
+  }
+
+  private static void makeUnreadable(Path directory) throws IOException {
+    assumeTrue(isPosix(), "POSIX file permissions are not supported");
+    Files.setPosixFilePermissions(directory, PosixFilePermissions.fromString("---------"));
+    assumeFalse(Files.isReadable(directory), "The directory is still readable, as for root");
+  }
+
+  private static void makeReadable(Path directory) throws IOException {
+    if (isPosix()) {
+      Files.setPosixFilePermissions(directory, PosixFilePermissions.fromString("rwx------"));
+    }
+  }
+
+  private static boolean isPosix() {
+    return FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
   }
 
   private static String path(String file) {

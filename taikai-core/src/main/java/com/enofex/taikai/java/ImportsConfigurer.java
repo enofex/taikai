@@ -13,6 +13,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
  * Configures and enforces import-related rules using {@link com.tngtech.archunit ArchUnit} through
@@ -153,6 +154,7 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
       DescribedPredicate<? super JavaClass> requiredImports, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().dependOnClassesThat(requiredImports)
         .as("Classes %s should import classes %s".formatted(
             classes.getDescription(), requiredImports.getDescription())), configuration));

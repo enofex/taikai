@@ -1138,6 +1138,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   public JavaConfigurer classesShouldResideInPackage(String packageIdentifier,
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
+            .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().resideInAPackage(packageIdentifier)
             .as("Classes should reside in package %s".formatted(packageIdentifier)),
         configuration));
@@ -1174,6 +1175,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       String packageIdentifier, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().resideInAPackage(packageIdentifier)
         .as("Classes %s should reside in package %s".formatted(
             classes.getDescription(), packageIdentifier)), configuration));
@@ -1211,6 +1213,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().resideOutsideOfPackage(packageIdentifier)
         .as("Classes %s should reside outside package %s".formatted(
             classes.getDescription(), packageIdentifier)), configuration));
@@ -1243,6 +1246,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().beRecords()
             .as("Classes %s should be records".formatted(classes.getDescription())),
         configuration));
@@ -1275,6 +1279,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().beInterfaces()
             .as("Classes %s should be interfaces".formatted(classes.getDescription())),
         configuration));
@@ -1313,6 +1318,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(be(annotatedWithAll(requiredAnnotationTypes, true)))
             .as("Classes %s should be annotated with %s".formatted(
                 classes.getDescription(), String.join(", ", requiredAnnotationTypes))),
@@ -1359,6 +1365,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       DescribedPredicate<? super JavaField> requiredFields, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(haveFieldMatching(requiredFields))
             .as("Classes %s should have a field %s".formatted(
                 classes.getDescription(), requiredFields.getDescription())),
@@ -1428,6 +1435,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       String annotationType, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().beMetaAnnotatedWith(annotationType)
         .as("Classes %s should be annotated with %s".formatted(classes.getDescription(),
             annotationType)), configuration));
@@ -1499,6 +1507,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().notBeMetaAnnotatedWith(annotationType)
         .as("Classes %s should not be annotated with %s".formatted(classes.getDescription(),
             annotationType)), configuration));
@@ -1589,6 +1598,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       String typeName, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().beAssignableTo(typeName)
         .as("Classes %s should be assignable to %s".formatted(
             classes.getDescription(), typeName)), configuration));
@@ -1655,6 +1665,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       String typeName, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(classes)
+        .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().implement(typeName)
         .as("Classes %s should implement %s".formatted(
             classes.getDescription(), typeName)), configuration));
@@ -1691,6 +1702,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Collection<JavaModifier> requiredModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(hasClassModifiers(requiredModifiers))
             .as("Classes %s should have all of these modifiers %s".formatted(
                 classes.getDescription(),
@@ -1729,6 +1741,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Collection<JavaModifier> forbiddenModifiers, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(notHasClassModifiers(forbiddenModifiers))
             .as("Classes %s should not have any of these modifiers %s".formatted(
                 classes.getDescription(),
@@ -1763,6 +1776,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().bePackagePrivate()
             .as("Classes %s should be package-private".formatted(classes.getDescription())),
         configuration));
@@ -2243,7 +2257,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that {@code final} classes must not have any protected members.
+   * Adds a rule enforcing that {@code final} classes must not have any protected members. Methods
+   * that override a method of a superclass, such as {@code LinkedHashMap.removeEldestEntry}, are
+   * exempt, as they cannot be made private.
    *
    * @return this configurer for fluent chaining
    */

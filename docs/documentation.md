@@ -1024,6 +1024,10 @@ Conventions used throughout the reference:
   cannot be changed in source code: the `$values()` method of every enum, bridge methods of
   generic overrides with erased signatures, and fields such as `$assertionsDisabled`. Calls made
   by bridge methods do not count as self-invocations either.
+- Likewise, rules that check classes themselves, such as their names, annotations, modifiers,
+  fields or supertypes, ignore *synthetic* classes: the `package-info` class of an annotated
+  `package-info.java`, and the class javac generates for a `switch` over an enum. Rules on
+  dependencies and usages, such as `noUsageOf` or `shouldNotImport`, still check their code.
 
 ## 7. Java Rules
 

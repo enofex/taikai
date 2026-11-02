@@ -17,6 +17,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
  * Configures and enforces conventions for Quarkus (and Jakarta EE) Rest APIs
@@ -162,6 +163,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   public ResourcesConfigurer shouldBeAnnotatedWithPath(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(be(annotatedWithPath(true)))
             .as("Resources %s should be annotated with %s".formatted(
                 classes.getDescription(), ANNOTATION_PATH)),

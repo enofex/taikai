@@ -154,7 +154,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
 
   /**
    * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
-   * should have package-private visibility.
+   * should have package-private visibility. Test methods declared in interfaces are not checked,
+   * as interface methods are always public.
    *
    * @return this configurer for fluent chaining
    */
@@ -172,6 +173,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .and().areDeclaredInClassesThat().areNotInterfaces()
             .should().bePackagePrivate()
             .as("Methods annotated with %s or %s should be package-private".formatted(ANNOTATION_TEST,
                 ANNOTATION_PARAMETRIZED_TEST)),
@@ -262,6 +264,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   public JUnitConfigurer classesShouldBePackagePrivate(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().bePackagePrivate()
             .as("Classes %s should be package-private".formatted(classes.getDescription())),
         configuration));

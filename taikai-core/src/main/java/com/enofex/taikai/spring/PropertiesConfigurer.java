@@ -16,6 +16,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
  * Configures and enforces conventions for Spring {@code @ConfigurationProperties} classes
@@ -166,6 +167,7 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(be(annotatedWithConfigurationProperties(true)))
             .as("Configuration properties %s should be annotated with %s".formatted(
                 classes.getDescription(), ANNOTATION_CONFIGURATION_PROPERTIES)),

@@ -183,6 +183,18 @@ class SpringConfigurerTest {
     }
 
     @Test
+    void shouldThrowWhenTransactionalMethodIsReferencedFromSameClass() {
+      Taikai taikai = Taikai.builder()
+          .classes(ServiceWithSelfReferencedTransactionalMethod.class)
+          .spring(SpringConfigurer::noSelfInvocationOfProxiedMethods)
+          .build();
+
+      AssertionError error = assertThrows(AssertionError.class, taikai::check);
+
+      assertTrue(error.getMessage().contains("save(java.lang.String)"), error.getMessage());
+    }
+
+    @Test
     void shouldNotThrowWhenProxiedMethodIsCalledFromAnotherClass() {
       Taikai taikai = Taikai.builder()
           .classes(ServiceCallingAnotherService.class, ServiceWithAsyncMethod.class)
@@ -381,6 +393,18 @@ class SpringConfigurerTest {
 
     @Transactional
     public void save() {
+    }
+  }
+
+  @Service
+  static class ServiceWithSelfReferencedTransactionalMethod {
+
+    public void processAll(List<String> orders) {
+      orders.forEach(this::save);
+    }
+
+    @Transactional
+    public void save(String order) {
     }
   }
 

@@ -210,6 +210,18 @@ class FileContentCheckTest {
   }
 
   @Test
+  void shouldCheckFilesOfProjectDirectoryWithPatternOutsideOfIt() throws IOException {
+    Path module = Files.createDirectories(this.directory.resolve("module"));
+    create("module/src/Order.java", "import java.util.*;\n");
+
+    assertEquals(List.of(path("src/Order.java")
+            + ":1 contains forbidden content (matches ^import .*\\*;)"),
+        this.check.violations(TestCheckContext.of(FileContentCheck.class, module)
+            .withConfiguration(FileContentCheck.rules(
+                FileContentCheck.forbid("../**/*.java", "^import .*\\*;")))));
+  }
+
+  @Test
   void shouldRejectInvalidRegularExpression() {
     assertThrows(PatternSyntaxException.class,
         () -> FileContentCheck.forbid("src/main/**/*.java", "import ("));

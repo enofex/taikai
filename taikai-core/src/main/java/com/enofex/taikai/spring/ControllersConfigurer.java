@@ -227,6 +227,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(be(annotatedWithRestController(true)))
             .as("Controllers %s should be annotated with %s".formatted(
                 classes.getDescription(), ANNOTATION_REST_CONTROLLER)),
@@ -283,6 +284,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(be(annotatedWithController(true)))
             .as("Controllers %s should be annotated with %s".formatted(
                 classes.getDescription(), ANNOTATION_CONTROLLER)),
@@ -387,6 +389,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(beAnnotatedWithValidated())
             .as("Controllers %s that have validation annotations on @RequestParam or @PathVariable parameters should be annotated with %s"
                 .formatted(classes.getDescription(), ANNOTATION_VALIDATED)),
@@ -448,6 +451,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(classes)
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().notBeMetaAnnotatedWith(ANNOTATION_VALIDATED)
             .as("Controllers %s should not be annotated with %s".formatted(
                 classes.getDescription(), ANNOTATION_VALIDATED)),

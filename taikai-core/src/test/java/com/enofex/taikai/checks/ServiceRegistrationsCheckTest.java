@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -44,6 +45,25 @@ class ServiceRegistrationsCheckTest {
         com.enofex.taikai.checks.RequiredFilesCheck  # with comment
         """);
     register(TEST_SERVICES, SERVICE, "com.enofex.taikai.checks.ServiceRegistrationsCheck");
+
+    assertEquals(List.of(), this.check.violations(context()));
+  }
+
+  @Test
+  void shouldSkipFilesThatCannotNameService() throws IOException {
+    register(MAIN_SERVICES, SERVICE, "com.enofex.taikai.checks.MavenWrapperCheck");
+    register(MAIN_SERVICES, ".DS_Store", "\u0000\u0000\u0000\u0001Bud1");
+    register(MAIN_SERVICES, SERVICE + "~", "com.example.MissingCheck");
+
+    assertEquals(List.of(), this.check.violations(context()));
+  }
+
+  @Test
+  void shouldReadRegistrationsWithMalformedCommentsAsServiceLoaderDoes() throws IOException {
+    Path directory = Files.createDirectories(this.directory.resolve(MAIN_SERVICES));
+    Files.write(directory.resolve(SERVICE),
+        "# Copyright \u00a9 M\u00fcller GmbH\ncom.enofex.taikai.checks.MavenWrapperCheck\n"
+            .getBytes(StandardCharsets.ISO_8859_1));
 
     assertEquals(List.of(), this.check.violations(context()));
   }

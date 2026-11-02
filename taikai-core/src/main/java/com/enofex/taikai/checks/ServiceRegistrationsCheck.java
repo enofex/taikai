@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -18,7 +19,9 @@ import java.util.stream.Stream;
  * {@code src/main/resources/META-INF/services} and {@code src/test/resources/META-INF/services}
  * of the {@linkplain CheckContext#projectDirectory() project directory}. Every registered service
  * must exist, and every provider must exist, implement the service, and be a public class with a
- * public constructor without parameters, as the {@code ServiceLoader} requires.
+ * public constructor without parameters, as the {@code ServiceLoader} requires. Files whose names
+ * cannot name a class, such as the {@code .DS_Store} of macOS, are no registrations and are
+ * skipped.
  *
  * <p>The check needs no configuration. A project directory without these directories has nothing
  * to check, so the check passes. When the registrations lie elsewhere, configure the directories
@@ -79,13 +82,29 @@ public final class ServiceRegistrationsCheck implements TaikaiCheck {
     return violations;
   }
 
+  /**
+   * Returns whether a file name can name a service type. Other files, such as the
+   * {@code .DS_Store} of macOS or the backups of editors, are no registrations, and the
+   * {@code ServiceLoader} never reads them.
+   */
+  private static boolean isClassName(String fileName) {
+    return Arrays.stream(fileName.split("\\.", -1))
+        .allMatch(identifier -> !identifier.isEmpty()
+            && Character.isJavaIdentifierStart(identifier.codePointAt(0))
+            && identifier.codePoints().allMatch(Character::isJavaIdentifierPart));
+  }
+
   private static List<Path> registrations(Path directory) {
     if (!Files.isDirectory(directory)) {
       return List.of();
     }
 
     try (Stream<Path> files = Files.list(directory)) {
-      return files.filter(Files::isRegularFile).sorted().toList();
+      return files
+          .filter(Files::isRegularFile)
+          .filter(file -> isClassName(file.getFileName().toString()))
+          .sorted()
+          .toList();
     } catch (IOException e) {
       throw new UncheckedIOException("Could not list " + directory, e);
     }
@@ -127,7 +146,8 @@ public final class ServiceRegistrationsCheck implements TaikaiCheck {
 
   private static List<String> providers(Path registration) {
     try {
-      return Files.readAllLines(registration, StandardCharsets.UTF_8).stream()
+      // Replaces malformed input, such as a Latin-1 comment, as the ServiceLoader does.
+      return new String(Files.readAllBytes(registration), StandardCharsets.UTF_8).lines()
           .map(line -> line.replaceFirst("#.*", "").strip())
           .filter(line -> !line.isEmpty())
           .toList();

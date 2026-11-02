@@ -1,10 +1,14 @@
 package com.enofex.taikai.java;
 
+import com.tngtech.archunit.core.domain.JavaAccess;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
+import com.tngtech.archunit.core.domain.JavaMember;
 import com.tngtech.archunit.core.domain.JavaType;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import java.util.stream.Stream;
 
 final class Deprecations {
 
@@ -16,6 +20,7 @@ final class Deprecations {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         javaClass.getFieldAccessesFromSelf().stream()
+            .filter(access -> !isOwnMember(javaClass, access))
             .filter(access -> access.getTarget().isAnnotatedWith(Deprecated.class))
             .forEach(access -> events.add(SimpleConditionEvent.violated(access.getTarget(),
                 "Field %s in class %s is deprecated and is being accessed by %s".formatted(
@@ -23,7 +28,10 @@ final class Deprecations {
                     access.getTarget().getOwner().getName(),
                     javaClass.getName()))));
 
-        javaClass.getMethodCallsFromSelf().stream()
+        // Method references such as Date::getYear use a method just like a call does.
+        Stream.<JavaCodeUnitAccess<?>>concat(javaClass.getMethodCallsFromSelf().stream(),
+                javaClass.getMethodReferencesFromSelf().stream())
+            .filter(method -> !isOwnMember(javaClass, method))
             .filter(method -> method.getTarget().isAnnotatedWith(Deprecated.class) ||
                 method.getTarget().getRawReturnType().isAnnotatedWith(Deprecated.class) ||
                 method.getTarget().getParameterTypes().stream()
@@ -33,7 +41,9 @@ final class Deprecations {
                     method.getName(),
                     javaClass.getName()))));
 
-        javaClass.getConstructorCallsFromSelf().stream()
+        Stream.<JavaCodeUnitAccess<?>>concat(javaClass.getConstructorCallsFromSelf().stream(),
+                javaClass.getConstructorReferencesFromSelf().stream())
+            .filter(constructor -> !isOwnMember(javaClass, constructor))
             .filter(constructor -> constructor.getTarget().isAnnotatedWith(Deprecated.class) ||
                 constructor.getTarget().getParameterTypes().stream()
                     .anyMatch(Deprecations::isDeprecated))
@@ -43,6 +53,7 @@ final class Deprecations {
                     javaClass.getName()))));
 
         javaClass.getDirectDependenciesFromSelf().stream()
+            .filter(dependency -> !isInSameTopLevelClass(javaClass, dependency.getTargetClass()))
             .filter(dependency -> dependency.getTargetClass().isAnnotatedWith(Deprecated.class))
             .forEach(dependency -> events.add(
                 SimpleConditionEvent.violated(dependency.getTargetClass(),
@@ -51,6 +62,34 @@ final class Deprecations {
                         dependency.getTargetClass().getName()))));
       }
     }.as("no usage of deprecated APIs");
+  }
+
+  /**
+   * Returns whether an access targets a member declared in the same top-level class, such as the
+   * deprecated constant of an enum that its compiler-generated code accesses. As for the
+   * deprecation warnings of javac, such uses do not count. The member is resolved, so that an
+   * inherited deprecated method of another class still counts when it is called on {@code this}.
+   */
+  private static boolean isOwnMember(JavaClass javaClass, JavaAccess<?> access) {
+    JavaClass declaringClass = access.getTarget().resolveMember()
+        .<JavaClass>map(JavaMember::getOwner)
+        .orElse(access.getTargetOwner());
+
+    return isInSameTopLevelClass(javaClass, declaringClass);
+  }
+
+  private static boolean isInSameTopLevelClass(JavaClass javaClass, JavaClass other) {
+    return topLevelClass(javaClass).getName().equals(topLevelClass(other).getName());
+  }
+
+  private static JavaClass topLevelClass(JavaClass javaClass) {
+    JavaClass topLevelClass = javaClass;
+
+    while (topLevelClass.getEnclosingClass().isPresent()) {
+      topLevelClass = topLevelClass.getEnclosingClass().get();
+    }
+
+    return topLevelClass;
   }
 
   private static boolean isDeprecated(JavaType javaType) {

@@ -28,7 +28,8 @@ import java.util.TreeMap;
  * the pattern reaches, so <code>src/main/**&#47;*.key</code> does not look into {@code target} or
  * {@code .git}. A pattern outside of the project directory starts with {@code ..}, for example
  * {@code ../.env} in the root of a multi-module build while the project directory is the module
- * under test.</p>
+ * under test. Directories below the searched one that cannot be read, such as the data directory
+ * of a database container, are skipped.</p>
  *
  * <p>Taikai does not register its predefined checks itself, so that a new Taikai version never adds
  * checks on its own. To run this check, list its class name in the file

@@ -1,13 +1,16 @@
 package com.enofex.taikai.test;
 
+import com.tngtech.archunit.core.domain.JavaCodeUnit;
+import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 final class ContainAssertionsOrVerifications {
 
@@ -26,20 +29,22 @@ final class ContainAssertionsOrVerifications {
         }
       }
 
-      private boolean assertsOrVerifies(JavaMethod method, Set<JavaMethod> visited) {
+      private boolean assertsOrVerifies(JavaCodeUnit method, Set<JavaCodeUnit> visited) {
         if (!visited.add(method)) {
           return false;
         }
 
-        for (JavaMethodCall call : method.getMethodCallsFromSelf()) {
+        List<JavaCodeUnitAccess<?>> calls = methodCallsAndReferences(method);
+
+        for (JavaCodeUnitAccess<?> call : calls) {
           if (assertionOrVerification(call)) {
             return true;
           }
         }
 
         // Follow calls into imported methods, e.g. helper methods that assert on behalf of the test
-        for (JavaMethodCall call : method.getMethodCallsFromSelf()) {
-          Optional<JavaMethod> target = call.getTarget().resolveMember();
+        for (JavaCodeUnitAccess<?> call : calls) {
+          Optional<? extends JavaCodeUnit> target = call.getTarget().resolveMember();
           if (target.isPresent() && assertsOrVerifies(target.get(), visited)) {
             return true;
           }
@@ -48,7 +53,7 @@ final class ContainAssertionsOrVerifications {
         return false;
       }
 
-      private boolean assertionOrVerification(JavaMethodCall call) {
+      private boolean assertionOrVerification(JavaCodeUnitAccess<?> call) {
         return junit(call) ||
             mockito(call) ||
             hamcrest(call) ||
@@ -60,49 +65,71 @@ final class ContainAssertionsOrVerifications {
             taikai(call);
       }
 
-      private boolean junit(JavaMethodCall call) {
-        return "org.junit.jupiter.api.Assertions".equals(call.getTargetOwner().getName());
+      private boolean junit(JavaCodeUnitAccess<?> call) {
+        return declaredBy(call, "org.junit.jupiter.api.Assertions");
       }
 
-      private boolean mockito(JavaMethodCall call) {
-        return "org.mockito.Mockito".equals(call.getTargetOwner().getName())
+      private boolean mockito(JavaCodeUnitAccess<?> call) {
+        return declaredBy(call, "org.mockito.Mockito")
             && (call.getName().startsWith("verify")
             || "inOrder".equals(call.getName())
             || "capture".equals(call.getName()));
       }
 
-      private boolean hamcrest(JavaMethodCall call) {
-        return "org.hamcrest.MatcherAssert".equals(call.getTargetOwner().getName());
+      private boolean hamcrest(JavaCodeUnitAccess<?> call) {
+        return declaredBy(call, "org.hamcrest.MatcherAssert");
       }
 
-      private boolean assertJ(JavaMethodCall call) {
-        return "org.assertj.core.api.Assertions".equals(call.getTargetOwner().getName());
+      private boolean assertJ(JavaCodeUnitAccess<?> call) {
+        return declaredBy(call, "org.assertj.core.api.Assertions");
       }
 
-      private boolean truth(JavaMethodCall call) {
-        return "com.google.common.truth.Truth".equals(call.getTargetOwner().getName());
+      private boolean truth(JavaCodeUnitAccess<?> call) {
+        return declaredBy(call, "com.google.common.truth.Truth");
       }
 
-      private boolean cucumber(JavaMethodCall call) {
-        return "io.cucumber.java.en.Then".equals(call.getTargetOwner().getName()) ||
-            "io.cucumber.java.en.Given".equals(call.getTargetOwner().getName());
+      private boolean cucumber(JavaCodeUnitAccess<?> call) {
+        return declaredBy(call, "io.cucumber.java.en.Then") ||
+            declaredBy(call, "io.cucumber.java.en.Given");
       }
 
-      private boolean springMockMvc(JavaMethodCall call) {
+      private boolean springMockMvc(JavaCodeUnitAccess<?> call) {
         return
-            "org.springframework.test.web.servlet.ResultActions".equals(call.getTargetOwner().getName())
+            declaredBy(call, "org.springframework.test.web.servlet.ResultActions")
                 && ("andExpect".equals(call.getName()) || "andExpectAll".equals(call.getName()));
       }
 
-      private boolean archRule(JavaMethodCall call) {
-        return "com.tngtech.archunit.lang.ArchRule".equals(call.getTargetOwner().getName())
+      private boolean archRule(JavaCodeUnitAccess<?> call) {
+        // Fluent rules such as classes().should()...check(classes) are called through subtypes.
+        return call.getTargetOwner().isAssignableTo("com.tngtech.archunit.lang.ArchRule")
             && "check".equals(call.getName());
       }
 
-      private boolean taikai(JavaMethodCall call) {
-        return "com.enofex.taikai.Taikai".equals(call.getTargetOwner().getName())
-            && ("check".equals(call.getName()) || "checkAll".equals(call.getName())) ;
+      private boolean taikai(JavaCodeUnitAccess<?> call) {
+        return declaredBy(call, "com.enofex.taikai.Taikai")
+            && ("check".equals(call.getName()) || "checkAll".equals(call.getName()));
+      }
+
+      /**
+       * Returns whether the called method belongs to the given class, also when it is called
+       * through a subclass, as {@code BDDMockito.verify} calls {@code Mockito.verify}.
+       */
+      private boolean declaredBy(JavaCodeUnitAccess<?> call, String className) {
+        return className.equals(call.getTargetOwner().getName())
+            || call.getTarget().resolveMember()
+            .map(member -> className.equals(member.getOwner().getName()))
+            .orElse(false);
       }
     };
+  }
+
+  /**
+   * Returns the method calls and the method references, such as
+   * {@code items.forEach(this::assertValid)}, which call the referenced method as well.
+   */
+  private static List<JavaCodeUnitAccess<?>> methodCallsAndReferences(JavaCodeUnit method) {
+    return Stream.<JavaCodeUnitAccess<?>>concat(method.getMethodCallsFromSelf().stream(),
+            method.getMethodReferencesFromSelf().stream())
+        .toList();
   }
 }
