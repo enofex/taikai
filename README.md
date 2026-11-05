@@ -233,8 +233,11 @@ The Open Source Community
 
 Visit the [Taikai](https://enofex.github.io/taikai/) Website for general information and documentation.
 
-## Sponsor
+## Support Taikai
 
-<a href="https://github.com/sponsors/mnhock">
-  <img src="https://img.shields.io/badge/Sponsor%20Taikai%20on%20GitHub-4051b5?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor Taikai on GitHub" />
-</a>
+If Taikai helps you build better software, consider supporting its development.
+
+Your sponsorship helps maintain the project, improve existing features, and develop new capabilities.
+
+[**Become a sponsor ❤️**](https://github.com/sponsors/mnhock)
+
