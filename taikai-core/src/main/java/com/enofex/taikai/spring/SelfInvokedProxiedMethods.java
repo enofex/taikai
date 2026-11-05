@@ -1,23 +1,16 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
+import static com.enofex.taikai.internal.Classes.methodCallsAndReferences;
 
-import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaModifier;
-import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 final class SelfInvokedProxiedMethods {
 
@@ -26,12 +19,6 @@ final class SelfInvokedProxiedMethods {
 
   static ArchCondition<JavaClass> notSelfInvokeMethodsAnnotatedWith(
       Collection<String> annotations) {
-    Map<String, DescribedPredicate<CanBeAnnotated>> predicates = new LinkedHashMap<>();
-
-    for (String annotation : annotations) {
-      predicates.put(annotation, annotatedWith(annotation, true));
-    }
-
     return new ArchCondition<>("not self-invoke methods annotated with %s".formatted(
         String.join(" or ", annotations))) {
       @Override
@@ -48,30 +35,19 @@ final class SelfInvokedProxiedMethods {
             continue;
           }
 
-          for (Entry<String, DescribedPredicate<CanBeAnnotated>> predicate : predicates.entrySet()) {
-            if (predicate.getValue().test(target.get())) {
-              events.add(SimpleConditionEvent.violated(javaClass,
+          JavaCodeUnit method = target.get();
+
+          annotations.stream()
+              .filter(method::isMetaAnnotatedWith)
+              .findFirst()
+              .ifPresent(annotation -> events.add(SimpleConditionEvent.violated(javaClass,
                   "Method %s calls %s in line %d, the self-invocation bypasses the Spring proxy and %s has no effect".formatted(
                       call.getOrigin().getFullName(),
-                      target.get().getFullName(),
+                      method.getFullName(),
                       call.getLineNumber(),
-                      predicate.getKey())));
-
-              break;
-            }
-          }
+                      annotation))));
         }
       }
     };
-  }
-
-  /**
-   * Returns the method calls and the method references, such as {@code orders.forEach(this::save)},
-   * which invoke the referenced method on {@code this} as well.
-   */
-  private static List<JavaCodeUnitAccess<?>> methodCallsAndReferences(JavaClass javaClass) {
-    return Stream.<JavaCodeUnitAccess<?>>concat(javaClass.getMethodCallsFromSelf().stream(),
-            javaClass.getMethodReferencesFromSelf().stream())
-        .toList();
   }
 }

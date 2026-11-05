@@ -113,10 +113,6 @@ final class SpringDescribedPredicates {
     return annotatedWith(ANNOTATION_AUTOWIRED, isMetaAnnotated);
   }
 
-  static DescribedPredicate<CanBeAnnotated> annotatedWithValidated(boolean isMetaAnnotated) {
-    return annotatedWith(ANNOTATION_VALIDATED, isMetaAnnotated);
-  }
-
   static DescribedPredicate<CanBeAnnotated> annotatedWithTransactional(boolean isMetaAnnotated) {
     return annotatedWith(ANNOTATION_TRANSACTIONAL, isMetaAnnotated)
         .or(annotatedWith(ANNOTATION_JAKARTA_TRANSACTIONAL, isMetaAnnotated));

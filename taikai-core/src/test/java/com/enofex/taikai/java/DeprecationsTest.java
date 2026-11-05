@@ -10,23 +10,28 @@ import com.enofex.taikai.java.DeprecatedApi.DeprecatedHolder;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class DeprecationsTest {
 
-  @Test
-  void shouldPassWhenNoDeprecatedApisAreUsed() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {SafeClass.class, Status.class, Order.class})
+  void shouldPassWhenNoDeprecatedApisOfOtherClassesAreUsed(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(SafeClass.class)
+        .classes(fixture)
         .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
         .build();
 
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldFailWhenCallingDeprecatedMethod() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {UsesDeprecatedMethod.class, UsesDeprecatedConstructor.class,
+      DependsOnDeprecatedClass.class, AccessesDeprecatedField.class})
+  void shouldFailWhenUsingDeprecatedApis(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(UsesDeprecatedMethod.class)
+        .classes(fixture)
         .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
         .build();
 
@@ -42,16 +47,6 @@ class DeprecationsTest {
 
     AssertionError error = assertThrows(AssertionError.class, taikai::check);
     assertTrue(error.getMessage().contains("Method finalize"), error.getMessage());
-  }
-
-  @Test
-  void shouldFailWhenInstantiatingDeprecatedConstructor() {
-    Taikai taikai = Taikai.builder()
-        .classes(UsesDeprecatedConstructor.class)
-        .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
   }
 
   @Test
@@ -79,26 +74,6 @@ class DeprecationsTest {
   }
 
   @Test
-  void shouldPassWhenEnumDeclaresDeprecatedConstant() {
-    Taikai taikai = Taikai.builder()
-        .classes(Status.class)
-        .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldPassWhenRecordDeclaresDeprecatedComponent() {
-    Taikai taikai = Taikai.builder()
-        .classes(Order.class)
-        .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
   void shouldPassWhenClassUsesItsOwnDeprecatedMembers() {
     Taikai taikai = Taikai.builder()
         .classes(LegacyClient.class, LegacyClient.Builder.class)
@@ -118,26 +93,6 @@ class DeprecationsTest {
     AssertionError error = assertThrows(AssertionError.class, taikai::check);
 
     assertTrue(error.getMessage().contains("Method deprecatedMethod"), error.getMessage());
-  }
-
-  @Test
-  void shouldFailWhenDependingOnDeprecatedClass() {
-    Taikai taikai = Taikai.builder()
-        .classes(DependsOnDeprecatedClass.class)
-        .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldFailWhenAccessingDeprecatedField() {
-    Taikai taikai = Taikai.builder()
-        .classes(AccessesDeprecatedField.class)
-        .java(JavaConfigurer::noUsageOfDeprecatedAPIs)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
   }
 
   static class SafeClass {

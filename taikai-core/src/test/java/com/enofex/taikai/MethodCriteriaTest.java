@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
 
 class MethodCriteriaTest {
 
+  private static final JavaClass ORDER_SERVICE =
+      new ClassFileImporter().importClass(OrderService.class);
+
   @Test
   void shouldMatchEntireMethodNameWithoutDeclaringClass() {
     JavaMethod method = findAllMethod();
@@ -37,13 +40,12 @@ class MethodCriteriaTest {
 
   @Test
   void shouldMatchDirectAndMetaAnnotatedMethods() {
-    JavaClass service = new ClassFileImporter().importClass(OrderService.class);
     for (String name : List.of("findAll", "findOne")) {
-      assertTrue(MethodCriteria.annotatedWith(Query.class).test(service.getMethod(name)));
+      assertTrue(MethodCriteria.annotatedWith(Query.class).test(ORDER_SERVICE.getMethod(name)));
       assertTrue(MethodCriteria.annotatedWith(Query.class.getName())
-          .test(service.getMethod(name)));
+          .test(ORDER_SERVICE.getMethod(name)));
     }
-    assertFalse(MethodCriteria.annotatedWith(Query.class).test(service.getMethod("save")));
+    assertFalse(MethodCriteria.annotatedWith(Query.class).test(ORDER_SERVICE.getMethod("save")));
   }
 
   @Test
@@ -59,7 +61,7 @@ class MethodCriteriaTest {
   }
 
   private static JavaMethod findAllMethod() {
-    return new ClassFileImporter().importClass(OrderService.class).getMethod("findAll");
+    return ORDER_SERVICE.getMethod("findAll");
   }
 
   @Retention(RetentionPolicy.RUNTIME)

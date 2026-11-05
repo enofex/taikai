@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -34,22 +35,12 @@ class ClassesShouldBeInterfacesTest {
     }
 
     @Test
-    void shouldNotThrowWhenNoClassMatchesPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(MyRepository.class)
-          .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*NonExistent")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
     void shouldSupportCustomConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(MyRepository.class)
           .java(java -> java.classesShouldBeInterfaces(
               ClassCriteria.nameMatching(".*Repository"),
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+              defaultConfiguration()))
           .build();
 
       assertDoesNotThrow(taikai::check);

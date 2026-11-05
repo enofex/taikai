@@ -1,5 +1,7 @@
 package com.enofex.taikai.logging;
 
+import static com.enofex.taikai.internal.ArchConditions.hasFieldModifiers;
+
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -7,7 +9,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 
 final class LoggerConventions {
 
@@ -16,6 +18,9 @@ final class LoggerConventions {
 
   static ArchCondition<JavaClass> followLoggerConventions(String typeName, String regex,
       Collection<JavaModifier> requiredModifiers) {
+    Pattern name = Pattern.compile(regex);
+    ArchCondition<JavaField> modifiers = hasFieldModifiers(requiredModifiers);
+
     return new ArchCondition<>(
         "have a logger field of type %s with name pattern %s and modifiers %s".formatted(
             typeName, regex, requiredModifiers)) {
@@ -23,22 +28,14 @@ final class LoggerConventions {
       public void check(JavaClass javaClass, ConditionEvents events) {
         for (JavaField field : javaClass.getFields()) {
           if (field.getRawType().isAssignableTo(typeName)) {
-            if (!field.getName().matches(regex)) {
+            if (!name.matcher(field.getName()).matches()) {
               events.add(SimpleConditionEvent.violated(field,
                   "Field %s in class %s does not have a name matching %s".formatted(
                       field.getName(),
                       javaClass.getName(), regex)));
             }
 
-            if (!field.getModifiers().containsAll(requiredModifiers)) {
-              events.add(SimpleConditionEvent.violated(field,
-                  "Field %s in class %s is missing one of these modifiers: %s".formatted(
-                      field.getName(),
-                      javaClass.getName(),
-                      requiredModifiers.stream()
-                          .map(Enum::name)
-                          .collect(Collectors.joining(", ")))));
-            }
+            modifiers.check(field, events);
           }
         }
       }

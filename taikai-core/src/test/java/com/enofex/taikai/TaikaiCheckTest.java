@@ -16,15 +16,8 @@ import com.enofex.taikai.checks.spi.TestChecks;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceConfigurationError;
@@ -40,7 +33,6 @@ import org.junit.jupiter.api.io.TempDir;
 class TaikaiCheckTest {
 
   private static final String NAMESPACE = "com.enofex.taikai";
-  private static final String SERVICES = "META-INF/services/" + TaikaiCheck.class.getName();
 
   @TempDir
   private Path directory;
@@ -740,50 +732,14 @@ class TaikaiCheckTest {
   }
 
   private Taikai build(Taikai.Builder builder, Class<?>... checks) {
-    return build(builder, Arrays.stream(checks).map(Class::getName).toArray(String[]::new));
+    return ServiceRegistrations.build(builder, TaikaiCheck.class, this.directory, checks);
   }
 
-  /**
-   * Builds with a context class loader that only finds the given checks in
-   * {@code META-INF/services}, like a library that registers them on the classpath.
-   */
   private Taikai build(Taikai.Builder builder, String... checkClassNames) {
-    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-
-    try {
-      Path registration = Files.writeString(Files.createTempFile(this.directory, "services", ""),
-          String.join(System.lineSeparator(), checkClassNames));
-      Thread.currentThread().setContextClassLoader(
-          new RegisteredChecksClassLoader(contextClassLoader, registration.toUri().toURL()));
-
-      return builder.build();
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    } finally {
-      Thread.currentThread().setContextClassLoader(contextClassLoader);
-    }
+    return ServiceRegistrations.build(builder, TaikaiCheck.class, this.directory, checkClassNames);
   }
 
   private static List<Class<?>> classes(Iterable<TaikaiCheck> checks) {
-    List<Class<?>> classes = new ArrayList<>();
-    checks.forEach(check -> classes.add(check.getClass()));
-    return classes;
-  }
-
-  private static final class RegisteredChecksClassLoader extends ClassLoader {
-
-    private final URL registration;
-
-    RegisteredChecksClassLoader(ClassLoader parent, URL registration) {
-      super(parent);
-      this.registration = registration;
-    }
-
-    @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-      return SERVICES.equals(name)
-          ? Collections.enumeration(List.of(this.registration))
-          : super.getResources(name);
-    }
+    return ServiceRegistrations.classes(checks);
   }
 }

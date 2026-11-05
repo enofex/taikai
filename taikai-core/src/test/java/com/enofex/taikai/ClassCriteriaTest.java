@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
 
 class ClassCriteriaTest {
 
+  private static final JavaClass USER_DTO = new ClassFileImporter().importClass(UserDTO.class);
+
   @Test
   void shouldMatchDirectAndComposedAnnotationsByClassAndName() {
     for (Class<?> type : new Class<?>[] {UserEntity.class, ComposedEntity.class}) {
@@ -22,8 +24,7 @@ class ClassCriteriaTest {
       assertTrue(ClassCriteria.annotatedWith(Entity.class).test(imported));
       assertTrue(ClassCriteria.annotatedWith(Entity.class.getName()).test(imported));
     }
-    JavaClass plain = new ClassFileImporter().importClass(UserDTO.class);
-    assertFalse(ClassCriteria.annotatedWith(Entity.class).test(plain));
+    assertFalse(ClassCriteria.annotatedWith(Entity.class).test(USER_DTO));
   }
 
   @Test
@@ -35,20 +36,18 @@ class ClassCriteriaTest {
 
   @Test
   void shouldMatchEntireFullyQualifiedNameUsingRegex() {
-    JavaClass imported = new ClassFileImporter().importClass(UserDTO.class);
-    assertTrue(ClassCriteria.nameMatching(".*DTO").test(imported));
-    assertTrue(ClassCriteria.nameMatching("com\\.enofex\\..*").test(imported));
-    assertFalse(ClassCriteria.nameMatching("UserDTO").test(imported));
-    assertFalse(ClassCriteria.nameMatching("DTO").test(imported));
+    assertTrue(ClassCriteria.nameMatching(".*DTO").test(USER_DTO));
+    assertTrue(ClassCriteria.nameMatching("com\\.enofex\\..*").test(USER_DTO));
+    assertFalse(ClassCriteria.nameMatching("UserDTO").test(USER_DTO));
+    assertFalse(ClassCriteria.nameMatching("DTO").test(USER_DTO));
   }
 
   @Test
   void shouldMatchEntireSimpleNameUsingRegex() {
-    JavaClass imported = new ClassFileImporter().importClass(UserDTO.class);
-    assertTrue(ClassCriteria.simpleNameMatching("UserDTO").test(imported));
-    assertTrue(ClassCriteria.simpleNameMatching(".*DTO").test(imported));
-    assertFalse(ClassCriteria.simpleNameMatching("DTO").test(imported));
-    assertFalse(ClassCriteria.simpleNameMatching("com.enofex.*").test(imported));
+    assertTrue(ClassCriteria.simpleNameMatching("UserDTO").test(USER_DTO));
+    assertTrue(ClassCriteria.simpleNameMatching(".*DTO").test(USER_DTO));
+    assertFalse(ClassCriteria.simpleNameMatching("DTO").test(USER_DTO));
+    assertFalse(ClassCriteria.simpleNameMatching("com.enofex.*").test(USER_DTO));
   }
 
   @Test
@@ -61,11 +60,10 @@ class ClassCriteriaTest {
 
   @Test
   void shouldMatchPackagesUsingArchUnitSyntax() {
-    JavaClass imported = new ClassFileImporter().importClass(UserDTO.class);
-    assertTrue(ClassCriteria.inPackage("com.enofex.taikai").test(imported));
-    assertTrue(ClassCriteria.inPackage("com.enofex..").test(imported));
-    assertTrue(ClassCriteria.inPackage("com.*.taikai").test(imported));
-    assertFalse(ClassCriteria.inPackage("com.company.internal..").test(imported));
+    assertTrue(ClassCriteria.inPackage("com.enofex.taikai").test(USER_DTO));
+    assertTrue(ClassCriteria.inPackage("com.enofex..").test(USER_DTO));
+    assertTrue(ClassCriteria.inPackage("com.*.taikai").test(USER_DTO));
+    assertFalse(ClassCriteria.inPackage("com.company.internal..").test(USER_DTO));
   }
 
   @Test

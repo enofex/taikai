@@ -1,5 +1,7 @@
 package com.enofex.taikai.metrics;
 
+import static com.enofex.taikai.metrics.MetricsChecks.check;
+import static com.enofex.taikai.metrics.MetricsChecks.classesOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -7,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.metrics.ClassMetricsTest.Level1;
 import com.enofex.taikai.metrics.ClassMetricsTest.Level2;
 import com.enofex.taikai.metrics.ClassMetricsTest.Level3;
@@ -15,10 +16,8 @@ import com.enofex.taikai.metrics.ClassMetricsTest.MethodsWithParameters;
 import com.enofex.taikai.metrics.ClassMetricsTest.OtherLevel2;
 import com.enofex.taikai.metrics.shop.app.OrderService;
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 /**
  * The rules for classes check only the selected classes, but keep counting all checked classes,
@@ -136,19 +135,6 @@ class ClassSelectionTest {
   }
 
   private static JavaClasses shop() {
-    return new ClassFileImporter().importPackages("com.enofex.taikai.metrics.shop");
-  }
-
-  private static Executable check(Customizer<MetricsConfigurer> customizer,
-      Class<?>... classes) {
-    return check(customizer, new ClassFileImporter().importClasses(classes));
-  }
-
-  private static Executable check(Customizer<MetricsConfigurer> customizer,
-      JavaClasses classes) {
-    return Taikai.builder()
-        .classes(classes)
-        .metrics(customizer)
-        .build()::check;
+    return classesOf("com.enofex.taikai.metrics.shop");
   }
 }

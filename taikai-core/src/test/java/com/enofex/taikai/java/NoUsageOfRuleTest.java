@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Nested;
@@ -83,7 +82,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldThrowWhenForbiddenTypeUsedWithinPackage() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
+          .classes(UsesArrayList.class, DoesNotUseArrayList.class)
           .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.enofex.taikai.java"),
               ArrayList.class))
           .build();
@@ -94,7 +93,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldNotThrowWhenPackageRestrictionDoesNotMatch() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
+          .classes(UsesArrayList.class, DoesNotUseArrayList.class)
           .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.company.project"), ArrayList.class))
           .build();
 
@@ -128,7 +127,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldThrowWhenForbiddenTypeUsedWithinPackageByName() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
+          .classes(UsesArrayList.class, DoesNotUseArrayList.class)
           .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.enofex.taikai.java"),
               "java.util.ArrayList"))
           .build();
@@ -139,7 +138,7 @@ class NoUsageOfRuleTest {
     @Test
     void shouldNotThrowWhenPackageRestrictionDoesNotMatchByName() {
       Taikai taikai = Taikai.builder()
-          .classes(new ClassFileImporter().importPackages("com.enofex.taikai.java"))
+          .classes(UsesArrayList.class, DoesNotUseArrayList.class)
           .java(java -> java.noUsageOf(ClassCriteria.inPackage("com.company.project"),
               "java.util.ArrayList"))
           .build();

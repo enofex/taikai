@@ -10,12 +10,12 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.internal.Modifiers;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Configures and enforces logging-related rules using {@link com.tngtech.archunit ArchUnit}
@@ -236,9 +236,7 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
             .as(requiredModifiers.isEmpty()
                 ? "Loggers of type %s should have names matching %s".formatted(typeName, regex)
                 : "Loggers of type %s should have names matching %s and all of these modifiers %s"
-                    .formatted(typeName, regex, requiredModifiers.stream()
-                        .map(Enum::name)
-                        .collect(Collectors.joining(", ")))),
+                    .formatted(typeName, regex, Modifiers.names(requiredModifiers))),
         configuration));
   }
 

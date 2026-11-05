@@ -24,7 +24,7 @@ final class NoSystemOutOrErr {
                     "Method %s calls %s.%s".formatted(
                         fieldAccess.getOrigin().getFullName(),
                         fieldAccess.getTargetOwner().getName(),
-                        fieldAccess.getTarget().getName())));
+                        fieldName)));
               }
             });
       }

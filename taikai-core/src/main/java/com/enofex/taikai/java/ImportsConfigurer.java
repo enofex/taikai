@@ -11,6 +11,7 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.internal.Namespaces;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -188,13 +189,8 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * @see #shouldHaveNoCycles()
    */
   public ImportsConfigurer shouldHaveNoCycles(Configuration configuration) {
-    String namespace = configuration.namespace() != null
-        ? configuration.namespace()
-        : configurerContext().namespace();
-
-    if (namespace == null) {
-      throw new TaikaiException("Namespace is not provided");
-    }
+    String namespace = Namespaces.require(configuration.namespace(),
+        configurerContext().namespace());
 
     return addRule(TaikaiRule.of(slices()
         .matching(namespace + ".(*)..")

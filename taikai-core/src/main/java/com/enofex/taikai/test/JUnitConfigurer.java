@@ -22,6 +22,7 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.internal.Classes;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -427,10 +428,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
     return new ArchCondition<>("have a top-level class name matching %s".formatted(regex)) {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
-        JavaClass topLevelClass = javaClass;
-        while (topLevelClass.getEnclosingClass().isPresent()) {
-          topLevelClass = topLevelClass.getEnclosingClass().get();
-        }
+        JavaClass topLevelClass = Classes.topLevelClass(javaClass);
 
         if (!pattern.matcher(topLevelClass.getName()).matches()) {
           events.add(SimpleConditionEvent.violated(javaClass,

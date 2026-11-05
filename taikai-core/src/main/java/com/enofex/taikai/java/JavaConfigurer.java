@@ -35,6 +35,7 @@ import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.internal.Modifiers;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
@@ -42,7 +43,6 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * Configures and enforces general Java code quality and design rules using
@@ -972,7 +972,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(hasMethodsModifiers(requiredModifiers))
             .as("Methods %s should have all of these modifiers %s".formatted(
                 methods.getDescription(),
-                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(requiredModifiers))),
         configuration));
   }
 
@@ -1012,7 +1012,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(hasMethodsModifiers(requiredModifiers))
             .as("Methods declared in classes %s should have all of these modifiers %s".formatted(
                 classes.getDescription(),
-                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(requiredModifiers))),
         configuration));
   }
 
@@ -1052,7 +1052,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(notHasMethodModifiers(forbiddenModifiers))
             .as("Methods %s should not have any of these modifiers %s".formatted(
                 methods.getDescription(),
-                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(forbiddenModifiers))),
         configuration));
   }
 
@@ -1094,7 +1094,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(notHasMethodModifiers(forbiddenModifiers))
             .as("Methods declared in classes %s should not have any of these modifiers %s".formatted(
                 classes.getDescription(),
-                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(forbiddenModifiers))),
         configuration));
   }
 
@@ -1713,7 +1713,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(hasClassModifiers(requiredModifiers))
             .as("Classes %s should have all of these modifiers %s".formatted(
                 classes.getDescription(),
-                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(requiredModifiers))),
         configuration));
   }
 
@@ -1752,7 +1752,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(notHasClassModifiers(forbiddenModifiers))
             .as("Classes %s should not have any of these modifiers %s".formatted(
                 classes.getDescription(),
-                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(forbiddenModifiers))),
         configuration));
   }
 
@@ -1850,7 +1850,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(hasFieldModifiers(requiredModifiers))
             .as("Fields %s should have all of these modifiers %s".formatted(
                 fields.getDescription(),
-                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(requiredModifiers))),
         configuration));
   }
 
@@ -1890,7 +1890,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(hasFieldModifiers(requiredModifiers))
             .as("Fields declared in classes %s should have all of these modifiers %s".formatted(
                 classes.getDescription(),
-                requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(requiredModifiers))),
         configuration));
   }
 
@@ -1930,7 +1930,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(notHasFieldModifiers(forbiddenModifiers))
             .as("Fields %s should not have any of these modifiers %s".formatted(
                 fields.getDescription(),
-                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(forbiddenModifiers))),
         configuration));
   }
 
@@ -1973,7 +1973,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
             .should(notHasFieldModifiers(forbiddenModifiers))
             .as("Fields declared in classes %s should not have any of these modifiers %s".formatted(
                 classes.getDescription(),
-                forbiddenModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))),
+                Modifiers.names(forbiddenModifiers))),
         configuration));
   }
 

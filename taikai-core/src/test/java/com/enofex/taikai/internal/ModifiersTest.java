@@ -1,7 +1,14 @@
 package com.enofex.taikai.internal;
 
+import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
+import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
+import static com.tngtech.archunit.core.domain.JavaModifier.PROTECTED;
+import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
+import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
+import static com.tngtech.archunit.core.domain.JavaModifier.SYNTHETIC;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -9,162 +16,51 @@ import com.tngtech.archunit.core.domain.JavaConstructor;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
-import java.util.Collections;
+import com.tngtech.archunit.core.domain.properties.HasModifiers;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@ExtendWith(MockitoExtension.class)
 class ModifiersTest {
 
-  @Mock
-  private JavaClass javaClass;
-  @Mock
-  private JavaConstructor constructor;
-  @Mock
-  private JavaField field;
-  @Mock
-  private JavaMethod method;
-
-  @Test
-  void shouldReturnTrueWhenClassIsFinal() {
-    when(this.javaClass.getModifiers()).thenReturn(Set.of(JavaModifier.FINAL));
-
-    assertTrue(Modifiers.isClassFinal(this.javaClass));
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("modifierChecks")
+  void shouldMatchOnlyElementsWithModifier(ModifierCheck<?> check) {
+    assertTrue(check.matches(Set.of(check.modifier())));
+    assertFalse(check.matches(Set.of()));
   }
 
-  @Test
-  void shouldReturnFalseWhenClassIsNotFinal() {
-    when(this.javaClass.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isClassFinal(this.javaClass));
+  static Stream<Named<ModifierCheck<?>>> modifierChecks() {
+    return Stream.of(
+        check("isClassFinal", JavaClass.class, FINAL, Modifiers::isClassFinal),
+        check("isConstructorPrivate", JavaConstructor.class, PRIVATE,
+            Modifiers::isConstructorPrivate),
+        check("isMethodProtected", JavaMethod.class, PROTECTED, Modifiers::isMethodProtected),
+        check("isMethodStatic", JavaMethod.class, STATIC, Modifiers::isMethodStatic),
+        check("isMethodSynthetic", JavaMethod.class, SYNTHETIC, Modifiers::isMethodSynthetic),
+        check("isFieldStatic", JavaField.class, STATIC, Modifiers::isFieldStatic),
+        check("isFieldPublic", JavaField.class, PUBLIC, Modifiers::isFieldPublic),
+        check("isFieldProtected", JavaField.class, PROTECTED, Modifiers::isFieldProtected),
+        check("isFieldFinal", JavaField.class, FINAL, Modifiers::isFieldFinal),
+        check("isFieldSynthetic", JavaField.class, SYNTHETIC, Modifiers::isFieldSynthetic));
   }
 
-  @Test
-  void shouldReturnTrueWhenConstructorIsPrivate() {
-    when(this.constructor.getModifiers()).thenReturn(Set.of(JavaModifier.PRIVATE));
-
-    assertTrue(Modifiers.isConstructorPrivate(this.constructor));
+  private static <T extends HasModifiers> Named<ModifierCheck<?>> check(String name,
+      Class<T> type, JavaModifier modifier, Predicate<T> predicate) {
+    return Named.of(name, new ModifierCheck<>(type, modifier, predicate));
   }
 
-  @Test
-  void shouldReturnFalseWhenConstructorIsNotPrivate() {
-    when(this.constructor.getModifiers()).thenReturn(Collections.emptySet());
+  private record ModifierCheck<T extends HasModifiers>(Class<T> type, JavaModifier modifier,
+      Predicate<T> predicate) {
 
-    assertFalse(Modifiers.isConstructorPrivate(this.constructor));
-  }
+    boolean matches(Set<JavaModifier> modifiers) {
+      T element = mock(this.type);
+      when(element.getModifiers()).thenReturn(modifiers);
 
-  @Test
-  void shouldReturnTrueWhenMethodIsProtected() {
-    when(this.method.getModifiers()).thenReturn(Set.of(JavaModifier.PROTECTED));
-
-    assertTrue(Modifiers.isMethodProtected(this.method));
-  }
-
-  @Test
-  void shouldReturnFalseWhenMethodIsNotProtected() {
-    when(this.method.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isMethodProtected(this.method));
-  }
-
-  @Test
-  void shouldReturnTrueWhenMethodIsStatic() {
-    when(this.method.getModifiers()).thenReturn(Set.of(JavaModifier.STATIC));
-
-    assertTrue(Modifiers.isMethodStatic(this.method));
-  }
-
-  @Test
-  void shouldReturnFalseWhenMethodIsNotStatic() {
-    when(this.method.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isMethodStatic(this.method));
-  }
-
-  @Test
-  void shouldReturnTrueWhenFieldIsStatic() {
-    when(this.field.getModifiers()).thenReturn(Set.of(JavaModifier.STATIC));
-
-    assertTrue(Modifiers.isFieldStatic(this.field));
-  }
-
-  @Test
-  void shouldReturnFalseWhenFieldIsNotStatic() {
-    when(this.field.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isFieldStatic(this.field));
-  }
-
-  @Test
-  void shouldReturnTrueWhenFieldIsPublic() {
-    when(this.field.getModifiers()).thenReturn(Set.of(JavaModifier.PUBLIC));
-
-    assertTrue(Modifiers.isFieldPublic(this.field));
-  }
-
-  @Test
-  void shouldReturnFalseWhenFieldIsNotPublic() {
-    when(this.field.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isFieldPublic(this.field));
-  }
-
-  @Test
-  void shouldReturnTrueWhenFieldIsProtected() {
-    when(this.field.getModifiers()).thenReturn(Set.of(JavaModifier.PROTECTED));
-
-    assertTrue(Modifiers.isFieldProtected(this.field));
-  }
-
-  @Test
-  void shouldReturnFalseWhenFieldIsNotProtected() {
-    when(this.field.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isFieldProtected(this.field));
-  }
-
-  @Test
-  void shouldReturnTrueWhenFieldIsFinal() {
-    when(this.field.getModifiers()).thenReturn(Set.of(JavaModifier.FINAL));
-
-    assertTrue(Modifiers.isFieldFinal(this.field));
-  }
-
-  @Test
-  void shouldReturnFalseWhenFieldIsNotFinal() {
-    when(this.field.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isFieldFinal(this.field));
-  }
-
-  @Test
-  void shouldReturnTrueWhenFieldIsSynthetic() {
-    when(this.field.getModifiers()).thenReturn(Set.of(JavaModifier.SYNTHETIC));
-
-    assertTrue(Modifiers.isFieldSynthetic(this.field));
-  }
-
-  @Test
-  void shouldReturnFalseWhenFieldIsNotSynthetic() {
-    when(this.field.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isFieldSynthetic(this.field));
-  }
-
-  @Test
-  void shouldReturnTrueWhenMethodIsSynthetic() {
-    when(this.method.getModifiers()).thenReturn(Set.of(JavaModifier.SYNTHETIC));
-
-    assertTrue(Modifiers.isMethodSynthetic(this.method));
-  }
-
-  @Test
-  void shouldReturnFalseWhenMethodIsNotSynthetic() {
-    when(this.method.getModifiers()).thenReturn(Collections.emptySet());
-
-    assertFalse(Modifiers.isMethodSynthetic(this.method));
+      return this.predicate.test(element);
+    }
   }
 }

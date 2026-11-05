@@ -1,54 +1,33 @@
 package com.enofex.taikai;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.enofex.taikai.Namespace.IMPORT.ONLY_TESTS;
+import static com.enofex.taikai.Namespace.IMPORT.WITHOUT_TESTS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.core.importer.ImportOption;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class NamespaceTest {
 
   private static final String VALID_NAMESPACE = "com.enofex.taikai";
 
-  @Test
-  void shouldReturnJavaClassesWithoutTests() {
-    JavaClasses result = Namespace.from(VALID_NAMESPACE, Namespace.IMPORT.WITHOUT_TESTS);
+  @ParameterizedTest(name = "{0}")
+  @EnumSource(Namespace.IMPORT.class)
+  void shouldImportClassesOfImportModeOnce(Namespace.IMPORT importOption) {
+    JavaClasses result = Namespace.from(VALID_NAMESPACE, importOption);
 
-    assertNotNull(result);
-    assertDoesNotThrow(() -> new ClassFileImporter()
-        .withImportOption(new ImportOption.DoNotIncludeTests())
-        .withImportOption(new ImportOption.DoNotIncludeJars())
-        .importPackages(VALID_NAMESPACE));
-  }
-
-  @Test
-  void shouldReturnJavaClassesWithTests() {
-    JavaClasses result = Namespace.from(VALID_NAMESPACE, Namespace.IMPORT.WITH_TESTS);
-
-    assertNotNull(result);
-    assertDoesNotThrow(() -> new ClassFileImporter()
-        .withImportOption(new ImportOption.DoNotIncludeJars())
-        .importPackages(VALID_NAMESPACE));
-  }
-
-  @Test
-  void shouldReturnJavaClassesOnlyTests() {
-    JavaClasses result = Namespace.from(VALID_NAMESPACE, Namespace.IMPORT.ONLY_TESTS);
-
-    assertNotNull(result);
-    assertDoesNotThrow(() -> new ClassFileImporter()
-        .withImportOption(new ImportOption.OnlyIncludeTests())
-        .withImportOption(new ImportOption.DoNotIncludeJars())
-        .importPackages(VALID_NAMESPACE));
+    assertEquals(importOption != ONLY_TESTS, result.contain(Taikai.class), "production class");
+    assertEquals(importOption != WITHOUT_TESTS, result.contain(NamespaceTest.class), "test class");
+    assertSame(result, Namespace.from(VALID_NAMESPACE, importOption));
   }
 
   @Test
   void shouldThrowExceptionForNullNamespace() {
-    assertThrows(NullPointerException.class,
-        () -> Namespace.from(null, Namespace.IMPORT.WITHOUT_TESTS));
+    assertThrows(NullPointerException.class, () -> Namespace.from(null, WITHOUT_TESTS));
   }
 
   @Test

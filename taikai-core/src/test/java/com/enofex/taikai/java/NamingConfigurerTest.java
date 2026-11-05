@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -7,9 +8,15 @@ import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.FieldCriteria;
 import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.configures.Customizer;
 import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class NamingConfigurerTest {
 
@@ -42,7 +49,7 @@ class NamingConfigurerTest {
           .classes(ValidService.class)
           .java(java -> java.naming(naming -> naming.classesShouldMatch(
               ".*Service",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+              defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -95,7 +102,7 @@ class NamingConfigurerTest {
           .classes(ClassWithCamelCaseMethod.class)
           .java(java -> java.naming(naming -> naming.methodsShouldMatch(
               "[a-z][a-zA-Z0-9]*",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+              defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -174,74 +181,6 @@ class NamingConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-  }
-
-  @Nested
-  class ClassesShouldMatchByInterface {
-
-    @Test
-    void shouldNotThrowWhenImplementingClassNameMatchesPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidSerializable.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.implementing(java.io.Serializable.class), ".*Serializable")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenImplementingClassNameDoesNotMatchPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidSerialImpl.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.implementing(java.io.Serializable.class), ".*Serializable")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class ClassesShouldMatchBySupertype {
-
-    @Test
-    void shouldNotThrowWhenAssignableClassNameMatchesPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidSerializable.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.assignableTo(java.io.Serializable.class), ".*Serializable")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAssignableClassNameDoesNotMatchPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidSerialImpl.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.assignableTo(java.io.Serializable.class), ".*Serializable")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-    @Test
-    void shouldNotCheckTheTypeItself() {
-      Taikai taikai = Taikai.builder()
-          .classes(BaseHandler.class, OrderBaseHandler.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.assignableTo(BaseHandler.class), ".*OrderBaseHandler")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  static class BaseHandler {
-  }
-
-  static class OrderBaseHandler extends BaseHandler {
   }
 
   @Nested
@@ -346,7 +285,7 @@ class NamingConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithStringField.class)
           .java(java -> java.naming(naming -> naming.fieldsShouldMatch("other.*",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+              defaultConfiguration())))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -429,7 +368,7 @@ class NamingConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ValidService.class)
           .java(java -> java.naming(naming -> naming.packagesShouldMatchDefault(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+              defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -454,7 +393,7 @@ class NamingConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithProperConstant.class)
           .java(java -> java.naming(naming -> naming.constantsShouldFollowConventions(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+              defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -509,7 +448,7 @@ class NamingConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(EnumWithProperConstants.class)
           .java(java -> java.naming(naming -> naming.enumConstantsShouldFollowConventions(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+              defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -585,7 +524,7 @@ class NamingConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithProperBooleanMethods.class)
           .java(java -> java.naming(naming -> naming.booleanMethodsShouldStartWith(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
+              defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -593,164 +532,44 @@ class NamingConfigurerTest {
   }
 
   @Nested
-  class ClassesShouldMatchByAnnotationStringOverloads {
+  class ConfigurationOverloads {
 
-    @Test
-    void shouldNotThrowUsingStringAnnotationType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidService.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.annotatedWith(Deprecated.class.getName()), ".*Service")))
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithConfiguration(Customizer<NamingConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      Taikai compliantTaikai = Taikai.builder()
+          .classes(compliant)
+          .java(java -> java.naming(rule))
+          .build();
+      Taikai violatingTaikai = Taikai.builder()
+          .classes(violating)
+          .java(java -> java.naming(rule))
           .build();
 
-      assertDoesNotThrow(taikai::check);
+      assertDoesNotThrow(compliantTaikai::check);
+      assertThrows(AssertionError.class, violatingTaikai::check);
     }
 
-    @Test
-    void shouldSupportConfigurationWithClassAnnotationType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidService.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.annotatedWith(Deprecated.class), ".*Service",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class ClassesShouldMatchByInterfaceStringOverloads {
-
-    @Test
-    void shouldNotThrowUsingStringTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidSerializable.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.implementing(java.io.Serializable.class.getName()), ".*Serializable")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          overload("classesShouldMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.classesShouldMatch(ClassCriteria.annotatedWith(Deprecated.class),
+                  ".*Service", defaultConfiguration()),
+              ValidService.class, AnnotatedInvalidClass.class),
+          overload("methodsShouldMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.methodsShouldMatch(MethodCriteria.nameMatching(".*Something"),
+                  "[a-z][a-zA-Z0-9]*", defaultConfiguration()),
+              ClassWithCamelCaseMethod.class, ClassWithBadMethodName.class),
+          overload("fieldsShouldMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.fieldsShouldMatch(FieldCriteria.ofType(String.class), "my.*",
+                  defaultConfiguration()),
+              ClassWithStringField.class, ClassWithAnnotatedField.class));
     }
 
-    @Test
-    void shouldSupportConfigurationWithClassType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidSerializable.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.implementing(java.io.Serializable.class), ".*Serializable",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class ClassesShouldMatchBySupertypeStringOverloads {
-
-    @Test
-    void shouldNotThrowUsingStringTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidSerializable.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.assignableTo(java.io.Serializable.class.getName()), ".*Serializable")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationWithClassType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidSerializable.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.assignableTo(java.io.Serializable.class), ".*Serializable",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class MethodsShouldMatchByAnnotationStringOverloads {
-
-    @Test
-    void shouldNotThrowUsingStringAnnotationType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedMethod.class)
-          .java(java -> java.naming(naming -> naming.methodsShouldMatch(
-              MethodCriteria.annotatedWith(Deprecated.class.getName()), "deprecated.*")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationWithClassAnnotationType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedMethod.class)
-          .java(java -> java.naming(naming -> naming.methodsShouldMatch(
-              MethodCriteria.annotatedWith(Deprecated.class), "deprecated.*",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class FieldsShouldMatchByAnnotationStringOverloads {
-
-    @Test
-    void shouldNotThrowUsingStringAnnotationType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedField.class)
-          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
-              FieldCriteria.annotatedWith(Deprecated.class.getName()), "deprecatedField")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationWithClassAnnotationType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedField.class)
-          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
-              FieldCriteria.annotatedWith(Deprecated.class), "deprecatedField",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class FieldsShouldMatchStringOverloads {
-
-    @Test
-    void shouldNotThrowUsingStringTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithStringField.class)
-          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
-              FieldCriteria.ofType(String.class.getName()), "my.*")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationWithClassType() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithStringField.class)
-          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
-              FieldCriteria.ofType(String.class), "my.*",
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
+    private static Arguments overload(String name, Customizer<NamingConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      return Arguments.of(Named.of(name, rule), compliant, violating);
     }
   }
 
@@ -853,12 +672,6 @@ class NamingConfigurerTest {
   static class ClassWithBadMethodName {
     void Do_Something() {
     }
-  }
-
-  static class ValidSerializable implements java.io.Serializable {
-  }
-
-  static class InvalidSerialImpl implements java.io.Serializable {
   }
 
   static class ClassWithAnnotatedMethod {

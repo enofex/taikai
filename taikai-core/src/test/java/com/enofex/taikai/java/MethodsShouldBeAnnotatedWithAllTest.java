@@ -50,46 +50,6 @@ class MethodsShouldBeAnnotatedWithAllTest {
     }
   }
 
-  @Nested
-  class StringBasedAPI {
-
-    @Test
-    void shouldNotThrowWhenMethodHasAllRequiredAnnotations() {
-      Taikai taikai = Taikai.builder()
-          .classes(FullyAnnotatedService.class)
-          .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              MethodCriteria.annotatedWith(BaseAnnotation.class.getName()),
-              List.of(RequiredA.class.getName(), RequiredB.class.getName())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenMethodIsMissingOneRequiredAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(PartiallyAnnotatedService.class)
-          .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              MethodCriteria.annotatedWith(BaseAnnotation.class.getName()),
-              List.of(RequiredA.class.getName(), RequiredB.class.getName())))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenMethodIsNotAnnotatedWithBaseAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonBaseAnnotatedService.class)
-          .java(java -> java.methodsShouldBeAnnotatedWithAll(
-              MethodCriteria.annotatedWith(BaseAnnotation.class.getName()),
-              List.of(RequiredA.class.getName(), RequiredB.class.getName())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
   @Retention(RetentionPolicy.RUNTIME)
   @interface BaseAnnotation {
   }

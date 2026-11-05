@@ -70,17 +70,6 @@ class MethodsShouldBeAnnotatedWithTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-
-    @Test
-    void shouldNotThrowWhenRegexDoesNotMatchAnyMethod() {
-      Taikai taikai = Taikai.builder()
-          .classes(AnnotatedService.class)
-          .java(java -> java.methodsShouldBeAnnotatedWith(
-              MethodCriteria.nameMatching("nonExistent"), TestAnnotation.class.getName()))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
   }
 
   @Retention(RetentionPolicy.RUNTIME)

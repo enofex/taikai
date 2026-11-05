@@ -5,6 +5,8 @@ import com.tngtech.archunit.core.domain.JavaConstructor;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Internal utility class for checking Java modifiers.
@@ -115,5 +117,16 @@ public final class Modifiers {
    */
   public static boolean isMethodSynthetic(JavaMethod method) {
     return method.getModifiers().contains(JavaModifier.SYNTHETIC);
+  }
+
+  /**
+   * Returns the names of the given modifiers in their order, separated by commas, as rule
+   * descriptions and violation messages show them.
+   *
+   * @param modifiers the modifiers
+   * @return the names, for example {@code PUBLIC, STATIC}
+   */
+  public static String names(Collection<JavaModifier> modifiers) {
+    return modifiers.stream().map(Enum::name).collect(Collectors.joining(", "));
   }
 }

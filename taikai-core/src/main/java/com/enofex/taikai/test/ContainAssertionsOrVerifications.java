@@ -1,5 +1,7 @@
 package com.enofex.taikai.test;
 
+import static com.enofex.taikai.internal.Classes.methodCallsAndReferences;
+
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -10,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 final class ContainAssertionsOrVerifications {
 
@@ -121,15 +122,5 @@ final class ContainAssertionsOrVerifications {
             .orElse(false);
       }
     };
-  }
-
-  /**
-   * Returns the method calls and the method references, such as
-   * {@code items.forEach(this::assertValid)}, which call the referenced method as well.
-   */
-  private static List<JavaCodeUnitAccess<?>> methodCallsAndReferences(JavaCodeUnit method) {
-    return Stream.<JavaCodeUnitAccess<?>>concat(method.getMethodCallsFromSelf().stream(),
-            method.getMethodReferencesFromSelf().stream())
-        .toList();
   }
 }

@@ -1,20 +1,25 @@
 package com.enofex.taikai.spring;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.Customizer;
 import jakarta.inject.Inject;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -65,20 +70,12 @@ class SpringConfigurerTest {
           ClassWithStaticValueField.class.getName() + ".timeout"), error.getMessage());
     }
 
-    @Test
-    void shouldThrowWhenStaticFieldAnnotatedWithAutowired() {
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {ClassWithStaticAutowiredField.class, ClassWithStaticInjectField.class,
+        ClassWithStaticComposedValueField.class})
+    void shouldThrowWhenStaticFieldIsAnnotatedForInjection(Class<?> type) {
       Taikai taikai = Taikai.builder()
-          .classes(ClassWithStaticAutowiredField.class)
-          .spring(SpringConfigurer::noInjectionIntoStaticFields)
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenStaticFieldAnnotatedWithInject() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithStaticInjectField.class)
+          .classes(type)
           .spring(SpringConfigurer::noInjectionIntoStaticFields)
           .build();
 
@@ -95,16 +92,6 @@ class SpringConfigurerTest {
       AssertionError error = assertThrows(AssertionError.class, taikai::check);
       assertTrue(error.getMessage().contains(
           ClassWithStaticValueSetter.class.getName() + ".setTimeout(int)"), error.getMessage());
-    }
-
-    @Test
-    void shouldThrowWhenStaticFieldAnnotatedWithComposedValueAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithStaticComposedValueField.class)
-          .spring(SpringConfigurer::noInjectionIntoStaticFields)
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test
@@ -142,40 +129,40 @@ class SpringConfigurerTest {
   @Nested
   class NoSelfInvocationOfProxiedMethods {
 
-    @Test
-    void shouldThrowWhenAsyncMethodIsCalledFromSameClass() {
+    static Stream<Named<Customizer<SpringConfigurer>>> rules() {
+      List<String> async = List.of("org.springframework.scheduling.annotation.Async");
+
+      return Stream.of(
+          Named.of("noSelfInvocationOfProxiedMethods()",
+              spring -> spring.noSelfInvocationOfProxiedMethods()),
+          Named.of("noSelfInvocationOfProxiedMethods(Configuration)",
+              spring -> spring.noSelfInvocationOfProxiedMethods(
+                  Configuration.defaultConfiguration())),
+          Named.of("noSelfInvocationOfProxiedMethods(Collection)",
+              spring -> spring.noSelfInvocationOfProxiedMethods(async)),
+          Named.of("noSelfInvocationOfProxiedMethods(Collection, Configuration)",
+              spring -> spring.noSelfInvocationOfProxiedMethods(async,
+                  Configuration.defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenAsyncMethodIsCalledFromSameClass(Customizer<SpringConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ServiceWithSelfInvokedAsyncMethod.class)
-          .spring(SpringConfigurer::noSelfInvocationOfProxiedMethods)
+          .spring(rule)
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenCacheableMethodIsCalledFromSameClass() {
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {ServiceWithSelfInvokedCacheableMethod.class,
+        ServiceWithSelfInvokedCacheEvictMethod.class,
+        ServiceWithSelfInvokedTransactionalMethod.class})
+    void shouldThrowWhenProxiedMethodIsCalledFromSameClass(Class<?> service) {
       Taikai taikai = Taikai.builder()
-          .classes(ServiceWithSelfInvokedCacheableMethod.class)
-          .spring(SpringConfigurer::noSelfInvocationOfProxiedMethods)
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenCacheEvictMethodIsCalledFromSameClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithSelfInvokedCacheEvictMethod.class)
-          .spring(SpringConfigurer::noSelfInvocationOfProxiedMethods)
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenTransactionalMethodIsCalledFromSameClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithSelfInvokedTransactionalMethod.class)
+          .classes(service)
           .spring(SpringConfigurer::noSelfInvocationOfProxiedMethods)
           .build();
 
@@ -204,11 +191,12 @@ class SpringConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldNotThrowWhenSelfInvokedMethodIsNotProxied() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenSelfInvokedMethodIsNotProxied(Customizer<SpringConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ServiceWithSelfInvokedPlainMethod.class)
-          .spring(SpringConfigurer::noSelfInvocationOfProxiedMethods)
+          .spring(rule)
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -220,31 +208,6 @@ class SpringConfigurerTest {
           .classes(ServiceWithSelfInvokedAsyncMethod.class)
           .spring(spring -> spring.noSelfInvocationOfProxiedMethods(
               List.of("org.springframework.transaction.annotation.Transactional")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotationIsPartOfCustomAnnotations() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithSelfInvokedAsyncMethod.class)
-          .spring(spring -> spring.noSelfInvocationOfProxiedMethods(
-              List.of("org.springframework.scheduling.annotation.Async")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationOverloads() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithSelfInvokedPlainMethod.class)
-          .spring(spring -> spring
-              .noSelfInvocationOfProxiedMethods(Configuration.defaultConfiguration())
-              .noSelfInvocationOfProxiedMethods(
-                  List.of("org.springframework.scheduling.annotation.Async"),
-                  Configuration.defaultConfiguration()))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -439,11 +402,5 @@ class SpringConfigurerTest {
     public void process() {
       this.delegate.send();
     }
-  }
-
-  @Test
-  void shouldReturnAnnotatedWithValidatedPredicate() {
-    assertNotNull(SpringDescribedPredicates.annotatedWithValidated(true));
-    assertNotNull(SpringDescribedPredicates.annotatedWithValidated(false));
   }
 }

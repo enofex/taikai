@@ -1,12 +1,18 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.configures.Customizer;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
@@ -15,31 +21,36 @@ class PropertiesConfigurerTest {
   @Nested
   class NamesShouldEndWithProperties {
 
-    @Test
-    void shouldNotThrowWhenClassEndsWithProperties() {
+    static Stream<Named<Customizer<PropertiesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("namesShouldEndWithProperties()",
+              props -> props.namesShouldEndWithProperties()),
+          Named.of("namesShouldEndWithProperties(Configuration)",
+              props -> props.namesShouldEndWithProperties(defaultConfiguration())),
+          Named.of("namesShouldMatch(String)",
+              props -> props.namesShouldMatch(".+Properties")),
+          Named.of("namesShouldMatch(String, Configuration)",
+              props -> props.namesShouldMatch(".+Properties", defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenClassEndsWithProperties(Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::namesShouldEndWithProperties))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldNotThrowWhenNonPropertiesClassIsNotAnnotated() {
-      Taikai taikai = Taikai.builder()
-          .classes(RandomUtility.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::namesShouldEndWithProperties))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedClassDoesNotEndWithProperties() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenAnnotatedClassDoesNotEndWithProperties(
+        Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(InvalidConfig.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::namesShouldEndWithProperties))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -49,79 +60,88 @@ class PropertiesConfigurerTest {
   @Nested
   class ShouldBeAnnotatedWithValidated {
 
-    @Test
-    void shouldNotThrowWhenConfigurationPropertiesAnnotatedWithValidated() {
+    static Stream<Named<Customizer<PropertiesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldBeAnnotatedWithValidated()",
+              props -> props.shouldBeAnnotatedWithValidated()),
+          Named.of("shouldBeAnnotatedWithValidated(Configuration)",
+              props -> props.shouldBeAnnotatedWithValidated(defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenConfigurationPropertiesAnnotatedWithValidated(
+        Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ValidatedProperties.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeAnnotatedWithValidated))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenConfigurationPropertiesMissingValidatedAnnotation() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenConfigurationPropertiesMissingValidatedAnnotation(
+        Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeAnnotatedWithValidated))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenNotAnnotatedWithConfigurationProperties() {
-      Taikai taikai = Taikai.builder()
-          .classes(RandomUtility.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeAnnotatedWithValidated))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
     }
   }
 
   @Nested
   class ShouldBeAnnotatedWithConfigurationProperties {
 
-    @Test
-    void shouldNotThrowWhenAnnotatedWithConfigurationProperties() {
+    static Stream<Named<Customizer<PropertiesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldBeAnnotatedWithConfigurationProperties()",
+              props -> props.shouldBeAnnotatedWithConfigurationProperties()),
+          Named.of("shouldBeAnnotatedWithConfigurationProperties(Configuration)",
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(
+                  defaultConfiguration())),
+          Named.of("shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate)",
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(
+                  ClassCriteria.nameMatching(".+Properties"))),
+          Named.of(
+              "shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate, Configuration)",
+              props -> props.shouldBeAnnotatedWithConfigurationProperties(
+                  ClassCriteria.nameMatching(".+Properties"), defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenAnnotatedWithConfigurationProperties(
+        Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(
-              PropertiesConfigurer::shouldBeAnnotatedWithConfigurationProperties))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenPropertiesClassIsMissingAnnotation() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenPropertiesClassIsMissingAnnotation(Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(MissingAnnotationProperties.class)
-          .spring(spring -> spring.properties(
-              PropertiesConfigurer::shouldBeAnnotatedWithConfigurationProperties))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
 
-    @Test
-    void shouldNotThrowWhenClassNameDoesNotMatchPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(RandomUtility.class)
-          .spring(spring -> spring.properties(
-              PropertiesConfigurer::shouldBeAnnotatedWithConfigurationProperties))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenPropertiesInterfaceIsNotAnnotated() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenPropertiesInterfaceIsNotAnnotated(
+        Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(MailProperties.class, DefaultMailProperties.class)
-          .spring(spring -> spring.properties(
-              PropertiesConfigurer::shouldBeAnnotatedWithConfigurationProperties))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -131,31 +151,59 @@ class PropertiesConfigurerTest {
   @Nested
   class ShouldBeRecords {
 
-    @Test
-    void shouldNotThrowWhenConfigurationPropertiesIsRecord() {
+    static Stream<Named<Customizer<PropertiesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldBeRecords()",
+              props -> props.shouldBeRecords()),
+          Named.of("shouldBeRecords(Configuration)",
+              props -> props.shouldBeRecords(defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenConfigurationPropertiesIsRecord(Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(RecordApplicationProperties.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeRecords))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenConfigurationPropertiesIsNotRecord() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenConfigurationPropertiesIsNotRecord(Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeRecords))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
+  }
 
-    @Test
-    void shouldNotThrowWhenNonConfigurationPropertiesClassIsNotRecord() {
+  @Nested
+  class UnrelatedClasses {
+
+    static Stream<Named<Customizer<PropertiesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("namesShouldEndWithProperties()",
+              props -> props.namesShouldEndWithProperties()),
+          Named.of("shouldBeAnnotatedWithValidated()",
+              props -> props.shouldBeAnnotatedWithValidated()),
+          Named.of("shouldBeAnnotatedWithConfigurationProperties()",
+              props -> props.shouldBeAnnotatedWithConfigurationProperties()),
+          Named.of("shouldBeRecords()",
+              props -> props.shouldBeRecords()));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenClassIsNotConfigurationProperties(
+        Customizer<PropertiesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(RandomUtility.class)
-          .spring(spring -> spring.properties(PropertiesConfigurer::shouldBeRecords))
+          .spring(spring -> spring.properties(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -210,133 +258,6 @@ class PropertiesConfigurerTest {
 
   @ConfigurationProperties(prefix = "record")
   record RecordApplicationProperties(String name, int port) {
-  }
-
-  @Nested
-  class NamesShouldMatch {
-
-    @Test
-    void shouldNotThrowWhenPropertiesNameMatchesRegex() {
-      Taikai taikai = Taikai.builder()
-          .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.namesShouldMatch(".+Properties")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenPropertiesNameDoesNotMatchRegex() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidConfig.class)
-          .spring(spring -> spring.properties(
-              props -> props.namesShouldMatch(".+Properties")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class ShouldBeAnnotatedWithConfigurationPropertiesByName {
-
-    @Test
-    void shouldNotThrowWhenMatchingClassIsAnnotatedWithConfigurationProperties() {
-      Taikai taikai = Taikai.builder()
-          .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"))))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenMatchingClassMissingConfigurationPropertiesAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(MissingAnnotationProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"))))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenMatchingInterfaceIsNotAnnotated() {
-      Taikai taikai = Taikai.builder()
-          .classes(MailProperties.class, DefaultMailProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"))))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class ConfigurationOverloads {
-
-    @Test
-    void shouldSupportConfigurationForNamesShouldEndWithProperties() {
-      Taikai taikai = Taikai.builder()
-          .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.namesShouldEndWithProperties(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForShouldBeAnnotatedWithValidated() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidatedProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithValidated(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForShouldBeAnnotatedWithConfigurationProperties() {
-      Taikai taikai = Taikai.builder()
-          .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportRegexAndConfigurationForShouldBeAnnotatedWithConfigurationProperties() {
-      Taikai taikai = Taikai.builder()
-          .classes(ApplicationProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.shouldBeAnnotatedWithConfigurationProperties(ClassCriteria.nameMatching(".+Properties"),
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForShouldBeRecords() {
-      Taikai taikai = Taikai.builder()
-          .classes(RecordApplicationProperties.class)
-          .spring(spring -> spring.properties(
-              props -> props.shouldBeRecords(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
   }
 
   @Nested

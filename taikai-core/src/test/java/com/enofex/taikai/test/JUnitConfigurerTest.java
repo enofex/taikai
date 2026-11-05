@@ -1,10 +1,10 @@
 package com.enofex.taikai.test;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
@@ -28,6 +28,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.BDDMockito;
 import org.mockito.Mockito;
 
@@ -189,34 +190,17 @@ class JUnitConfigurerTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
-  @Test
-  void shouldApplyPackagePrivateClassRule() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {
+      ValidAssertionTest.class,
+      MockitoInOrderTest.class,
+      ArchRuleCheckTest.class,
+      SubtypeAssertionTest.class,
+      HelperMethodAssertionTest.class,
+      MethodReferenceAssertionTest.class})
+  void shouldApplyMethodsContainAssertionsOrVerificationsRule(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(PackagePrivateTestClass.class)
-        .test(test -> test.junit(
-            junit -> junit.classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*PackagePrivateTestClass"))
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldThrowWhenClassIsNotPackagePrivate() {
-    Taikai taikai = Taikai.builder()
-        .classes(PublicTestClass.class)
-        .test(test -> test.junit(
-            junit -> junit.classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*PublicTestClass"))
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldApplyMethodsContainAssertionsOrVerificationsRule() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidAssertionTest.class)
+        .classes(fixture)
         .test(test -> test.junit(
             JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
         ))
@@ -225,10 +209,13 @@ class JUnitConfigurerTest {
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldThrowWhenMethodDoesNotContainAssertionsOrVerifications() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {
+      InvalidAssertionTest.class,
+      RecursiveHelperMethodWithoutAssertionTest.class})
+  void shouldThrowWhenMethodDoesNotContainAssertionsOrVerifications(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(InvalidAssertionTest.class)
+        .classes(fixture)
         .test(test -> test.junit(
             JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
         ))
@@ -251,66 +238,6 @@ class JUnitConfigurerTest {
   }
 
   @Test
-  void shouldApplyMethodsContainAssertionsOrVerificationsWithMockitoInOrder() {
-    Taikai taikai = Taikai.builder()
-        .classes(MockitoInOrderTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldApplyMethodsContainAssertionsOrVerificationsWithArchRuleCheck() {
-    Taikai taikai = Taikai.builder()
-        .classes(ArchRuleCheckTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldApplyMethodsContainAssertionsOrVerificationsCalledThroughSubtypes() {
-    Taikai taikai = Taikai.builder()
-        .classes(SubtypeAssertionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldApplyMethodsContainAssertionsOrVerificationsWithHelperMethod() {
-    Taikai taikai = Taikai.builder()
-        .classes(HelperMethodAssertionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldApplyMethodsContainAssertionsOrVerificationsWithMethodReference() {
-    Taikai taikai = Taikai.builder()
-        .classes(MethodReferenceAssertionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
   void shouldApplyMethodsContainAssertionsOrVerificationsWithInheritedHelperMethod() {
     Taikai taikai = Taikai.builder()
         .classes(InheritedHelperMethodAssertionTest.class, BaseAssertionTest.class)
@@ -320,18 +247,6 @@ class JUnitConfigurerTest {
         .build();
 
     assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldThrowWhenRecursiveHelperMethodsDoNotContainAssertionsOrVerifications() {
-    Taikai taikai = Taikai.builder()
-        .classes(RecursiveHelperMethodWithoutAssertionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
   }
 
   static class ValidAssertionTest {
@@ -470,17 +385,18 @@ class JUnitConfigurerTest {
         .classes(ValidNoExceptionTest.class)
         .test(test -> test.junit(
             junit -> junit.classesShouldEndWithTest(
-                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())
+                defaultConfiguration())
         ))
         .build();
 
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldApplyNestedClassesShouldBeAnnotatedWithNested() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {ValidNestedTest.Inner.class, ValidMetaNestedTest.Inner.class})
+  void shouldApplyNestedClassesShouldBeAnnotatedWithNested(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(ValidNestedTest.Inner.class)
+        .classes(fixture)
         .failOnEmpty(true)
         .test(test -> test.junit(
             JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
@@ -490,23 +406,13 @@ class JUnitConfigurerTest {
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldApplyNestedClassesShouldBeAnnotatedWithNestedWhenMetaAnnotated() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {
+      MissingNestedTest.Inner.class,
+      MissingNestedParameterizedTest.Inner.class})
+  void shouldThrowWhenInnerClassWithTestMethodsIsNotAnnotatedWithNested(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(ValidMetaNestedTest.Inner.class)
-        .failOnEmpty(true)
-        .test(test -> test.junit(
-            JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldThrowWhenInnerClassWithTestMethodsIsNotAnnotatedWithNested() {
-    Taikai taikai = Taikai.builder()
-        .classes(MissingNestedTest.Inner.class)
+        .classes(fixture)
         .test(test -> test.junit(
             JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
         ))
@@ -515,46 +421,14 @@ class JUnitConfigurerTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
-  @Test
-  void shouldThrowWhenInnerClassWithParameterizedTestMethodsIsNotAnnotatedWithNested() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {
+      StaticNestedTest.Inner.class,
+      AbstractInnerTest.Inner.class,
+      InnerHelperTest.Helper.class})
+  void shouldNotApplyNestedClassesShouldBeAnnotatedWithNested(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(MissingNestedParameterizedTest.Inner.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldNotApplyNestedClassesShouldBeAnnotatedWithNestedToStaticNestedClasses() {
-    Taikai taikai = Taikai.builder()
-        .classes(StaticNestedTest.Inner.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldNotApplyNestedClassesShouldBeAnnotatedWithNestedToAbstractInnerClasses() {
-    Taikai taikai = Taikai.builder()
-        .classes(AbstractInnerTest.Inner.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldNotApplyNestedClassesShouldBeAnnotatedWithNestedToInnerClassesWithoutTests() {
-    Taikai taikai = Taikai.builder()
-        .classes(InnerHelperTest.Helper.class)
+        .classes(fixture)
         .test(test -> test.junit(
             JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
         ))
@@ -569,7 +443,7 @@ class JUnitConfigurerTest {
         .classes(MissingNestedTest.Inner.class)
         .test(test -> test.junit(
             junit -> junit.nestedClassesShouldBeAnnotatedWithNested(
-                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())
+                defaultConfiguration())
         ))
         .build();
 
@@ -630,7 +504,7 @@ class JUnitConfigurerTest {
         .classes(PrivateTestMethodTest.class)
         .test(test -> test.junit(
             junit -> junit.testsShouldBeExecutable(
-                com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())
+                defaultConfiguration())
         ))
         .build();
 
@@ -703,16 +577,6 @@ class JUnitConfigurerTest {
     @Test
     @Disabled
     void shouldNotBeDisabled() {}
-  }
-
-  static class PackagePrivateTestClass {
-    @Test
-    void shouldWork() {}
-  }
-
-  public static class PublicTestClass {
-    @Test
-    void shouldFail() {}
   }
 
   @Disabled

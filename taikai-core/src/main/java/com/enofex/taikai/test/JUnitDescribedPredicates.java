@@ -27,13 +27,13 @@ final class JUnitDescribedPredicates {
   }
 
   static DescribedPredicate<JavaClass> containTestOrParameterizedTestMethods() {
+    DescribedPredicate<CanBeAnnotated> testMethod = annotatedWithTestOrParameterizedTest(true);
+
     return new DescribedPredicate<>("contain methods annotated with %s or %s".formatted(
         ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST)) {
       @Override
       public boolean test(JavaClass javaClass) {
-        return javaClass.getMethods().stream()
-            .anyMatch(method -> method.isMetaAnnotatedWith(ANNOTATION_TEST)
-                || method.isMetaAnnotatedWith(ANNOTATION_PARAMETRIZED_TEST));
+        return javaClass.getMethods().stream().anyMatch(testMethod);
       }
     };
   }

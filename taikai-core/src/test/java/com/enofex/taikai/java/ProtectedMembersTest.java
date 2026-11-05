@@ -9,56 +9,33 @@ import com.enofex.taikai.Taikai;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ProtectedMembersTest {
 
-  @Test
-  void shouldPassWhenFinalClassHasNoProtectedMembers() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {ValidFinalClass.class, LruCache.class, StringHandler.class})
+  void shouldPassWhenFinalClassHasNoProtectedMembersOrOnlyOverridesProtectedMethods(
+      Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(ValidFinalClass.class)
+        .classes(fixture)
         .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
         .build();
 
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldFailWhenFinalClassHasProtectedField() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {FinalClassWithProtectedField.class, FinalClassWithProtectedMethod.class,
+      Reset.class})
+  void shouldFailWhenFinalClassHasProtectedMembers(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(FinalClassWithProtectedField.class)
+        .classes(fixture)
         .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
         .build();
 
     assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldFailWhenFinalClassHasProtectedMethod() {
-    Taikai taikai = Taikai.builder()
-        .classes(FinalClassWithProtectedMethod.class)
-        .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-  @Test
-  void shouldPassWhenFinalClassOverridesProtectedMethod() {
-    Taikai taikai = Taikai.builder()
-        .classes(LruCache.class)
-        .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldPassWhenFinalClassOverridesGenericProtectedMethod() {
-    Taikai taikai = Taikai.builder()
-        .classes(StringHandler.class)
-        .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
-        .build();
-
-    assertDoesNotThrow(taikai::check);
   }
 
   @Test
@@ -82,16 +59,6 @@ class ProtectedMembersTest {
 
     assertTrue(error.getMessage().contains("Method trim in final class"), error.getMessage());
     assertFalse(error.getMessage().contains("Method removeEldestEntry"), error.getMessage());
-  }
-
-  @Test
-  void shouldFailWhenProtectedMethodMatchesOnlyPrivateSuperclassMethod() {
-    Taikai taikai = Taikai.builder()
-        .classes(Reset.class)
-        .java(JavaConfigurer::finalClassesShouldNotHaveProtectedMembers)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
   }
 
   static final class ValidFinalClass {

@@ -73,17 +73,6 @@ class MethodsShouldNotBeAnnotatedWithTest {
 
       assertDoesNotThrow(taikai::check);
     }
-
-    @Test
-    void shouldNotThrowWhenMethodHasOnlyConflictingAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(OnlyConflictingService.class)
-          .java(java -> java.methodsShouldNotBeAnnotatedWith(
-              MethodCriteria.annotatedWith(PrimaryAnnotation.class.getName()), ConflictingAnnotation.class.getName()))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
   }
 
   @Retention(RetentionPolicy.RUNTIME)

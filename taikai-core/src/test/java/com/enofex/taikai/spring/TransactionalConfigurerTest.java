@@ -1,11 +1,18 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.configures.Customizer;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,54 +23,43 @@ class TransactionalConfigurerTest {
   @Nested
   class MethodsShouldBePublic {
 
-    @Test
-    void shouldNotThrowWhenTransactionalMethodIsPublic() {
+    static Stream<Named<Customizer<TransactionalConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("methodsShouldBePublic()",
+              transactional -> transactional.methodsShouldBePublic()),
+          Named.of("methodsShouldBePublic(Configuration)",
+              transactional -> transactional.methodsShouldBePublic(defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenTransactionalMethodIsPublic(Customizer<TransactionalConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ServiceWithPublicTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::methodsShouldBePublic))
+          .spring(spring -> spring.transactional(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenTransactionalMethodIsPackagePrivate() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithPackagePrivateTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::methodsShouldBePublic))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenTransactionalMethodIsProtected() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithProtectedTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::methodsShouldBePublic))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenTransactionalMethodIsPrivate() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenTransactionalMethodIsPrivate(Customizer<TransactionalConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ServiceWithPrivateTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::methodsShouldBePublic))
+          .spring(spring -> spring.transactional(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenJakartaTransactionalMethodIsPrivate() {
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {ServiceWithPackagePrivateTransactionalMethod.class,
+        ServiceWithProtectedTransactionalMethod.class,
+        ServiceWithPrivateJakartaTransactionalMethod.class})
+    void shouldThrowWhenTransactionalMethodIsNotPublic(Class<?> service) {
       Taikai taikai = Taikai.builder()
-          .classes(ServiceWithPrivateJakartaTransactionalMethod.class)
+          .classes(service)
           .spring(spring -> spring.transactional(
               TransactionalConfigurer::methodsShouldBePublic))
           .build();
@@ -86,32 +82,32 @@ class TransactionalConfigurerTest {
   @Nested
   class ShouldNotBeSelfInvoked {
 
-    @Test
-    void shouldThrowWhenTransactionalMethodIsCalledFromSameClass() {
+    static Stream<Named<Customizer<TransactionalConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldNotBeSelfInvoked()",
+              transactional -> transactional.shouldNotBeSelfInvoked()),
+          Named.of("shouldNotBeSelfInvoked(Configuration)",
+              transactional -> transactional.shouldNotBeSelfInvoked(defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenTransactionalMethodIsCalledFromSameClass(
+        Customizer<TransactionalConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ServiceWithSelfInvokedTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .spring(spring -> spring.transactional(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenJakartaTransactionalMethodIsCalledFromSameClass() {
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {ServiceWithSelfInvokedJakartaTransactionalMethod.class,
+        ServiceCallingTransactionalMethodFromConstructor.class})
+    void shouldThrowWhenTransactionalMethodIsSelfInvoked(Class<?> service) {
       Taikai taikai = Taikai.builder()
-          .classes(ServiceWithSelfInvokedJakartaTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::shouldNotBeSelfInvoked))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenTransactionalMethodIsCalledFromConstructor() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceCallingTransactionalMethodFromConstructor.class)
+          .classes(service)
           .spring(spring -> spring.transactional(
               TransactionalConfigurer::shouldNotBeSelfInvoked))
           .build();
@@ -141,12 +137,13 @@ class TransactionalConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldNotThrowWhenTransactionalMethodIsNotSelfInvoked() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenTransactionalMethodIsNotSelfInvoked(
+        Customizer<TransactionalConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(ServiceWithPublicTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::shouldNotBeSelfInvoked))
+          .spring(spring -> spring.transactional(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -156,23 +153,33 @@ class TransactionalConfigurerTest {
   @Nested
   class ShouldNotBeUsedInControllers {
 
-    @Test
-    void shouldNotThrowWhenControllerIsNotTransactional() {
+    static Stream<Named<Customizer<TransactionalConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldNotBeUsedInControllers()",
+              transactional -> transactional.shouldNotBeUsedInControllers()),
+          Named.of("shouldNotBeUsedInControllers(Configuration)",
+              transactional -> transactional.shouldNotBeUsedInControllers(
+                  defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenControllerIsNotTransactional(Customizer<TransactionalConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(NonTransactionalController.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::shouldNotBeUsedInControllers))
+          .spring(spring -> spring.transactional(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenControllerIsAnnotatedWithTransactional() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenControllerIsAnnotatedWithTransactional(
+        Customizer<TransactionalConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(TransactionalAnnotatedController.class)
-          .spring(spring -> spring.transactional(
-              TransactionalConfigurer::shouldNotBeUsedInControllers))
+          .spring(spring -> spring.transactional(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -195,46 +202,6 @@ class TransactionalConfigurerTest {
           .classes(ServiceWithPublicTransactionalMethod.class)
           .spring(spring -> spring.transactional(
               TransactionalConfigurer::shouldNotBeUsedInControllers))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class ConfigurationOverloads {
-
-    @Test
-    void shouldSupportConfigurationForMethodsShouldBePublic() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithPublicTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              transactional -> transactional.methodsShouldBePublic(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForShouldNotBeUsedInControllers() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonTransactionalController.class)
-          .spring(spring -> spring.transactional(
-              transactional -> transactional.shouldNotBeUsedInControllers(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForShouldNotBeSelfInvoked() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceWithPublicTransactionalMethod.class)
-          .spring(spring -> spring.transactional(
-              transactional -> transactional.shouldNotBeSelfInvoked(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
           .build();
 
       assertDoesNotThrow(taikai::check);

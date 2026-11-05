@@ -1,5 +1,8 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.internal.Classes.methodCallsAndReferences;
+import static com.enofex.taikai.internal.Classes.topLevelClass;
+
 import com.tngtech.archunit.core.domain.JavaAccess;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
@@ -29,8 +32,7 @@ final class Deprecations {
                     javaClass.getName()))));
 
         // Method references such as Date::getYear use a method just like a call does.
-        Stream.<JavaCodeUnitAccess<?>>concat(javaClass.getMethodCallsFromSelf().stream(),
-                javaClass.getMethodReferencesFromSelf().stream())
+        methodCallsAndReferences(javaClass).stream()
             .filter(method -> !isOwnMember(javaClass, method))
             .filter(method -> method.getTarget().isAnnotatedWith(Deprecated.class) ||
                 method.getTarget().getRawReturnType().isAnnotatedWith(Deprecated.class) ||
@@ -80,16 +82,6 @@ final class Deprecations {
 
   private static boolean isInSameTopLevelClass(JavaClass javaClass, JavaClass other) {
     return topLevelClass(javaClass).getName().equals(topLevelClass(other).getName());
-  }
-
-  private static JavaClass topLevelClass(JavaClass javaClass) {
-    JavaClass topLevelClass = javaClass;
-
-    while (topLevelClass.getEnclosingClass().isPresent()) {
-      topLevelClass = topLevelClass.getEnclosingClass().get();
-    }
-
-    return topLevelClass;
   }
 
   private static boolean isDeprecated(JavaType javaType) {

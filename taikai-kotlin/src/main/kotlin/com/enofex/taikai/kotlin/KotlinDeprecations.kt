@@ -11,6 +11,7 @@ import com.tngtech.archunit.core.domain.JavaMethod
 import com.tngtech.archunit.core.domain.JavaModifier
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated
 import java.net.URI
+import java.net.URL
 import kotlin.metadata.isData
 import kotlin.metadata.jvm.*
 
@@ -64,8 +65,7 @@ internal class KotlinDeprecations {
                     (deprecated(member) || deprecatedDefaultHelper(member, metadata))) return true
             }
             if (access is JavaFieldAccess && metadata.type?.isData == true && !declared &&
-                (origin.name in setOf("copy", "copy\$default", "equals", "hashCode", "toString") ||
-                    Regex("component[0-9]+").matches(origin.name))) return true
+                (origin.name in dataClassMethods || componentMethod.matches(origin.name))) return true
         }
         if (origin is JavaConstructor && member is JavaConstructor) {
             if (deprecatedDefaultConstructor(origin, metadata)) return true
@@ -116,7 +116,7 @@ internal class KotlinDeprecations {
     }
 
     private fun deprecatedCarrier(owner: JavaClass, signature: JvmMethodSignature): Boolean {
-        val carrier = owner.methods.find { it.name == signature.name && it.descriptor == signature.descriptor }
+        val carrier = owner.method(signature)
         if (carrier != null) return deprecated(carrier)
         if (!owner.isInterface) return false
         // Kotlin can put interface property annotation carriers in DefaultImpls even when
@@ -124,15 +124,11 @@ internal class KotlinDeprecations {
         val source = owner.source.orElse(null) ?: return false
         val name = owner.name + "\$DefaultImpls"
         val helper = completed.getOrPut(name) {
-            try {
-                val uri = URI.create(source.uri.toString().removeSuffix(".class") + "\$DefaultImpls.class")
-                ClassFileImporter().importUrl(uri.toURL()).get(name)
-            } catch (exception: Exception) {
-                failures += "Cannot inspect Kotlin property annotation carrier $name: ${exception.message}"
-                owner
+            importClass(name, owner, "Cannot inspect Kotlin property annotation carrier") {
+                URI.create(source.uri.toString().removeSuffix(".class") + "\$DefaultImpls.class").toURL()
             }
         }
-        return helper.methods.any { it.name == signature.name && it.descriptor == signature.descriptor && deprecated(it) }
+        return helper.method(signature)?.let(::deprecated) == true
     }
 
     private fun deprecatedDefaultHelper(helper: JavaMethod, declarations: KotlinDeclarations): Boolean {
@@ -140,9 +136,7 @@ internal class KotlinDeprecations {
         return declarations.functions.any { function ->
             val signature = function.signature ?: return@any false
             if (helper.name != "${signature.name}\$default") return@any false
-            val original = helper.owner.methods.find {
-                it.name == signature.name && it.descriptor == signature.descriptor
-            } ?: return@any false
+            val original = helper.owner.method(signature) ?: return@any false
             if (!deprecated(original)) return@any false
             val receiver = if (JavaModifier.STATIC in original.modifiers) ""
                 else "L${helper.owner.name.replace('.', '/')};"
@@ -171,15 +165,22 @@ internal class KotlinDeprecations {
     private fun complete(owner: JavaClass): JavaClass = completed.getOrPut(owner.name) {
         // Referenced member types can be stubs in ArchUnit's domain. Import the exact source
         // resource when companion property annotations or callable-reference bodies are needed.
-        try {
-            owner.source.orElse(null)?.let { source ->
-                ClassFileImporter().importUrl(source.uri.toURL()).get(owner.name)
-            } ?: owner
-        } catch (exception: Exception) {
-            failures += "Cannot inspect Kotlin implementation ${owner.name}: ${exception.message}"
-            owner
+        importClass(owner.name, owner, "Cannot inspect Kotlin implementation") {
+            owner.source.orElse(null)?.uri?.toURL()
         }
     }
+
+    /**
+     * Imports the class of the given name from its class file, or returns the fallback if there is
+     * no class file or it cannot be imported, which is reported as a failure.
+     */
+    private fun importClass(name: String, fallback: JavaClass, failure: String, url: () -> URL?): JavaClass =
+        try {
+            url()?.let { ClassFileImporter().importUrl(it).get(name) } ?: fallback
+        } catch (exception: Exception) {
+            failures += "$failure $name: ${exception.message}"
+            fallback
+        }
 
     private fun read(owner: JavaClass): KotlinDeclarations? = declarations.getOrPut(owner) {
         if (!owner.isAnnotatedWith("kotlin.Metadata")) return@getOrPut null
@@ -194,3 +195,12 @@ internal class KotlinDeprecations {
     private fun deprecated(element: CanBeAnnotated): Boolean =
         element.isAnnotatedWith("java.lang.Deprecated") || element.isAnnotatedWith("kotlin.Deprecated")
 }
+
+/** The methods the Kotlin compiler generates for data classes, besides the componentN functions. */
+private val dataClassMethods = setOf("copy", "copy\$default", "equals", "hashCode", "toString")
+private val componentMethod = Regex("component[0-9]+")
+
+/** Returns the method of this class with the name and descriptor of the given JVM signature. */
+@JvmSynthetic
+internal fun JavaClass.method(signature: JvmMethodSignature): JavaMethod? =
+    methods.find { it.name == signature.name && it.descriptor == signature.descriptor }

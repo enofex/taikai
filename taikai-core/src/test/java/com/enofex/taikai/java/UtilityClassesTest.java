@@ -5,76 +5,45 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class UtilityClassesTest {
 
-  @Test
-  void shouldApplyFinalUtilityClassWithPrivateConstructor() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {ValidUtilityClass.class, ExceptionClassWithFactoryMethod.class,
+      InterfaceWithOnlyStaticMethods.class})
+  void shouldPassForFinalUtilityClassesWithPrivateConstructorAndNonUtilityClasses(
+      Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(ValidUtilityClass.class)
+        .classes(fixture)
         .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
         .build();
 
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldApplyExceptionClassWithFactoryMethods() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {NonFinalUtilityClass.class,
+      FinalUtilityClassWithImplicitPublicConstructor.class,
+      FinalUtilityClassWithExplicitPublicConstructor.class,
+      FinalUtilityClassWithPrivateAndPublicConstructor.class})
+  void shouldThrowForUtilityClassesThatAreNotFinalOrHaveNonPrivateConstructors(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(ExceptionClassWithFactoryMethod.class)
+        .classes(fixture)
         .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
         .build();
 
-    assertDoesNotThrow(taikai::check);
+    assertThrows(AssertionError.class, taikai::check);
   }
 
   @Test
-  void shouldThrowUtilityClassThatIsNotFinal() {
+  void shouldDisableJavaConfigurer() {
     Taikai taikai = Taikai.builder()
         .classes(NonFinalUtilityClass.class)
-        .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldThrowUtilityClassWithImplicitPublicConstructor() {
-    Taikai taikai = Taikai.builder()
-        .classes(
-            FinalUtilityClassWithImplicitPublicConstructor.class)
-        .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldThrowUtilityClassWithExplicitPublicConstructor() {
-    Taikai taikai = Taikai.builder()
-        .classes(
-            FinalUtilityClassWithExplicitPublicConstructor.class)
-        .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldThrowUtilityClassWithPrivateAndPublicConstructor() {
-    Taikai taikai = Taikai.builder()
-        .classes(FinalUtilityClassWithPrivateAndPublicConstructor.class)
-        .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldIgnoreInterfaceWithOnlyStaticMethods() {
-    Taikai taikai = Taikai.builder()
-        .classes(InterfaceWithOnlyStaticMethods.class)
-        .java(JavaConfigurer::utilityClassesShouldBeFinalAndHavePrivateConstructor)
+        .java(java -> java
+            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
+            .disable())
         .build();
 
     assertDoesNotThrow(taikai::check);

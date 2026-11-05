@@ -6,36 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class NoUsageOfSystemOutOrErrTest {
 
   @Nested
   class NoUsageOfSystemOutOrErr {
 
-    @Test
-    void shouldThrowWhenClassUsesSystemOut() {
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {UsesSystemOut.class, UsesSystemErr.class, UsesSystemOutAndErr.class})
+    void shouldThrowWhenClassUsesSystemOutOrErr(Class<?> fixture) {
       Taikai taikai = Taikai.builder()
-          .classes(UsesSystemOut.class)
-          .java(JavaConfigurer::noUsageOfSystemOutOrErr)
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenClassUsesSystemErr() {
-      Taikai taikai = Taikai.builder()
-          .classes(UsesSystemErr.class)
-          .java(JavaConfigurer::noUsageOfSystemOutOrErr)
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenClassUsesBothSystemOutAndErr() {
-      Taikai taikai = Taikai.builder()
-          .classes(UsesSystemOutAndErr.class)
+          .classes(fixture)
           .java(JavaConfigurer::noUsageOfSystemOutOrErr)
           .build();
 

@@ -24,7 +24,6 @@ class TaikaiRuleTest {
     ArchRule archRule = mock(ArchRule.class);
     TaikaiRule taikaiRule = TaikaiRule.of(archRule);
 
-    assertNotNull(taikaiRule);
     assertEquals(archRule, taikaiRule.archRule());
     assertNotNull(taikaiRule.configuration());
   }
@@ -35,7 +34,6 @@ class TaikaiRuleTest {
     Configuration configuration = Configuration.of("com.example");
     TaikaiRule taikaiRule = TaikaiRule.of(archRule, configuration);
 
-    assertNotNull(taikaiRule);
     assertEquals(archRule, taikaiRule.archRule());
     assertSame(configuration, taikaiRule.configuration());
   }

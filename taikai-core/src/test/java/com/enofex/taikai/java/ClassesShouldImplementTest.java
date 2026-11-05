@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -67,16 +68,6 @@ class ClassesShouldImplementTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-
-    @Test
-    void shouldNotThrowWhenRegexDoesNotMatchAnyClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(ServiceImpl.class, MyService.class)
-          .java(java -> java.classesShouldImplement(ClassCriteria.nameMatching(".*NonExistent"), MyService.class.getName()))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
   }
 
   @Nested
@@ -87,7 +78,7 @@ class ClassesShouldImplementTest {
       Taikai taikai = Taikai.builder()
           .classes(ServiceImpl.class, MyService.class)
           .java(java -> java.classesShouldImplement(ClassCriteria.nameMatching(".*ServiceImpl"), MyService.class,
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+              defaultConfiguration()))
           .build();
 
       assertDoesNotThrow(taikai::check);

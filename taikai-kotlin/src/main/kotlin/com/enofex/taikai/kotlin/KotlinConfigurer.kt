@@ -160,7 +160,7 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         configuration: Configuration = Configuration.defaultConfiguration(),
     ): KotlinConfigurer =
         rule("Kotlin const val names should use uppercase underscores", configuration) { owner, declarations ->
-            declarations.properties.filter { it.isConst && !Regex("[A-Z][A-Z0-9_]*").matches(it.name) }.map {
+            declarations.properties.filter { it.isConst && !constantName.matches(it.name) }.map {
                 "Constant ${owner.name}.${it.name} does not use uppercase underscores"
             }
         }
@@ -276,6 +276,9 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         return this
     }
 }
+
+/** The names of constants: upper case letters, digits and underscores. */
+private val constantName = Regex("[A-Z][A-Z0-9_]*")
 
 /** A rule on Kotlin classes, checked against the declarations of their Kotlin metadata. */
 @JvmSynthetic

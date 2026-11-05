@@ -1,6 +1,7 @@
 package com.enofex.taikai;
 
 import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.internal.Namespaces;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -30,9 +31,7 @@ final class ConfigurationWarnings {
       if (configuredClasses != null) {
         ruleWarnings.addAll(unusedExclusions(rule, configuredClasses));
       } else if (taikai.classes() == null) {
-        String namespace = configuration.namespace() != null
-            ? configuration.namespace()
-            : taikai.namespace();
+        String namespace = Namespaces.of(configuration.namespace(), taikai.namespace());
 
         if (namespace != null) {
           Import namespaceImport = new Import(namespace, configuration.namespaceImport());

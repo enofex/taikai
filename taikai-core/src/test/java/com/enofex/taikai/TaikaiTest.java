@@ -8,24 +8,34 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.configures.Configurer;
 import com.enofex.taikai.java.JavaConfigurer;
+import com.enofex.taikai.jpa.JpaConfigurer;
+import com.enofex.taikai.logging.LoggingConfigurer;
+import com.enofex.taikai.metrics.MetricsConfigurer;
+import com.enofex.taikai.quarkus.QuarkusConfigurer;
 import com.enofex.taikai.spring.SpringConfigurer;
 import com.enofex.taikai.test.TestConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class TaikaiTest {
 
@@ -83,40 +93,41 @@ class TaikaiTest {
     assertTrue(taikai.rules().contains(mockRule));
   }
 
-  @Test
-  void shouldConfigureJavaCustomizer() {
-    Customizer<JavaConfigurer> customizer = mock(Customizer.class);
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("builtInConfigurers")
+  void shouldCustomizeBuiltInConfigurerOnce(BiConsumer<Taikai.Builder, List<Configurer>> configure,
+      Class<? extends Configurer> configurerType) {
+    List<Configurer> customized = new ArrayList<>();
+    Taikai.Builder builder = Taikai.builder().namespace(VALID_NAMESPACE);
 
-    Taikai.builder()
-        .namespace(VALID_NAMESPACE)
-        .java(customizer)
-        .build();
+    configure.accept(builder, customized);
+    builder.build();
 
-    verify(customizer, times(1)).customize(any(JavaConfigurer.class));
+    assertEquals(List.of(configurerType), customized.stream().map(Object::getClass).toList());
   }
 
-  @Test
-  void shouldConfigureSpringCustomizer() {
-    Customizer<SpringConfigurer> customizer = mock(Customizer.class);
-
-    Taikai.builder()
-        .namespace(VALID_NAMESPACE)
-        .spring(customizer)
-        .build();
-
-    verify(customizer, times(1)).customize(any(SpringConfigurer.class));
+  static Stream<Arguments> builtInConfigurers() {
+    return Stream.of(
+        configurer("java", (builder, customized) -> builder.java(customized::add),
+            JavaConfigurer.class),
+        configurer("logging", (builder, customized) -> builder.logging(customized::add),
+            LoggingConfigurer.class),
+        configurer("test", (builder, customized) -> builder.test(customized::add),
+            TestConfigurer.class),
+        configurer("spring", (builder, customized) -> builder.spring(customized::add),
+            SpringConfigurer.class),
+        configurer("quarkus", (builder, customized) -> builder.quarkus(customized::add),
+            QuarkusConfigurer.class),
+        configurer("jpa", (builder, customized) -> builder.jpa(customized::add),
+            JpaConfigurer.class),
+        configurer("metrics", (builder, customized) -> builder.metrics(customized::add),
+            MetricsConfigurer.class));
   }
 
-  @Test
-  void shouldConfigureTestCustomizer() {
-    Customizer<TestConfigurer> customizer = mock(Customizer.class);
-
-    Taikai.builder()
-        .namespace(VALID_NAMESPACE)
-        .test(customizer)
-        .build();
-
-    verify(customizer, times(1)).customize(any(TestConfigurer.class));
+  private static Arguments configurer(String method,
+      BiConsumer<Taikai.Builder, List<Configurer>> configure,
+      Class<? extends Configurer> configurerType) {
+    return Arguments.of(Named.of(method, configure), configurerType);
   }
 
   @Test
@@ -138,6 +149,20 @@ class TaikaiTest {
         .check();
 
     verify(mockRule, times(1)).check(VALID_NAMESPACE, null, emptyList(), List.of());
+  }
+
+  @Test
+  void shouldFailRuleWithoutSelectedClassesOnlyWithFailOnEmpty() {
+    Taikai.Builder builder = Taikai.builder()
+        .classes(ViolatingClass.class)
+        .java(java -> java.classesShouldBeAnnotatedWith(
+            ClassCriteria.simpleNameMatching("NotExisting"), Deprecated.class));
+
+    assertDoesNotThrow(builder.build()::check);
+
+    AssertionError error = assertThrows(AssertionError.class,
+        builder.failOnEmpty(true).build()::check);
+    assertTrue(error.getMessage().contains("failed to check any classes"), error.getMessage());
   }
 
   @Test

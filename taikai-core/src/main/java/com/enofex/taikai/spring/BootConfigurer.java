@@ -13,6 +13,7 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.internal.Namespaces;
 
 /**
  * Configures and enforces conventions for Spring Boot application classes using
@@ -69,13 +70,8 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * @throws TaikaiException if no namespace is configured
    */
   public BootConfigurer applicationClassShouldResideInPackage(Configuration configuration) {
-    String namespace = configuration.namespace() != null
-        ? configuration.namespace()
-        : configurerContext().namespace();
-
-    if (namespace == null) {
-      throw new TaikaiException("Namespace is not provided");
-    }
+    String namespace = Namespaces.require(configuration.namespace(),
+        configurerContext().namespace());
 
     return applicationClassShouldResideInPackage(namespace, configuration);
   }

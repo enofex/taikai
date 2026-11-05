@@ -1,5 +1,6 @@
 package com.enofex.taikai.checks;
 
+import com.enofex.taikai.checks.spi.CheckContext;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.CharacterCodingException;
@@ -9,10 +10,27 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 final class ProjectFiles {
 
   private ProjectFiles() {
+  }
+
+  /**
+   * Returns the given files that are missing or empty in each of the configured directories,
+   * relative to the project directory, or in the project directory if none are configured.
+   */
+  static List<String> missingOrEmpty(CheckContext context, Optional<List<String>> directories,
+      Collection<String> files) {
+    return directories
+        .map(configured -> configured.stream()
+            .map(directory -> context.projectDirectory().resolve(directory).normalize())
+            .toList())
+        .orElse(List.of(context.projectDirectory()))
+        .stream()
+        .flatMap(directory -> missingOrEmpty(directory, files).stream())
+        .toList();
   }
 
   static List<String> missingOrEmpty(Path projectDirectory, Collection<String> files) {

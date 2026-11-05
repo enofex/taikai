@@ -154,12 +154,9 @@ final class ExecutableTests {
    */
   private static boolean returnsDynamicNodes(JavaMethod method) {
     JavaClass returnType = method.getRawReturnType();
+    JavaClass elementType = returnType.isArray() ? returnType.getComponentType() : returnType;
 
-    if (isDynamicNode(returnType)
-        || returnType.isArray() && isDynamicNode(returnType.getComponentType())) {
-      return true;
-    }
-    if (isObject(returnType) || returnType.isArray() && isObject(returnType.getComponentType())) {
+    if (isDynamicNode(elementType) || isObject(elementType)) {
       return true;
     }
     if (returnType.isArray() || !isConvertibleToStream(returnType)) {

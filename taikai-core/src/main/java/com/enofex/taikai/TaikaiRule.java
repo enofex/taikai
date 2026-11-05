@@ -5,6 +5,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
+import com.enofex.taikai.internal.Namespaces;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -131,14 +132,7 @@ public final class TaikaiRule {
       return classes;
     }
 
-    String namespace = configuration.namespace() != null
-        ? configuration.namespace()
-        : globalNamespace;
-
-    if (namespace == null) {
-      throw new TaikaiException("Namespace is not provided");
-    }
-
+    String namespace = Namespaces.require(configuration.namespace(), globalNamespace);
     Collection<String> allExcludedClasses = allExcludedClasses(configuration, excludedClasses);
     JavaClasses javaClasses = Namespace.from(namespace, configuration.namespaceImport);
 

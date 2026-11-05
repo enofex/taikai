@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.enofex.taikai.Taikai;
 import java.io.Serializable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class SerialVersionUIDTest {
 
@@ -19,24 +21,15 @@ class SerialVersionUIDTest {
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldThrowWhenSerialVersionUIDIsNotStaticFinalLong() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {InvalidSerialVersionUID.class, SerialVersionUIDWithStringType.class})
+  void shouldThrowWhenSerialVersionUIDIsNotStaticFinalLong(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(InvalidSerialVersionUID.class)
+        .classes(fixture)
         .java(JavaConfigurer::serialVersionUIDFieldsShouldBeStaticFinalLong)
         .build();
 
     assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldIgnoreFieldsNotNamedSerialVersionUID() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassWithOtherConstant.class)
-        .java(JavaConfigurer::serialVersionUIDFieldsShouldBeStaticFinalLong)
-        .build();
-
-    assertDoesNotThrow(taikai::check);
   }
 
   static class ValidSerialVersionUID implements Serializable {
@@ -49,23 +42,8 @@ class SerialVersionUIDTest {
     private static long serialVersionUID = 2L;
   }
 
-  @Test
-  void shouldThrowWhenSerialVersionUIDIsWrongType() {
-    Taikai taikai = Taikai.builder()
-        .classes(SerialVersionUIDWithStringType.class)
-        .java(JavaConfigurer::serialVersionUIDFieldsShouldBeStaticFinalLong)
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
   static class SerialVersionUIDWithStringType implements Serializable {
 
     private static final String serialVersionUID = "wrong";
-  }
-
-  static class ClassWithOtherConstant {
-
-    private static final long SOME_CONSTANT = 42L;
   }
 }

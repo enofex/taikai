@@ -172,7 +172,7 @@ public final class ArchConditions {
       @Override
       public void check(JavaClass item, ConditionEvents events) {
         boolean hasField = item.getAllFields().stream()
-            .filter(field -> !field.getModifiers().contains(JavaModifier.SYNTHETIC))
+            .filter(field -> !Modifiers.isFieldSynthetic(field))
             .anyMatch(requiredFields);
 
         if (!hasField) {
@@ -201,7 +201,7 @@ public final class ArchConditions {
               "Field %s in class %s is missing one of these modifiers: %s".formatted(
                   field.getName(),
                   field.getOwner().getFullName(),
-                  requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+                  Modifiers.names(requiredModifiers))));
         }
       }
     };
@@ -249,7 +249,7 @@ public final class ArchConditions {
               "Method %s in class %s is missing one of these modifiers: %s".formatted(
                   method.getName(),
                   method.getOwner().getFullName(),
-                  requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+                  Modifiers.names(requiredModifiers))));
         }
       }
     };
@@ -296,7 +296,7 @@ public final class ArchConditions {
           events.add(SimpleConditionEvent.violated(clazz,
               "Class %s is missing one of these modifiers: %s".formatted(
                   clazz.getName(),
-                  requiredModifiers.stream().map(Enum::name).collect(Collectors.joining(", ")))));
+                  Modifiers.names(requiredModifiers))));
         }
       }
     };

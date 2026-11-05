@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.tngtech.archunit.core.domain.JavaModifier.ABSTRACT;
 import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
 import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
@@ -16,6 +17,10 @@ import com.enofex.taikai.FieldCriteria;
 import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.Customizer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -25,12 +30,25 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class JavaCriteriaRulesTest {
 
   private static final String THIS_PACKAGE = "com.enofex.taikai.java";
+  private static final DescribedPredicate<JavaClass> MARKED =
+      ClassCriteria.annotatedWith(Marker.class);
+  private static final DescribedPredicate<JavaClass> APIS = ClassCriteria.nameMatching(".*Api");
+  private static final DescribedPredicate<JavaClass> REPOSITORIES =
+      ClassCriteria.nameMatching(".*Repository");
+  private static final DescribedPredicate<JavaClass> LEGACY_API_AND_SUPPORT =
+      ClassCriteria.simpleNameMatching("Legacy(Api|Support)");
+  private static final DescribedPredicate<JavaMethod> FIRST = MethodCriteria.nameMatching("first");
 
   @Nested
   class ClassesShouldResideInPackage {
@@ -100,16 +118,6 @@ class JavaCriteriaRulesTest {
   class ClassesShouldBeRecords {
 
     @Test
-    void shouldNotThrowWhenSelectedClassesAreRecords() {
-      Taikai taikai = Taikai.builder()
-          .classes(MarkedRecord.class)
-          .java(java -> java.classesShouldBeRecords(ClassCriteria.annotatedWith(Marker.class)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
     void shouldThrowWhenSelectedClassesAreNotRecords() {
       Taikai taikai = Taikai.builder()
           .classes(MarkedRecord.class, MarkedClass.class)
@@ -160,17 +168,6 @@ class JavaCriteriaRulesTest {
   class ClassesShouldBeAnnotatedWith {
 
     @Test
-    void shouldNotThrowWhenSelectedClassesCarryAnnotationClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(AnnotatedApi.class)
-          .java(java -> java.classesShouldBeAnnotatedWith(ClassCriteria.nameMatching(".*Api"),
-              Required.class))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
     void shouldThrowWhenSelectedClassesMissAnnotationName() {
       Taikai taikai = Taikai.builder()
           .classes(AnnotatedApi.class, UnannotatedApi.class)
@@ -192,32 +189,6 @@ class JavaCriteriaRulesTest {
           .build();
 
       assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class ClassesShouldNotBeAnnotatedWith {
-
-    @Test
-    void shouldNotThrowWhenSelectedClassesDoNotCarryAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(UnannotatedApi.class)
-          .java(java -> java.classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching(".*Api"),
-              Required.class))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenSelectedClassesCarryAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(AnnotatedApi.class)
-          .java(java -> java.classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching(".*Api"),
-              Required.class.getName()))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
     }
   }
 
@@ -249,17 +220,6 @@ class JavaCriteriaRulesTest {
 
   @Nested
   class ClassesShouldBeAssignableTo {
-
-    @Test
-    void shouldNotThrowWhenSelectedClassesAreAssignable() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserRepository.class)
-          .java(java -> java.classesShouldBeAssignableTo(ClassCriteria.nameMatching(".*Repository"),
-              BaseRepository.class))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
 
     @Test
     void shouldThrowWhenSelectedClassesAreNotAssignable() {
@@ -346,30 +306,6 @@ class JavaCriteriaRulesTest {
           .classes(FinalMarkedClass.class)
           .java(java -> java.classesShouldNotHaveModifiers(ClassCriteria.annotatedWith(Marker.class),
               List.of(FINAL)))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class ClassesShouldBePackagePrivate {
-
-    @Test
-    void shouldNotThrowWhenSelectedClassesArePackagePrivate() {
-      Taikai taikai = Taikai.builder()
-          .classes(MarkedClass.class)
-          .java(java -> java.classesShouldBePackagePrivate(ClassCriteria.annotatedWith(Marker.class)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenSelectedClassesArePublic() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicMarkedClass.class)
-          .java(java -> java.classesShouldBePackagePrivate(ClassCriteria.annotatedWith(Marker.class)))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -717,43 +653,6 @@ class JavaCriteriaRulesTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-
-    @Test
-    void shouldAllowTypesMatchingCriteriaToUseEachOther() {
-      Taikai taikai = Taikai.builder()
-          .classes(LegacyApi.class, LegacySupport.class)
-          .java(java -> java.noUsageOf(ClassCriteria.simpleNameMatching("Legacy.*")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenOtherClassesUseTypesMatchingCriteria() {
-      Taikai taikai = Taikai.builder()
-          .classes(LegacyApi.class, LegacySupport.class, LegacyClient.class)
-          .java(java -> java.noUsageOf(ClassCriteria.simpleNameMatching("Legacy(Api|Support)")))
-          .build();
-
-      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
-      assertTrue(failure.getMessage().contains(LegacyClient.class.getName() + ".api"));
-      assertFalse(failure.getMessage().contains(LegacyApi.class.getName() + ".support"));
-      assertFalse(failure.getMessage().contains(LegacySupport.class.getName() + ".api"));
-    }
-
-    @Test
-    void shouldNotCheckSelectedClassesThatAreForbiddenThemselves() {
-      Taikai taikai = Taikai.builder()
-          .classes(LegacyApi.class, LegacySupport.class, LegacyClient.class)
-          .java(java -> java.noUsageOf(ClassCriteria.simpleNameMatching("Legacy.*"),
-              ClassCriteria.simpleNameMatching("Legacy(Api|Support)")))
-          .build();
-
-      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
-      assertTrue(failure.getMessage().contains(LegacyClient.class.getName() + ".api"));
-      assertFalse(failure.getMessage().contains(LegacyApi.class.getName() + ".support"));
-      assertFalse(failure.getMessage().contains(LegacySupport.class.getName() + ".api"));
-    }
   }
 
   @Nested
@@ -792,46 +691,6 @@ class JavaCriteriaRulesTest {
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldAllowForbiddenTypesToImportEachOther() {
-      Taikai taikai = Taikai.builder()
-          .classes(LegacyApi.class, LegacySupport.class)
-          .java(java -> java.imports(imports -> imports
-              .shouldNotImport(ClassCriteria.simpleNameMatching("Legacy.*"))))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenOtherClassesImportForbiddenTypes() {
-      Taikai taikai = Taikai.builder()
-          .classes(LegacyApi.class, LegacySupport.class, LegacyClient.class)
-          .java(java -> java.imports(imports -> imports
-              .shouldNotImport(ClassCriteria.simpleNameMatching("Legacy(Api|Support)"))))
-          .build();
-
-      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
-      assertTrue(failure.getMessage().contains(LegacyClient.class.getName() + ".api"));
-      assertFalse(failure.getMessage().contains(LegacyApi.class.getName() + ".support"));
-      assertFalse(failure.getMessage().contains(LegacySupport.class.getName() + ".api"));
-    }
-
-    @Test
-    void shouldNotCheckSelectedClassesThatAreForbiddenThemselves() {
-      Taikai taikai = Taikai.builder()
-          .classes(LegacyApi.class, LegacySupport.class, LegacyClient.class)
-          .java(java -> java.imports(imports -> imports
-              .shouldNotImport(ClassCriteria.simpleNameMatching("Legacy.*"),
-                  ClassCriteria.simpleNameMatching("Legacy(Api|Support)"))))
-          .build();
-
-      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
-      assertTrue(failure.getMessage().contains(LegacyClient.class.getName() + ".api"));
-      assertFalse(failure.getMessage().contains(LegacyApi.class.getName() + ".support"));
-      assertFalse(failure.getMessage().contains(LegacySupport.class.getName() + ".api"));
     }
 
     @Test
@@ -1191,6 +1050,191 @@ class JavaCriteriaRulesTest {
     }
   }
 
+  @Nested
+  class ForbiddenTypes {
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rulesForbiddingAllLegacyTypes")
+    void shouldAllowForbiddenTypesToUseEachOther(Customizer<JavaConfigurer> rule) {
+      Taikai taikai = Taikai.builder()
+          .classes(LegacyApi.class, LegacySupport.class)
+          .java(rule)
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rulesForbiddingLegacyApiAndSupport")
+    void shouldOnlyReportOtherClassesUsingForbiddenTypes(Customizer<JavaConfigurer> rule) {
+      Taikai taikai = Taikai.builder()
+          .classes(LegacyApi.class, LegacySupport.class, LegacyClient.class)
+          .java(rule)
+          .build();
+
+      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(failure.getMessage().contains(LegacyClient.class.getName() + ".api"));
+      assertFalse(failure.getMessage().contains(LegacyApi.class.getName() + ".support"));
+      assertFalse(failure.getMessage().contains(LegacySupport.class.getName() + ".api"));
+    }
+
+    static Stream<Named<Customizer<JavaConfigurer>>> rulesForbiddingAllLegacyTypes() {
+      return Stream.of(
+          rule("noUsageOf(DescribedPredicate)",
+              java -> java.noUsageOf(ClassCriteria.simpleNameMatching("Legacy.*"))),
+          rule("shouldNotImport(DescribedPredicate)", java -> java.imports(imports -> imports
+              .shouldNotImport(ClassCriteria.simpleNameMatching("Legacy.*")))));
+    }
+
+    static Stream<Named<Customizer<JavaConfigurer>>> rulesForbiddingLegacyApiAndSupport() {
+      return Stream.of(
+          rule("noUsageOf(DescribedPredicate)",
+              java -> java.noUsageOf(LEGACY_API_AND_SUPPORT)),
+          rule("noUsageOf(DescribedPredicate, DescribedPredicate)",
+              java -> java.noUsageOf(ClassCriteria.simpleNameMatching("Legacy.*"),
+                  LEGACY_API_AND_SUPPORT)),
+          rule("shouldNotImport(DescribedPredicate)", java -> java.imports(imports -> imports
+              .shouldNotImport(LEGACY_API_AND_SUPPORT))),
+          rule("shouldNotImport(DescribedPredicate, DescribedPredicate)",
+              java -> java.imports(imports -> imports
+                  .shouldNotImport(ClassCriteria.simpleNameMatching("Legacy.*"),
+                      LEGACY_API_AND_SUPPORT))));
+    }
+  }
+
+  @Nested
+  class Overloads {
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      Taikai compliantTaikai = Taikai.builder()
+          .classes(compliant)
+          .java(rule)
+          .build();
+      Taikai violatingTaikai = Taikai.builder()
+          .classes(violating)
+          .java(rule)
+          .build();
+
+      assertDoesNotThrow(compliantTaikai::check);
+      assertThrows(AssertionError.class, violatingTaikai::check);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          overload("classesShouldResideInPackage(DescribedPredicate, String, Configuration)",
+              java -> java.classesShouldResideInPackage(MARKED, "com.company.other..",
+                  defaultConfiguration()),
+              PlainClass.class, MarkedClass.class),
+          overload("classesShouldResideOutsidePackage(DescribedPredicate, String, Configuration)",
+              java -> java.classesShouldResideOutsidePackage(MARKED, THIS_PACKAGE,
+                  defaultConfiguration()),
+              PlainClass.class, MarkedClass.class),
+          overload("classesShouldBeAnnotatedWith(DescribedPredicate, Class)",
+              java -> java.classesShouldBeAnnotatedWith(APIS, Required.class),
+              AnnotatedApi.class, UnannotatedApi.class),
+          overload("classesShouldBeAnnotatedWith(DescribedPredicate, Class, Configuration)",
+              java -> java.classesShouldBeAnnotatedWith(APIS, Required.class,
+                  defaultConfiguration()),
+              AnnotatedApi.class, UnannotatedApi.class),
+          overload("classesShouldBeAnnotatedWith(DescribedPredicate, String)",
+              java -> java.classesShouldBeAnnotatedWith(APIS, Required.class.getName()),
+              AnnotatedApi.class, UnannotatedApi.class),
+          overload("classesShouldBeAnnotatedWith(DescribedPredicate, String, Configuration)",
+              java -> java.classesShouldBeAnnotatedWith(APIS, Required.class.getName(),
+                  defaultConfiguration()),
+              AnnotatedApi.class, UnannotatedApi.class),
+          overload("classesShouldNotBeAnnotatedWith(DescribedPredicate, Class)",
+              java -> java.classesShouldNotBeAnnotatedWith(APIS, Required.class),
+              UnannotatedApi.class, AnnotatedApi.class),
+          overload("classesShouldNotBeAnnotatedWith(DescribedPredicate, Class, Configuration)",
+              java -> java.classesShouldNotBeAnnotatedWith(APIS, Required.class,
+                  defaultConfiguration()),
+              UnannotatedApi.class, AnnotatedApi.class),
+          overload("classesShouldNotBeAnnotatedWith(DescribedPredicate, String)",
+              java -> java.classesShouldNotBeAnnotatedWith(APIS, Required.class.getName()),
+              UnannotatedApi.class, AnnotatedApi.class),
+          overload("classesShouldNotBeAnnotatedWith(DescribedPredicate, String, Configuration)",
+              java -> java.classesShouldNotBeAnnotatedWith(APIS, Required.class.getName(),
+                  defaultConfiguration()),
+              UnannotatedApi.class, AnnotatedApi.class),
+          overload("classesShouldBeAnnotatedWithAll(DescribedPredicate, Collection, Configuration)",
+              java -> java.classesShouldBeAnnotatedWithAll(APIS,
+                  List.of(Marker.class.getName(), Required.class.getName()),
+                  defaultConfiguration()),
+              AnnotatedApi.class, UnannotatedApi.class),
+          overload("classesShouldBeAssignableTo(DescribedPredicate, Class)",
+              java -> java.classesShouldBeAssignableTo(REPOSITORIES, BaseRepository.class),
+              UserRepository.class, OrderRepository.class),
+          overload("classesShouldBeAssignableTo(DescribedPredicate, Class, Configuration)",
+              java -> java.classesShouldBeAssignableTo(REPOSITORIES, BaseRepository.class,
+                  defaultConfiguration()),
+              UserRepository.class, OrderRepository.class),
+          overload("classesShouldBeAssignableTo(DescribedPredicate, String)",
+              java -> java.classesShouldBeAssignableTo(REPOSITORIES,
+                  BaseRepository.class.getName()),
+              UserRepository.class, OrderRepository.class),
+          overload("classesShouldBeAssignableTo(DescribedPredicate, String, Configuration)",
+              java -> java.classesShouldBeAssignableTo(REPOSITORIES,
+                  BaseRepository.class.getName(), defaultConfiguration()),
+              UserRepository.class, OrderRepository.class),
+          overload("methodsShouldNotDeclareException(DescribedPredicate, Class, Configuration)",
+              java -> java.methodsShouldNotDeclareException(MethodCriteria.nameMatching(".*"),
+                  IOException.class, defaultConfiguration()),
+              MarkedClass.class, ThrowingMethods.class),
+          overload("methodsShouldBeAnnotatedWith(DescribedPredicate, Class, Configuration)",
+              java -> java.methodsShouldBeAnnotatedWith(FIRST, Required.class,
+                  defaultConfiguration()),
+              AnnotatedMethods.class, PublicMethods.class),
+          overload("methodsShouldBeAnnotatedWithAll(DescribedPredicate, Collection, Configuration)",
+              java -> java.methodsShouldBeAnnotatedWithAll(FIRST,
+                  List.of(Required.class.getName()), defaultConfiguration()),
+              AnnotatedMethods.class, PublicMethods.class),
+          overload("methodsShouldNotBeAnnotatedWith(DescribedPredicate, Class, Configuration)",
+              java -> java.methodsShouldNotBeAnnotatedWith(FIRST, Required.class,
+                  defaultConfiguration()),
+              PublicMethods.class, AnnotatedMethods.class),
+          overload("methodsShouldHaveModifiers(DescribedPredicate, Collection, Configuration)",
+              java -> java.methodsShouldHaveModifiers(FIRST, List.of(PUBLIC),
+                  defaultConfiguration()),
+              PublicMethods.class, AnnotatedMethods.class),
+          overload("methodsShouldNotHaveModifiers(DescribedPredicate, Collection, Configuration)",
+              java -> java.methodsShouldNotHaveModifiers(FIRST, List.of(PUBLIC),
+                  defaultConfiguration()),
+              AnnotatedMethods.class, PublicMethods.class),
+          overload("fieldsShouldHaveModifiers(DescribedPredicate, Collection, Configuration)",
+              java -> java.fieldsShouldHaveModifiers(FieldCriteria.nameMatching("name"),
+                  List.of(PRIVATE, FINAL), defaultConfiguration()),
+              PrivateFinalFields.class, PackagePrivateField.class),
+          overload("fieldsShouldNotHaveModifiers(DescribedPredicate, Collection, Configuration)",
+              java -> java.fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("name|counter"),
+                  List.of(STATIC), defaultConfiguration()),
+              PrivateFinalFields.class, StaticField.class),
+          overload("noUsageOf(Class, Configuration)",
+              java -> java.noUsageOf(Date.class, defaultConfiguration()),
+              PlainClass.class, DateUser.class),
+          overload("noUsageOf(String, Configuration)",
+              java -> java.noUsageOf(Date.class.getName(), defaultConfiguration()),
+              PlainClass.class, DateUser.class),
+          overload("noUsageOf(DescribedPredicate, Class, Configuration)",
+              java -> java.noUsageOf(ClassCriteria.inPackage(THIS_PACKAGE), Date.class,
+                  defaultConfiguration()),
+              PlainClass.class, DateUser.class));
+    }
+
+    private static Arguments overload(String name, Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      return Arguments.of(rule(name, rule), compliant, violating);
+    }
+  }
+
+  private static Named<Customizer<JavaConfigurer>> rule(String name,
+      Customizer<JavaConfigurer> rule) {
+    return Named.of(name, rule);
+  }
+
   @Retention(RetentionPolicy.RUNTIME)
   @interface Marker {
   }
@@ -1208,10 +1252,6 @@ class JavaCriteriaRulesTest {
 
   @Marker
   static final class FinalMarkedClass {
-  }
-
-  @Marker
-  public static class PublicMarkedClass {
   }
 
   @Marker

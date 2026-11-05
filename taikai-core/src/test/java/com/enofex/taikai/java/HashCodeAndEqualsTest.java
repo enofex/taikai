@@ -6,23 +6,28 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.Taikai;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class HashCodeAndEqualsTest {
 
-  @Test
-  void shouldPassWhenClassImplementsBothEqualsAndHashCode() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {ValidClass.class, PlainClass.class, ValidRecord.class,
+      PlainRecord.class})
+  void shouldPassWhenClassImplementsBothOrNeitherEqualsAndHashCode(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(ValidClass.class)
+        .classes(fixture)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 
     assertDoesNotThrow(taikai::check);
   }
 
-  @Test
-  void shouldFailWhenClassImplementsEqualsButNotHashCode() {
+  @ParameterizedTest(name = "{0}")
+  @ValueSource(classes = {EqualsOnlyClass.class, HashCodeOnlyClass.class})
+  void shouldFailWhenClassImplementsOnlyOneOfEqualsAndHashCode(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
-        .classes(EqualsOnlyClass.class)
+        .classes(fixture)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 
@@ -30,23 +35,29 @@ class HashCodeAndEqualsTest {
   }
 
   @Test
-  void shouldFailWhenClassImplementsHashCodeButNotEquals() {
+  void shouldFailWhenRecordImplementsEqualsButNotHashCode() {
     Taikai taikai = Taikai.builder()
-        .classes(HashCodeOnlyClass.class)
+        .classes(EqualsOnlyRecord.class)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 
-    assertThrows(AssertionError.class, taikai::check);
+    AssertionError error = assertThrows(AssertionError.class, taikai::check);
+
+    assertTrue(error.getMessage().contains("implements equals() but not hashCode()"),
+        error.getMessage());
   }
 
   @Test
-  void shouldPassWhenClassImplementsNeitherEqualsNorHashCode() {
+  void shouldFailWhenRecordImplementsHashCodeButNotEquals() {
     Taikai taikai = Taikai.builder()
-        .classes(PlainClass.class)
+        .classes(HashCodeOnlyRecord.class)
         .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
         .build();
 
-    assertDoesNotThrow(taikai::check);
+    AssertionError error = assertThrows(AssertionError.class, taikai::check);
+
+    assertTrue(error.getMessage().contains("implements hashCode() but not equals()"),
+        error.getMessage());
   }
 
   static class ValidClass {
@@ -76,52 +87,6 @@ class HashCodeAndEqualsTest {
     public int hashCode() {
       return 123;
     }
-  }
-
-  @Test
-  void shouldPassWhenRecordImplementsNeitherEqualsNorHashCode() {
-    Taikai taikai = Taikai.builder()
-        .classes(PlainRecord.class)
-        .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldPassWhenRecordImplementsBothEqualsAndHashCode() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidRecord.class)
-        .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldFailWhenRecordImplementsEqualsButNotHashCode() {
-    Taikai taikai = Taikai.builder()
-        .classes(EqualsOnlyRecord.class)
-        .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
-        .build();
-
-    AssertionError error = assertThrows(AssertionError.class, taikai::check);
-
-    assertTrue(error.getMessage().contains("implements equals() but not hashCode()"),
-        error.getMessage());
-  }
-
-  @Test
-  void shouldFailWhenRecordImplementsHashCodeButNotEquals() {
-    Taikai taikai = Taikai.builder()
-        .classes(HashCodeOnlyRecord.class)
-        .java(JavaConfigurer::classesShouldImplementHashCodeAndEquals)
-        .build();
-
-    AssertionError error = assertThrows(AssertionError.class, taikai::check);
-
-    assertTrue(error.getMessage().contains("implements hashCode() but not equals()"),
-        error.getMessage());
   }
 
   record PlainRecord(String value) {

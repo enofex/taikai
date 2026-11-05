@@ -87,15 +87,20 @@ class KotlinCompatibilityRulesTest {
         assertTrue(failure.message!!.contains(type.simpleName!!), failure.message)
     }
 
-    @Test
-    fun `non deprecated overloads and accessor directions remain allowed`() {
-        listOf(CallsCurrentOverload::class, WritesOldGetter::class, ReadsOldSetter::class,
-            OldApi::class, OldConstructor::class, CompanionProperties::class,
-            DeprecatedOverloads::class, DeprecatedData::class)
-            .forEach { type -> check(type) { noUsageOfDeprecatedAPIs() } }
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("allowedUsages")
+    fun `non deprecated overloads and accessor directions remain allowed`(type: KClass<*>) {
+        check(type) { noUsageOfDeprecatedAPIs() }
     }
 
     companion object {
+        @JvmStatic
+        fun allowedUsages(): List<KClass<*>> = listOf(
+            CallsCurrentOverload::class, WritesOldGetter::class, ReadsOldSetter::class,
+            OldApi::class, OldConstructor::class, CompanionProperties::class,
+            DeprecatedOverloads::class, DeprecatedData::class,
+        )
+
         @JvmStatic
         fun deprecatedUsages(): List<KClass<*>> = listOf(
             CallsOldFunction::class, CallsOldDefaultFunction::class, ReadsOldProperty::class,

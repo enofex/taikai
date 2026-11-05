@@ -18,6 +18,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class KotlinConfigurerTest {
+    private companion object {
+        /** The fixtures, imported once; imported classes do not change. */
+        val fixtureClasses = ClassFileImporter().importPackages("com.enofex.taikai.kotlin.fixtures")
+    }
+
     private fun configured(vararg types: Class<*>, block: KotlinConfigurer.() -> Unit): Taikai =
         Taikai.builder().classes(*types).kotlin(block).build()
 
@@ -79,8 +84,7 @@ class KotlinConfigurerTest {
 
     @Test
     fun `parameters exclude default helpers receivers and continuations and identify overloads`() {
-        val imported = ClassFileImporter().importPackages("com.enofex.taikai.kotlin.fixtures")
-        val fileFacade = imported.that(JavaClass.Predicates.simpleName("DeclarationFixtures"))
+        val fileFacade = fixtureClasses.that(JavaClass.Predicates.simpleName("DeclarationFixtures"))
         Taikai.builder().classes(fileFacade).metrics { it.functionsShouldNotExceedMaxParameters(1) }.build().checkAll()
         measured(Plain::class.java) { functionsShouldNotExceedMaxParameters(2) }.checkAll()
         val failure = assertThrows<AssertionError> { measured(Plain::class.java) { functionsShouldNotExceedMaxParameters(1) }.checkAll() }
@@ -145,7 +149,7 @@ class KotlinConfigurerTest {
 
     @Test
     fun `multi file facade helpers are skipped while part declarations are analyzed`() {
-        val imported = ClassFileImporter().importPackages("com.enofex.taikai.kotlin.fixtures")
+        val imported = fixtureClasses
             .that(JavaClass.Predicates.simpleNameStartingWith("MultiFileFixtures"))
         Taikai.builder().classes(imported).failOnEmpty(true)
             .kotlin { functionsShouldMatch("multiFile(One|Two)") }

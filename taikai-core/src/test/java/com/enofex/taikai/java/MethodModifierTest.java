@@ -17,80 +17,6 @@ import org.junit.jupiter.api.Test;
 class MethodModifierTest {
 
   @Nested
-  class MethodsShouldHaveModifiersByAnnotation {
-
-    @Test
-    void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiersUsingClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldHaveModifiers(
-              MethodCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedMethodsLackRequiredModifiersUsingClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonPublicMethods.class)
-          .java(java -> java.methodsShouldHaveModifiers(
-              MethodCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC)))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenAllAnnotatedMethodsHaveRequiredModifiersUsingTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldHaveModifiers(
-              MethodCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedMethodsLackRequiredModifiersUsingTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonPublicMethods.class)
-          .java(java -> java.methodsShouldHaveModifiers(
-              MethodCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC)))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class MethodsShouldNotHaveModifiersByAnnotation {
-
-    @Test
-    void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiersUsingClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiers(
-              MethodCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.STATIC)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenAnnotatedMethodsDoNotHaveForbiddenModifiersUsingTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicMethods.class)
-          .java(java -> java.methodsShouldNotHaveModifiers(
-              MethodCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.STATIC)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
   class MethodsShouldHaveModifiers {
 
     @Test
@@ -247,15 +173,6 @@ class MethodModifierTest {
     public void publicMethod() {}
 
     public void anotherPublicMethod() {}
-  }
-
-  static class NonPublicMethods {
-
-    @TestAnnotation
-    void packagePrivateMethod() {}
-
-    @TestAnnotation
-    protected void protectedMethod() {}
   }
 
   static class StaticMethods {

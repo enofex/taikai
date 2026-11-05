@@ -1,16 +1,12 @@
 package com.enofex.taikai.metrics;
 
+import static com.enofex.taikai.metrics.MetricsChecks.check;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.enofex.taikai.Taikai;
-import com.enofex.taikai.configures.Customizer;
-import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 /**
  * The fixtures in {@code shop} form three packages: {@code app} depends on {@code api} and
@@ -65,14 +61,5 @@ class PackageMetricsTest {
         "Package %s.domain has a relative visibility of 1.00 (1 of 1 classes are public), "
             .formatted(SHOP) + "max allowed: 0.5"));
     assertFalse(error.getMessage().contains("Package %s.app ".formatted(SHOP)));
-  }
-
-  private static Executable check(String packageName, Customizer<MetricsConfigurer> customizer) {
-    JavaClasses classes = new ClassFileImporter().importPackages(packageName);
-
-    return Taikai.builder()
-        .classes(classes)
-        .metrics(customizer)
-        .build()::check;
   }
 }

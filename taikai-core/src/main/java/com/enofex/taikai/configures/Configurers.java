@@ -19,18 +19,7 @@ public final class Configurers implements Iterable<Configurer> {
   public <C extends Configurer> C getOrApply(C configurer) {
     requireNonNull(configurer);
 
-    C existingConfigurer = (C) this.get(configurer.getClass());
-    return existingConfigurer != null ? existingConfigurer : this.apply(configurer);
-  }
-
-  private <C extends Configurer> C apply(C configurer) {
-    this.add(configurer);
-    return configurer;
-  }
-
-  private <C extends Configurer> void add(C configurer) {
-    Class<? extends Configurer> clazz = configurer.getClass();
-    this.configurers.putIfAbsent(clazz, configurer);
+    return (C) this.configurers.computeIfAbsent(configurer.getClass(), key -> configurer);
   }
 
   public <C extends Configurer> @Nullable C get(Class<C> clazz) {

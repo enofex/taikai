@@ -1,21 +1,20 @@
 package com.enofex.taikai.metrics;
 
+import static com.enofex.taikai.metrics.MetricsChecks.check;
+import static com.enofex.taikai.metrics.MetricsChecks.classesOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.MethodCriteria;
-import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
-import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.metrics.nesting.CustomerService;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.util.AbstractList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 class ClassMetricsTest {
 
@@ -130,20 +129,7 @@ class ClassMetricsTest {
   }
 
   private static JavaClasses nesting() {
-    return new ClassFileImporter().importPackages("com.enofex.taikai.metrics.nesting");
-  }
-
-  private static Executable check(Customizer<MetricsConfigurer> customizer,
-      Class<?>... classes) {
-    return check(customizer, new ClassFileImporter().importClasses(classes));
-  }
-
-  private static Executable check(Customizer<MetricsConfigurer> customizer,
-      JavaClasses classes) {
-    return Taikai.builder()
-        .classes(classes)
-        .metrics(customizer)
-        .build()::check;
+    return classesOf("com.enofex.taikai.metrics.nesting");
   }
 
   static class Level1 {

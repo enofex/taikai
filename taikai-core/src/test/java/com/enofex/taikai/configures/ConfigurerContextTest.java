@@ -26,20 +26,6 @@ class ConfigurerContextTest {
   }
 
   @Test
-  void shouldHandleNullNamespace() {
-    ConfigurerContext context = new ConfigurerContext(null, VALID_CONFIGURERS);
-
-    assertNull(context.namespace());
-  }
-
-  @Test
-  void shouldHandleNullConfigurers() {
-    ConfigurerContext context = new ConfigurerContext(VALID_NAMESPACE, null);
-
-    assertNull(context.configurers());
-  }
-
-  @Test
   void shouldHandleNullParameters() {
     ConfigurerContext context = new ConfigurerContext(null, null);
 

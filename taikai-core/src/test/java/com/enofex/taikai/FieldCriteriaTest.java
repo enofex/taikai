@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
 
 class FieldCriteriaTest {
 
+  private static final JavaClass ORDER_SERVICE =
+      new ClassFileImporter().importClass(OrderService.class);
+
   @Test
   void shouldMatchEntireFieldNameWithoutDeclaringClass() {
     JavaField field = loggerField();
@@ -39,32 +42,30 @@ class FieldCriteriaTest {
 
   @Test
   void shouldMatchDirectAndMetaAnnotatedFields() {
-    JavaClass service = new ClassFileImporter().importClass(OrderService.class);
     for (String name : List.of("repository", "client")) {
-      assertTrue(FieldCriteria.annotatedWith(Inject.class).test(service.getField(name)));
-      assertTrue(FieldCriteria.annotatedWith(Inject.class.getName()).test(service.getField(name)));
+      assertTrue(FieldCriteria.annotatedWith(Inject.class).test(ORDER_SERVICE.getField(name)));
+      assertTrue(FieldCriteria.annotatedWith(Inject.class.getName())
+          .test(ORDER_SERVICE.getField(name)));
     }
-    assertFalse(FieldCriteria.annotatedWith(Inject.class).test(service.getField("logger")));
+    assertFalse(FieldCriteria.annotatedWith(Inject.class).test(ORDER_SERVICE.getField("logger")));
   }
 
   @Test
   void shouldMatchExactRawFieldType() {
-    JavaClass service = new ClassFileImporter().importClass(OrderService.class);
-    assertTrue(FieldCriteria.ofType(List.class).test(service.getField("names")));
-    assertTrue(FieldCriteria.ofType(List.class.getName()).test(service.getField("names")));
-    assertFalse(FieldCriteria.ofType(Collection.class).test(service.getField("names")));
-    assertFalse(FieldCriteria.ofType(String.class).test(service.getField("names")));
+    assertTrue(FieldCriteria.ofType(List.class).test(ORDER_SERVICE.getField("names")));
+    assertTrue(FieldCriteria.ofType(List.class.getName()).test(ORDER_SERVICE.getField("names")));
+    assertFalse(FieldCriteria.ofType(Collection.class).test(ORDER_SERVICE.getField("names")));
+    assertFalse(FieldCriteria.ofType(String.class).test(ORDER_SERVICE.getField("names")));
   }
 
   @Test
   void shouldMatchRawFieldTypeByClassCriteria() {
-    JavaClass service = new ClassFileImporter().importClass(OrderService.class);
     assertTrue(FieldCriteria.ofType(ClassCriteria.inPackage("java.util"))
-        .test(service.getField("names")));
+        .test(ORDER_SERVICE.getField("names")));
     assertTrue(FieldCriteria.ofType(ClassCriteria.simpleNameMatching("List"))
-        .test(service.getField("names")));
+        .test(ORDER_SERVICE.getField("names")));
     assertFalse(FieldCriteria.ofType(ClassCriteria.inPackage("java.util"))
-        .test(service.getField("logger")));
+        .test(ORDER_SERVICE.getField("logger")));
   }
 
   @Test
@@ -83,7 +84,7 @@ class FieldCriteriaTest {
   }
 
   private static JavaField loggerField() {
-    return new ClassFileImporter().importClass(OrderService.class).getField("logger");
+    return ORDER_SERVICE.getField("logger");
   }
 
   @Retention(RetentionPolicy.RUNTIME)

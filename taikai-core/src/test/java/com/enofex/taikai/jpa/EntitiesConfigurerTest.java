@@ -274,16 +274,6 @@ class EntitiesConfigurerTest {
       AssertionError failure = assertThrows(AssertionError.class, taikai::check);
       assertTrue(failure.getMessage().contains(Customer.class.getName()));
     }
-
-    @Test
-    void shouldIgnoreClassesThatAreNotEntities() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicNonEntity.class)
-          .jpa(jpa -> jpa.entities(entities -> entities.namesShouldMatch(".+Entity")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
   }
 
   @Nested

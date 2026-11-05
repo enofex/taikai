@@ -1,7 +1,8 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -9,8 +10,13 @@ import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
+import com.enofex.taikai.configures.Customizer;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,76 +26,88 @@ class ServicesConfigurerTest {
   @Nested
   class NamesShouldEndWithService {
 
-    @Test
-    void shouldNotThrowWhenServiceEndsWithService() {
+    static Stream<Named<Customizer<ServicesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("namesShouldEndWithService()",
+              services -> services.namesShouldEndWithService()),
+          Named.of("namesShouldEndWithService(Configuration)",
+              services -> services.namesShouldEndWithService(defaultConfiguration())),
+          Named.of("namesShouldMatch(String)",
+              services -> services.namesShouldMatch(".+Service")),
+          Named.of("namesShouldMatch(String, Configuration)",
+              services -> services.namesShouldMatch(".+Service", defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenServiceEndsWithService(Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(UserService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::namesShouldEndWithService))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenAnnotatedServiceDoesNotEndWithService() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenAnnotatedServiceDoesNotEndWithService(
+        Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(InvalidNaming.class)
-          .spring(spring -> spring.services(ServicesConfigurer::namesShouldEndWithService))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenClassIsNotAnnotatedWithService() {
-      Taikai taikai = Taikai.builder()
-          .classes(UtilityHelper.class)
-          .spring(spring -> spring.services(ServicesConfigurer::namesShouldEndWithService))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
     }
   }
 
   @Nested
   class ShouldBeAnnotatedWithService {
 
-    @Test
-    void shouldNotThrowWhenAnnotatedWithService() {
+    static Stream<Named<Customizer<ServicesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldBeAnnotatedWithService()",
+              services -> services.shouldBeAnnotatedWithService()),
+          Named.of("shouldBeAnnotatedWithService(Configuration)",
+              services -> services.shouldBeAnnotatedWithService(defaultConfiguration())),
+          Named.of("shouldBeAnnotatedWithService(DescribedPredicate)",
+              services -> services.shouldBeAnnotatedWithService(
+                  ClassCriteria.nameMatching(".+Service"))),
+          Named.of("shouldBeAnnotatedWithService(DescribedPredicate, Configuration)",
+              services -> services.shouldBeAnnotatedWithService(
+                  ClassCriteria.nameMatching(".+Service"), defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenAnnotatedWithService(Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(UserService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenServiceMissingAnnotation() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenServiceMissingAnnotation(Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(MissingAnnotationService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
 
-    @Test
-    void shouldNotThrowWhenClassDoesNotMatchServicePattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(UtilityHelper.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenServiceInterfaceIsNotAnnotated() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenServiceInterfaceIsNotAnnotated(Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(EmailService.class, JavaMailEmailService.class,
               ConsoleLoggingEmailService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -169,105 +187,61 @@ class ServicesConfigurerTest {
   @Nested
   class ShouldBePackagePrivate {
 
-    @Test
-    void shouldNotThrowWhenServiceIsPackagePrivate() {
+    static Stream<Named<Customizer<ServicesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldBePackagePrivate()",
+              services -> services.shouldBePackagePrivate()),
+          Named.of("shouldBePackagePrivate(Configuration)",
+              services -> services.shouldBePackagePrivate(defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenServiceIsPackagePrivate(Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(UserService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBePackagePrivate))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenServiceIsPublic() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenServiceIsPublic(Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(PublicService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBePackagePrivate))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
+  }
 
-    @Test
-    void shouldNotThrowWhenPublicClassIsNotAnnotatedWithService() {
+  @Nested
+  class UnrelatedClasses {
+
+    static Stream<Named<Customizer<ServicesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("namesShouldEndWithService()",
+              services -> services.namesShouldEndWithService()),
+          Named.of("shouldBeAnnotatedWithService()",
+              services -> services.shouldBeAnnotatedWithService()),
+          Named.of("shouldNotDependOnOtherServices()",
+              services -> services.shouldNotDependOnOtherServices()),
+          Named.of("shouldNotDependOnControllers()",
+              services -> services.shouldNotDependOnControllers()),
+          Named.of("shouldBePackagePrivate()",
+              services -> services.shouldBePackagePrivate()));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenPublicClassIsNotAnnotatedWithService(
+        Customizer<ServicesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(PublicHelper.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBePackagePrivate))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenServiceIsPublicWithConfiguration() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicService.class)
-          .spring(spring -> spring.services(services -> services.shouldBePackagePrivate(
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class NamesShouldMatch {
-
-    @Test
-    void shouldNotThrowWhenServiceNameMatchesRegex() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserService.class)
-          .spring(spring -> spring.services(
-              svc -> svc.namesShouldMatch(".+Service")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenServiceNameDoesNotMatchRegex() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidNaming.class)
-          .spring(spring -> spring.services(
-              svc -> svc.namesShouldMatch(".+Service")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class ShouldBeAnnotatedWithServiceByName {
-
-    @Test
-    void shouldNotThrowWhenMatchingClassIsAnnotatedWithService() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserService.class)
-          .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenMatchingClassMissingServiceAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(MissingAnnotationService.class)
-          .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenMatchingInterfaceIsNotAnnotated() {
-      Taikai taikai = Taikai.builder()
-          .classes(EmailService.class, JavaMailEmailService.class)
-          .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
+          .spring(spring -> spring.services(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -312,10 +286,6 @@ class ServicesConfigurerTest {
   }
 
   static class MissingAnnotationService {
-
-  }
-
-  static class UtilityHelper {
 
   }
 
@@ -388,34 +358,6 @@ class ServicesConfigurerTest {
   }
 
   @Nested
-  class ConfigurationOverloads {
-
-    @Test
-    void shouldSupportConfigurationForNamesShouldEndWithService() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserService.class)
-          .spring(spring -> spring.services(
-              svc -> svc.namesShouldEndWithService(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForShouldBeAnnotatedWithService() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserService.class)
-          .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
   class Disable {
 
     @Test
@@ -440,113 +382,30 @@ class ServicesConfigurerTest {
     }
 
     @Test
-    void shouldReturnNonNullFromNamesShouldEndWithService() {
+    void shouldReturnSameConfigurerFromEveryMethod() {
       ServicesConfigurer configurer = new ServicesConfigurer(createContext());
 
-      assertNotNull(configurer.namesShouldEndWithService());
-    }
-
-    @Test
-    void shouldReturnNonNullFromNamesShouldEndWithServiceWithConfig() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.namesShouldEndWithService(
-          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
-    }
-
-    @Test
-    void shouldReturnNonNullFromNamesShouldMatch() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.namesShouldMatch(".+Service"));
-    }
-
-    @Test
-    void shouldReturnNonNullFromNamesShouldMatchWithConfig() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.namesShouldMatch(".+Service",
-          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceNoArg() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.shouldBeAnnotatedWithService());
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceWithConfig() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.shouldBeAnnotatedWithService(
-          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceWithRegex() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(
-          configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service")));
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldBeAnnotatedWithServiceWithRegexAndConfig() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"),
-          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldNotDependOnOtherServices() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.shouldNotDependOnOtherServices());
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldNotDependOnOtherServicesWithConfig() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.shouldNotDependOnOtherServices(
-          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldNotDependOnControllers() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.shouldNotDependOnControllers());
-    }
-
-    @Test
-    void shouldReturnNonNullFromShouldNotDependOnControllersWithConfig() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.shouldNotDependOnControllers(
-          com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()));
-    }
-
-    @Test
-    void shouldReturnNonNullFromDisable() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertNotNull(configurer.disable());
-    }
-
-    @Test
-    void shouldSupportChainingMultipleRules() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-      ServicesConfigurer result = configurer
-          .namesShouldEndWithService()
-          .shouldBeAnnotatedWithService()
-          .shouldNotDependOnOtherServices()
-          .shouldNotDependOnControllers();
-
-      assertSame(configurer, result);
+      assertAll(
+          () -> assertSame(configurer, configurer.namesShouldEndWithService()),
+          () -> assertSame(configurer,
+              configurer.namesShouldEndWithService(defaultConfiguration())),
+          () -> assertSame(configurer, configurer.namesShouldMatch(".+Service")),
+          () -> assertSame(configurer,
+              configurer.namesShouldMatch(".+Service", defaultConfiguration())),
+          () -> assertSame(configurer, configurer.shouldBeAnnotatedWithService()),
+          () -> assertSame(configurer,
+              configurer.shouldBeAnnotatedWithService(defaultConfiguration())),
+          () -> assertSame(configurer,
+              configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))),
+          () -> assertSame(configurer, configurer.shouldBeAnnotatedWithService(
+              ClassCriteria.nameMatching(".+Service"), defaultConfiguration())),
+          () -> assertSame(configurer, configurer.shouldNotDependOnOtherServices()),
+          () -> assertSame(configurer,
+              configurer.shouldNotDependOnOtherServices(defaultConfiguration())),
+          () -> assertSame(configurer, configurer.shouldNotDependOnControllers()),
+          () -> assertSame(configurer,
+              configurer.shouldNotDependOnControllers(defaultConfiguration())),
+          () -> assertSame(configurer, configurer.disable()));
     }
   }
 
@@ -581,17 +440,6 @@ class ServicesConfigurerTest {
           .build();
 
       assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenMetaAnnotatedServiceMissingAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(MissingAnnotationService.class)
-          .spring(spring -> spring.services(
-              svc -> svc.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
     }
 
     @Test

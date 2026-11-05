@@ -1,5 +1,6 @@
 package com.enofex.taikai.metrics;
 
+import static com.enofex.taikai.internal.Classes.topLevelClass;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
@@ -147,15 +148,6 @@ final class ClassMetrics {
     };
   }
 
-  private static JavaClass topLevelClass(JavaClass javaClass) {
-    JavaClass topLevelClass = javaClass;
-
-    while (topLevelClass.getEnclosingClass().isPresent()) {
-      topLevelClass = topLevelClass.getEnclosingClass().get();
-    }
-
-    return topLevelClass;
-  }
 
   /**
    * A class a rule checks, together with the names of all classes the rule checks and, for a

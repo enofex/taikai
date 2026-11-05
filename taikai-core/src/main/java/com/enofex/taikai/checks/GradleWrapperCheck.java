@@ -2,7 +2,6 @@ package com.enofex.taikai.checks;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
-import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -51,15 +50,8 @@ public final class GradleWrapperCheck implements TaikaiCheck {
 
   @Override
   public List<String> violations(CheckContext context) {
-    List<Path> directories = context.configuration(Settings.class)
-        .map(settings -> settings.directories().stream()
-            .map(directory -> context.projectDirectory().resolve(directory).normalize())
-            .toList())
-        .orElse(List.of(context.projectDirectory()));
-
-    return directories.stream()
-        .flatMap(directory -> ProjectFiles.missingOrEmpty(directory, WRAPPER_FILES).stream())
-        .toList();
+    return ProjectFiles.missingOrEmpty(context,
+        context.configuration(Settings.class).map(Settings::directories), WRAPPER_FILES);
   }
 
   /**

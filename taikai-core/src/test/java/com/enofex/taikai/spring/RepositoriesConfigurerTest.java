@@ -1,12 +1,18 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.configures.Customizer;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -49,93 +55,88 @@ class RepositoriesConfigurerTest {
   @Nested
   class NamesShouldEndWithRepository {
 
-    @Test
-    void shouldNotThrowWhenRepositoryEndsWithRepository() {
+    static Stream<Named<Customizer<RepositoriesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("namesShouldEndWithRepository()",
+              repo -> repo.namesShouldEndWithRepository()),
+          Named.of("namesShouldEndWithRepository(Configuration)",
+              repo -> repo.namesShouldEndWithRepository(defaultConfiguration())),
+          Named.of("namesShouldMatch(String)",
+              repo -> repo.namesShouldMatch(".+Repository")),
+          Named.of("namesShouldMatch(String, Configuration)",
+              repo -> repo.namesShouldMatch(".+Repository", defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenRepositoryEndsWithRepository(Customizer<RepositoriesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(UserRepository.class)
-          .spring(
-              spring -> spring.repositories(RepositoriesConfigurer::namesShouldEndWithRepository))
+          .spring(spring -> spring.repositories(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenAnnotatedRepositoryDoesNotEndWithRepository() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenAnnotatedRepositoryDoesNotEndWithRepository(
+        Customizer<RepositoriesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(InvalidRepoName.class)
-          .spring(
-              spring -> spring.repositories(RepositoriesConfigurer::namesShouldEndWithRepository))
+          .spring(spring -> spring.repositories(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenNotAnnotatedAsRepository() {
-      Taikai taikai = Taikai.builder()
-          .classes(UtilityHelper.class)
-          .spring(
-              spring -> spring.repositories(RepositoriesConfigurer::namesShouldEndWithRepository))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
     }
   }
 
   @Nested
   class ShouldBeAnnotatedWithRepository {
 
-    @Test
-    void shouldNotThrowWhenRepositoryAnnotated() {
+    static Stream<Named<Customizer<RepositoriesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("shouldBeAnnotatedWithRepository()",
+              repo -> repo.shouldBeAnnotatedWithRepository()),
+          Named.of("shouldBeAnnotatedWithRepository(Configuration)",
+              repo -> repo.shouldBeAnnotatedWithRepository(defaultConfiguration())),
+          Named.of("shouldBeAnnotatedWithRepository(DescribedPredicate)",
+              repo -> repo.shouldBeAnnotatedWithRepository(
+                  ClassCriteria.nameMatching(".+Repository"))),
+          Named.of("shouldBeAnnotatedWithRepository(DescribedPredicate, Configuration)",
+              repo -> repo.shouldBeAnnotatedWithRepository(
+                  ClassCriteria.nameMatching(".+Repository"), defaultConfiguration())));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenRepositoryAnnotated(Customizer<RepositoriesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(UserRepository.class)
-          .spring(spring -> spring.repositories(
-              RepositoriesConfigurer::shouldBeAnnotatedWithRepository))
+          .spring(spring -> spring.repositories(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldThrowWhenRepositoryMissingAnnotation() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenRepositoryMissingAnnotation(Customizer<RepositoriesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(MissingAnnotationRepository.class)
-          .spring(spring -> spring.repositories(
-              RepositoriesConfigurer::shouldBeAnnotatedWithRepository))
+          .spring(spring -> spring.repositories(rule))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
 
-    @Test
-    void shouldNotThrowWhenClassDoesNotMatchRepositoryPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(UtilityHelper.class)
-          .spring(spring -> spring.repositories(
-              RepositoriesConfigurer::shouldBeAnnotatedWithRepository))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenRepositoryInterfaceIsNotAnnotated() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenRepositoryInterfaceIsNotAnnotated(
+        Customizer<RepositoriesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
           .classes(SpringDataRepository.class)
-          .spring(spring -> spring.repositories(
-              RepositoriesConfigurer::shouldBeAnnotatedWithRepository))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenRepositoryInterfaceMatchingCriteriaIsNotAnnotated() {
-      Taikai taikai = Taikai.builder()
-          .classes(SpringDataRepository.class)
-          .spring(spring -> spring.repositories(repositories -> repositories
-              .shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".*Repository"))))
+          .spring(spring -> spring.repositories(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -205,54 +206,31 @@ class RepositoriesConfigurerTest {
   }
 
   @Nested
-  class NamesShouldMatch {
+  class UnrelatedClasses {
 
-    @Test
-    void shouldNotThrowWhenRepositoryNameMatchesRegex() {
+    static Stream<Named<Customizer<RepositoriesConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("namesShouldEndWithRepository()",
+              repo -> repo.namesShouldEndWithRepository()),
+          Named.of("shouldBeAnnotatedWithRepository()",
+              repo -> repo.shouldBeAnnotatedWithRepository()),
+          Named.of("shouldNotDependOnControllers()",
+              repo -> repo.shouldNotDependOnControllers()),
+          Named.of("shouldNotDependOnServices()",
+              repo -> repo.shouldNotDependOnServices()),
+          Named.of("shouldBePackagePrivate()",
+              repo -> repo.shouldBePackagePrivate()));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenClassIsNotARepository(Customizer<RepositoriesConfigurer> rule) {
       Taikai taikai = Taikai.builder()
-          .classes(UserRepository.class)
-          .spring(spring -> spring.repositories(
-              repo -> repo.namesShouldMatch(".+Repository")))
+          .classes(UtilityHelper.class)
+          .spring(spring -> spring.repositories(rule))
           .build();
 
       assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenRepositoryNameDoesNotMatchRegex() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidRepoName.class)
-          .spring(spring -> spring.repositories(
-              repo -> repo.namesShouldMatch(".+Repository")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class ShouldBeAnnotatedWithRepositoryByName {
-
-    @Test
-    void shouldNotThrowWhenMatchingClassIsAnnotatedWithRepository() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserRepository.class)
-          .spring(spring -> spring.repositories(
-              repo -> repo.shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".+Repository"))))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenMatchingClassMissingRepositoryAnnotation() {
-      Taikai taikai = Taikai.builder()
-          .classes(MissingAnnotationRepository.class)
-          .spring(spring -> spring.repositories(
-              repo -> repo.shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".+Repository"))))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
     }
   }
 
@@ -273,7 +251,7 @@ class RepositoriesConfigurerTest {
 
   }
 
-  static class UtilityHelper {
+  public static class UtilityHelper {
 
   }
 
@@ -319,34 +297,6 @@ class RepositoriesConfigurerTest {
 
     RepositoryDependingOnRestController(ApiController apiController) {
       this.apiController = apiController;
-    }
-  }
-
-  @Nested
-  class ConfigurationOverloads {
-
-    @Test
-    void shouldSupportConfigurationForNamesShouldEndWithRepository() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserRepository.class)
-          .spring(spring -> spring.repositories(
-              repo -> repo.namesShouldEndWithRepository(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldSupportConfigurationForShouldBeAnnotatedWithRepository() {
-      Taikai taikai = Taikai.builder()
-          .classes(UserRepository.class)
-          .spring(spring -> spring.repositories(
-              repo -> repo.shouldBeAnnotatedWithRepository(
-                  com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
     }
   }
 

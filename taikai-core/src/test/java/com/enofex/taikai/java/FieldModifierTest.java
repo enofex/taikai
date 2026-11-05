@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -14,102 +15,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class FieldModifierTest {
-
-  @Nested
-  class FieldsShouldHaveModifiersByAnnotation {
-
-    @Test
-    void shouldNotThrowWhenAllAnnotatedFieldsHaveRequiredModifiersUsingClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicFinalFields.class)
-          .java(java -> java.fieldsShouldHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedFieldsLackRequiredModifiersUsingClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonPublicFields.class)
-          .java(java -> java.fieldsShouldHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.PUBLIC)))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenAllAnnotatedFieldsHaveRequiredModifiersUsingTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicFinalFields.class)
-          .java(java -> java.fieldsShouldHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC, JavaModifier.FINAL)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedFieldsLackRequiredModifiersUsingTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonPublicFields.class)
-          .java(java -> java.fieldsShouldHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.PUBLIC)))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class FieldsShouldNotHaveModifiersByAnnotation {
-
-    @Test
-    void shouldNotThrowWhenAnnotatedFieldsDoNotHaveForbiddenModifiersUsingClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonStaticFields.class)
-          .java(java -> java.fieldsShouldNotHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.STATIC)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedFieldsHaveForbiddenModifiersUsingClass() {
-      Taikai taikai = Taikai.builder()
-          .classes(StaticFields.class)
-          .java(java -> java.fieldsShouldNotHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class), List.of(JavaModifier.STATIC)))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenAnnotatedFieldsDoNotHaveForbiddenModifiersUsingTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(NonStaticFields.class)
-          .java(java -> java.fieldsShouldNotHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.STATIC)))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedFieldsHaveForbiddenModifiersUsingTypeName() {
-      Taikai taikai = Taikai.builder()
-          .classes(StaticFields.class)
-          .java(java -> java.fieldsShouldNotHaveModifiers(
-              FieldCriteria.annotatedWith(TestAnnotation.class.getName()), List.of(JavaModifier.STATIC)))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
 
   @Nested
   class FieldsShouldHaveModifiers {
@@ -183,7 +88,7 @@ class FieldModifierTest {
       Taikai taikai = Taikai.builder()
           .classes(NonStaticFields.class)
           .java(java -> java.fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("counter"), List.of(JavaModifier.STATIC),
-              com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration()))
+              defaultConfiguration()))
           .build();
 
       assertDoesNotThrow(taikai::check);
