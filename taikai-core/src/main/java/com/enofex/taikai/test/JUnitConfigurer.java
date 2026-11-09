@@ -2,14 +2,15 @@ package com.enofex.taikai.test;
 
 import static com.enofex.taikai.internal.ArchConditions.notDeclareThrownExceptions;
 import static com.enofex.taikai.test.ContainAssertionsOrVerifications.containAssertionsOrVerifications;
+import static com.enofex.taikai.test.ExecutableTests.beExecutable;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_DISABLED;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_DISPLAY_NAME;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_NESTED;
-import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMETERIZED_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.annotatedWithTestOrParameterizedTest;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.containTestOrParameterizedTestMethods;
-import static com.enofex.taikai.test.ExecutableTests.beExecutable;
+import static com.enofex.taikai.test.TestClassNaming.haveTopLevelClassNameMatching;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
@@ -22,14 +23,9 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
-import com.enofex.taikai.internal.Classes;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
-import com.tngtech.archunit.lang.ArchCondition;
-import com.tngtech.archunit.lang.ConditionEvents;
-import com.tngtech.archunit.lang.SimpleConditionEvent;
-import java.util.regex.Pattern;
 
 /**
  * Configures and enforces best practices for JUnit tests using
@@ -97,7 +93,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().haveNameMatching(regex)
             .as("Methods annotated with %s or %s should have names matching %s".formatted(
-                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST, regex)),
+                ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST, regex)),
         configuration));
   }
 
@@ -124,7 +120,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(notDeclareThrownExceptions())
             .as("Methods annotated with %s or %s should not declare thrown exceptions".formatted(
-                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST)),
+                ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST)),
         configuration));
   }
 
@@ -150,8 +146,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().beMetaAnnotatedWith(ANNOTATION_DISPLAY_NAME)
-            .as("Methods annotated with %s or %s should be annotated with %s".formatted(ANNOTATION_TEST,
-                ANNOTATION_PARAMETRIZED_TEST, ANNOTATION_DISPLAY_NAME)),
+            .as("Methods annotated with %s or %s should be annotated with %s".formatted(
+                ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST, ANNOTATION_DISPLAY_NAME)),
         configuration));
   }
 
@@ -178,8 +174,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .and().areDeclaredInClassesThat().areNotInterfaces()
             .should().bePackagePrivate()
-            .as("Methods annotated with %s or %s should be package-private".formatted(ANNOTATION_TEST,
-                ANNOTATION_PARAMETRIZED_TEST)),
+            .as("Methods annotated with %s or %s should be package-private".formatted(
+                ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST)),
         configuration));
   }
 
@@ -224,13 +220,14 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public JUnitConfigurer methodsShouldContainAssertionsOrVerifications(Configuration configuration) {
+  public JUnitConfigurer methodsShouldContainAssertionsOrVerifications(
+      Configuration configuration) {
     return addRule(TaikaiRule.of(methods()
             .that(are(annotatedWithTestOrParameterizedTest(true)))
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(containAssertionsOrVerifications())
-            .as("Methods annotated with %s or %s should contain assertions or verifications".formatted(
-                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST)),
+            .as("Methods annotated with %s or %s should contain assertions or verifications"
+                .formatted(ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST)),
         configuration));
   }
 
@@ -253,7 +250,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JUnitConfigurer classesShouldBePackagePrivate(DescribedPredicate<? super JavaClass> classes) {
+  public JUnitConfigurer classesShouldBePackagePrivate(
+      DescribedPredicate<? super JavaClass> classes) {
     return classesShouldBePackagePrivate(classes, CONFIGURATION);
   }
 
@@ -267,7 +265,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public JUnitConfigurer classesShouldBePackagePrivate(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
+  public JUnitConfigurer classesShouldBePackagePrivate(
+      DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
@@ -338,8 +337,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
     return addRule(TaikaiRule.of(classes()
             .that(containTestOrParameterizedTestMethods())
             .should(haveTopLevelClassNameMatching(regex))
-            .as("Classes containing methods annotated with %s or %s should have names matching %s".formatted(
-                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST, regex)),
+            .as("Classes containing methods annotated with %s or %s should have names matching %s"
+                .formatted(ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST, regex)),
         configuration));
   }
 
@@ -370,8 +369,9 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .and().doNotHaveModifier(JavaModifier.ABSTRACT)
             .and(containTestOrParameterizedTestMethods())
             .should().beMetaAnnotatedWith(ANNOTATION_NESTED)
-            .as("Inner classes containing methods annotated with %s or %s should be annotated with %s".formatted(
-                ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST, ANNOTATION_NESTED)),
+            .as(("Inner classes containing methods annotated with %s or %s should be annotated "
+                + "with %s").formatted(
+                ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST, ANNOTATION_NESTED)),
         configuration));
   }
 
@@ -414,32 +414,6 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .should(beExecutable())
             .as("Test classes and methods should be executable by JUnit"),
         configuration));
-  }
-
-  /**
-   * Creates an {@link ArchCondition} that resolves the top-level class of a possibly nested
-   * class and fails if its name does not match the given regex.
-   *
-   * @param regex the regex pattern for valid test class names
-   * @return the condition that checks the top-level class name
-   */
-  private static ArchCondition<JavaClass> haveTopLevelClassNameMatching(String regex) {
-    Pattern pattern = Pattern.compile(regex);
-
-    return new ArchCondition<>("have a top-level class name matching %s".formatted(regex)) {
-      @Override
-      public void check(JavaClass javaClass, ConditionEvents events) {
-        JavaClass topLevelClass = Classes.topLevelClass(javaClass);
-
-        if (!pattern.matcher(topLevelClass.getName()).matches()) {
-          events.add(SimpleConditionEvent.violated(javaClass,
-              "Class %s contains test methods but its top-level class %s does not match %s".formatted(
-                  javaClass.getName(),
-                  topLevelClass.getName(),
-                  regex)));
-        }
-      }
-    };
   }
 
   @Override

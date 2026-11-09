@@ -22,7 +22,8 @@ import org.jspecify.annotations.Nullable;
  * <p>A {@code TaikaiRule} provides optional configuration via {@link Configuration}, allowing
  * customization of namespaces, import options or class exclusions.</p>
  *
- * <p>Instances can be created via {@link #of(ArchRule)} or {@link #of(ArchRule, Configuration)}.</p>
+ * <p>Instances can be created via {@link #of(ArchRule)} or
+ * {@link #of(ArchRule, Configuration)}.</p>
  *
  * @see ArchRule
  * @see Namespace

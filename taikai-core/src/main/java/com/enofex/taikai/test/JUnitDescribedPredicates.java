@@ -9,7 +9,7 @@ import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 final class JUnitDescribedPredicates {
 
   static final String ANNOTATION_TEST = "org.junit.jupiter.api.Test";
-  static final String ANNOTATION_PARAMETRIZED_TEST = "org.junit.jupiter.params.ParameterizedTest";
+  static final String ANNOTATION_PARAMETERIZED_TEST = "org.junit.jupiter.params.ParameterizedTest";
   static final String ANNOTATION_TEST_TEMPLATE = "org.junit.jupiter.api.TestTemplate";
   static final String ANNOTATION_TEST_FACTORY = "org.junit.jupiter.api.TestFactory";
   static final String ANNOTATION_DISABLED = "org.junit.jupiter.api.Disabled";
@@ -23,14 +23,14 @@ final class JUnitDescribedPredicates {
       boolean isMetaAnnotated) {
 
     return annotatedWith(ANNOTATION_TEST, isMetaAnnotated)
-        .or(annotatedWith(ANNOTATION_PARAMETRIZED_TEST, isMetaAnnotated));
+        .or(annotatedWith(ANNOTATION_PARAMETERIZED_TEST, isMetaAnnotated));
   }
 
   static DescribedPredicate<JavaClass> containTestOrParameterizedTestMethods() {
     DescribedPredicate<CanBeAnnotated> testMethod = annotatedWithTestOrParameterizedTest(true);
 
     return new DescribedPredicate<>("contain methods annotated with %s or %s".formatted(
-        ANNOTATION_TEST, ANNOTATION_PARAMETRIZED_TEST)) {
+        ANNOTATION_TEST, ANNOTATION_PARAMETERIZED_TEST)) {
       @Override
       public boolean test(JavaClass javaClass) {
         return javaClass.getMethods().stream().anyMatch(testMethod);

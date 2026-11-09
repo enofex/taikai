@@ -25,14 +25,15 @@ final class TransactionalControllers {
       public void check(JavaClass controllerClass, ConditionEvents events) {
         if (transactional.test(controllerClass)) {
           events.add(SimpleConditionEvent.violated(controllerClass,
-              "Controller %s is annotated with @Transactional, transaction boundaries should be defined in the service layer".formatted(
-                  controllerClass.getName())));
+              ("Controller %s is annotated with @Transactional, transaction boundaries should be "
+                  + "defined in the service layer").formatted(controllerClass.getName())));
         }
 
         for (JavaMethod method : controllerClass.getMethods()) {
           if (!isSynthetic(method) && transactional.test(method)) {
             events.add(SimpleConditionEvent.violated(controllerClass,
-                "Controller %s declares the @Transactional method %s, transaction boundaries should be defined in the service layer".formatted(
+                ("Controller %s declares the @Transactional method %s, transaction boundaries "
+                    + "should be defined in the service layer").formatted(
                     controllerClass.getName(),
                     method.getFullName())));
           }

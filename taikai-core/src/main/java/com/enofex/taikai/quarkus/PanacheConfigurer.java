@@ -65,7 +65,8 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public PanacheConfigurer shouldBeAnnotatedWithEntityWhenActiveRecordPattern(Configuration configuration) {
+  public PanacheConfigurer shouldBeAnnotatedWithEntityWhenActiveRecordPattern(
+      Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areAssignableTo(PANACHE_ENTITY)
             .should(be(annotatedWithEntity(true)))

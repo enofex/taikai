@@ -1,6 +1,6 @@
 package com.enofex.taikai.logging;
 
-import static com.enofex.taikai.internal.ArchConditions.hasFieldModifiers;
+import static com.enofex.taikai.internal.ArchConditions.haveFieldModifiers;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
@@ -19,7 +19,7 @@ final class LoggerConventions {
   static ArchCondition<JavaClass> followLoggerConventions(String typeName, String regex,
       Collection<JavaModifier> requiredModifiers) {
     Pattern name = Pattern.compile(regex);
-    ArchCondition<JavaField> modifiers = hasFieldModifiers(requiredModifiers);
+    ArchCondition<JavaField> modifiers = haveFieldModifiers(requiredModifiers);
 
     return new ArchCondition<>(
         "have a logger field of type %s with name pattern %s and modifiers %s".formatted(

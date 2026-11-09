@@ -41,8 +41,12 @@ class TaikaiDsl internal constructor(private val builder: Taikai.Builder) {
     fun failOnEmpty(value: Boolean = true) { builder.failOnEmpty(value) }
     fun addRule(rule: TaikaiRule) { builder.addRule(rule) }
     fun addRules(rules: Collection<TaikaiRule>) { builder.addRules(rules) }
-    fun discoverChecks(block: @TaikaiDslMarker ChecksConfigurer.() -> Unit = {}) { builder.discoverChecks { it.block() } }
-    fun discoverExports(block: @TaikaiDslMarker ExportsConfigurer.() -> Unit = {}) { builder.discoverExports { it.block() } }
+    fun discoverChecks(block: @TaikaiDslMarker ChecksConfigurer.() -> Unit = {}) {
+        builder.discoverChecks { it.block() }
+    }
+    fun discoverExports(block: @TaikaiDslMarker ExportsConfigurer.() -> Unit = {}) {
+        builder.discoverExports { it.block() }
+    }
     fun java(block: @TaikaiDslMarker JavaConfigurer.() -> Unit) { builder.java { it.block() } }
     fun spring(block: @TaikaiDslMarker SpringConfigurer.() -> Unit) { builder.spring { it.block() } }
     fun logging(block: @TaikaiDslMarker LoggingConfigurer.() -> Unit) { builder.logging { it.block() } }

@@ -74,7 +74,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
         .that(are(annotatedWithTransactional(true)))
         .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
         .should().bePublic()
-        .as("Methods annotated with %s or %s should be public, Spring's proxy-based transaction management ignores non-public methods".formatted(
+        .as(("Methods annotated with %s or %s should be public, Spring's proxy-based transaction "
+            + "management ignores non-public methods").formatted(
             ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
   }
 
@@ -107,7 +108,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
   public TransactionalConfigurer shouldNotBeSelfInvoked(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(notSelfInvokeMethodsAnnotatedWith(ANNOTATIONS_TRANSACTIONAL))
-        .as("Methods annotated with %s or %s should not be self-invoked, the call bypasses Spring's proxy and no transaction is created".formatted(
+        .as(("Methods annotated with %s or %s should not be self-invoked, the call bypasses "
+            + "Spring's proxy and no transaction is created").formatted(
             ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
   }
 
@@ -132,7 +134,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithControllerOrRestController(true)))
         .should(notBeTransactional())
-        .as("Controllers should not use %s or %s, transaction boundaries should be defined in the service layer".formatted(
+        .as(("Controllers should not use %s or %s, transaction boundaries should be defined in "
+            + "the service layer").formatted(
             ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
   }
 

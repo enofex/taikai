@@ -25,10 +25,12 @@ fun MetricsConfigurer.functionsShouldNotExceedMaxParameters(
 /** Holds the Kotlin rules of the metrics group, so that disabling the group removes them as well. */
 internal class KotlinMetricsConfigurer(context: ConfigurerContext) : AbstractConfigurer(context) {
     fun functionsShouldNotExceedMaxParameters(max: Int, configuration: Configuration) {
+        val description = "Kotlin functions should not have more than $max value parameters"
         addRule<KotlinMetricsConfigurer>(
-            kotlinRule("Kotlin functions should not have more than $max value parameters", configuration) { owner, declarations ->
+            kotlinRule(description, configuration) { owner, declarations ->
                 declarations.functions.filter { it.valueParameters.size > max }.map {
-                    "Function ${owner.name}.${it.name}${it.signature?.descriptor.orEmpty()} has ${it.valueParameters.size} value parameters, max allowed: $max"
+                    "Function ${owner.name}.${it.name}${it.signature?.descriptor.orEmpty()} " +
+                        "has ${it.valueParameters.size} value parameters, max allowed: $max"
                 }
             })
     }

@@ -14,8 +14,10 @@ import java.util.stream.Stream;
 
 final class ValidatedController {
 
-  private static final String REQUEST_PARAM = "org.springframework.web.bind.annotation.RequestParam";
-  private static final String PATH_VARIABLE = "org.springframework.web.bind.annotation.PathVariable";
+  private static final String REQUEST_PARAM =
+      "org.springframework.web.bind.annotation.RequestParam";
+  private static final String PATH_VARIABLE =
+      "org.springframework.web.bind.annotation.PathVariable";
 
   /**
    * The constraints of Bean Validation, in the packages of both {@code javax} and {@code jakarta}.
@@ -30,7 +32,8 @@ final class ValidatedController {
 
   static ArchCondition<JavaClass> beAnnotatedWithValidated() {
     return new ArchCondition<>(
-        "be annotated with @Validated if @RequestParam or @PathVariable has validation annotations") {
+        "be annotated with @Validated if @RequestParam or @PathVariable has validation "
+            + "annotations") {
       @Override
       public void check(JavaClass controllerClass, ConditionEvents events) {
         if (controllerClass.isMetaAnnotatedWith(ANNOTATION_VALIDATED)) {
@@ -47,7 +50,9 @@ final class ValidatedController {
                 || parameter.isMetaAnnotatedWith(PATH_VARIABLE))
                 && VALIDATION_ANNOTATIONS.stream().anyMatch(parameter::isMetaAnnotatedWith)) {
               events.add(SimpleConditionEvent.violated(controllerClass,
-                  "Controller %s is missing @Validated but has a method parameter in %s annotated with @PathVariable or @RequestParam and a validation annotation".formatted(
+                  ("Controller %s is missing @Validated but has a method parameter in %s "
+                      + "annotated with @PathVariable or @RequestParam and a validation "
+                      + "annotation").formatted(
                       controllerClass.getName(),
                       method.getFullName())));
             }

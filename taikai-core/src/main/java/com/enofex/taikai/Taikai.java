@@ -288,7 +288,7 @@ public final class Taikai {
     }
 
     if (allViolations > 0) {
-      throw new AssertionError(String.format("Found %d Taikai violations for %s!%n%s",
+      throw new AssertionError("Found %d Taikai violations for %s!%n%s".formatted(
           allViolations, violated(rulesViolated, checksViolated), report));
     }
   }

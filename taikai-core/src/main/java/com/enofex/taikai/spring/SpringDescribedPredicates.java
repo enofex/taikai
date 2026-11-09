@@ -11,27 +11,35 @@ import java.util.List;
 
 final class SpringDescribedPredicates {
 
-  static final String ANNOTATION_CONFIGURATION = "org.springframework.context.annotation.Configuration";
-  static final String ANNOTATION_CONFIGURATION_PROPERTIES = "org.springframework.boot.context.properties.ConfigurationProperties";
+  static final String ANNOTATION_CONFIGURATION =
+      "org.springframework.context.annotation.Configuration";
+  static final String ANNOTATION_CONFIGURATION_PROPERTIES =
+      "org.springframework.boot.context.properties.ConfigurationProperties";
   static final String ANNOTATION_CONTROLLER = "org.springframework.stereotype.Controller";
-  static final String ANNOTATION_REST_CONTROLLER = "org.springframework.web.bind.annotation.RestController";
+  static final String ANNOTATION_REST_CONTROLLER =
+      "org.springframework.web.bind.annotation.RestController";
   static final String ANNOTATION_SERVICE = "org.springframework.stereotype.Service";
   static final String ANNOTATION_REPOSITORY = "org.springframework.stereotype.Repository";
   static final String ANNOTATION_DATA_REPOSITORY = "org.springframework.data.repository.Repository";
-  static final String ANNOTATION_SPRING_BOOT_APPLICATION = "org.springframework.boot.autoconfigure.SpringBootApplication";
-  static final String ANNOTATION_AUTOWIRED = "org.springframework.beans.factory.annotation.Autowired";
+  static final String ANNOTATION_SPRING_BOOT_APPLICATION =
+      "org.springframework.boot.autoconfigure.SpringBootApplication";
+  static final String ANNOTATION_AUTOWIRED =
+      "org.springframework.beans.factory.annotation.Autowired";
   static final String ANNOTATION_VALUE = "org.springframework.beans.factory.annotation.Value";
   static final String ANNOTATION_JAKARTA_INJECT = "jakarta.inject.Inject";
   static final String ANNOTATION_JAVAX_INJECT = "javax.inject.Inject";
   static final String ANNOTATION_VALIDATED = "org.springframework.validation.annotation.Validated";
-  static final String ANNOTATION_TRANSACTIONAL = "org.springframework.transaction.annotation.Transactional";
+  static final String ANNOTATION_TRANSACTIONAL =
+      "org.springframework.transaction.annotation.Transactional";
   static final String ANNOTATION_JAKARTA_TRANSACTIONAL = "jakarta.transaction.Transactional";
   static final String ANNOTATION_ASYNC = "org.springframework.scheduling.annotation.Async";
   static final String ANNOTATION_CACHEABLE = "org.springframework.cache.annotation.Cacheable";
   static final String ANNOTATION_CACHE_EVICT = "org.springframework.cache.annotation.CacheEvict";
   static final String ANNOTATION_CACHE_PUT = "org.springframework.cache.annotation.CachePut";
-  static final String ANNOTATION_PRE_AUTHORIZE = "org.springframework.security.access.prepost.PreAuthorize";
-  static final String ANNOTATION_POST_AUTHORIZE = "org.springframework.security.access.prepost.PostAuthorize";
+  static final String ANNOTATION_PRE_AUTHORIZE =
+      "org.springframework.security.access.prepost.PreAuthorize";
+  static final String ANNOTATION_POST_AUTHORIZE =
+      "org.springframework.security.access.prepost.PostAuthorize";
   static final String ANNOTATION_RETRYABLE = "org.springframework.retry.annotation.Retryable";
 
   /**

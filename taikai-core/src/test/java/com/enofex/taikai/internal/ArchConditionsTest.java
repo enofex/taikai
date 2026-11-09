@@ -79,7 +79,7 @@ class ArchConditionsTest {
     Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PRIVATE, JavaModifier.FINAL);
     when(this.mockField.getModifiers()).thenReturn(requiredModifiers);
 
-    ArchConditions.hasFieldModifiers(requiredModifiers).check(this.mockField, this.events);
+    ArchConditions.haveFieldModifiers(requiredModifiers).check(this.mockField, this.events);
 
     verify(this.events, never()).add(any(SimpleConditionEvent.class));
   }
@@ -91,7 +91,7 @@ class ArchConditionsTest {
     when(this.mockField.getName()).thenReturn("field");
     when(this.mockField.getOwner()).thenReturn(this.mockClass);
 
-    ArchConditions.hasFieldModifiers(requiredModifiers).check(this.mockField, this.events);
+    ArchConditions.haveFieldModifiers(requiredModifiers).check(this.mockField, this.events);
 
     ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(
         SimpleConditionEvent.class);
@@ -136,7 +136,7 @@ class ArchConditionsTest {
     Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC);
     when(this.mockMethod.getModifiers()).thenReturn(requiredModifiers);
 
-    ArchConditions.hasMethodsModifiers(requiredModifiers).check(this.mockMethod, this.events);
+    ArchConditions.haveMethodModifiers(requiredModifiers).check(this.mockMethod, this.events);
 
     verify(this.events, never()).add(any(SimpleConditionEvent.class));
   }
@@ -148,7 +148,7 @@ class ArchConditionsTest {
     when(this.mockMethod.getName()).thenReturn("someMethod");
     when(this.mockMethod.getOwner()).thenReturn(this.mockClass);
 
-    ArchConditions.hasMethodsModifiers(requiredModifiers).check(this.mockMethod, this.events);
+    ArchConditions.haveMethodModifiers(requiredModifiers).check(this.mockMethod, this.events);
 
     ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
     verify(this.events).add(eventCaptor.capture());
@@ -164,7 +164,7 @@ class ArchConditionsTest {
     Set<JavaModifier> requiredModifiers = EnumSet.of(JavaModifier.PUBLIC, JavaModifier.FINAL);
     when(this.mockClass.getModifiers()).thenReturn(requiredModifiers);
 
-    ArchConditions.hasClassModifiers(requiredModifiers).check(this.mockClass, this.events);
+    ArchConditions.haveClassModifiers(requiredModifiers).check(this.mockClass, this.events);
 
     verify(this.events, never()).add(any(SimpleConditionEvent.class));
   }
@@ -174,7 +174,7 @@ class ArchConditionsTest {
     Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.STATIC);
     when(this.mockMethod.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
 
-    ArchConditions.notHasMethodModifiers(forbiddenModifiers).check(this.mockMethod, this.events);
+    ArchConditions.notHaveMethodModifiers(forbiddenModifiers).check(this.mockMethod, this.events);
 
     verify(this.events, never()).add(any(SimpleConditionEvent.class));
   }
@@ -186,7 +186,7 @@ class ArchConditionsTest {
     when(this.mockMethod.getName()).thenReturn("forbiddenMethod");
     when(this.mockMethod.getOwner()).thenReturn(this.mockClass);
 
-    ArchConditions.notHasMethodModifiers(forbiddenModifiers).check(this.mockMethod, this.events);
+    ArchConditions.notHaveMethodModifiers(forbiddenModifiers).check(this.mockMethod, this.events);
 
     verify(this.events, times(1)).add(any(SimpleConditionEvent.class));
   }
@@ -197,7 +197,7 @@ class ArchConditionsTest {
     when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
     when(this.mockClass.getName()).thenReturn("MyClass");
 
-    ArchConditions.hasClassModifiers(requiredModifiers).check(this.mockClass, this.events);
+    ArchConditions.haveClassModifiers(requiredModifiers).check(this.mockClass, this.events);
 
     ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
     verify(this.events).add(eventCaptor.capture());
@@ -212,7 +212,7 @@ class ArchConditionsTest {
     Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.ABSTRACT);
     when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC));
 
-    ArchConditions.notHasClassModifiers(forbiddenModifiers).check(this.mockClass, this.events);
+    ArchConditions.notHaveClassModifiers(forbiddenModifiers).check(this.mockClass, this.events);
 
     verify(this.events, never()).add(any(SimpleConditionEvent.class));
   }
@@ -223,7 +223,7 @@ class ArchConditionsTest {
     when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC, JavaModifier.ABSTRACT));
     when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
 
-    ArchConditions.notHasClassModifiers(forbiddenModifiers).check(this.mockClass, this.events);
+    ArchConditions.notHaveClassModifiers(forbiddenModifiers).check(this.mockClass, this.events);
 
     verify(this.events, times(1)).add(any(SimpleConditionEvent.class));
   }
@@ -236,7 +236,7 @@ class ArchConditionsTest {
     when(this.mockField.getOwner()).thenReturn(this.mockClass);
     when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
 
-    ArchConditions.notHasFieldModifiers(
+    ArchConditions.notHaveFieldModifiers(
             EnumSet.of(JavaModifier.FINAL, JavaModifier.STATIC, JavaModifier.PUBLIC))
         .check(this.mockField, this.events);
 
@@ -252,7 +252,7 @@ class ArchConditionsTest {
     when(this.mockMethod.getOwner()).thenReturn(this.mockClass);
     when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
 
-    ArchConditions.notHasMethodModifiers(EnumSet.of(JavaModifier.STATIC, JavaModifier.FINAL))
+    ArchConditions.notHaveMethodModifiers(EnumSet.of(JavaModifier.STATIC, JavaModifier.FINAL))
         .check(this.mockMethod, this.events);
 
     assertEquals("Method create in class com.example.MyClass has forbidden modifier(s): STATIC",
@@ -265,7 +265,7 @@ class ArchConditionsTest {
         EnumSet.of(JavaModifier.PUBLIC, JavaModifier.ABSTRACT));
     when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
 
-    ArchConditions.notHasClassModifiers(EnumSet.of(JavaModifier.ABSTRACT, JavaModifier.FINAL))
+    ArchConditions.notHaveClassModifiers(EnumSet.of(JavaModifier.ABSTRACT, JavaModifier.FINAL))
         .check(this.mockClass, this.events);
 
     assertEquals("Class com.example.MyClass has forbidden modifier(s): ABSTRACT",

@@ -14,7 +14,7 @@ final class EnumConstantNaming {
   private EnumConstantNaming() {
   }
 
-  static ArchCondition<JavaField> shouldFollowEnumConstantNamingConventions() {
+  static ArchCondition<JavaField> followEnumConstantNamingConventions() {
     return new ArchCondition<>("follow enum constant naming convention") {
       @Override
       public void check(JavaField field, ConditionEvents events) {

@@ -73,8 +73,8 @@ final class ExecutableTests {
       // A top-level class annotated with @Nested is still executed by JUnit
       if (javaClass.isNestedClass() && !javaClass.isInnerClass()) {
         events.add(SimpleConditionEvent.violated(javaClass,
-            "%s is static and will only be executed if discovered as a standalone test class in %s".formatted(
-                description, javaClass.getSourceCodeLocation())));
+            ("%s is static and will only be executed if discovered as a standalone test class "
+                + "in %s").formatted(description, javaClass.getSourceCodeLocation())));
       }
       if (isPrivate && !isAbstract) {
         violated(javaClass, description, "is private", events);
@@ -109,7 +109,8 @@ final class ExecutableTests {
         if (testAnnotation.equals(ANNOTATION_TEST_FACTORY)) {
           if (!returnsDynamicNodes(method)) {
             violated(method, description,
-                "does not return a DynamicNode or a Stream, Collection, Iterable, Iterator or array of DynamicNode",
+                "does not return a DynamicNode or a Stream, Collection, Iterable, Iterator or "
+                    + "array of DynamicNode",
                 events);
           }
         } else if (!method.getRawReturnType().isEquivalentTo(void.class)) {
@@ -141,7 +142,8 @@ final class ExecutableTests {
   private static String annotationName(JavaMethod method, String testAnnotation) {
     return method.getAnnotations().stream()
         .map(JavaAnnotation::getRawType)
-        .filter(type -> type.getName().equals(testAnnotation) || type.isMetaAnnotatedWith(testAnnotation))
+        .filter(type -> type.getName().equals(testAnnotation)
+            || type.isMetaAnnotatedWith(testAnnotation))
         .map(JavaClass::getSimpleName)
         .findFirst()
         .orElse(testAnnotation);

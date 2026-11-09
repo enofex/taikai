@@ -27,7 +27,7 @@ final class BooleanMethodNaming {
     };
   }
 
-  static ArchCondition<JavaMethod> shouldStartWith(Collection<String> prefixes) {
+  static ArchCondition<JavaMethod> startWithOneOf(Collection<String> prefixes) {
     Pattern pattern = Pattern.compile(
         "^(%s)([A-Z].*)?$".formatted(String.join("|", prefixes)));
 

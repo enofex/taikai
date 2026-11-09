@@ -1,6 +1,6 @@
 package com.enofex.taikai.test;
 
-import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMETRIZED_TEST;
+import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_PARAMETERIZED_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.annotatedWithTestOrParameterizedTest;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.beAnnotatedWith;
@@ -25,7 +25,7 @@ class JUnitDescribedPredicatesTest {
 
     ArchRule rule = methods().that(annotatedWithTestOrParameterizedTest(false))
         .should(beAnnotatedWith(ANNOTATION_TEST)
-            .or(beAnnotatedWith(ANNOTATION_PARAMETRIZED_TEST)));
+            .or(beAnnotatedWith(ANNOTATION_PARAMETERIZED_TEST)));
 
     assertDoesNotThrow(() -> rule.check(importedClasses));
   }
@@ -37,7 +37,7 @@ class JUnitDescribedPredicatesTest {
 
     ArchRule rule = methods().that(annotatedWithTestOrParameterizedTest(true))
         .should(ArchConditions.beMetaAnnotatedWith(ANNOTATION_TEST)
-            .or(ArchConditions.beMetaAnnotatedWith(ANNOTATION_PARAMETRIZED_TEST)));
+            .or(ArchConditions.beMetaAnnotatedWith(ANNOTATION_PARAMETERIZED_TEST)));
 
     assertDoesNotThrow(() -> rule.check(importedClasses));
   }

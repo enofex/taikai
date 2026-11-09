@@ -96,7 +96,8 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         val pattern = Regex(regex)
         return rule("Kotlin function names should not match $regex", configuration) { owner, declarations ->
             declarations.functions.filter { pattern.matches(it.name) }.map {
-                "Function ${owner.name}.${it.name}${it.signature?.descriptor.orEmpty()} matches forbidden pattern $regex"
+                "Function ${owner.name}.${it.name}${it.signature?.descriptor.orEmpty()} " +
+                    "matches forbidden pattern $regex"
             }
         }
     }
@@ -227,8 +228,13 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     ): KotlinConfigurer {
         val pattern = Regex(regex)
         return rule("Kotlin classes matching $regex should be objects", configuration) { owner, declarations ->
-            if (declarations.type != null && pattern.matches(owner.simpleName) && declarations.type.kind != ClassKind.OBJECT)
-                listOf("Class ${owner.name} is not an object declaration") else emptyList()
+            if (declarations.type != null && pattern.matches(owner.simpleName) &&
+                declarations.type.kind != ClassKind.OBJECT
+            ) {
+                listOf("Class ${owner.name} is not an object declaration")
+            } else {
+                emptyList()
+            }
         }
     }
 
@@ -241,8 +247,13 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     ): KotlinConfigurer {
         val pattern = Regex(regex)
         return rule("Kotlin classes matching $regex should be $visibility", configuration) { owner, declarations ->
-            if (declarations.type != null && pattern.matches(owner.simpleName) && !matches(declarations.type.visibility, visibility))
-                listOf("Class ${owner.name} has visibility ${declarations.type.visibility}, expected $visibility") else emptyList()
+            if (declarations.type != null && pattern.matches(owner.simpleName) &&
+                !matches(declarations.type.visibility, visibility)
+            ) {
+                listOf("Class ${owner.name} has visibility ${declarations.type.visibility}, expected $visibility")
+            } else {
+                emptyList()
+            }
         }
     }
 
@@ -259,7 +270,8 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         val pattern = Regex(regex)
         return rule("Kotlin functions matching $regex should be $visibility", configuration) { owner, declarations ->
             declarations.functions.filter { pattern.matches(it.name) && !matches(it.visibility, visibility) }.map {
-                "Function ${owner.name}.${it.name}${it.signature?.descriptor.orEmpty()} has visibility ${it.visibility}, expected $visibility"
+                "Function ${owner.name}.${it.name}${it.signature?.descriptor.orEmpty()} " +
+                    "has visibility ${it.visibility}, expected $visibility"
             }
         }
     }
@@ -289,7 +301,8 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     ): KotlinConfigurer {
         val pattern = Regex(regex)
         val label = typeNames.first()
-        return rule("Kotlin properties of type $label should have names matching $regex", configuration) { owner, declarations ->
+        val description = "Kotlin properties of type $label should have names matching $regex"
+        return rule(description, configuration) { owner, declarations ->
             declarations.properties.filter {
                 !it.isConst && typeNames.any { type -> it.hasType(owner, type) } && !pattern.matches(it.name)
             }.map { "Property ${owner.name}.${it.name} of type $label does not match $regex" }

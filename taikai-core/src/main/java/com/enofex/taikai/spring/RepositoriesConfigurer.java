@@ -46,7 +46,8 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *
  * <p>By default, this configurer applies to classes annotated with {@code @Repository}.</p>
  */
-public final class RepositoriesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
+public final class RepositoriesConfigurer extends AbstractConfigurer implements
+    DisableableConfigurer {
 
   private static final String DEFAULT_REPOSITORY_NAME_MATCHING = ".+Repository";
 
@@ -132,7 +133,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(DescribedPredicate<? super JavaClass> classes) {
+  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(
+      DescribedPredicate<? super JavaClass> classes) {
     return shouldBeAnnotatedWithRepository(classes, defaultConfiguration());
   }
 
@@ -146,7 +148,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
+  public RepositoriesConfigurer shouldBeAnnotatedWithRepository(
+      DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)

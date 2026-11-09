@@ -41,7 +41,8 @@ final class SelfInvokedProxiedMethods {
               .filter(method::isMetaAnnotatedWith)
               .findFirst()
               .ifPresent(annotation -> events.add(SimpleConditionEvent.violated(javaClass,
-                  "Method %s calls %s in line %d, the self-invocation bypasses the Spring proxy and %s has no effect".formatted(
+                  ("Method %s calls %s in line %d, the self-invocation bypasses the Spring proxy "
+                      + "and %s has no effect").formatted(
                       call.getOrigin().getFullName(),
                       method.getFullName(),
                       call.getLineNumber(),

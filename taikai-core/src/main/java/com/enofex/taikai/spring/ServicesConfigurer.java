@@ -128,7 +128,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ServicesConfigurer shouldBeAnnotatedWithService(DescribedPredicate<? super JavaClass> classes) {
+  public ServicesConfigurer shouldBeAnnotatedWithService(
+      DescribedPredicate<? super JavaClass> classes) {
     return shouldBeAnnotatedWithService(classes, defaultConfiguration());
   }
 
@@ -142,7 +143,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ServicesConfigurer shouldBeAnnotatedWithService(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
+  public ServicesConfigurer shouldBeAnnotatedWithService(
+      DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)

@@ -54,7 +54,8 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * <p>By default, this configurer checks classes annotated with {@code @Controller}
  * or {@code @RestController}.</p>
  */
-public final class ControllersConfigurer extends AbstractConfigurer implements DisableableConfigurer {
+public final class ControllersConfigurer extends AbstractConfigurer implements
+    DisableableConfigurer {
 
   private static final String DEFAULT_CONTROLLER_NAME_MATCHING = ".+Controller";
 
@@ -338,7 +339,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   public ControllersConfigurer shouldNotDependOnOtherControllers(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithControllerOrRestController(true)))
-        .should(not(onlyHaveDependentClassesThat(are(annotatedWithControllerOrRestController(true)))))
+        .should(not(onlyHaveDependentClassesThat(
+            are(annotatedWithControllerOrRestController(true)))))
         .as("Controllers should not depend on other Controllers"), configuration));
   }
 
@@ -399,7 +401,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
             .that(classes)
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should(beAnnotatedWithValidated())
-            .as("Controllers %s that have validation annotations on @RequestParam or @PathVariable parameters should be annotated with %s"
+            .as(("Controllers %s that have validation annotations on @RequestParam or "
+                + "@PathVariable parameters should be annotated with %s")
                 .formatted(classes.getDescription(), ANNOTATION_VALIDATED)),
         configuration));
   }
@@ -427,8 +430,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
     return addRule(TaikaiRule.of(classes()
             .that(are(annotatedWithControllerOrRestController(true)))
             .should(beAnnotatedWithValidated())
-            .as("Controllers with validation annotations on @RequestParam or @PathVariable parameters should be annotated with %s"
-                .formatted(ANNOTATION_VALIDATED)),
+            .as(("Controllers with validation annotations on @RequestParam or @PathVariable "
+                + "parameters should be annotated with %s").formatted(ANNOTATION_VALIDATED)),
         configuration));
   }
 
@@ -488,7 +491,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
     return addRule(TaikaiRule.of(classes()
             .that(are(annotatedWithControllerOrRestController(true)))
             .should().notBeMetaAnnotatedWith(ANNOTATION_VALIDATED)
-            .as("Controllers should not be annotated with %s".formatted(ANNOTATION_VALIDATED)), configuration));
+            .as("Controllers should not be annotated with %s".formatted(ANNOTATION_VALIDATED)),
+        configuration));
   }
 
   @Override

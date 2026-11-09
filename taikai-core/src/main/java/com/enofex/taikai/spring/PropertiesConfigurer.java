@@ -42,7 +42,8 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * <p>By default, this configurer applies to classes annotated with
  * {@code @ConfigurationProperties}.</p>
  */
-public final class PropertiesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
+public final class PropertiesConfigurer extends AbstractConfigurer implements
+    DisableableConfigurer {
 
   private static final String DEFAULT_PROPERTIES_NAME_MATCHING = ".+Properties";
 
@@ -116,8 +117,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
     return addRule(TaikaiRule.of(classes()
             .that(are(annotatedWithConfigurationProperties(true)))
             .should().beMetaAnnotatedWith(ANNOTATION_VALIDATED)
-            .as("Configuration properties annotated with %s should be annotated with %s as well".formatted(
-                ANNOTATION_CONFIGURATION_PROPERTIES, ANNOTATION_VALIDATED)),
+            .as("Configuration properties annotated with %s should be annotated with %s as well"
+                .formatted(ANNOTATION_CONFIGURATION_PROPERTIES, ANNOTATION_VALIDATED)),
         configuration));
   }
 
@@ -139,7 +140,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */
-  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(Configuration configuration) {
+  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(
+      Configuration configuration) {
     return shouldBeAnnotatedWithConfigurationProperties(
         ClassCriteria.nameMatching(DEFAULT_PROPERTIES_NAME_MATCHING), configuration);
   }
@@ -154,7 +156,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate<? super JavaClass> classes) {
+  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(
+      DescribedPredicate<? super JavaClass> classes) {
     return shouldBeAnnotatedWithConfigurationProperties(classes, defaultConfiguration());
   }
 
@@ -168,7 +171,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
+  public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(
+      DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)

@@ -1,9 +1,9 @@
 package com.enofex.taikai.quarkus;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
-import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.APPLICATION_SCOPED;
+import static com.enofex.taikai.quarkus.AiServiceTools.notUseToolsAttribute;
+import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.ANNOTATION_APPLICATION_SCOPED;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithRegisterAiService;
-import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.notUseToolsAttribute;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -112,9 +112,9 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   public AiConfigurer shouldBeAnnotatedWithApplicationScoped(Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that(are(annotatedWithRegisterAiService(true)))
-            .should(be(QuarkusDescribedPredicates.annotatedWithApplicationScope(true)))
+            .should(be(QuarkusDescribedPredicates.annotatedWithApplicationScoped(true)))
             .as("AI Services should be annotated with %s"
-                .formatted(APPLICATION_SCOPED)),
+                .formatted(ANNOTATION_APPLICATION_SCOPED)),
         configuration));
   }
 

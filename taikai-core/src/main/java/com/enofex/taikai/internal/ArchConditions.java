@@ -190,9 +190,9 @@ public final class ArchConditions {
    * @param requiredModifiers the collection of modifiers that the field is required to have
    * @return an architectural condition for checking if a field has the required modifiers
    */
-  public static ArchCondition<JavaField> hasFieldModifiers(
+  public static ArchCondition<JavaField> haveFieldModifiers(
       Collection<JavaModifier> requiredModifiers) {
-    return new ArchCondition<>("has field modifiers") {
+    return new ArchCondition<>("have field modifiers") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
         if (!field.getModifiers().containsAll(requiredModifiers)) {
@@ -213,9 +213,9 @@ public final class ArchConditions {
    * @param forbiddenModifiers the collection of modifiers that the field must not have
    * @return an architectural condition for checking that a field does not have the given modifiers
    */
-  public static ArchCondition<JavaField> notHasFieldModifiers(
+  public static ArchCondition<JavaField> notHaveFieldModifiers(
       Collection<JavaModifier> forbiddenModifiers) {
-    return new ArchCondition<>("does not have field modifiers") {
+    return new ArchCondition<>("not have field modifiers") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
         String presentModifiers = presentForbiddenModifiers(field.getModifiers(),
@@ -238,9 +238,9 @@ public final class ArchConditions {
    * @param requiredModifiers the collection of modifiers that the method is required to have
    * @return an architectural condition for checking if a method has the required modifiers
    */
-  public static ArchCondition<JavaMethod> hasMethodsModifiers(
+  public static ArchCondition<JavaMethod> haveMethodModifiers(
       Collection<JavaModifier> requiredModifiers) {
-    return new ArchCondition<>("has method modifiers") {
+    return new ArchCondition<>("have method modifiers") {
       @Override
       public void check(JavaMethod method, ConditionEvents events) {
         if (!method.getModifiers().containsAll(requiredModifiers)) {
@@ -261,9 +261,9 @@ public final class ArchConditions {
    * @param forbiddenModifiers the collection of modifiers that the method must not have
    * @return an architectural condition for checking that a method does not have the given modifiers
    */
-  public static ArchCondition<JavaMethod> notHasMethodModifiers(
+  public static ArchCondition<JavaMethod> notHaveMethodModifiers(
       Collection<JavaModifier> forbiddenModifiers) {
-    return new ArchCondition<>("does not have method modifiers") {
+    return new ArchCondition<>("not have method modifiers") {
       @Override
       public void check(JavaMethod method, ConditionEvents events) {
         String presentModifiers = presentForbiddenModifiers(method.getModifiers(),
@@ -286,9 +286,9 @@ public final class ArchConditions {
    * @param requiredModifiers the collection of modifiers that the class is required to have
    * @return an architectural condition for checking if a class has the required modifiers
    */
-  public static ArchCondition<JavaClass> hasClassModifiers(
+  public static ArchCondition<JavaClass> haveClassModifiers(
       Collection<JavaModifier> requiredModifiers) {
-    return new ArchCondition<>("has class modifiers") {
+    return new ArchCondition<>("have class modifiers") {
       @Override
       public void check(JavaClass clazz, ConditionEvents events) {
         if (!clazz.getModifiers().containsAll(requiredModifiers)) {
@@ -308,9 +308,9 @@ public final class ArchConditions {
    * @param forbiddenModifiers the collection of modifiers that the class must not have
    * @return an architectural condition for checking that a class does not have the given modifiers
    */
-  public static ArchCondition<JavaClass> notHasClassModifiers(
+  public static ArchCondition<JavaClass> notHaveClassModifiers(
       Collection<JavaModifier> forbiddenModifiers) {
-    return new ArchCondition<>("does not have class modifiers") {
+    return new ArchCondition<>("not have class modifiers") {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         String presentModifiers = presentForbiddenModifiers(javaClass.getModifiers(),

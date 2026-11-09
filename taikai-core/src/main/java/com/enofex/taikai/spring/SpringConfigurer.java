@@ -197,7 +197,8 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
     return addRule(TaikaiRule.of(members()
         .that().haveModifier(JavaModifier.STATIC)
         .should(notBeAnnotatedWithAnyOf(ANNOTATIONS_INJECTION))
-        .as("No static fields or methods should be annotated with %s, Spring does not inject into static members".formatted(
+        .as(("No static fields or methods should be annotated with %s, Spring does not inject "
+            + "into static members").formatted(
             String.join(" or ", ANNOTATIONS_INJECTION))), configuration));
   }
 
@@ -271,7 +272,8 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
       Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
         .should(notSelfInvokeMethodsAnnotatedWith(annotationTypes))
-        .as("Methods annotated with %s should not be self-invoked, the call bypasses Spring's proxy and the annotation has no effect".formatted(
+        .as(("Methods annotated with %s should not be self-invoked, the call bypasses Spring's "
+            + "proxy and the annotation has no effect").formatted(
             String.join(" or ", annotationTypes))), configuration));
   }
 

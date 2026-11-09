@@ -147,7 +147,8 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ResourcesConfigurer shouldBeAnnotatedWithPath(DescribedPredicate<? super JavaClass> classes) {
+  public ResourcesConfigurer shouldBeAnnotatedWithPath(
+      DescribedPredicate<? super JavaClass> classes) {
     return shouldBeAnnotatedWithPath(classes, defaultConfiguration());
   }
 
@@ -161,7 +162,8 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
    */
-  public ResourcesConfigurer shouldBeAnnotatedWithPath(DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
+  public ResourcesConfigurer shouldBeAnnotatedWithPath(
+      DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
     return addRule(TaikaiRule.of(classes()
             .that().areNotInterfaces().and(classes)
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
