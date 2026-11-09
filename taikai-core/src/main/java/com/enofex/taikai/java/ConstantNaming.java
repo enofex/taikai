@@ -1,6 +1,6 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.internal.Modifiers.isFieldSynthetic;
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -21,7 +21,7 @@ final class ConstantNaming {
     return new ArchCondition<>("follow constant naming convention") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
-        if (!isFieldSynthetic(field)
+        if (!isSynthetic(field)
             && !excludedFields.contains(field.getName())
             && !CONSTANT_NAME_PATTERN.matcher(field.getName()).matches()) {
           events.add(SimpleConditionEvent.violated(field,

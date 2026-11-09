@@ -1,5 +1,6 @@
 package com.enofex.taikai;
 
+import static com.enofex.taikai.ServiceRegistrations.classes;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -737,9 +738,5 @@ class TaikaiCheckTest {
 
   private Taikai build(Taikai.Builder builder, String... checkClassNames) {
     return ServiceRegistrations.build(builder, TaikaiCheck.class, this.directory, checkClassNames);
-  }
-
-  private static List<Class<?>> classes(Iterable<TaikaiCheck> checks) {
-    return ServiceRegistrations.classes(checks);
   }
 }

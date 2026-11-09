@@ -1,6 +1,8 @@
 package com.enofex.taikai.kotlin
 
 import com.tngtech.archunit.core.domain.JavaClass
+import com.tngtech.archunit.core.domain.JavaMember
+import com.tngtech.archunit.core.domain.JavaMethod
 import kotlin.metadata.*
 import kotlin.metadata.jvm.*
 
@@ -31,3 +33,12 @@ internal data class KotlinDeclarations(
             )
     }
 }
+
+/** Returns whether this JVM signature has the name and descriptor of the given member. */
+@JvmSynthetic
+internal fun JvmMemberSignature.matches(member: JavaMember): Boolean =
+    name == member.name && descriptor == member.descriptor
+
+/** Returns the method of this class with the name and descriptor of the given JVM signature. */
+@JvmSynthetic
+internal fun JavaClass.method(signature: JvmMethodSignature): JavaMethod? = methods.find(signature::matches)

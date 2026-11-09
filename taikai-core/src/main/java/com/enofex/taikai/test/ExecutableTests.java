@@ -1,7 +1,7 @@
 package com.enofex.taikai.test;
 
 import static com.enofex.taikai.internal.Modifiers.isMethodStatic;
-import static com.enofex.taikai.internal.Modifiers.isMethodSynthetic;
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_NESTED;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST_FACTORY;
@@ -55,7 +55,7 @@ final class ExecutableTests {
         checkClass(javaClass, events);
 
         for (JavaMethod method : javaClass.getMethods()) {
-          if (!isMethodSynthetic(method)) {
+          if (!isSynthetic(method)) {
             checkMethod(method, events);
           }
         }

@@ -1,11 +1,11 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.internal.Classes.methodCallsAndReferences;
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -25,7 +25,7 @@ final class SelfInvokedProxiedMethods {
       public void check(JavaClass javaClass, ConditionEvents events) {
         for (JavaCodeUnitAccess<?> call : methodCallsAndReferences(javaClass)) {
           if (!call.getTargetOwner().equals(javaClass)
-              || call.getOrigin().getModifiers().contains(JavaModifier.SYNTHETIC)) {
+              || isSynthetic(call.getOrigin())) {
             continue;
           }
 

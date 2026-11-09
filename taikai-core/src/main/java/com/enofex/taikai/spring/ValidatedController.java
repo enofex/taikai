@@ -1,6 +1,6 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.internal.Modifiers.isMethodSynthetic;
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
 
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -38,7 +38,7 @@ final class ValidatedController {
         }
 
         for (JavaMethod method : controllerClass.getMethods()) {
-          if (isMethodSynthetic(method)) {
+          if (isSynthetic(method)) {
             continue;
           }
 

@@ -1,5 +1,6 @@
 package com.enofex.taikai.metrics;
 
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toCollection;
@@ -155,7 +156,7 @@ final class PackageMetrics {
       this.classesByPackage.clear();
 
       allObjectsToTest.stream()
-          .filter(javaClass -> !javaClass.getModifiers().contains(JavaModifier.SYNTHETIC))
+          .filter(javaClass -> !isSynthetic(javaClass))
           .sorted(Comparator.comparing(JavaClass::getName))
           .forEach(javaClass -> this.classesByPackage
               .computeIfAbsent(javaClass.getPackageName(), packageName -> new ArrayList<>())

@@ -11,7 +11,6 @@ import com.tngtech.archunit.core.domain.JavaMethod
 import com.tngtech.archunit.core.domain.JavaModifier
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated
 import java.net.URI
-import java.net.URL
 import kotlin.metadata.isData
 import kotlin.metadata.jvm.*
 
@@ -54,9 +53,7 @@ internal class KotlinDeprecations {
             (origin is JavaConstructor || origin.name == "<clinit>")) return true
         val metadata = read(origin.owner) ?: return false
         if (origin is JavaMethod) {
-            val declared = metadata.functions.any {
-                it.signature?.let { signature -> signature.name == origin.name && signature.descriptor == origin.descriptor } == true
-            }
+            val declared = metadata.functions.any { it.signature?.matches(origin) == true }
             if (member is JavaMethod) {
                 if (origin.name == member.name + "\$default" && deprecatedDefaultHelper(origin, metadata)) return true
                 // @JvmOverloads wrappers are not always marked synthetic; source signatures
@@ -96,17 +93,14 @@ internal class KotlinDeprecations {
             declarations.properties.any { property ->
                 val matches = if (member is JavaMethod) {
                     listOf(property.getterSignature, property.setterSignature).any {
-                        it != null && it.name == member.name && it.descriptor == member.descriptor &&
-                            propertyOwner == owner
+                        it != null && it.matches(member) && propertyOwner == owner
                     }
                 } else {
-                    property.fieldSignature?.let {
-                        it.name == member.name && it.descriptor == member.descriptor
-                    } == true
+                    property.fieldSignature?.matches(member) == true
                 }
                 val ownAccessor = propertyOwner == origin.owner &&
                     listOf(property.getterSignature, property.setterSignature).any {
-                        it != null && it.name == origin.name && it.descriptor == origin.descriptor
+                        it != null && it.matches(origin)
                     }
                 matches && !ownAccessor && property.syntheticMethodForAnnotations?.let { signature ->
                     deprecatedCarrier(propertyOwner, signature)
@@ -121,13 +115,7 @@ internal class KotlinDeprecations {
         if (!owner.isInterface) return false
         // Kotlin can put interface property annotation carriers in DefaultImpls even when
         // the property getter is abstract and the interface itself has no implementation.
-        val source = owner.source.orElse(null) ?: return false
-        val name = owner.name + "\$DefaultImpls"
-        val helper = completed.getOrPut(name) {
-            importClass(name, owner, "Cannot inspect Kotlin property annotation carrier") {
-                URI.create(source.uri.toString().removeSuffix(".class") + "\$DefaultImpls.class").toURL()
-            }
-        }
+        val helper = complete(owner, "\$DefaultImpls", "Cannot inspect Kotlin property annotation carrier")
         return helper.method(signature)?.let(::deprecated) == true
     }
 
@@ -162,25 +150,31 @@ internal class KotlinDeprecations {
         }
     }
 
-    private fun complete(owner: JavaClass): JavaClass = completed.getOrPut(owner.name) {
-        // Referenced member types can be stubs in ArchUnit's domain. Import the exact source
-        // resource when companion property annotations or callable-reference bodies are needed.
-        importClass(owner.name, owner, "Cannot inspect Kotlin implementation") {
-            owner.source.orElse(null)?.uri?.toURL()
+    /**
+     * Imports the owner, or the class next to it whose name adds the given suffix, from its class
+     * file, or returns the owner if there is no class file or it cannot be imported, which is
+     * reported as a failure.
+     */
+    private fun complete(
+        owner: JavaClass,
+        suffix: String = "",
+        failure: String = "Cannot inspect Kotlin implementation",
+    ): JavaClass {
+        val name = owner.name + suffix
+        return completed.getOrPut(name) {
+            // Referenced member types can be stubs in ArchUnit's domain. Import the exact source
+            // resource when companion property annotations or callable-reference bodies are needed.
+            try {
+                owner.source.orElse(null)?.let { source ->
+                    val uri = URI.create(source.uri.toString().removeSuffix(".class") + suffix + ".class")
+                    ClassFileImporter().importUrl(uri.toURL()).get(name)
+                } ?: owner
+            } catch (exception: Exception) {
+                failures += "$failure $name: ${exception.message}"
+                owner
+            }
         }
     }
-
-    /**
-     * Imports the class of the given name from its class file, or returns the fallback if there is
-     * no class file or it cannot be imported, which is reported as a failure.
-     */
-    private fun importClass(name: String, fallback: JavaClass, failure: String, url: () -> URL?): JavaClass =
-        try {
-            url()?.let { ClassFileImporter().importUrl(it).get(name) } ?: fallback
-        } catch (exception: Exception) {
-            failures += "$failure $name: ${exception.message}"
-            fallback
-        }
 
     private fun read(owner: JavaClass): KotlinDeclarations? = declarations.getOrPut(owner) {
         if (!owner.isAnnotatedWith("kotlin.Metadata")) return@getOrPut null
@@ -199,8 +193,3 @@ internal class KotlinDeprecations {
 /** The methods the Kotlin compiler generates for data classes, besides the componentN functions. */
 private val dataClassMethods = setOf("copy", "copy\$default", "equals", "hashCode", "toString")
 private val componentMethod = Regex("component[0-9]+")
-
-/** Returns the method of this class with the name and descriptor of the given JVM signature. */
-@JvmSynthetic
-internal fun JavaClass.method(signature: JvmMethodSignature): JavaMethod? =
-    methods.find { it.name == signature.name && it.descriptor == signature.descriptor }

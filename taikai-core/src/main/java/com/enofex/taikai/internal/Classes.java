@@ -45,6 +45,19 @@ public final class Classes {
   }
 
   /**
+   * Returns the constructor calls and the constructor references of a class, such as
+   * {@code Order::new}, which use the referenced constructor just like a call does.
+   *
+   * @param javaClass the class
+   * @return the constructor calls and references from the class
+   */
+  public static List<JavaCodeUnitAccess<?>> constructorCallsAndReferences(JavaClass javaClass) {
+    return Stream.concat(javaClass.getConstructorCallsFromSelf().stream(),
+            javaClass.getConstructorReferencesFromSelf().stream())
+        .toList();
+  }
+
+  /**
    * Returns the method calls and the method references of a method or constructor, which use the
    * referenced method just like a call does.
    *

@@ -1,6 +1,6 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.internal.Modifiers.isMethodSynthetic;
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithTransactional;
 
 import com.tngtech.archunit.base.DescribedPredicate;
@@ -30,7 +30,7 @@ final class TransactionalControllers {
         }
 
         for (JavaMethod method : controllerClass.getMethods()) {
-          if (!isMethodSynthetic(method) && transactional.test(method)) {
+          if (!isSynthetic(method) && transactional.test(method)) {
             events.add(SimpleConditionEvent.violated(controllerClass,
                 "Controller %s declares the @Transactional method %s, transaction boundaries should be defined in the service layer".formatted(
                     controllerClass.getName(),

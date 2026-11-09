@@ -1,17 +1,16 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.internal.Classes.constructorCallsAndReferences;
 import static com.enofex.taikai.internal.Classes.methodCallsAndReferences;
 import static com.enofex.taikai.internal.Classes.topLevelClass;
 
 import com.tngtech.archunit.core.domain.JavaAccess;
 import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaMember;
 import com.tngtech.archunit.core.domain.JavaType;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import java.util.stream.Stream;
 
 final class Deprecations {
 
@@ -43,8 +42,7 @@ final class Deprecations {
                     method.getName(),
                     javaClass.getName()))));
 
-        Stream.<JavaCodeUnitAccess<?>>concat(javaClass.getConstructorCallsFromSelf().stream(),
-                javaClass.getConstructorReferencesFromSelf().stream())
+        constructorCallsAndReferences(javaClass).stream()
             .filter(constructor -> !isOwnMember(javaClass, constructor))
             .filter(constructor -> constructor.getTarget().isAnnotatedWith(Deprecated.class) ||
                 constructor.getTarget().getParameterTypes().stream()

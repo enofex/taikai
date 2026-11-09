@@ -1,13 +1,13 @@
 package com.enofex.taikai.metrics;
 
 import static com.enofex.taikai.metrics.MetricsChecks.check;
-import static com.enofex.taikai.metrics.MetricsChecks.classesOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.MethodCriteria;
+import com.enofex.taikai.Namespace;
 import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.metrics.nesting.CustomerService;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -129,7 +129,7 @@ class ClassMetricsTest {
   }
 
   private static JavaClasses nesting() {
-    return classesOf("com.enofex.taikai.metrics.nesting");
+    return Namespace.withTests("com.enofex.taikai.metrics.nesting");
   }
 
   static class Level1 {

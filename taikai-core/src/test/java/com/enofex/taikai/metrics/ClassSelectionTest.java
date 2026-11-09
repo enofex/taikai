@@ -1,13 +1,13 @@
 package com.enofex.taikai.metrics;
 
 import static com.enofex.taikai.metrics.MetricsChecks.check;
-import static com.enofex.taikai.metrics.MetricsChecks.classesOf;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.ClassCriteria;
+import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.metrics.ClassMetricsTest.Level1;
 import com.enofex.taikai.metrics.ClassMetricsTest.Level2;
@@ -135,6 +135,6 @@ class ClassSelectionTest {
   }
 
   private static JavaClasses shop() {
-    return classesOf("com.enofex.taikai.metrics.shop");
+    return Namespace.withTests("com.enofex.taikai.metrics.shop");
   }
 }

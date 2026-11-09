@@ -1,6 +1,6 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.internal.Modifiers.isMethodSynthetic;
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -34,7 +34,7 @@ final class BooleanMethodNaming {
     return new ArchCondition<>("start with one of %s".formatted(prefixes)) {
       @Override
       public void check(JavaMethod method, ConditionEvents events) {
-        if (!isMethodSynthetic(method)
+        if (!isSynthetic(method)
             && !isEqualsMethod(method)
             && !isRecordComponentAccessor(method)
             && !pattern.matcher(method.getName()).matches()) {

@@ -40,12 +40,11 @@ class ModifiersTest {
             Modifiers::isConstructorPrivate),
         check("isMethodProtected", JavaMethod.class, PROTECTED, Modifiers::isMethodProtected),
         check("isMethodStatic", JavaMethod.class, STATIC, Modifiers::isMethodStatic),
-        check("isMethodSynthetic", JavaMethod.class, SYNTHETIC, Modifiers::isMethodSynthetic),
         check("isFieldStatic", JavaField.class, STATIC, Modifiers::isFieldStatic),
         check("isFieldPublic", JavaField.class, PUBLIC, Modifiers::isFieldPublic),
         check("isFieldProtected", JavaField.class, PROTECTED, Modifiers::isFieldProtected),
         check("isFieldFinal", JavaField.class, FINAL, Modifiers::isFieldFinal),
-        check("isFieldSynthetic", JavaField.class, SYNTHETIC, Modifiers::isFieldSynthetic));
+        check("isSynthetic", HasModifiers.class, SYNTHETIC, Modifiers::isSynthetic));
   }
 
   private static <T extends HasModifiers> Named<ModifierCheck<?>> check(String name,

@@ -148,7 +148,6 @@ final class ClassMetrics {
     };
   }
 
-
   /**
    * A class a rule checks, together with the names of all classes the rule checks and, for a
    * top-level class, the classes nested in it.

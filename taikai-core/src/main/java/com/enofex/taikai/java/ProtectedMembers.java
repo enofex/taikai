@@ -1,9 +1,8 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.internal.Modifiers.isFieldProtected;
-import static com.enofex.taikai.internal.Modifiers.isFieldSynthetic;
 import static com.enofex.taikai.internal.Modifiers.isMethodProtected;
-import static com.enofex.taikai.internal.Modifiers.isMethodSynthetic;
+import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
@@ -25,7 +24,7 @@ final class ProtectedMembers {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         for (JavaField field : javaClass.getFields()) {
-          if (isFieldProtected(field) && !isFieldSynthetic(field)) {
+          if (isFieldProtected(field) && !isSynthetic(field)) {
             events.add(SimpleConditionEvent.violated(field,
                 "Field %s in final class %s is protected".formatted(
                     field.getName(),
@@ -34,7 +33,7 @@ final class ProtectedMembers {
         }
 
         for (JavaMethod method : javaClass.getMethods()) {
-          if (isMethodProtected(method) && !isMethodSynthetic(method) && !overrides(method)) {
+          if (isMethodProtected(method) && !isSynthetic(method) && !overrides(method)) {
             events.add(SimpleConditionEvent.violated(method,
                 "Method %s in final class %s is protected".formatted(
                     method.getName(),

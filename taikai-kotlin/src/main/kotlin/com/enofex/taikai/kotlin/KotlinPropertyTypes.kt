@@ -19,7 +19,6 @@ internal fun KmProperty.hasType(owner: JavaClass, typeName: String): Boolean {
 
     val field = fieldSignature
     return field != null && owner.fields.any {
-        it.name == field.name && it.descriptor == field.descriptor &&
-            it.rawType.name.replace('$', '.') == requested
+        field.matches(it) && it.rawType.name.replace('$', '.') == requested
     }
 }

@@ -1,5 +1,6 @@
 package com.enofex.taikai;
 
+import static com.enofex.taikai.ServiceRegistrations.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -302,10 +303,6 @@ class TaikaiExportTest {
   private Taikai build(Taikai.Builder builder, String... exportClassNames) {
     return ServiceRegistrations.build(builder, TaikaiExport.class, this.directory,
         exportClassNames);
-  }
-
-  private static List<Class<?>> classes(Iterable<TaikaiExport> exports) {
-    return ServiceRegistrations.classes(exports);
   }
 
   static final class Printer {

@@ -14,7 +14,6 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 
 /**
  * Internal utility class for defining general {@link ArchCondition}s used in architectural rules.
@@ -172,7 +171,7 @@ public final class ArchConditions {
       @Override
       public void check(JavaClass item, ConditionEvents events) {
         boolean hasField = item.getAllFields().stream()
-            .filter(field -> !Modifiers.isFieldSynthetic(field))
+            .filter(field -> !Modifiers.isSynthetic(field))
             .anyMatch(requiredFields);
 
         if (!hasField) {
@@ -329,10 +328,9 @@ public final class ArchConditions {
 
   private static String presentForbiddenModifiers(Collection<JavaModifier> modifiers,
       Collection<JavaModifier> forbiddenModifiers) {
-    return modifiers.stream()
+    return Modifiers.names(modifiers.stream()
         .filter(forbiddenModifiers::contains)
         .sorted()
-        .map(Enum::name)
-        .collect(Collectors.joining(", "));
+        .toList());
   }
 }

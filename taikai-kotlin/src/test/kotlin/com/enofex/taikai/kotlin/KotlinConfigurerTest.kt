@@ -19,8 +19,8 @@ import org.junit.jupiter.api.assertThrows
 
 class KotlinConfigurerTest {
     private companion object {
-        /** The fixtures, imported once; imported classes do not change. */
-        val fixtureClasses = ClassFileImporter().importPackages("com.enofex.taikai.kotlin.fixtures")
+        /** The fixtures, imported once by the shared cache of [Namespace]. */
+        val fixtureClasses = Namespace.withTests("com.enofex.taikai.kotlin.fixtures")
     }
 
     private fun configured(vararg types: Class<*>, block: KotlinConfigurer.() -> Unit): Taikai =
