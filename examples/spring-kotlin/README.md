@@ -1,4 +1,4 @@
-# Spring Kotlin demo
+# Spring Kotlin Demo
 
 A small Spring Boot task API whose architecture is checked by Taikai. All rules and the
 predefined project checks are configured with the receiver DSL in

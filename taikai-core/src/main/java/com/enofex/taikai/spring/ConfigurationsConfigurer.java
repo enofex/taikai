@@ -44,8 +44,8 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer implement
   }
 
   /**
-   * Adds a rule that ensures all Spring {@code @Configuration}-annotated classes (excluding
-   * {@code @SpringBootApplication} classes) have names ending with {@code Configuration}.
+   * Adds a rule that all Spring classes annotated with {@code @Configuration} (excluding
+   * {@code @SpringBootApplication} classes) must have names ending with {@code Configuration}.
    *
    * @return this configurer for fluent chaining
    */
@@ -65,8 +65,8 @@ public final class ConfigurationsConfigurer extends AbstractConfigurer implement
   }
 
   /**
-   * Adds a rule that ensures all Spring {@code @Configuration}-annotated classes (excluding
-   * {@code @SpringBootApplication} classes) have names matching the given regex.
+   * Adds a rule that all Spring classes annotated with {@code @Configuration} (excluding
+   * {@code @SpringBootApplication} classes) must have names matching the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining

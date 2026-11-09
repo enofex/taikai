@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  *         FileContentCheck.require("src/main/**&#47;package-info.java", "@NullMarked"))))
  * </pre>
  *
- * <p>In regular expressions, {@code ^} and {@code $} match at every line. Files are read as UTF-8;
+ * <p>In a regex, {@code ^} and {@code $} match at every line. Files are read as UTF-8;
  * binary files are skipped.</p>
  *
  * <p>Taikai does not register its predefined checks itself, so that a new Taikai version never adds
@@ -53,13 +53,13 @@ public final class FileContentCheck implements TaikaiCheck {
   }
 
   /**
-   * Returns the rule that the given files must not contain the regular expression, reporting
+   * Returns the rule that the given files must not contain the regex, reporting
    * every line that does.
    *
    * @param files the glob pattern of the files, relative to the project directory
-   * @param regex the regular expression of the forbidden content
+   * @param regex the regex of the forbidden content
    * @return the rule
-   * @throws java.util.regex.PatternSyntaxException if the regular expression is invalid
+   * @throws java.util.regex.PatternSyntaxException if the regex is invalid
    */
   public static Rule forbid(String files, String regex) {
     Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
@@ -68,12 +68,12 @@ public final class FileContentCheck implements TaikaiCheck {
   }
 
   /**
-   * Returns the rule that the given files must contain the regular expression.
+   * Returns the rule that the given files must contain the regex.
    *
    * @param files the glob pattern of the files, relative to the project directory
-   * @param regex the regular expression of the required content
+   * @param regex the regex of the required content
    * @return the rule
-   * @throws java.util.regex.PatternSyntaxException if the regular expression is invalid
+   * @throws java.util.regex.PatternSyntaxException if the regex is invalid
    */
   public static Rule require(String files, String regex) {
     Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);

@@ -9,9 +9,9 @@ import com.enofex.taikai.metrics.MetricsConfigurer
 import kotlin.metadata.jvm.signature
 
 /**
- * Adds a Kotlin rule to the metrics group: declared functions do not have more than [max] value
- * parameters. Extension and context receivers, suspend continuations, default-argument machinery,
- * generated overloads and constructors do not count.
+ * Adds a Kotlin rule to the metrics group that declared functions must not have more than [max]
+ * value parameters. Extension and context receivers, suspend continuations, default-argument
+ * machinery, generated overloads and constructors do not count.
  */
 @JvmOverloads
 fun MetricsConfigurer.functionsShouldNotExceedMaxParameters(

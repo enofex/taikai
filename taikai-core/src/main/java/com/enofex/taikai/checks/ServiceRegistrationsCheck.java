@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * Checks the {@link java.util.ServiceLoader} registrations of the project, the files in
  * {@code src/main/resources/META-INF/services} and {@code src/test/resources/META-INF/services}
  * of the {@linkplain CheckContext#projectDirectory() project directory}. Every registered service
- * must exist, and every provider must exist, implement the service, and be a public class with a
+ * must exist, and every provider must exist, implement the service and be a public class with a
  * public constructor without parameters, as the {@code ServiceLoader} requires. Files whose names
  * cannot name a class, such as the {@code .DS_Store} of macOS, are no registrations and are
  * skipped.

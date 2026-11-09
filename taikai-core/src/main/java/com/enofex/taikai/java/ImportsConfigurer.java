@@ -21,7 +21,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * the Taikai framework.
  *
  * <p>This configurer ensures that classes do not import from restricted packages,
- * only import from expected ones, and that the codebase remains free of cyclic dependencies.</p>
+ * only import from expected ones and that the codebase remains free of cyclic dependencies.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -46,9 +46,9 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that no classes import classes matching the given criteria. Classes that match the
-   * criteria themselves are not checked, so the classes of a banned package may still import
-   * each other.
+   * Adds a rule that classes must not import classes matching the given criteria. Classes that
+   * match the criteria themselves are not checked, so the classes of a banned package may still
+   * import each other.
    *
    * @param forbiddenImports the forbidden imports, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -63,8 +63,8 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that no classes import classes matching the given criteria, using the specified
-   * {@link Configuration}. Classes that match the criteria themselves are not checked.
+   * See {@link #shouldNotImport(DescribedPredicate)}, but with {@link Configuration} for
+   * customization. Classes that match the criteria themselves are not checked.
    *
    * @param forbiddenImports the forbidden imports
    * @param configuration the rule configuration
@@ -83,9 +83,9 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that no classes matching the given criteria import classes matching other criteria.
-   * Selected classes that match the disallowed criteria themselves are not checked, so the
-   * classes of a banned package may still import each other.
+   * Adds a rule that classes matching the given criteria must not import classes matching other
+   * criteria. Selected classes that match the disallowed criteria themselves are not checked, so
+   * the classes of a banned package may still import each other.
    *
    * @param classes the classes to check, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -101,8 +101,8 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that no classes matching the given criteria import classes matching other criteria,
-   * using the specified {@link Configuration}. Selected classes that match the disallowed criteria
+   * See {@link #shouldNotImport(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization. Selected classes that match the disallowed criteria
    * themselves are not checked.
    *
    * @param classes the classes to check
@@ -124,7 +124,8 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that classes matching the given criteria import classes matching other criteria.
+   * Adds a rule that classes matching the given criteria must import classes matching other
+   * criteria.
    *
    * @param classes the classes to check, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -140,8 +141,8 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that classes matching the given criteria import classes matching other criteria,
-   * using the specified {@link Configuration}.
+   * See {@link #shouldImport(DescribedPredicate, DescribedPredicate)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes to check
    * @param requiredImports the required imports
@@ -162,10 +163,10 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that the project's namespace has no cyclic dependencies between its first-level
-   * subpackages. Each first-level subpackage forms one slice together with all its subpackages,
-   * so cycles inside a slice and cycles involving classes directly in the namespace are not
-   * reported.
+   * Adds a rule that the project's namespace must have no cyclic dependencies between its
+   * first-level subpackages. Each first-level subpackage forms one slice together with all its
+   * subpackages, so cycles inside a slice and cycles involving classes directly in the namespace
+   * are not reported.
    *
    * <p>The namespace is read when the rule is configured, so it must be set on the builder
    * before {@code java(...)} is first configured.</p>
@@ -179,9 +180,8 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Ensures that the project's namespace has no cyclic dependencies between its first-level
-   * subpackages, using the specified {@link Configuration}. The namespace of the configuration is
-   * used if it is set, otherwise the namespace of the builder.
+   * See {@link #shouldHaveNoCycles()}, but with {@link Configuration} for customization. The
+   * namespace of the configuration is used if it is set, otherwise the namespace of the builder.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining

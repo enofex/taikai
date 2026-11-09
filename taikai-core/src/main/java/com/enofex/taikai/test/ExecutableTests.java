@@ -135,7 +135,7 @@ final class ExecutableTests {
   }
 
   /**
-   * Returns the simple name of the annotation that marks the method as test, e.g.
+   * Returns the simple name of the annotation that marks the method as test, for example
    * {@code ParameterizedTest} for a method that is meta-annotated with {@code @TestTemplate}.
    */
   private static String annotationName(JavaMethod method, String testAnnotation) {

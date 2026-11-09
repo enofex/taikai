@@ -26,7 +26,7 @@ import java.util.Collection;
  * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer groups sub-configurers for each Spring layer — properties, configurations,
- * controllers, services, repositories, transactional code, and Spring Boot — and also enforces
+ * controllers, services, repositories, transactional code and Spring Boot — and also enforces
  * project-wide Spring-specific rules such as prohibiting {@code @Autowired} field injection.</p>
  *
  * <h2>Example Usage</h2>
@@ -138,7 +138,7 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Adds a rule that no fields in the codebase should be annotated with {@code @Autowired}.
+   * Adds a rule that fields in the codebase must not be annotated with {@code @Autowired}.
    * Constructor injection should be preferred instead.
    *
    * @return this configurer for fluent chaining
@@ -161,8 +161,8 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Adds a rule that no static fields or methods are annotated with an annotation that Spring uses
-   * for injection.
+   * Adds a rule that static fields and methods must not be annotated with an annotation that Spring
+   * uses for injection.
    *
    * <p>Spring injects into bean instances only. It skips static fields and methods annotated with
    * {@code @Autowired}, {@code @Value} or {@code @Inject} and merely logs this at info level, so a
@@ -202,8 +202,8 @@ public final class SpringConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Adds a rule that methods carrying an annotation which Spring applies through a proxy are not
-   * invoked from within the class that declares them.
+   * Adds a rule that methods carrying an annotation which Spring applies through a proxy must not
+   * be invoked from within the class that declares them.
    *
    * <p>Spring implements {@code @Transactional}, {@code @Async}, caching, method security and
    * retries by wrapping the bean in a proxy. A call such as {@code this.send()} targets the bean

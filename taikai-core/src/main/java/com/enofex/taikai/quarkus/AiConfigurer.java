@@ -20,7 +20,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * framework.
  *
  * <p>This configurer ensures that AI service interfaces follow consistent naming conventions,
- * are scoped correctly with {@code @ApplicationScoped}, and do not use the deprecated
+ * are scoped correctly with {@code @ApplicationScoped} and do not use the deprecated
  * {@code tools} attribute of {@code @RegisterAiService} (preferring {@code @Toolbox} instead).</p>
  *
  * <h2>Example Usage</h2>
@@ -49,8 +49,7 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that AI services have names ending with {@code Assistant} or
-   * {@code Service}.
+   * Adds a rule that AI services must have names ending with {@code Assistant} or {@code Service}.
    *
    * @return this configurer for fluent chaining
    */
@@ -70,7 +69,7 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that AI service class names match the given regex.
+   * Adds a rule that AI service class names must match the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -94,8 +93,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code @RegisterAiService}
-   * are annotated with {@code @ApplicationScoped}.
+   * Adds a rule that classes annotated with {@code @RegisterAiService} must be annotated with
+   * {@code @ApplicationScoped}.
    *
    * @return this configurer for fluent chaining
    */
@@ -120,8 +119,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code @RegisterAiService}
-   * do not use the {@code tools} attribute to define tools.
+   * Adds a rule that classes annotated with {@code @RegisterAiService} must not use the
+   * {@code tools} attribute to define tools.
    *
    * @return this configurer for fluent chaining
    */

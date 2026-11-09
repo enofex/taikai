@@ -50,8 +50,8 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that no fields in the codebase should be annotated with {@code @Inject}.
-   * Constructor injection should be preferred instead.
+   * Adds a rule that fields in the codebase must not be annotated with {@code @Inject}. Constructor
+   * injection should be preferred instead.
    *
    * @return this configurer for fluent chaining
    */

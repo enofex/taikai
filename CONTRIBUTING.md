@@ -11,7 +11,7 @@ few different ways to find discussions, past or current, that are related to the
 Reading those discussions helps you to learn about the issue, and helps us to make a
 decision.
 
-#### Create an Issue
+#### Create an issue
 
 Reporting an issue or making a feature request is a great way to contribute. Your feedback
 and the conversations that result from it provide a continuous flow of ideas. However,
@@ -19,7 +19,7 @@ before creating a ticket, please take the time to [ask and research](#ask-questi
 
 Once you're ready, create an issue on the module.
 
-#### Before submitting a Pull Request
+#### Before submitting a pull request
 
 To contribute to this project, please fork the repository and submit a pull request with your changes. Please ensure that your changes adhere to the following guidelines:
 
@@ -28,7 +28,7 @@ To contribute to this project, please fork the repository and submit a pull requ
 * All new functionality should be covered by tests.
 * Changes should not break existing functionality.
 
-#### Submit a Pull Request
+#### Submit a pull request
 
 1. Always check out the `main` branch and submit pull requests against it.
 
@@ -38,7 +38,7 @@ To contribute to this project, please fork the repository and submit a pull requ
    for an overview of streamlining the commit history.
 
 3. Format commit messages using 55 characters for the subject line, 72 characters per line
-   for the description, followed by the issue fixed, e.g. `Closes gh-12279`. See the
+   for the description, followed by the issue fixed, for example `Closes gh-12279`. See the
    [Commit Guidelines section of Pro Git](https://git-scm.com/book/en/Distributed-Git-Contributing-to-a-Project#Commit-Guidelines)
    for best practices around commit messages, and use `git log` to see some examples.
 
@@ -46,7 +46,7 @@ To contribute to this project, please fork the repository and submit a pull requ
    pull request.
 
 
-#### Participate in Reviews
+#### Participate in reviews
 
 Helping to review pull requests is another great way to contribute. Your feedback
 can help to shape the implementation of new features. When reviewing pull requests,
@@ -59,11 +59,11 @@ committer for this project.
 Please follow the Google Java Style Guide when writing Java code for this project. You can also import the IntelliJ IDEA code style configuration file for Java from [here](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml).
 
 
-### Building the Java and Kotlin modules
+### Building the Java and Kotlin Modules
 
 The root POM builds `taikai-core` (published as `com.enofex:taikai`),
-`taikai-kotlin`, `examples/spring-java`, and `examples/spring-kotlin`. Existing Java
-sources and tests live under `taikai-core/src`; Kotlin rules, DSL, and compatibility
+`taikai-kotlin`, `examples/spring-java` and `examples/spring-kotlin`. Existing Java
+sources and tests live under `taikai-core/src`; Kotlin rules, DSL and compatibility
 fixtures live under `taikai-kotlin/src`.
 
 Run `./mvnw clean verify` with JDK 17 or later. The demos' HTTP tests start a server

@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer helps ensure that test classes and methods follow consistent standards,
- * including naming, visibility, annotation usage, and content (assertions or verifications).
+ * including naming, visibility, annotation usage and content (assertions or verifications).
  * It applies to both {@code @Test} and {@code @ParameterizedTest} methods.</p>
  *
  * <h2>Example Usage</h2>
@@ -74,8 +74,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
-   * should have names matching the given regex.
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest} must have
+   * names matching the given regex.
    *
    * @param regex the regex that test method names must match
    * @return this configurer for fluent chaining
@@ -102,8 +102,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
-   * should not declare any thrown exceptions.
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest} must not
+   * declare any thrown exceptions.
    *
    * @return this configurer for fluent chaining
    */
@@ -129,8 +129,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
-   * should also be annotated with {@code @DisplayName}.
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest} must also
+   * be annotated with {@code @DisplayName}.
    *
    * @return this configurer for fluent chaining
    */
@@ -156,9 +156,9 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
-   * should have package-private visibility. Test methods declared in interfaces are not checked,
-   * as interface methods are always public.
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest} must have
+   * package-private visibility. Test methods declared in interfaces are not checked, as interface
+   * methods are always public.
    *
    * @return this configurer for fluent chaining
    */
@@ -184,7 +184,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that no test methods should be annotated with {@code @Disabled}.
+   * Adds a rule that test methods must not be annotated with {@code @Disabled}.
    *
    * @return this configurer for fluent chaining
    */
@@ -208,8 +208,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest}
-   * should contain at least one assertion or verification.
+   * Adds a rule that methods annotated with {@code @Test} or {@code @ParameterizedTest} must
+   * contain at least one assertion or verification.
    *
    * @return this configurer for fluent chaining
    */
@@ -235,7 +235,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that no test classes should be annotated with {@code @Disabled}.
+   * Adds a rule that test classes must not be annotated with {@code @Disabled}.
    *
    * @return this configurer for fluent chaining
    */
@@ -244,8 +244,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that classes matching the given criteria should be package-private.
-   * Interfaces are excluded.
+   * Adds a rule that classes matching the given criteria must be package-private. Interfaces are
+   * excluded.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -292,7 +292,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
 
   /**
    * Adds a rule that classes containing methods annotated with {@code @Test} or
-   * {@code @ParameterizedTest} should have names ending with {@code Test}.
+   * {@code @ParameterizedTest} must have names ending with {@code Test}.
    *
    * <p>For nested test classes the enclosing top-level class is checked, so {@code @Nested}
    * classes do not need to match themselves.</p>
@@ -315,7 +315,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
 
   /**
    * Adds a rule that classes containing methods annotated with {@code @Test} or
-   * {@code @ParameterizedTest} should have names matching the given regex.
+   * {@code @ParameterizedTest} must have names matching the given regex.
    *
    * <p>For nested test classes the enclosing top-level class is checked, so {@code @Nested}
    * classes do not need to match themselves.</p>
@@ -345,7 +345,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
 
   /**
    * Adds a rule that inner classes containing methods annotated with {@code @Test} or
-   * {@code @ParameterizedTest} should be annotated with {@code @Nested}.
+   * {@code @ParameterizedTest} must be annotated with {@code @Nested}.
    *
    * <p>JUnit does not execute a non-static inner class without {@code @Nested} and only reports
    * a discovery warning, so its tests are silently skipped. Abstract inner classes are excluded,
@@ -376,7 +376,8 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
-   * Adds a rule that test classes and test methods are declared in a way that JUnit executes them.
+   * Adds a rule that test classes and test methods must be declared in a way that JUnit executes
+   * them.
    *
    * <p>JUnit does not execute invalid test declarations. It only reports a discovery warning, so
    * the build stays green while the affected tests are silently ignored. The rule reports:</p>

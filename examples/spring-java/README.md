@@ -1,4 +1,4 @@
-# Spring Java demo
+# Spring Java Demo
 
 A small Spring Boot task API whose architecture is checked by Taikai. All rules and the
 predefined project checks are configured in

@@ -43,7 +43,8 @@ final class ContainAssertionsOrVerifications {
           }
         }
 
-        // Follow calls into imported methods, e.g. helper methods that assert on behalf of the test
+        // Follow calls into imported methods, for example helper methods that assert on behalf of
+        // the test
         for (JavaCodeUnitAccess<?> call : calls) {
           Optional<? extends JavaCodeUnit> target = call.getTarget().resolveMember();
           if (target.isPresent() && assertsOrVerifies(target.get(), visited)) {

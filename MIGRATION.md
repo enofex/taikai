@@ -4,7 +4,7 @@
 
 Taikai 2.0.0 is a major release built around **criteria**: rules that used to select classes by a name regex now take an ArchUnit `DescribedPredicate<JavaClass>` instead. You can target classes by annotation, package, simple name or any predicate of your own. This release also removes deprecated APIs, makes naming and parameter order consistent, and tightens several rules.
 
-**Upgrading from 1.x requires code changes.** See [Breaking changes](#breaking-changes) below.
+**Upgrading from 1.x requires code changes.** See [Breaking Changes](#breaking-changes) below.
 
 ### Highlights
 
@@ -71,7 +71,7 @@ Taikai.builder()
 **JUnit**
 - `junit.classesShouldBePackagePrivate(DescribedPredicate)`
 
-### Breaking changes
+### Breaking Changes
 
 #### Removed deprecated and legacy methods
 
@@ -210,7 +210,7 @@ Most replacements check the same classes, fields and methods as before. Two diff
 - A missing namespace now throws `TaikaiException` instead of `NullPointerException`. `TaikaiException` is now `final`.
 - Parameter names are now consistent (`forbidden…` / `required…`, `annotationTypes`). This does not affect source compatibility.
 
-### Behaviour changes and fixes
+### Behavior Changes and Fixes
 
 - `ClassCriteria.annotatedWith`, `FieldCriteria.annotatedWith` and `MethodCriteria.annotatedWith` match meta-annotations, which widens what the replaced `…AnnotatedWith…` variants checked. See [Annotation and type variants replaced with criteria](#annotation-and-type-variants-replaced-with-criteria).
 - `ClassCriteria.assignableTo` does not match the type itself, which narrows `classesAssignableToShouldMatch`. See the same section.

@@ -131,9 +131,9 @@ public final class ClassCriteria {
   }
 
   /**
-   * Matches the entire fully qualified class name against a regular expression.
+   * Matches the entire fully qualified class name against a regex.
    *
-   * @param regex the regular expression, for example {@code .*Dto}
+   * @param regex the regex, for example {@code .*Dto}
    * @return the class predicate
    */
   public static DescribedPredicate<JavaClass> nameMatching(String regex) {
@@ -147,9 +147,9 @@ public final class ClassCriteria {
   }
 
   /**
-   * Matches the entire simple class name, without the package, against a regular expression.
+   * Matches the entire simple class name, without the package, against a regex.
    *
-   * @param regex the regular expression, for example {@code OrderDto} or {@code .*Dto}
+   * @param regex the regex, for example {@code OrderDto} or {@code .*Dto}
    * @return the class predicate
    */
   public static DescribedPredicate<JavaClass> simpleNameMatching(String regex) {

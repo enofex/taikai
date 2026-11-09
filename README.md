@@ -197,7 +197,7 @@ Explore the complete [documentation](https://enofex.github.io/taikai) for compre
 
 Interested in contributing? Check out our [Contribution Guidelines](https://github.com/enofex/taikai/blob/main/CONTRIBUTING.md) for details on how to get involved. Note that we expect everyone to follow the [Code of Conduct](https://github.com/enofex/taikai/blob/main/CODE_OF_CONDUCT.md).
 
-### What you will need
+### What You Will Need
 
 * Git
 * Java 17 or higher
@@ -211,9 +211,9 @@ git clone git@github.com:enofex/taikai.git
 cd taikai
 ```
 
-### Build the code
+### Build the Code
 
-To compile, test, and build
+To compile, test and build
 
 ```shell
 ./mvnw clean package -B
@@ -237,7 +237,7 @@ Visit the [Taikai](https://enofex.github.io/taikai/) Website for general informa
 
 If Taikai helps you build better software, consider supporting its development.
 
-Your sponsorship helps maintain the project, improve existing features, and develop new capabilities.
+Your sponsorship helps maintain the project, improve existing features and develop new capabilities.
 
 [**Become a sponsor ❤️**](https://github.com/sponsors/mnhock)
 

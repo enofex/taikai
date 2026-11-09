@@ -49,8 +49,8 @@ import java.util.Collection;
  * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer provides a rich set of predefined rules that validate
- * Java-specific conventions, patterns, and constraints — ensuring
- * maintainability, consistency, and adherence to best practices across the codebase.</p>
+ * Java-specific conventions, patterns and constraints — ensuring
+ * maintainability, consistency and adherence to best practices across the codebase.</p>
  *
  * <p>Common validations include:</p>
  * <ul>
@@ -115,9 +115,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Prevents methods matching the given criteria from returning matching types, including
-   * generic arguments, bounds, and array components. All method visibilities are checked.
-   * Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the types.
+   * Adds a rule that methods matching the given criteria must not return matching types, including
+   * generic arguments, bounds and array components. All method visibilities are checked. Use
+   * {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the types.
    *
    * @param methods the methods to check, selected with
    *     {@link com.enofex.taikai.MethodCriteria} or an ArchUnit predicate
@@ -157,9 +157,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Prevents methods declared in matching classes from returning matching types, including
-   * generic arguments, bounds, and array components. All method visibilities are checked.
-   * Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the types.
+   * Adds a rule that methods declared in matching classes must not return matching types, including
+   * generic arguments, bounds and array components. All method visibilities are checked. Use
+   * {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the types.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -197,10 +197,10 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Requires each method matching the given criteria to have at least one matching type in
-   * its return signature, including generic arguments, bounds, and array components.
-   * All method visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit
-   * predicates to select the types.
+   * Adds a rule that each method matching the given criteria must have at least one matching type
+   * in its return signature, including generic arguments, bounds and array components. All method
+   * visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to
+   * select the types.
    *
    * @param methods the methods to check, selected with
    *     {@link com.enofex.taikai.MethodCriteria} or an ArchUnit predicate
@@ -240,10 +240,10 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Requires each method declared in matching classes to have at least one matching type in
-   * its return signature, including generic arguments, bounds, and array components.
-   * All method visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit
-   * predicates to select the types.
+   * Adds a rule that each method declared in matching classes must have at least one matching type
+   * in its return signature, including generic arguments, bounds and array components. All method
+   * visibilities are checked. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to
+   * select the types.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -281,8 +281,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that utility classes must be {@code final}
-   * and have only private constructors.
+   * Adds a rule that utility classes must be {@code final} and have only private constructors.
    *
    * <p>A utility class is a class whose methods are all {@code static}, without a {@code main}
    * method. Interfaces and classes extending a class other than {@code Object}, such as enums and
@@ -295,8 +294,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that utility classes must be {@code final}
-   * and have only private constructors, using a custom {@link Configuration}.
+   * See {@link #utilityClassesShouldBeFinalAndHavePrivateConstructor()}, but with
+   * {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -310,8 +309,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule preventing methods from declaring {@code Exception}
-   * or {@code RuntimeException}.
+   * Adds a rule that methods must not declare {@code Exception} or {@code RuntimeException}.
    *
    * @return this configurer for fluent chaining
    */
@@ -320,8 +318,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule preventing methods from declaring {@code Exception}
-   * or {@code RuntimeException}, using a custom {@link Configuration}.
+   * See {@link #methodsShouldNotDeclareGenericExceptions()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -335,8 +333,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria must not declare the given
-   * exception. Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that methods matching the given criteria must not declare the given exception.
+   * Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
@@ -368,8 +366,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria must not declare the given
-   * exception. Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that methods matching the given criteria must not declare the given exception.
+   * Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
@@ -407,8 +405,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria must not declare any exception
-   * matching other criteria. Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that methods matching the given criteria must not declare any exception matching
+   * other criteria. Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
@@ -451,9 +449,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule preventing all methods declared in classes matching the given criteria
-   * from declaring a specific exception type. Synthetic methods generated by the compiler,
-   * such as bridge methods with erased {@code throws} clauses, are ignored.
+   * Adds a rule that all methods declared in classes matching the given criteria must not declare
+   * the given exception type. Synthetic methods generated by the compiler, such as bridge methods
+   * with erased {@code throws} clauses, are ignored.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -485,9 +483,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule preventing all methods declared in classes matching the given criteria
-   * from declaring a specific exception type by name. Synthetic methods generated by the
-   * compiler are ignored.
+   * Adds a rule that all methods declared in classes matching the given criteria must not declare
+   * the given exception type by name. Synthetic methods generated by the compiler are ignored.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -524,9 +521,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule preventing all methods declared in classes matching the given criteria
-   * from declaring any exception type matching other criteria. Synthetic methods generated by
-   * the compiler are ignored.
+   * Adds a rule that all methods declared in classes matching the given criteria must not declare
+   * any exception type matching other criteria. Synthetic methods generated by the compiler are
+   * ignored.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -564,7 +561,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria must be annotated with the given
+   * Adds a rule that methods matching the given criteria must be annotated with the given
    * annotation. Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
@@ -597,7 +594,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria must be annotated with the given
+   * Adds a rule that methods matching the given criteria must be annotated with the given
    * annotation. Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
@@ -636,9 +633,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all methods declared in classes matching the given criteria
-   * must be annotated with a specific annotation. All method visibilities are checked;
-   * synthetic methods generated by the compiler are ignored.
+   * Adds a rule that all methods declared in classes matching the given criteria must be annotated
+   * with the given annotation. All method visibilities are checked; synthetic methods generated by
+   * the compiler are ignored.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -672,9 +669,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all methods declared in classes matching the given criteria
-   * must be annotated with a specific annotation by name. All method visibilities are checked;
-   * synthetic methods generated by the compiler are ignored.
+   * Adds a rule that all methods declared in classes matching the given criteria must be annotated
+   * with the given annotation by name. All method visibilities are checked; synthetic methods
+   * generated by the compiler are ignored.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -712,8 +709,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria
-   * must be annotated with all required annotations.
+   * Adds a rule that methods matching the given criteria must be annotated with all required
+   * annotations.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}
    *     or an ArchUnit predicate
@@ -752,8 +749,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods declared in classes matching the given criteria
-   * must be annotated with all required annotations.
+   * Adds a rule that methods declared in classes matching the given criteria must be annotated with
+   * all required annotations.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -792,8 +789,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria
-   * must not be annotated with a specific annotation.
+   * Adds a rule that methods matching the given criteria must not be annotated with the given
+   * annotation.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}
    *     or an ArchUnit predicate
@@ -826,8 +823,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria
-   * must not be annotated with a specific annotation by name.
+   * Adds a rule that methods matching the given criteria must not be annotated with the given
+   * annotation by name.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}
    *     or an ArchUnit predicate
@@ -864,8 +861,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods declared in classes matching the given criteria
-   * must not be annotated with a specific annotation.
+   * Adds a rule that methods declared in classes matching the given criteria must not be annotated
+   * with the given annotation.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -899,8 +896,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods declared in classes matching the given criteria
-   * must not be annotated with a specific annotation by name.
+   * Adds a rule that methods declared in classes matching the given criteria must not be annotated
+   * with the given annotation by name.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -937,8 +934,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria must have all specified
-   * modifiers. Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that methods matching the given criteria must have all given modifiers. Synthetic
+   * methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
@@ -977,8 +974,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all methods declared in classes matching the given criteria
-   * must have the specified modifiers.
+   * Adds a rule that all methods declared in classes matching the given criteria must have the
+   * given modifiers.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -1017,8 +1014,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that methods matching the given criteria must not have any of the
-   * specified modifiers. Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that methods matching the given criteria must not have any of the given modifiers.
+   * Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.nameMatching("find.*")}, or an ArchUnit predicate
@@ -1057,8 +1054,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all methods declared in classes matching the given criteria
-   * must not have the specified modifiers.
+   * Adds a rule that all methods declared in classes matching the given criteria must not have the
+   * given modifiers.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -1099,7 +1096,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of deprecated APIs.
+   * Adds a rule that classes must not use deprecated APIs.
    *
    * @return this configurer for fluent chaining
    */
@@ -1108,7 +1105,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of deprecated APIs, using a custom configuration.
+   * See {@link #noUsageOfDeprecatedAPIs()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -1120,7 +1117,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all classes reside in a specific package.
+   * Adds a rule that all classes must reside in the given package.
    *
    * @param packageIdentifier the expected package pattern
    * @return this configurer for fluent chaining
@@ -1130,8 +1127,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all classes reside in a specific package,
-   * using a custom configuration.
+   * See {@link #classesShouldResideInPackage(String)}, but with {@link Configuration} for
+   * customization.
    *
    * @param packageIdentifier the expected package pattern
    * @param configuration the rule configuration
@@ -1147,8 +1144,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must reside in a specific package.
+   * Adds a rule that classes matching the given criteria must reside in the given package.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1184,8 +1180,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must reside outside a specific package.
+   * Adds a rule that classes matching the given criteria must reside outside the given package.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1222,8 +1217,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must be declared as Java records.
+   * Adds a rule that classes matching the given criteria must be declared as Java records.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1256,8 +1250,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must be declared as Java interfaces.
+   * Adds a rule that classes matching the given criteria must be declared as Java interfaces.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1290,8 +1283,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must be annotated with all required annotations.
+   * Adds a rule that classes matching the given criteria must be annotated with all required
+   * annotations.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1330,10 +1323,10 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria must have at least one field
-   * matching the given field criteria. Fields inherited from superclasses count, so a field
-   * declared in a shared base class satisfies the rule for all its subclasses. Synthetic fields
-   * generated by the compiler are ignored.
+   * Adds a rule that classes matching the given criteria must have at least one field matching the
+   * given field criteria. Fields inherited from superclasses count, so a field declared in a shared
+   * base class satisfies the rule for all its subclasses. Synthetic fields generated by the
+   * compiler are ignored.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1377,8 +1370,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must be annotated with a specific annotation.
+   * Adds a rule that classes matching the given criteria must be annotated with the given
+   * annotation.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1409,8 +1402,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must be annotated with a specific annotation by name.
+   * Adds a rule that classes matching the given criteria must be annotated with the given
+   * annotation by name.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1446,8 +1439,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must not be annotated with a specific annotation.
+   * Adds a rule that classes matching the given criteria must not be annotated with the given
+   * annotation.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1480,8 +1473,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must not be annotated with a specific annotation by name.
+   * Adds a rule that classes matching the given criteria must not be annotated with the given
+   * annotation by name.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1518,7 +1511,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes implementing one of {@code hashCode()} or {@code equals()}
+   * Adds a rule that classes implementing one of {@code hashCode()} or {@code equals()} must
    * implement both.
    *
    * @return this configurer for fluent chaining
@@ -1528,8 +1521,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes implementing one of {@code hashCode()} or {@code equals()}
-   * implement both, using a custom configuration.
+   * See {@link #classesShouldImplementHashCodeAndEquals()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -1541,8 +1534,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * should be assignable to a specific class type.
+   * Adds a rule that classes matching the given criteria must be assignable to the given type.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1573,8 +1565,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * should be assignable to a specific type by name.
+   * Adds a rule that classes matching the given criteria must be assignable to the given type by
+   * name.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1610,8 +1602,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * should implement a specific interface type.
+   * Adds a rule that classes matching the given criteria must implement the given interface type.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1642,8 +1633,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * should implement a specific interface type by name.
+   * Adds a rule that classes matching the given criteria must implement the given interface type by
+   * name.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1679,8 +1670,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must have all specified modifiers.
+   * Adds a rule that classes matching the given criteria must have all given modifiers.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1718,8 +1708,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * must not have any of the specified modifiers.
+   * Adds a rule that classes matching the given criteria must not have any of the given modifiers.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1757,7 +1746,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria should be package-private.
+   * Adds a rule that classes matching the given criteria must be package-private.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -1791,8 +1780,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that fields should not be {@code public}
-   * unless they are also {@code static}.
+   * Adds a rule that fields must not be {@code public} unless they are also {@code static}.
    *
    * @return this configurer for fluent chaining
    */
@@ -1801,8 +1789,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that fields should not be {@code public}
-   * unless they are also {@code static}, using a custom configuration.
+   * See {@link #fieldsShouldNotBePublic()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -1815,8 +1802,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that fields matching the given criteria must have all specified
-   * modifiers. Synthetic fields generated by the compiler are ignored.
+   * Adds a rule that fields matching the given criteria must have all given modifiers. Synthetic
+   * fields generated by the compiler are ignored.
    *
    * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
    *     example {@code FieldCriteria.nameMatching("logger")}, or an ArchUnit predicate
@@ -1855,8 +1842,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all fields declared in classes matching the given criteria
-   * must have the specified modifiers. Synthetic fields generated by the compiler are ignored.
+   * Adds a rule that all fields declared in classes matching the given criteria must have the given
+   * modifiers. Synthetic fields generated by the compiler are ignored.
    *
    * @param classes the classes whose declared fields are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -1895,8 +1882,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that fields matching the given criteria must not have any of the
-   * specified modifiers. Synthetic fields generated by the compiler are ignored.
+   * Adds a rule that fields matching the given criteria must not have any of the given modifiers.
+   * Synthetic fields generated by the compiler are ignored.
    *
    * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
    *     example {@code FieldCriteria.nameMatching("logger")}, or an ArchUnit predicate
@@ -1935,9 +1922,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that all fields declared in classes matching the given criteria
-   * must not have the specified modifiers. Synthetic fields generated by the compiler are
-   * ignored.
+   * Adds a rule that all fields declared in classes matching the given criteria must not have the
+   * given modifiers. Synthetic fields generated by the compiler are ignored.
    *
    * @param classes the classes whose declared fields are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -1978,8 +1964,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Prevents fields matching the given criteria from having matching types, including generic
-   * arguments, bounds, and array components. Synthetic fields generated by the compiler are
+   * Adds a rule that fields matching the given criteria must not have matching types, including
+   * generic arguments, bounds and array components. Synthetic fields generated by the compiler are
    * ignored. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to select the
    * types.
    *
@@ -2023,9 +2009,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Prevents fields declared in classes matching the given criteria from having matching types,
-   * including generic arguments, bounds, and array components. Synthetic fields generated by the
-   * compiler are ignored. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to
+   * Adds a rule that fields declared in classes matching the given criteria must not have matching
+   * types, including generic arguments, bounds and array components. Synthetic fields generated by
+   * the compiler are ignored. Use {@link com.enofex.taikai.ClassCriteria} or ArchUnit predicates to
    * select the types.
    *
    * @param classes the classes whose declared fields are checked, selected with
@@ -2065,7 +2051,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of a specific class.
+   * Adds a rule that classes must not use the given class.
    *
    * @param clazz the class type that must not be used
    * @return this configurer for fluent chaining
@@ -2075,7 +2061,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of a specific class, using a custom configuration.
+   * See {@link #noUsageOf(Class)}, but with {@link Configuration} for customization.
    *
    * @param clazz the class type that must not be used
    * @param configuration the rule configuration
@@ -2086,7 +2072,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of a specific type by name.
+   * Adds a rule that classes must not use the given type by name.
    *
    * @param typeName the fully qualified class name that must not be used
    * @return this configurer for fluent chaining
@@ -2096,8 +2082,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of a specific type by name,
-   * using a custom configuration.
+   * See {@link #noUsageOf(String)}, but with {@link Configuration} for customization.
    *
    * @param typeName the fully qualified class name that must not be used
    * @param configuration the rule configuration
@@ -2110,7 +2095,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of a specific class by classes matching the given criteria.
+   * Adds a rule that classes matching the given criteria must not use the given class.
    *
    * @param classes the classes in which usage is disallowed, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -2140,8 +2125,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of a specific type by name by classes matching the given
-   * criteria.
+   * Adds a rule that classes matching the given criteria must not use the given type by name.
    *
    * @param classes the classes in which usage is disallowed, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -2175,9 +2159,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting usage of any type matching the given criteria. Classes that match
-   * the criteria themselves are not checked, so the classes of a banned package may still use
-   * each other.
+   * Adds a rule that classes must not use any type matching the given criteria. Classes that match
+   * the criteria themselves are not checked, so the classes of a banned package may still use each
+   * other.
    *
    * @param forbiddenTypes the types that must not be used, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -2208,9 +2192,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting classes matching the given criteria from using any type matching
-   * other criteria. Selected classes that match the forbidden criteria themselves are not
-   * checked, so the classes of a banned package may still use each other.
+   * Adds a rule that classes matching the given criteria must not use any type matching other
+   * criteria. Selected classes that match the forbidden criteria themselves are not checked, so the
+   * classes of a banned package may still use each other.
    *
    * @param classes the classes in which usage is disallowed, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -2246,7 +2230,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting the usage of {@code System.out} and {@code System.err}.
+   * Adds a rule that classes must not use {@code System.out} or {@code System.err}.
    *
    * @return this configurer for fluent chaining
    */
@@ -2255,8 +2239,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule prohibiting the usage of {@code System.out} and {@code System.err},
-   * using a custom configuration.
+   * See {@link #noUsageOfSystemOutOrErr()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -2268,9 +2251,9 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that {@code final} classes must not have any protected members. Methods
-   * that override a method of a superclass, such as {@code LinkedHashMap.removeEldestEntry}, are
-   * exempt, as they cannot be made private.
+   * Adds a rule that {@code final} classes must not have any protected members. Methods that
+   * override a method of a superclass, such as {@code LinkedHashMap.removeEldestEntry}, are exempt,
+   * as they cannot be made private.
    *
    * @return this configurer for fluent chaining
    */
@@ -2279,8 +2262,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that {@code final} classes must not have any protected members,
-   * using a custom configuration.
+   * See {@link #finalClassesShouldNotHaveProtectedMembers()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -2293,8 +2276,7 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that {@code serialVersionUID} fields
-   * must be {@code static final long}.
+   * Adds a rule that {@code serialVersionUID} fields must be {@code static final long}.
    *
    * @return this configurer for fluent chaining
    */
@@ -2303,8 +2285,8 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule enforcing that {@code serialVersionUID} fields
-   * must be {@code static final long}, using a custom configuration.
+   * See {@link #serialVersionUIDFieldsShouldBeStaticFinalLong()}, but with {@link Configuration}
+   * for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining

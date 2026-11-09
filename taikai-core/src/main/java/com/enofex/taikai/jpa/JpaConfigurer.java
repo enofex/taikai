@@ -10,7 +10,7 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>The rules only depend on the {@code jakarta.persistence} annotations, so they apply to any
- * JPA provider or framework, such as Spring Data JPA, Quarkus Hibernate ORM, or Jakarta EE.
+ * JPA provider or framework, such as Spring Data JPA, Quarkus Hibernate ORM or Jakarta EE.
  * Annotations are referenced by name, so no compile-time dependency on the JPA API is
  * required.</p>
  *

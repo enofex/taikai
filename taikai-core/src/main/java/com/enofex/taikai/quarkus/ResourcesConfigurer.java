@@ -24,7 +24,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that resource classes follow consistent naming,
- * annotations, and dependency rules, promoting clarity and maintainability.</p>
+ * annotations and dependency rules, promoting clarity and maintainability.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -51,7 +51,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule enforcing that resources have names ending with {@code Resource}.
+   * Adds a rule that resources must have names ending with {@code Resource}.
    *
    * @return this configurer for fluent chaining
    */
@@ -70,7 +70,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule enforcing that resource class names match the given regex.
+   * Adds a rule that resource class names must match the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -94,7 +94,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule enforcing that resource classes should have public visibility.
+   * Adds a rule that resource classes must have public visibility.
    *
    * @return this configurer for fluent chaining
    */
@@ -116,8 +116,8 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule that resource classes (matching the default name pattern)
-   * should be annotated with {@code @Path}. Interfaces are excluded.
+   * Adds a rule that resource classes (matching the default name pattern) must be annotated with
+   * {@code @Path}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
    */
@@ -138,8 +138,8 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule that resource classes matching the given criteria
-   * should be annotated with {@code @Path}. Interfaces are excluded.
+   * Adds a rule that resource classes matching the given criteria must be annotated with
+   * {@code @Path}. Interfaces are excluded.
    *
    * @param classes the resource classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -172,7 +172,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule enforcing that resource classes should not depend on other resources.
+   * Adds a rule that resource classes must not depend on other resources.
    *
    * @return this configurer for fluent chaining
    */

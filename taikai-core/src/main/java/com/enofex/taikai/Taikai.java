@@ -42,7 +42,7 @@ import org.junit.jupiter.api.DynamicTest;
  * Central entry point for defining and executing Taikai architectural rules.
  *
  * <p>This class coordinates {@link TaikaiRule} definitions, manages configuration through various
- * {@code Configurer} implementations (Java, Logging, Test, Spring, Quarkus, JPA, Metrics), and
+ * {@code Configurer} implementations (Java, Logging, Test, Spring, Quarkus, JPA, Metrics) and
  * executes rules against the imported {@link JavaClasses} for a given namespace. Together with the
  * rules, it runs {@link TaikaiCheck}s, which check the project beyond its classes.
  * {@link #export()} runs {@link TaikaiExport}s, which export the configuration, for example into
@@ -176,10 +176,10 @@ public final class Taikai {
    *       {@code com.enofex.taikai.internal.a..}</li>
    * </ul>
    *
-   * <p>Patterns are matched against the fully qualified class name
-   * (e.g., {@code com.enofex.taikai.internal.a.MyClass}).</p>
+   * <p>Patterns are matched against the fully qualified class name, for example
+   * {@code com.enofex.taikai.internal.a.MyClass}.</p>
    *
-   * @return collection of class exclusion patterns
+   * @return the collection of class exclusion patterns
    */
   public Collection<String> excludedClasses() {
     return this.excludedClasses;
@@ -188,7 +188,7 @@ public final class Taikai {
   /**
    * Returns the criteria selecting classes that should not be validated by any rule.
    *
-   * @return collection of class exclusion criteria
+   * @return the collection of class exclusion criteria
    */
   public Collection<DescribedPredicate<? super JavaClass>> excludedCriteria() {
     return this.excludedCriteria;
@@ -197,7 +197,7 @@ public final class Taikai {
   /**
    * Returns all active {@link TaikaiRule} instances that will be executed.
    *
-   * @return collection of active Taikai rules
+   * @return the collection of active Taikai rules
    */
   public Collection<TaikaiRule> rules() {
     return this.rules;
@@ -207,7 +207,7 @@ public final class Taikai {
    * Returns all active {@link TaikaiCheck} instances that will be executed after the rules: the
    * discovered checks without the excluded ones, sorted by their description.
    *
-   * @return collection of active checks
+   * @return the collection of active checks
    * @see Builder#discoverChecks(Consumer)
    */
   public Collection<TaikaiCheck> checks() {
@@ -220,7 +220,7 @@ public final class Taikai {
    * Returns all active {@link TaikaiExport} instances that {@link #export()} runs: the discovered
    * exports without the excluded ones, sorted by their description.
    *
-   * @return collection of active exports
+   * @return the collection of active exports
    * @see Builder#discoverExports(Consumer)
    */
   public Collection<TaikaiExport> exports() {
@@ -484,7 +484,7 @@ public final class Taikai {
   }
 
   /**
-   * Builder for constructing a {@link Taikai} instance with namespace, rules, and configurers.
+   * Builder for constructing a {@link Taikai} instance with namespace, rules and configurers.
    *
    * <p>Use {@link Taikai#builder()} to obtain a new instance. Chain configurer methods
    * ({@link #java}, {@link #spring}, {@link #test}, etc.) to register architectural rules,
@@ -667,7 +667,7 @@ public final class Taikai {
      *
      * <p>Cannot be combined with {@link #classes(JavaClasses)}.</p>
      *
-     * @param namespace the root package (e.g., {@code "com.company.project"})
+     * @param namespace the root package, for example {@code "com.company.project"}
      * @return this builder for fluent chaining
      */
     public Builder namespace(@Nullable String namespace) {
@@ -690,7 +690,7 @@ public final class Taikai {
     }
 
     /**
-     * Imports and uses the specified classes directly as the analysis target,
+     * Imports and uses the given classes directly as the analysis target,
      * instead of scanning by namespace.
      *
      * <p>Cannot be combined with {@link #namespace(String)}.</p>
@@ -704,7 +704,7 @@ public final class Taikai {
     }
 
     /**
-     * Excludes the specified classes from all rule checks by their class objects.
+     * Excludes the given classes from all rule checks by their class objects.
      *
      * @param classes the classes to exclude
      * @return this builder for fluent chaining
@@ -717,7 +717,7 @@ public final class Taikai {
     }
 
     /**
-     * Excludes the specified classes from all rule checks by their fully qualified names.
+     * Excludes the given classes from all rule checks by their fully qualified names.
      * Supports wildcard patterns:
      * <ul>
      *   <li>{@code com.company.project.Foo} — single class</li>
@@ -734,7 +734,7 @@ public final class Taikai {
     }
 
     /**
-     * Excludes the specified classes from all rule checks by their fully qualified names.
+     * Excludes the given classes from all rule checks by their fully qualified names.
      * Supports the same wildcard patterns as {@link #excludeClasses(Collection)}.
      *
      * @param classNames the class names or patterns to exclude

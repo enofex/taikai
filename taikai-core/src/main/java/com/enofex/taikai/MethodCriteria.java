@@ -54,9 +54,9 @@ public final class MethodCriteria {
   }
 
   /**
-   * Matches the entire method name, without the declaring class, against a regular expression.
+   * Matches the entire method name, without the declaring class, against a regex.
    *
-   * @param regex the regular expression, for example {@code find.*}
+   * @param regex the regex, for example {@code find.*}
    * @return the method predicate
    */
   public static DescribedPredicate<JavaMethod> nameMatching(String regex) {

@@ -27,7 +27,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that repository classes follow consistent naming conventions,
- * are properly annotated with {@code @Repository}, and maintain clean architectural boundaries
+ * are properly annotated with {@code @Repository} and maintain clean architectural boundaries
  * by not depending on service-layer components.</p>
  *
  * <h2>Example Usage</h2>
@@ -55,8 +55,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code @Repository}
-   * have names ending with {@code Repository}.
+   * Adds a rule that classes annotated with {@code @Repository} must have names ending with
+   * {@code Repository}.
    *
    * @return this configurer for fluent chaining
    */
@@ -75,8 +75,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * Adds a rule enforcing that {@code @Repository}-annotated classes
-   * have names matching the given regex.
+   * Adds a rule that classes annotated with {@code @Repository} must have names matching the given
+   * regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -100,9 +100,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * Adds a rule enforcing that classes with names ending in {@code Repository}
-   * should be annotated with {@code @Repository}. Interfaces, such as Spring Data
-   * repositories, are excluded.
+   * Adds a rule that classes with names ending in {@code Repository} must be annotated with
+   * {@code @Repository}. Interfaces, such as Spring Data repositories, are excluded.
    *
    * @return this configurer for fluent chaining
    */
@@ -124,9 +123,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * should be annotated with {@code @Repository}. Interfaces, such as Spring Data
-   * repositories, are excluded.
+   * Adds a rule that classes matching the given criteria must be annotated with
+   * {@code @Repository}. Interfaces, such as Spring Data repositories, are excluded.
    *
    * @param classes the repository classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -159,8 +157,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * Adds a rule enforcing that repository classes should not depend on controller classes
-   * (annotated with {@code @Controller} or {@code @RestController}).
+   * Adds a rule that repository classes must not depend on controller classes (annotated with
+   * {@code @Controller} or {@code @RestController}).
    *
    * @return this configurer for fluent chaining
    */
@@ -183,8 +181,8 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * Adds a rule enforcing that repository classes should not depend on service-layer classes
-   * (annotated with {@code @Service}).
+   * Adds a rule that repository classes must not depend on service-layer classes (annotated with
+   * {@code @Service}).
    *
    * @return this configurer for fluent chaining
    */
@@ -207,9 +205,9 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements 
   }
 
   /**
-   * Adds a rule enforcing that repositories should have package-private visibility.
-   * Repositories are classes annotated with {@code @Repository} or types extending
-   * Spring Data's {@code org.springframework.data.repository.Repository}.
+   * Adds a rule that repositories must have package-private visibility. Repositories are classes
+   * annotated with {@code @Repository} or types extending Spring Data's
+   * {@code org.springframework.data.repository.Repository}.
    *
    * @return this configurer for fluent chaining
    */

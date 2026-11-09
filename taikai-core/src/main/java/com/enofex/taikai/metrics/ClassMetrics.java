@@ -45,7 +45,7 @@ final class ClassMetrics {
   }
 
   /**
-   * Like {@link #checkedClasses(DescribedPredicate)}, but selects top-level classes, each with the
+   * See {@link #checkedClasses(DescribedPredicate)}, but selects top-level classes, each with the
    * classes nested in it at any depth.
    */
   static ClassesTransformer<CheckedClass> checkedTopLevelClasses(

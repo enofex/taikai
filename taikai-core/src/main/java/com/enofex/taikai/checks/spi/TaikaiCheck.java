@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * A check of the project that is not expressed as an ArchUnit rule, for example of files in the
- * project directory, of resources, or of the classpath.
+ * project directory, of resources or of the classpath.
  *
  * <p>Checks run together with the rules of a {@link com.enofex.taikai.Taikai} configuration: they
  * are part of the report of {@code check()} and {@code checkAll()}, and each check becomes a test

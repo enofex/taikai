@@ -34,7 +34,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that controller classes follow consistent naming,
- * annotations, and dependency rules, promoting clarity and maintainability.</p>
+ * annotations and dependency rules, promoting clarity and maintainability.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -63,10 +63,10 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Prevents methods declared in controllers from returning matching types, including generic
-   * arguments, bounds, and array components. All method visibilities are checked.
-   * Controllers are selected by {@code @Controller} or {@code @RestController}, including
-   * composed annotations.
+   * Adds a rule that methods declared in controllers must not return matching types, including
+   * generic arguments, bounds and array components. All method visibilities are checked.
+   * Controllers are selected by {@code @Controller} or {@code @RestController}, including composed
+   * annotations.
    *
    * @param forbiddenTypes the forbidden return types, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -100,9 +100,9 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Requires each method declared in controllers to have at least one matching type in its
-   * return signature, including generic arguments, bounds, and array components.
-   * All method visibilities are checked. Controllers are selected by {@code @Controller} or
+   * Adds a rule that each method declared in controllers must have at least one matching type in
+   * its return signature, including generic arguments, bounds and array components. All method
+   * visibilities are checked. Controllers are selected by {@code @Controller} or
    * {@code @RestController}, including composed annotations.
    *
    * @param requiredTypes the required return types, selected with
@@ -137,7 +137,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that controllers have names ending with {@code Controller}.
+   * Adds a rule that controllers must have names ending with {@code Controller}.
    *
    * @return this configurer for fluent chaining
    */
@@ -156,7 +156,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that controller class names match the given regex.
+   * Adds a rule that controller class names must match the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -180,8 +180,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule that controller classes (matching the default name pattern)
-   * should be annotated with {@code @RestController}. Interfaces are excluded.
+   * Adds a rule that controller classes (matching the default name pattern) must be annotated with
+   * {@code @RestController}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
    */
@@ -203,8 +203,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule that controller classes matching the given criteria
-   * should be annotated with {@code @RestController}. Interfaces are excluded.
+   * Adds a rule that controller classes matching the given criteria must be annotated with
+   * {@code @RestController}. Interfaces are excluded.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -239,8 +239,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule that controller classes (matching the default name pattern)
-   * should be annotated with {@code @Controller}. Interfaces are excluded.
+   * Adds a rule that controller classes (matching the default name pattern) must be annotated with
+   * {@code @Controller}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
    */
@@ -262,8 +262,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule that controller classes matching the given criteria
-   * should be annotated with {@code @Controller}. Interfaces are excluded.
+   * Adds a rule that controller classes matching the given criteria must be annotated with
+   * {@code @Controller}. Interfaces are excluded.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -298,7 +298,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that controller classes should have package-private visibility.
+   * Adds a rule that controller classes must have package-private visibility.
    *
    * @return this configurer for fluent chaining
    */
@@ -320,7 +320,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that controller classes should not depend on other controllers.
+   * Adds a rule that controller classes must not depend on other controllers.
    *
    * @return this configurer for fluent chaining
    */
@@ -343,8 +343,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that controller classes should not depend on repository classes
-   * (annotated with {@code @Repository}), so that the service layer is not bypassed.
+   * Adds a rule that controller classes must not depend on repository classes (annotated with
+   * {@code @Repository}), so that the service layer is not bypassed.
    *
    * @return this configurer for fluent chaining
    */
@@ -367,10 +367,10 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that controller classes matching the given criteria
-   * should be annotated with {@code @Validated} when a {@code @RequestParam} or
-   * {@code @PathVariable} parameter carries one of the constraints {@code @NotNull},
-   * {@code @NotBlank}, {@code @Size}, {@code @Min}, {@code @Max} or {@code @Pattern}.
+   * Adds a rule that controller classes matching the given criteria must be annotated with
+   * {@code @Validated} when a {@code @RequestParam} or {@code @PathVariable} parameter carries one
+   * of the constraints {@code @NotNull}, {@code @NotBlank}, {@code @Size}, {@code @Min},
+   * {@code @Max} or {@code @Pattern}.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -405,7 +405,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that all controllers must be annotated with {@code @Validated} when a
+   * Adds a rule that all controllers must be annotated with {@code @Validated} when a
    * {@code @RequestParam} or {@code @PathVariable} parameter carries one of the constraints
    * {@code @NotNull}, {@code @NotBlank}, {@code @Size}, {@code @Min}, {@code @Max} or
    * {@code @Pattern}.
@@ -433,8 +433,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that controller classes matching the given criteria
-   * should not be annotated with {@code @Validated}.
+   * Adds a rule that controller classes matching the given criteria must not be annotated with
+   * {@code @Validated}.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -469,7 +469,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements D
   }
 
   /**
-   * Adds a rule enforcing that all controllers should not be annotated with {@code @Validated}.
+   * Adds a rule that controllers must not be annotated with {@code @Validated}.
    *
    * @return this configurer for fluent chaining
    */

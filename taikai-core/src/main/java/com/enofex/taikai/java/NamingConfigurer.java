@@ -30,12 +30,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Configures and enforces naming conventions for packages, classes, methods, fields, and constants
+ * Configures and enforces naming conventions for packages, classes, methods, fields and constants
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that naming across a Java codebase remains consistent and
  * predictable, enforcing rules for package naming patterns, class prefixes/suffixes, method naming
- * styles, field names, and constant conventions. It allows customization for specific naming
+ * styles, field names and constant conventions. It allows customization for specific naming
  * schemes and integrates with the Taikai builder to apply these checks automatically.</p>
  *
  * <h2>Example Usage</h2>
@@ -78,7 +78,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces the default Taikai package naming convention.
+   * Adds a rule that packages must follow the default Taikai package naming convention.
    *
    * @return this configurer for fluent chaining
    * @see #packagesShouldMatch(String)
@@ -88,7 +88,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces the default Taikai package naming convention using a custom configuration.
+   * See {@link #packagesShouldMatchDefault()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -98,7 +98,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that packages match the given regex.
+   * Adds a rule that packages must match the given regex.
    *
    * @param regex the regex that package names must match
    * @return this configurer for fluent chaining
@@ -108,7 +108,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that packages match the given regex using a custom configuration.
+   * See {@link #packagesShouldMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that package names must match
    * @param configuration the rule configuration
@@ -121,7 +121,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all classes to have names matching the given regex.
+   * Adds a rule that all classes must have names matching the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -131,7 +131,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all classes to have names matching the given regex using a custom configuration.
+   * See {@link #classesShouldMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that fully qualified class names must match
    * @param configuration the rule configuration
@@ -145,7 +145,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits classes whose names match the given regex.
+   * Adds a rule that classes must not have names matching the given regex.
    *
    * @param regex the regex that fully qualified class names must not match
    * @return this configurer for fluent chaining
@@ -155,7 +155,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits classes whose names match the given regex using a custom configuration.
+   * See {@link #classesShouldNotMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that fully qualified class names must not match
    * @param configuration the rule configuration
@@ -169,7 +169,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires classes matching the given criteria to match the specified name pattern.
+   * Adds a rule that classes matching the given criteria must have names matching the given regex.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or an
    *     ArchUnit predicate
@@ -184,8 +184,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires classes matching the given criteria to match the specified name pattern using a
-   * custom configuration.
+   * See {@link #classesShouldMatch(DescribedPredicate, String)}, but with {@link Configuration} for
+   * customization.
    *
    * @param classes the classes to check
    * @param regex the regex that fully qualified class names must match
@@ -205,8 +205,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits classes matching the given criteria from having names that match the specified
-   * pattern.
+   * Adds a rule that classes matching the given criteria must not have names matching the given
+   * regex.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or an
    *     ArchUnit predicate
@@ -221,8 +221,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits classes matching the given criteria from having names that match the specified
-   * pattern using a custom configuration.
+   * See {@link #classesShouldNotMatch(DescribedPredicate, String)}, but with {@link Configuration}
+   * for customization.
    *
    * @param classes the classes to check
    * @param regex the regex that fully qualified class names must not match
@@ -242,7 +242,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all methods to have names matching the given pattern.
+   * Adds a rule that all methods must have names matching the given regex.
    *
    * @param regex the regex that method names must match
    * @return this configurer for fluent chaining
@@ -252,7 +252,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all methods to have names matching the given pattern using a custom configuration.
+   * See {@link #methodsShouldMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that method names must match
    * @param configuration the rule configuration
@@ -266,8 +266,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires methods matching the given criteria to match the specified name pattern. Synthetic
-   * methods generated by the compiler are ignored.
+   * Adds a rule that methods matching the given criteria must have names matching the given regex.
+   * Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.annotatedWith(Test.class)}, or an ArchUnit predicate
@@ -304,7 +304,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits methods whose names match the given pattern.
+   * Adds a rule that methods must not have names matching the given regex.
    *
    * @param regex the regex that method names must not match
    * @return this configurer for fluent chaining
@@ -314,7 +314,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits methods whose names match the given pattern using a custom configuration.
+   * See {@link #methodsShouldNotMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that method names must not match
    * @param configuration the rule configuration
@@ -328,8 +328,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires methods matching the given criteria not to match the specified name pattern.
-   * Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that methods matching the given criteria must not have names matching the given
+   * regex. Synthetic methods generated by the compiler are ignored.
    *
    * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria}, for
    *     example {@code MethodCriteria.annotatedWith(Deprecated.class)}, or an ArchUnit predicate
@@ -366,8 +366,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all methods declared in classes matching the given criteria to have names matching
-   * the given pattern. Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that all methods declared in classes matching the given criteria must have names
+   * matching the given regex. Synthetic methods generated by the compiler are ignored.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -382,8 +382,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all methods declared in classes matching the given criteria to have names matching
-   * the given pattern using a custom configuration.
+   * See {@link #methodsShouldMatchForClass(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param regex the regex that method names must match
@@ -404,8 +404,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits methods declared in classes matching the given criteria from having names that
-   * match the given pattern. Synthetic methods generated by the compiler are ignored.
+   * Adds a rule that methods declared in classes matching the given criteria must not have names
+   * matching the given regex. Synthetic methods generated by the compiler are ignored.
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -420,8 +420,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits methods declared in classes matching the given criteria from having names that
-   * match the given pattern using a custom configuration.
+   * See {@link #methodsShouldNotMatchForClass(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
    * @param regex the regex that method names must not match
@@ -442,8 +442,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all fields to have names matching the given pattern. Synthetic fields generated by
-   * the compiler are ignored.
+   * Adds a rule that all fields must have names matching the given regex. Synthetic fields
+   * generated by the compiler are ignored.
    *
    * @param regex the regex that field names must match
    * @return this configurer for fluent chaining
@@ -453,7 +453,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all fields to have names matching the given pattern using a custom configuration.
+   * See {@link #fieldsShouldMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that field names must match
    * @param configuration the rule configuration
@@ -467,8 +467,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires fields matching the given criteria to match the specified name pattern. Synthetic
-   * fields generated by the compiler are ignored.
+   * Adds a rule that fields matching the given criteria must have names matching the given regex.
+   * Synthetic fields generated by the compiler are ignored.
    *
    * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
    *     example {@code FieldCriteria.annotatedWith(Inject.class)}, or an ArchUnit predicate
@@ -505,7 +505,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits fields whose names match the given pattern.
+   * Adds a rule that fields must not have names matching the given regex.
    *
    * @param regex the regex that field names must not match
    * @return this configurer for fluent chaining
@@ -515,7 +515,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits fields whose names match the given pattern using a custom configuration.
+   * See {@link #fieldsShouldNotMatch(String)}, but with {@link Configuration} for customization.
    *
    * @param regex the regex that field names must not match
    * @param configuration the rule configuration
@@ -529,8 +529,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires fields matching the given criteria not to match the specified name pattern.
-   * Synthetic fields generated by the compiler are ignored.
+   * Adds a rule that fields matching the given criteria must not have names matching the given
+   * regex. Synthetic fields generated by the compiler are ignored.
    *
    * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
    *     example {@code FieldCriteria.ofType(String.class)}, or an ArchUnit predicate
@@ -567,8 +567,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all fields declared in classes matching the given criteria to have names matching
-   * the given pattern. Synthetic fields generated by the compiler are ignored.
+   * Adds a rule that all fields declared in classes matching the given criteria must have names
+   * matching the given regex. Synthetic fields generated by the compiler are ignored.
    *
    * @param classes the classes whose declared fields are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -583,8 +583,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Requires all fields declared in classes matching the given criteria to have names matching
-   * the given pattern using a custom configuration.
+   * See {@link #fieldsShouldMatchForClass(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared fields are checked
    * @param regex the regex that field names must match
@@ -604,8 +604,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits fields declared in classes matching the given criteria from having names that match
-   * the given pattern. Synthetic fields generated by the compiler are ignored.
+   * Adds a rule that fields declared in classes matching the given criteria must not have names
+   * matching the given regex. Synthetic fields generated by the compiler are ignored.
    *
    * @param classes the classes whose declared fields are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -620,8 +620,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Prohibits fields declared in classes matching the given criteria from having names that match
-   * the given pattern using a custom configuration.
+   * See {@link #fieldsShouldNotMatchForClass(DescribedPredicate, String)}, but with
+   * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared fields are checked
    * @param regex the regex that field names must not match
@@ -641,7 +641,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that interfaces are not prefixed with an uppercase {@code I} (e.g., {@code IFoo}).
+   * Adds a rule that interfaces must not be prefixed with an uppercase {@code I}, for example
+   * {@code IFoo}.
    *
    * @return this configurer for fluent chaining
    */
@@ -650,8 +651,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that interfaces are not prefixed with an uppercase {@code I} using a custom
-   * configuration.
+   * See {@link #interfacesShouldNotHavePrefixI()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -665,7 +666,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
 
   /**
    * Creates an {@link ArchCondition} that fails if an interface name starts with {@code I} followed
-   * by an uppercase character (e.g., {@code ICustomer}).
+   * by an uppercase character, for example {@code ICustomer}.
    *
    * @return the condition that detects {@code I}-prefixed interfaces
    */
@@ -684,8 +685,9 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that constants (static final fields) follow conventional constant naming (e.g.,
-   * {@code UPPER_SNAKE_CASE}), excluding a default set of fields like {@code serialVersionUID}.
+   * Adds a rule that constants (static final fields) must follow conventional constant naming, for
+   * example {@code UPPER_SNAKE_CASE}, excluding a default set of fields such as
+   * {@code serialVersionUID}.
    *
    * @return this configurer for fluent chaining
    */
@@ -695,10 +697,11 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces constant naming conventions while excluding the specified field names.
+   * Adds a rule that constants must follow constant naming conventions, excluding the given field
+   * names.
    *
-   * @param excludedFields field names to exclude from validation (e.g.,
-   *     {@code "serialVersionUID"})
+   * @param excludedFields field names to exclude from validation, for example
+   *     {@code "serialVersionUID"}
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer constantsShouldFollowConventions(Collection<String> excludedFields) {
@@ -706,8 +709,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces constant naming conventions using a custom configuration, excluding a default field
-   * list.
+   * See {@link #constantsShouldFollowConventions()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -718,7 +721,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces constant naming conventions using a custom configuration and exclusion list.
+   * See {@link #constantsShouldFollowConventions(Collection)}, but with {@link Configuration} for
+   * customization.
    *
    * @param excludedFields field names to exclude from validation
    * @param configuration the rule configuration
@@ -733,8 +737,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that enum constants follow conventional constant naming (e.g.,
-   * {@code UPPER_SNAKE_CASE}).
+   * Adds a rule that enum constants must follow conventional constant naming, for example
+   * {@code UPPER_SNAKE_CASE}.
    *
    * @return this configurer for fluent chaining
    */
@@ -743,7 +747,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces enum constant naming conventions using a custom configuration.
+   * See {@link #enumConstantsShouldFollowConventions()}, but with {@link Configuration} for
+   * customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -756,10 +761,10 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces that methods returning {@code boolean} or {@code Boolean} start with one of the
-   * default prefixes {@code is}, {@code has}, {@code can}, or {@code should}.
+   * Adds a rule that methods returning {@code boolean} or {@code Boolean} must start with one of
+   * the default prefixes {@code is}, {@code has}, {@code can} or {@code should}.
    *
-   * <p>Synthetic methods, {@code equals(Object)} overrides, and record component accessors are
+   * <p>Synthetic methods, {@code equals(Object)} overrides and record component accessors are
    * excluded from this check.</p>
    *
    * @return this configurer for fluent chaining
@@ -769,9 +774,10 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces boolean method naming with the given prefixes.
+   * Adds a rule that methods returning {@code boolean} or {@code Boolean} must start with one of
+   * the given prefixes.
    *
-   * @param prefixes the allowed method name prefixes (e.g., {@code "is"}, {@code "has"})
+   * @param prefixes the allowed method name prefixes, for example {@code "is"} or {@code "has"}
    * @return this configurer for fluent chaining
    */
   public NamingConfigurer booleanMethodsShouldStartWith(Collection<String> prefixes) {
@@ -779,7 +785,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces boolean method naming with the default prefixes using a custom configuration.
+   * See {@link #booleanMethodsShouldStartWith()}, but with {@link Configuration} for customization.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
@@ -789,9 +795,10 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   }
 
   /**
-   * Enforces boolean method naming with the given prefixes using a custom configuration.
+   * See {@link #booleanMethodsShouldStartWith(Collection)}, but with {@link Configuration} for
+   * customization.
    *
-   * @param prefixes the allowed method name prefixes (e.g., {@code "is"}, {@code "has"})
+   * @param prefixes the allowed method name prefixes, for example {@code "is"} or {@code "has"}
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */

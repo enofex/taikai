@@ -44,8 +44,8 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
 
   /**
    * Adds a rule that classes annotated with {@code @SpringBootApplication} must reside in the
-   * project's root package (i.e., the namespace configured via
-   * {@link com.enofex.taikai.Taikai.Builder#namespace(String)}).
+   * project's root package, which is the namespace configured via
+   * {@link com.enofex.taikai.Taikai.Builder#namespace(String)}.
    *
    * <p>This variant uses the namespace provided in the Taikai configuration
    * and applies the rule without requiring an explicit package argument. The namespace is read
@@ -77,10 +77,11 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule that classes annotated with {@code @SpringBootApplication} should reside in the
-   * specified package.
+   * Adds a rule that classes annotated with {@code @SpringBootApplication} must reside in the given
+   * package.
    *
-   * @param packageIdentifier the target package identifier (e.g., {@code "com.company.project"})
+   * @param packageIdentifier the target package identifier, for example
+   *     {@code "com.company.project"}
    * @return this configurer for fluent chaining
    */
   public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier) {
@@ -92,7 +93,8 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * See {@link #applicationClassShouldResideInPackage(String)}, but with {@link Configuration}
    * for customization.
    *
-   * @param packageIdentifier the target package identifier (e.g., {@code "com.company.project"})
+   * @param packageIdentifier the target package identifier, for example
+   *     {@code "com.company.project"}
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    */

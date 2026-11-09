@@ -49,8 +49,8 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule enforcing that classes extending {@code PanacheEntity}
-   * are annotated with {@code @Entity}.
+   * Adds a rule that classes extending {@code PanacheEntity} must be annotated with
+   * {@code @Entity}.
    *
    * @return this configurer for fluent chaining
    */
@@ -75,8 +75,8 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule enforcing that classes implementing {@code PanacheRepository}
-   * have names ending with {@code Repository}.
+   * Adds a rule that classes implementing {@code PanacheRepository} must have names ending with
+   * {@code Repository}.
    *
    * @return this configurer for fluent chaining
    */
@@ -95,8 +95,8 @@ public final class PanacheConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule enforcing that classes implementing {@code PanacheRepository}
-   * have names matching the given regex.
+   * Adds a rule that classes implementing {@code PanacheRepository} must have names matching the
+   * given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining

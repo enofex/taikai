@@ -28,7 +28,7 @@ public final class ArchConditions {
 
   /**
    * Rejects matching types anywhere in a method's declared return signature, including
-   * generic arguments, bounds, and array component types.
+   * generic arguments, bounds and array component types.
    *
    * @param forbiddenTypes the predicate selecting forbidden return types
    * @return the return type condition
@@ -52,7 +52,7 @@ public final class ArchConditions {
 
   /**
    * Requires at least one matching type in each method's declared return signature, including
-   * generic arguments, bounds, and array component types.
+   * generic arguments, bounds and array component types.
    *
    * @param requiredTypes the predicate selecting required return types
    * @return the return type condition
@@ -74,7 +74,7 @@ public final class ArchConditions {
   }
 
   /**
-   * Prevents forbidden types in a field's declared type, including generic arguments, bounds, and
+   * Prevents forbidden types in a field's declared type, including generic arguments, bounds and
    * array component types.
    *
    * @param forbiddenTypes the predicate selecting forbidden field types
@@ -135,10 +135,10 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a class has a field of the specified type.
+   * Creates a condition that checks if a class has a field of the given type.
    *
    * @param typeName the name of the type to check for in the fields of the class
-   * @return an architectural condition for checking if a class has a field of the specified type
+   * @return an architectural condition for checking if a class has a field of the given type
    */
   public static ArchCondition<JavaClass> haveFieldOfType(String typeName) {
     return new ArchCondition<>("have a field of type %s".formatted(typeName)) {
@@ -185,7 +185,7 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a field contains all the specified modifiers.
+   * Creates a condition that checks if a field contains all the given modifiers.
    *
    * @param requiredModifiers the collection of modifiers that the field is required to have
    * @return an architectural condition for checking if a field has the required modifiers
@@ -208,7 +208,7 @@ public final class ArchConditions {
 
   /**
    * Creates a condition that checks if a field does <strong>not</strong> contain
-   * any of the specified modifiers.
+   * any of the given modifiers.
    *
    * @param forbiddenModifiers the collection of modifiers that the field must not have
    * @return an architectural condition for checking that a field does not have the given modifiers
@@ -233,7 +233,7 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a method contains all the specified modifiers.
+   * Creates a condition that checks if a method contains all the given modifiers.
    *
    * @param requiredModifiers the collection of modifiers that the method is required to have
    * @return an architectural condition for checking if a method has the required modifiers
@@ -256,7 +256,7 @@ public final class ArchConditions {
 
   /**
    * Creates a condition that checks if a method does <strong>not</strong> contain
-   * any of the specified modifiers.
+   * any of the given modifiers.
    *
    * @param forbiddenModifiers the collection of modifiers that the method must not have
    * @return an architectural condition for checking that a method does not have the given modifiers
@@ -281,7 +281,7 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a class contains all the specified modifiers.
+   * Creates a condition that checks if a class contains all the given modifiers.
    *
    * @param requiredModifiers the collection of modifiers that the class is required to have
    * @return an architectural condition for checking if a class has the required modifiers
@@ -303,7 +303,7 @@ public final class ArchConditions {
 
   /**
    * Creates a condition that checks if a class does <strong>not</strong> contain
-   * any of the specified modifiers.
+   * any of the given modifiers.
    *
    * @param forbiddenModifiers the collection of modifiers that the class must not have
    * @return an architectural condition for checking that a class does not have the given modifiers

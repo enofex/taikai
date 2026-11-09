@@ -49,9 +49,9 @@ public final class Namespace {
   }
 
   /**
-   * Imports {@link JavaClasses} from the specified namespace using the given import option.
+   * Imports {@link JavaClasses} from the given namespace using the given import option.
    *
-   * @param namespace the base package name to import (e.g. {@code "com.company.project"})
+   * @param namespace the base package name to import, for example {@code "com.company.project"}
    * @param importOption the import mode defining which classes to include
    * @return the imported {@link JavaClasses}
    * @throws NullPointerException if {@code namespace} or {@code importOption} is {@code null}

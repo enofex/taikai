@@ -25,7 +25,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
  *
  * <p>This configurer ensures that service-layer classes follow consistent naming conventions,
- * are properly annotated with {@code @Service}, and maintain clean architectural boundaries
+ * are properly annotated with {@code @Service} and maintain clean architectural boundaries
  * by not depending on controller-layer components.</p>
  *
  * <h2>Example Usage</h2>
@@ -52,8 +52,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code @Service}
-   * have names ending with {@code Service}.
+   * Adds a rule that classes annotated with {@code @Service} must have names ending with
+   * {@code Service}.
    *
    * @return this configurer for fluent chaining
    */
@@ -72,8 +72,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule enforcing that {@code @Service}-annotated classes
-   * have names matching the given regex.
+   * Adds a rule that classes annotated with {@code @Service} must have names matching the given
+   * regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -97,8 +97,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule enforcing that classes with names ending in {@code Service}
-   * should be annotated with {@code @Service}. Interfaces are excluded.
+   * Adds a rule that classes with names ending in {@code Service} must be annotated with
+   * {@code @Service}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
    */
@@ -119,8 +119,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * should be annotated with {@code @Service}. Interfaces are excluded.
+   * Adds a rule that classes matching the given criteria must be annotated with {@code @Service}.
+   * Interfaces are excluded.
    *
    * @param classes the service classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
@@ -153,8 +153,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule enforcing that service-layer classes should not depend on
-   * other service-layer classes annotated with {@code @Service}.
+   * Adds a rule that service-layer classes must not depend on other service-layer classes annotated
+   * with {@code @Service}.
    *
    * @return this configurer for fluent chaining
    */
@@ -178,8 +178,8 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule enforcing that service-layer classes should not depend on
-   * controller or REST controller components.
+   * Adds a rule that service-layer classes must not depend on controller or REST controller
+   * components.
    *
    * @return this configurer for fluent chaining
    */
@@ -202,7 +202,7 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule enforcing that service classes should have package-private visibility.
+   * Adds a rule that service classes must have package-private visibility.
    *
    * @return this configurer for fluent chaining
    */

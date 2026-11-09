@@ -102,9 +102,9 @@ public final class FieldCriteria {
   }
 
   /**
-   * Matches the entire field name, without the declaring class, against a regular expression.
+   * Matches the entire field name, without the declaring class, against a regex.
    *
-   * @param regex the regular expression, for example {@code logger} or {@code .*Cache}
+   * @param regex the regex, for example {@code logger} or {@code .*Cache}
    * @return the field predicate
    */
   public static DescribedPredicate<JavaField> nameMatching(String regex) {

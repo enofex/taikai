@@ -1,4 +1,4 @@
-# Kotlin/JVM support
+# Kotlin/JVM Support
 
 Taikai can be called from Kotlin tests and can analyze compiled Kotlin/JVM code. Add
 `taikai-kotlin` for source-aware Kotlin rules and a receiver DSL. The existing
@@ -25,7 +25,7 @@ testImplementation("com.enofex:taikai-kotlin:$taikaiVersion")
 ```
 
 Compile production Kotlin before running architecture tests. The Kotlin library,
-compiler fixtures, and metadata reader use Kotlin 2.4.21 and target JVM 17. Metadata
+compiler fixtures and metadata reader use Kotlin 2.4.21 and target JVM 17. Metadata
 from unsupported compiler versions produces an explicit failure identifying the
 class; it is never silently treated as compliant. Keep your resolved Kotlin runtime
 and metadata reader versions compatible with your application's compiler.
@@ -89,7 +89,7 @@ val architecture = taikai {
 architecture.checkAll()
 ```
 
-`java`, `spring`, `logging`, `test`, `quarkus`, `jpa`, `metrics`, and `kotlin` blocks have
+`java`, `spring`, `logging`, `test`, `quarkus`, `jpa`, `metrics` and `kotlin` blocks have
 configuration receivers. Nested Java configurers retain their existing callback API, as
 the `services` example shows. The DSL marker prevents accidental unqualified access to
 the outer builder inside these receiver blocks.
@@ -117,15 +117,15 @@ taikai {
 
 Use `classes(MyType::class)` or `classes(importedJavaClasses)` instead of a namespace
 for explicit imports. `excludeClasses` takes patterns such as
-`"com.company.project.generated.."`, class literals such as `Generated::class`, or
+`"com.company.project.generated.."`, class literals such as `Generated::class` or
 [criteria](documentation.md#513-selecting-with-criteria). `addRule(...)`,
-`addRules(...)`, and `failOnEmpty(false)` are also available. Namespace and explicit classes remain
+`addRules(...)` and `failOnEmpty(false)` are also available. Namespace and explicit classes remain
 mutually exclusive. Kotlin blocks can be repeated, and `disable()` clears previously
 registered Kotlin rules on that builder. `toBuilder()` preserves existing rules and
 allows new Kotlin rules without mutating the original instance; `disable()` on such a
 builder only clears the Kotlin rules added after `toBuilder()`, not the preserved ones.
 
-## Kotlin-specific rules
+## Kotlin-Specific Rules
 
 All rules operate on Kotlin declarations only. Regexes match the **entire simple
 source name**, including names before JVM mangling; they are not package patterns.
@@ -133,35 +133,35 @@ The class regex on requirement rules selects which Kotlin declarations to check.
 
 | Method | Behavior |
 |--------|----------|
-| `classesShouldNotMatch(regex)` | Forbid matching source class names, excluding file facades and synthetic helpers. |
-| `classesShouldMatch(regex)` | All source class names, including objects and companions, match the pattern. File facades and synthetic helpers are excluded. |
-| `objectsShouldMatch(regex)` | Object and companion-object names match the pattern; other class kinds are ignored. |
-| `functionsShouldNotMatch(regex)` | Forbid matching source function names, including names before `internal` JVM mangling. |
-| `functionsShouldMatch(regex)` | Declared source function names match; accessors and generated data-class methods are excluded. |
-| `propertiesShouldNotMatch(regex)` | Forbid matching non-constant property names, including computed and delegated properties. |
-| `propertiesShouldMatch(type, regex)` | Require matching names for non-constant properties of the selected type; accepts a fully qualified type name, Java `Class`, or Kotlin `KClass`. Includes properties without backing fields. |
-| `propertiesShouldMatch(regex)` | Declared non-constant property names match. A Boolean `active` property is checked as `active`, not `getActive`. |
-| `noUsageOfDeprecatedAPIs()` | Forbid bytecode dependencies on deprecated classes and accesses to deprecated Kotlin or Java members, including property-level and accessor-level deprecation. |
-| `constantsShouldFollowConventions()` | Only `const val` names must use uppercase letters, digits, and underscores, starting with a letter. Ordinary `val` properties and generated fields are excluded. |
+| `classesShouldNotMatch(regex)` | Source class names must not match the regex, excluding file facades and synthetic helpers. |
+| `classesShouldMatch(regex)` | All source class names, including objects and companions, must match the regex. File facades and synthetic helpers are excluded. |
+| `objectsShouldMatch(regex)` | Object and companion-object names must match the regex; other class kinds are ignored. |
+| `functionsShouldNotMatch(regex)` | Source function names, including names before `internal` JVM mangling, must not match the regex. |
+| `functionsShouldMatch(regex)` | Declared source function names must match the regex; accessors and generated data-class methods are excluded. |
+| `propertiesShouldNotMatch(regex)` | Non-constant property names, including computed and delegated properties, must not match the regex. |
+| `propertiesShouldMatch(type, regex)` | Non-constant properties of the selected type must have names matching the regex; accepts a fully qualified type name, Java `Class` or Kotlin `KClass`. Includes properties without backing fields. |
+| `propertiesShouldMatch(regex)` | Declared non-constant property names must match the regex. A Boolean `active` property is checked as `active`, not `getActive`. |
+| `noUsageOfDeprecatedAPIs()` | Classes must not have bytecode dependencies on deprecated classes or access deprecated Kotlin or Java members, including property-level and accessor-level deprecation. |
+| `constantsShouldFollowConventions()` | Only `const val` names must use uppercase letters, digits and underscores, starting with a letter. Ordinary `val` properties and generated fields are excluded. |
 | `classesShouldBeDataClasses(regex)` | Selected source classes must be data classes. |
 | `dataClassesShouldBeImmutable()` | Data classes must declare only `val` properties, including properties outside their primary constructors. This does not enforce deep immutability of referenced objects or collections. |
 | `classesShouldBeObjects(regex)` | Selected source classes must be regular object declarations. Companion objects do not satisfy this requirement. |
-| `classesShouldHaveVisibility(regex, visibility)` | Selected class declarations have the specified source visibility. |
-| `functionsShouldHaveVisibility(regex, visibility)` | Selected declared functions have the specified source visibility. |
-| `propertiesShouldHaveVisibility(regex, visibility)` | Selected declared properties have the specified source visibility. Accessor visibility is not checked separately. |
+| `classesShouldHaveVisibility(regex, visibility)` | Selected class declarations must have the given source visibility. |
+| `functionsShouldHaveVisibility(regex, visibility)` | Selected declared functions must have the given source visibility. |
+| `propertiesShouldHaveVisibility(regex, visibility)` | Selected declared properties must have the given source visibility. Accessor visibility is not checked separately. |
 
 `metrics { functionsShouldNotExceedMaxParameters(max) }` counts declared function value
 parameters, excluding receivers, suspend continuations, default-argument machinery, generated
-overloads, and constructors. Import it from `com.enofex.taikai.kotlin`.
+overloads and constructors. Import it from `com.enofex.taikai.kotlin`.
 
-Visibility uses `KotlinVisibility.PUBLIC`, `INTERNAL`, `PROTECTED`, or `PRIVATE`.
+Visibility uses `KotlinVisibility.PUBLIC`, `INTERNAL`, `PROTECTED` or `PRIVATE`.
 For example, `functionsShouldHaveVisibility("load.*", KotlinVisibility.INTERNAL)`
 checks source `internal` functions despite their public, mangled JVM representation.
 Only directly declared properties and functions are checked; inherited and delegated
 members are excluded. Explicitly declared overrides are included.
 
 Each rule accepts an optional final `TaikaiRule.Configuration`, following core's
-namespace, import-mode, explicit-class, and exclusion behavior:
+namespace, import-mode, explicit-class and exclusion behavior:
 
 ```kotlin
 import com.enofex.taikai.Namespace
@@ -181,10 +181,10 @@ An unreadable metadata annotation on an included Kotlin class is a rule
 violation. Application classes are analyzed through imported annotation data and are
 not initialized to inspect metadata.
 
-## Applying a shared Java architecture profile to Kotlin
+## Applying a Shared Java Architecture Profile to Kotlin
 
 Keep bytecode-level rules in `java {}` and use Kotlin declaration rules for source
-names, properties, and Kotlin deprecation. This profile expresses the conventions
+names, properties and Kotlin deprecation. This profile expresses the conventions
 without treating file facades as Java utility classes or every static final field
 as a Kotlin constant:
 
@@ -234,7 +234,7 @@ other Kotlin property rules. Each overload accepts the final per-rule
 
 The Kotlin deprecation rule examines both `kotlin.Deprecated` and
 `java.lang.Deprecated`, including annotations on property carriers and individual
-accessors. It checks calls, member references, field accesses, and dependencies on
+accessors. It checks calls, member references, field accesses and dependencies on
 deprecated classes. It follows default-argument helpers and generated callable
 reference adapters, preserving overload signatures. Companion and interface-property annotation carriers
 and generated adapters are read from their exact class resources without
@@ -242,13 +242,13 @@ initializing application classes. Normal backing-field initialization and genera
 forwarding to a deprecated declaration do not turn the declaration itself into an
 API usage. Deprecated API calls inside default-value expressions are still checked.
 
-The rule examines compiled bytecode. Inlined function bodies, inlined constants,
+The rule examines compiled bytecode. Inlined function bodies, inlined constants
 and erased type aliases cannot reliably reveal that a deprecated source API was
 referenced. Kotlin's own compiler deprecation checks remain useful for these cases.
 The existing Java deprecation rule retains its original semantics; use the Kotlin
 rule for Kotlin callers of both Java and Kotlin APIs.
 
-## Existing rule compatibility
+## Existing Rule Compatibility
 
 These categories describe intended semantics; they do not promise that every
 individual rule in a category has Kotlin-specific coverage.
@@ -261,17 +261,17 @@ individual rule in a category has Kotlin-specific coverage.
 | Fields and properties | Java field rules inspect backing fields, not source properties. Prefer Kotlin property rules for source intent. |
 | Boolean method naming | Java rules can reject the generated `getActive()` accessor. Prefer Kotlin function/property naming rules. |
 | Deprecation | The Java rule checks Java deprecation annotations. The Kotlin rule handles Kotlin and Java deprecation, including source-property carriers and default helpers. |
-| Method parameter counts | The `metrics` rule `methodsShouldNotExceedMaxParameters` counts JVM parameters. Prefer the Kotlin counterpart for suspend, extension, and default-argument functions. |
-| Utility classes and constants | Java static-member conventions do not map cleanly to file facades, companions, objects, and ordinary `val` properties. Use Kotlin object and constant rules. |
-| Logging, framework methods, test methods | Retain JVM semantics; annotation use-site targets, accessors, generated methods, and suspend signatures may matter. No automatic source adaptation is applied. |
+| Method parameter counts | The `metrics` rule `methodsShouldNotExceedMaxParameters` counts JVM parameters. Prefer the Kotlin counterpart for suspend, extension and default-argument functions. |
+| Utility classes and constants | Java static-member conventions do not map cleanly to file facades, companions, objects and ordinary `val` properties. Use Kotlin object and constant rules. |
+| Logging, framework methods, test methods | Retain JVM semantics; annotation use-site targets, accessors, generated methods and suspend signatures may matter. No automatic source adaptation is applied. |
 | Dependency cycles and forbidden dependencies | Include compiler-generated dependencies. Helpers are not globally removed from imported classes. |
 
 Kotlin rules read metadata with the official
 [Kotlin Metadata JVM library](https://kotlinlang.org/docs/metadata-jvm.html).
 The [Kotlin/JVM interoperability documentation](https://kotlinlang.org/docs/java-to-kotlin-interop.html)
-explains how source properties, companions, and top-level functions map to JVM members.
+explains how source properties, companions and top-level functions map to JVM members.
 
-## Java callers and extensions
+## Java Callers and Extensions
 
 Java users can configure the optional rules without Kotlin extension functions:
 
@@ -289,7 +289,7 @@ Import `com.enofex.taikai.kotlin.KotlinConfigurer`. The public generic
 `Builder.configure(customizer, supplier)` extension point uses the same per-configurer
 registration and accumulation behavior as the built-in configuration methods.
 
-## Runnable example
+## Runnable Example
 
 See the [Spring Kotlin demo](https://github.com/enofex/taikai/tree/main/examples/spring-kotlin)
 for an HTTP application with architecture tests and project checks using the receiver DSL.

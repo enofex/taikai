@@ -21,8 +21,8 @@ import java.util.List;
  * Configures and enforces logging-related rules using {@link com.tngtech.archunit ArchUnit}
  * through the Taikai framework.
  *
- * <p>This configurer ensures that classes consistently use a defined logger type (e.g., SLF4J)
- * and that logger fields follow naming and modifier conventions.</p>
+ * <p>This configurer ensures that classes consistently use a defined logger type, for example
+ * SLF4J, and that logger fields follow naming and modifier conventions.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -42,13 +42,13 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that classes matching the given criteria should have a field of exactly the
-   * specified logger type. A field inherited from a superclass counts, a field of a subtype of the
-   * logger type does not.
+   * Adds a rule that classes matching the given criteria must have a field of exactly the given
+   * logger type. A field inherited from a superclass counts, a field of a subtype of the logger
+   * type does not.
    *
    * @param classes the classes expected to use the logger, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
-   * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
+   * @param clazz the logger type, for example {@code org.slf4j.Logger.class}
    * @return this configurer for fluent chaining
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
@@ -75,13 +75,13 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that classes matching the given criteria should have a field of exactly the
-   * specified logger type. A field inherited from a superclass counts, a field of a subtype of the
-   * logger type does not.
+   * Adds a rule that classes matching the given criteria must have a field of exactly the given
+   * logger type. A field inherited from a superclass counts, a field of a subtype of the logger
+   * type does not.
    *
    * @param classes the classes expected to use the logger, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
-   * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
+   * @param typeName the fully qualified logger type, for example {@code org.slf4j.Logger}
    * @return this configurer for fluent chaining
    * @see com.enofex.taikai.ClassCriteria
    * @see com.tngtech.archunit.base.DescribedPredicate
@@ -114,11 +114,11 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
-   * type or a subtype of it, follow naming and modifier conventions. Uses an empty list of
-   * required modifiers by default.
+   * Adds a rule that all logger fields, the fields declared with the given logger type or a subtype
+   * of it, must follow naming and modifier conventions. Uses an empty list of required modifiers by
+   * default.
    *
-   * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
+   * @param typeName the fully qualified logger type, for example {@code org.slf4j.Logger}
    * @param regex the regex that logger field names must match
    * @return this configurer for fluent chaining
    */
@@ -143,11 +143,11 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
-   * type or a subtype of it, follow naming and modifier conventions. Uses an empty list of
-   * required modifiers by default.
+   * Adds a rule that all logger fields, the fields declared with the given logger type or a subtype
+   * of it, must follow naming and modifier conventions. Uses an empty list of required modifiers by
+   * default.
    *
-   * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
+   * @param clazz the logger type, for example {@code org.slf4j.Logger.class}
    * @param regex the regex that logger field names must match
    * @return this configurer for fluent chaining
    */
@@ -172,11 +172,10 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
-   * type or a subtype of it, follow naming and modifier conventions, requiring specific
-   * modifiers.
+   * Adds a rule that all logger fields, the fields declared with the given logger type or a subtype
+   * of it, must follow naming and modifier conventions, requiring the given modifiers.
    *
-   * @param typeName the fully qualified logger type (e.g., {@code org.slf4j.Logger})
+   * @param typeName the fully qualified logger type, for example {@code org.slf4j.Logger}
    * @param regex the regex that logger field names must match
    * @param requiredModifiers the modifiers that must be present
    * @return this configurer for fluent chaining
@@ -188,11 +187,10 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that ensures all logger fields, the fields declared with the specified logger
-   * type or a subtype of it, follow naming and modifier conventions, requiring specific
-   * modifiers.
+   * Adds a rule that all logger fields, the fields declared with the given logger type or a subtype
+   * of it, must follow naming and modifier conventions, requiring the given modifiers.
    *
-   * @param clazz the logger type (e.g., {@code org.slf4j.Logger.class})
+   * @param clazz the logger type, for example {@code org.slf4j.Logger.class}
    * @param regex the regex that logger field names must match
    * @param requiredModifiers the modifiers that must be present
    * @return this configurer for fluent chaining

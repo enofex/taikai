@@ -20,10 +20,11 @@ public final class DescribedPredicates {
   }
 
   /**
-   * Creates a predicate that checks if an element is annotated with a specific annotation.
+   * Creates a predicate that checks if an element is annotated with the given annotation.
    *
    * @param annotation      the annotation to check for
-   * @param isMetaAnnotated true if the annotation should be meta-annotated, false otherwise
+   * @param isMetaAnnotated {@code true} if the annotation should be meta-annotated,
+   *                        {@code false} otherwise
    * @return a described predicate for the annotation check
    */
   public static DescribedPredicate<CanBeAnnotated> annotatedWith(String annotation,
@@ -38,10 +39,11 @@ public final class DescribedPredicates {
   }
 
   /**
-   * Creates a predicate that checks if an element is annotated with all the specified annotations.
+   * Creates a predicate that checks if an element is annotated with all the given annotations.
    *
    * @param annotations     the collection of annotations to check for
-   * @param isMetaAnnotated true if the annotations should be meta-annotated, false otherwise
+   * @param isMetaAnnotated {@code true} if the annotations should be meta-annotated,
+   *                        {@code false} otherwise
    * @return a described predicate for the annotation check
    */
   public static DescribedPredicate<CanBeAnnotated> annotatedWithAll(Collection<String> annotations,

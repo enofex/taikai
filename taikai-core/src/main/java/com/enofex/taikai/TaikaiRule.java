@@ -19,8 +19,8 @@ import org.jspecify.annotations.Nullable;
 /**
  * Represents a single executable Taikai architectural rule wrapping an ArchUnit {@link ArchRule}.
  *
- * <p>A {@code TaikaiRule} provides optional configuration via
- * {@link Configuration}, allowing customization of namespaces, import options, or class exclusions.</p>
+ * <p>A {@code TaikaiRule} provides optional configuration via {@link Configuration}, allowing
+ * customization of namespaces, import options or class exclusions.</p>
  *
  * <p>Instances can be created via {@link #of(ArchRule)} or {@link #of(ArchRule, Configuration)}.</p>
  *
@@ -165,7 +165,7 @@ public final class TaikaiRule {
 
   /**
    * Per-rule settings that override the global ones of {@link Taikai} for a single rule: the
-   * namespace, the {@link Namespace.IMPORT import mode}, an explicit set of classes, and classes
+   * namespace, the {@link Namespace.IMPORT import mode}, an explicit set of classes and classes
    * to exclude.
    *
    * <p>A configuration that does not name an import mode uses

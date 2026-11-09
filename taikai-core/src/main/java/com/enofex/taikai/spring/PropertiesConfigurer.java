@@ -51,8 +51,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code @ConfigurationProperties}
-   * have names ending with {@code Properties}.
+   * Adds a rule that classes annotated with {@code @ConfigurationProperties} must have names ending
+   * with {@code Properties}.
    *
    * @return this configurer for fluent chaining
    */
@@ -71,8 +71,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * Adds a rule enforcing that {@code @ConfigurationProperties}-annotated classes
-   * have names matching the given regex.
+   * Adds a rule that classes annotated with {@code @ConfigurationProperties} must have names
+   * matching the given regex.
    *
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
@@ -96,8 +96,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * Adds a rule enforcing that classes annotated with {@code @ConfigurationProperties}
-   * are also annotated with {@code @Validated}.
+   * Adds a rule that classes annotated with {@code @ConfigurationProperties} must also be annotated
+   * with {@code @Validated}.
    *
    * @return this configurer for fluent chaining
    */
@@ -122,8 +122,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * Adds a rule enforcing that classes with names ending in {@code Properties}
-   * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
+   * Adds a rule that classes with names ending in {@code Properties} must be annotated with
+   * {@code @ConfigurationProperties}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
    */
@@ -145,8 +145,8 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * Adds a rule enforcing that classes matching the given criteria
-   * should be annotated with {@code @ConfigurationProperties}. Interfaces are excluded.
+   * Adds a rule that classes matching the given criteria must be annotated with
+   * {@code @ConfigurationProperties}. Interfaces are excluded.
    *
    * @param classes the classes expected to be configuration properties, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
@@ -179,10 +179,10 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements Di
   }
 
   /**
-   * Adds a rule enforcing that all {@code @ConfigurationProperties}-annotated classes
-   * should be implemented as Java {@code record}s.
+   * Adds a rule that all classes annotated with {@code @ConfigurationProperties} must be
+   * implemented as Java {@code record}s.
    *
-   * <p>This promotes immutability, thread-safety, and consistency in configuration design.</p>
+   * <p>This promotes immutability, thread-safety and consistency in configuration design.</p>
    *
    * @return this configurer for fluent chaining
    */

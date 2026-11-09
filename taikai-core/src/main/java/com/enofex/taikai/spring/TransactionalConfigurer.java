@@ -51,7 +51,7 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule enforcing that methods annotated with {@code @Transactional} are public.
+   * Adds a rule that methods annotated with {@code @Transactional} must be public.
    *
    * <p>Spring's default proxy-based transaction management only applies to public methods.
    * A {@code @Transactional} annotation on a non-public method is silently ignored and no
@@ -79,8 +79,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule enforcing that methods annotated with {@code @Transactional} are not invoked from
-   * within the class that declares them.
+   * Adds a rule that methods annotated with {@code @Transactional} must not be invoked from within
+   * the class that declares them.
    *
    * <p>Spring applies transaction management through a proxy that wraps the bean. A call such as
    * {@code this.save()} targets the bean instance directly instead of the proxy, so the
@@ -112,10 +112,9 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule enforcing that controllers annotated with {@code @Controller} or
-   * {@code @RestController} are not annotated with {@code @Transactional} and do not
-   * declare {@code @Transactional} methods. Transaction boundaries should be defined
-   * in the service layer.
+   * Adds a rule that controllers annotated with {@code @Controller} or {@code @RestController} must
+   * not be annotated with {@code @Transactional} and must not declare {@code @Transactional}
+   * methods. Transaction boundaries should be defined in the service layer.
    *
    * @return this configurer for fluent chaining
    */
