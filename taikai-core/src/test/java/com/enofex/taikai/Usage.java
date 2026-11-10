@@ -514,6 +514,9 @@ class Usage {
                 .methodsShouldBePublic()
                 .methodsShouldBePublic(defaultConfiguration())
 
+                .methodsShouldBeReadOnly(MethodCriteria.nameMatching("regex"))
+                .methodsShouldBeReadOnly(MethodCriteria.nameMatching("regex"), defaultConfiguration())
+
                 .shouldNotBeSelfInvoked()
                 .shouldNotBeSelfInvoked(defaultConfiguration())
 

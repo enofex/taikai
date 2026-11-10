@@ -2704,13 +2704,14 @@ Applies to classes annotated `@Repository`.
 
 ### 10.8 Transactional
 
-These rules target the ways `@Transactional` silently does nothing at runtime. Both
+These rules target the ways `@Transactional` silently does not behave as intended at runtime. Both
 `org.springframework.transaction.annotation.Transactional` and `jakarta.transaction.Transactional`
 are recognized.
 
 | Rule | Enforces |
 |------|----------|
 | `methodsShouldBePublic()` | `@Transactional` methods are `public` |
+| `methodsShouldBeReadOnly(methods)` | matching transactional methods are read-only |
 | `shouldNotBeSelfInvoked()` | `@Transactional` methods are not called from within their own class |
 | `shouldNotBeUsedInControllers()` | transaction boundaries live in the service layer |
 
@@ -2718,12 +2719,37 @@ are recognized.
 .spring(spring -> spring
     .transactional(transactional -> transactional
         .methodsShouldBePublic()
+        .methodsShouldBeReadOnly(MethodCriteria.nameMatching("(find|get|count).*"))
         .shouldNotBeSelfInvoked()
         .shouldNotBeUsedInControllers()))
 ```
 
 `methodsShouldBePublic` exists because Spring's proxy-based transaction management ignores
 non-public methods outright.
+
+`methodsShouldBeReadOnly` checks each matching method with the transaction attribute that Spring
+itself derives for it, with spring-tx's `AnnotationTransactionAttributeSource` as for a call
+through a class-based proxy, the default in Spring Boot. All of Spring's rules apply: the
+annotation on the method or on a method it overrides comes first, otherwise the one on its class, a
+superclass or an interface, and composed annotations and `@AliasFor` are resolved. Methods that do
+not run in a transaction are not checked, nor are private and static methods. An annotation on a
+method replaces the one on its class entirely, so the following method is not read-only:
+
+```java
+@Service
+@Transactional(readOnly = true)
+class OrderService {
+
+  @Transactional(timeout = 5) // replaces the class annotation, readOnly is false
+  public List<Order> findOpenOrders() {
+  }
+}
+```
+
+`jakarta.transaction.Transactional` has no `readOnly` attribute, so the methods it applies to are
+reported. The rule loads the checked classes to resolve their transactions and requires spring-tx
+and spring-context on the test classpath, which every Spring application using `@Transactional`
+has. Taikai declares both as optional dependencies.
 
 `shouldNotBeSelfInvoked` is the `@Transactional`-specific variant of
 [`noSelfInvocationOfProxiedMethods`](#spring-noSelfInvocationOfProxiedMethods) and reports the call
