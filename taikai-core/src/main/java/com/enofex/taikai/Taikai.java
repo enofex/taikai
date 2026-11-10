@@ -25,7 +25,6 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.FailureReport;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -548,7 +547,7 @@ public final class Taikai {
      * @return this builder for fluent chaining
      */
     public Builder addRule(TaikaiRule rule) {
-      this.rules.add(rule);
+      this.rules.add(requireNonNull(rule));
       return this;
     }
 
@@ -559,7 +558,7 @@ public final class Taikai {
      * @return this builder for fluent chaining
      */
     public Builder addRules(Collection<TaikaiRule> rules) {
-      this.rules.addAll(rules);
+      this.rules.addAll(List.copyOf(rules));
       return this;
     }
 
@@ -729,7 +728,7 @@ public final class Taikai {
      * @return this builder for fluent chaining
      */
     public Builder excludeClasses(Collection<String> classNames) {
-      this.excludedClasses.addAll(classNames);
+      this.excludedClasses.addAll(List.copyOf(classNames));
       return this;
     }
 
@@ -741,7 +740,7 @@ public final class Taikai {
      * @return this builder for fluent chaining
      */
     public Builder excludeClasses(String... classNames) {
-      this.excludedClasses.addAll(Arrays.asList(classNames));
+      this.excludedClasses.addAll(List.of(classNames));
       return this;
     }
 

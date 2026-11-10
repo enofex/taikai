@@ -73,6 +73,12 @@ class TaikaiExportTest {
   }
 
   @Test
+  void shouldRejectNullExportExclusion() {
+    assertThrows(NullPointerException.class, () -> Taikai.builder()
+        .discoverExports(exports -> exports.exclude(TestExports.Second.class, null)));
+  }
+
+  @Test
   void shouldAddUpSettingsOfRepeatedDiscoverExportsCalls() {
     Taikai taikai = build(Taikai.builder()
             .namespace(NAMESPACE)

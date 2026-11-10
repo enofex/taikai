@@ -5,7 +5,6 @@ import static java.util.Objects.requireNonNull;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,7 +53,7 @@ public final class ExportsConfigurer {
    */
   @SafeVarargs
   public final ExportsConfigurer exclude(Class<? extends TaikaiExport>... exports) {
-    this.excludedExports.addAll(Arrays.asList(exports));
+    this.excludedExports.addAll(List.of(exports));
     return this;
   }
 

@@ -383,6 +383,25 @@ class TaikaiTest {
     assertThrows(NullPointerException.class, () -> builder.excludeClasses(criteria));
   }
 
+  @Test
+  void shouldRejectNullRules() {
+    Taikai.Builder builder = Taikai.builder();
+
+    assertThrows(NullPointerException.class, () -> builder.addRule(null));
+    assertThrows(NullPointerException.class,
+        () -> builder.addRules(Collections.singletonList(null)));
+  }
+
+  @Test
+  void shouldRejectNullClassNameExclusions() {
+    Taikai.Builder builder = Taikai.builder();
+
+    assertThrows(NullPointerException.class,
+        () -> builder.excludeClasses(Collections.<String>singletonList(null)));
+    assertThrows(NullPointerException.class,
+        () -> builder.excludeClasses("com.company.project.Foo", null));
+  }
+
   static class ViolatingClass {
 
     public void method() throws Exception {

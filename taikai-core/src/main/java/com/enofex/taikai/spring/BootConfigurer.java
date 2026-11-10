@@ -85,7 +85,6 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * @return this configurer for fluent chaining
    */
   public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier) {
-    requireNonNull(packageIdentifier);
     return applicationClassShouldResideInPackage(packageIdentifier, defaultConfiguration());
   }
 
@@ -100,6 +99,8 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    */
   public BootConfigurer applicationClassShouldResideInPackage(String packageIdentifier,
       Configuration configuration) {
+    requireNonNull(packageIdentifier);
+
     return addRule(TaikaiRule.of(classes()
         .that(are(annotatedWithSpringBootApplication(true)))
         .should().resideInAPackage(packageIdentifier)

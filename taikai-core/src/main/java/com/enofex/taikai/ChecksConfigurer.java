@@ -6,7 +6,6 @@ import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.ForwardingCheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -69,7 +68,7 @@ public final class ChecksConfigurer {
    */
   @SafeVarargs
   public final ChecksConfigurer exclude(Class<? extends TaikaiCheck>... checks) {
-    this.excludedChecks.addAll(Arrays.asList(checks));
+    this.excludedChecks.addAll(List.of(checks));
     return this;
   }
 

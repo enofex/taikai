@@ -64,6 +64,13 @@ class BootConfigurerTest {
   class ApplicationClassShouldResideInPackageWithConfiguration {
 
     @Test
+    void shouldRejectNullPackage() {
+      assertThrows(NullPointerException.class, () -> Taikai.builder()
+          .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
+              null, Configuration.defaultConfiguration()))));
+    }
+
+    @Test
     void shouldNotThrowWhenApplicationClassInCorrectPackageWithConfiguration() {
       Taikai taikai = Taikai.builder()
           .classes(CorrectPackageApplication.class)

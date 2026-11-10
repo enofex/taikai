@@ -71,6 +71,12 @@ class TaikaiCheckTest {
   }
 
   @Test
+  void shouldRejectNullCheckExclusion() {
+    assertThrows(NullPointerException.class, () -> Taikai.builder()
+        .discoverChecks(checks -> checks.exclude(TestChecks.Failing.class, null)));
+  }
+
+  @Test
   void shouldAddUpSettingsOfRepeatedDiscoverChecksCalls() {
     Taikai taikai = build(Taikai.builder()
             .namespace(NAMESPACE)
