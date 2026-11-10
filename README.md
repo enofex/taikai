@@ -6,7 +6,9 @@
 <p align="center">
     <img src="https://github.com/enofex/taikai/actions/workflows/maven.yml/badge.svg" />
     <img src="https://img.shields.io/badge/Java%20Version-17-orange" />
-    <img height="20" src="https://sonarcloud.io/images/project_badges/sonarcloud-orange.svg">
+    <a href="https://sonarcloud.io/summary/overall?id=enofex_taikai">
+        <img src="https://sonarcloud.io/api/project_badges/measure?project=enofex_taikai&metric=coverage" />
+    </a>
 </p>
 
 # Taikai

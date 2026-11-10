@@ -13,6 +13,8 @@
     <maven.deploy.skip>true</maven.deploy.skip>
     <maven.source.skip>true</maven.source.skip>
     <maven.javadoc.skip>true</maven.javadoc.skip>
+    <jacoco.skip>true</jacoco.skip>
+    <sonar.coverage.exclusions>**/*</sonar.coverage.exclusions>
   </properties>
   <dependencyManagement>
     <dependencies>
