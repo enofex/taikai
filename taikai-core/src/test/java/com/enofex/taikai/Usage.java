@@ -15,6 +15,7 @@ import com.enofex.taikai.checks.spi.ForwardingCheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
+import com.enofex.taikai.java.NullMarking;
 import com.enofex.taikai.test.TestConfigurer;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -198,6 +199,12 @@ class Usage {
 
             .serialVersionUIDFieldsShouldBeStaticFinalLong()
             .serialVersionUIDFieldsShouldBeStaticFinalLong(defaultConfiguration())
+
+            .classesShouldBeNullMarked()
+            .classesShouldBeNullMarked(defaultConfiguration())
+            .classesShouldBeNullMarked(NullMarking.jspecify())
+            .classesShouldBeNullMarked(NullMarking.annotations(
+                "com.example.NonNullByDefault", "com.example.NullUnmarked"), defaultConfiguration())
 
             .utilityClassesShouldBeFinalAndHavePrivateConstructor()
             .utilityClassesShouldBeFinalAndHavePrivateConstructor(defaultConfiguration())

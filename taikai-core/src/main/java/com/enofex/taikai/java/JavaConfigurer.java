@@ -17,6 +17,7 @@ import static com.enofex.taikai.internal.DescribedPredicates.areFinal;
 import static com.enofex.taikai.java.Deprecations.notUseDeprecatedAPIs;
 import static com.enofex.taikai.java.HashCodeAndEquals.implementHashCodeAndEquals;
 import static com.enofex.taikai.java.NoSystemOutOrErr.notUseSystemOutOrErr;
+import static com.enofex.taikai.java.NullMarkedScopes.beNullMarked;
 import static com.enofex.taikai.java.ProtectedMembers.notHaveProtectedMembers;
 import static com.enofex.taikai.java.SerialVersionUID.beStaticFinalLong;
 import static com.enofex.taikai.java.SerialVersionUID.namedSerialVersionUID;
@@ -61,6 +62,7 @@ import java.util.Collection;
  *   <li>Restriction of deprecated API and {@code System.out}/{@code System.err} usage</li>
  *   <li>Package and dependency restrictions</li>
  *   <li>Ensuring {@code serialVersionUID} correctness</li>
+ *   <li>Null-marked classes, for example with JSpecify's {@code @NullMarked}</li>
  * </ul>
  *
  * <h2>Example Usage</h2>
@@ -2298,6 +2300,64 @@ public final class JavaConfigurer extends AbstractConfigurer implements Disablea
         .that(namedSerialVersionUID())
         .should(beStaticFinalLong())
         .as("serialVersionUID should be static final long"), configuration));
+  }
+
+  /**
+   * Adds a rule that classes must be null-marked by JSpecify: the class itself, an enclosing
+   * class, or its package ({@code package-info.java}) must be annotated with
+   * {@code org.jspecify.annotations.NullMarked}. The closest scope that is annotated with
+   * {@code NullMarked} or {@code NullUnmarked} decides, also the method or constructor that
+   * declares a local or anonymous class, so a class that is opted out with {@code NullUnmarked}
+   * is reported as well.
+   *
+   * <p>As a {@code NullMarked} package does not mark its subpackages, every package needs its own
+   * {@code package-info.java}. Null checkers such as NullAway in {@code OnlyNullMarked} mode
+   * silently skip the classes outside of a null-marked scope. Compiler-generated classes, such as
+   * the {@code package-info} class, are not checked. A null-marked module
+   * ({@code module-info.java}) is not taken into account.</p>
+   *
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeNullMarked() {
+    return classesShouldBeNullMarked(NullMarking.jspecify(), defaultConfiguration());
+  }
+
+  /**
+   * See {@link #classesShouldBeNullMarked()}, but with {@link Configuration} for customization.
+   *
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeNullMarked(Configuration configuration) {
+    return classesShouldBeNullMarked(NullMarking.jspecify(), configuration);
+  }
+
+  /**
+   * See {@link #classesShouldBeNullMarked()}, but with the annotations of the given
+   * {@link NullMarking} instead of the JSpecify ones.
+   *
+   * @param nullMarking the annotations that mark a scope as null-marked and opt it out again
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeNullMarked(NullMarking nullMarking) {
+    return classesShouldBeNullMarked(nullMarking, defaultConfiguration());
+  }
+
+  /**
+   * See {@link #classesShouldBeNullMarked(NullMarking)}, but with {@link Configuration} for
+   * customization.
+   *
+   * @param nullMarking   the annotations that mark a scope as null-marked and opt it out again
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   */
+  public JavaConfigurer classesShouldBeNullMarked(NullMarking nullMarking,
+      Configuration configuration) {
+    return addRule(TaikaiRule.of(classes()
+        .that().doNotHaveModifier(JavaModifier.SYNTHETIC)
+        .should(beNullMarked(nullMarking))
+        .as("Classes should be null-marked by @%s".formatted(nullMarking.marked())),
+        configuration));
   }
 
   @Override
