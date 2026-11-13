@@ -45,6 +45,7 @@ class ArchitectureTest {
             .methodsShouldNotDeclareGenericExceptions()
             .fieldsShouldNotBePublic()
             .serialVersionUIDFieldsShouldBeStaticFinalLong()
+            .classesShouldBeNullMarked()
             .classesShouldResideInPackage("com.enofex.taikai..")
             .imports(imports -> imports
                 .shouldHaveNoCycles()

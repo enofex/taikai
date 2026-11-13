@@ -1049,6 +1049,7 @@ Default import mode: `WITHOUT_TESTS`.
 | [`classesShouldNotBeAnnotatedWith`](#classesShouldNotBeAnnotatedWith) | matching classes lack an annotation |
 | [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) | matching classes carry all given annotations |
 | [`classesShouldHaveField`](#classesShouldHaveField) | matching classes declare or inherit a matching field |
+| [`classesShouldBeNullMarked`](#classesShouldBeNullMarked) | classes are in a `@NullMarked` scope |
 | [`finalClassesShouldNotHaveProtectedMembers`](#finalClassesShouldNotHaveProtectedMembers) | `final` classes have no `protected` members |
 | [`utilityClassesShouldBeFinalAndHavePrivateConstructor`](#utilityClassesShouldBeFinalAndHavePrivateConstructor) | utility classes cannot be instantiated or extended |
 | [`fieldsShouldNotBePublic`](#fieldsShouldNotBePublic) | no `public` fields except `static` ones |
@@ -1270,6 +1271,39 @@ in every entity, and a `Long` version in aggregates:
     .classesShouldHaveField(ClassCriteria.inPackage("..aggregate.."),
         FieldCriteria.annotatedWith("jakarta.persistence.Version")
             .and(FieldCriteria.ofType(Long.class))))
+```
+
+#### `classesShouldBeNullMarked` { #classesShouldBeNullMarked }
+
+`classesShouldBeNullMarked()`
+`classesShouldBeNullMarked(NullMarking nullMarking)`
+
+Every class must be null-marked: the class itself, an enclosing class or its package
+(`package-info.java`) must be annotated with JSpecify's `@NullMarked`. Null checkers such as
+NullAway in `OnlyNullMarked` mode silently skip every class outside of a null-marked scope, and a
+`@NullMarked` package does not mark its subpackages, so each package needs its own
+`package-info.java`.
+
+The closest scope annotated with `@NullMarked` or `@NullUnmarked` decides, including the method or
+constructor that declares a local or anonymous class, and a scope annotated with both is opted out.
+A class opted out with `@NullUnmarked` is reported as well; exclude deliberate exceptions with a
+`Configuration`. Compiler-generated classes, such as the `package-info` class, are not checked.
+A `@NullMarked` module (`module-info.java`) is not taken into account, so annotate the packages
+instead.
+
+```java
+.java(java -> java
+    .classesShouldBeNullMarked())
+```
+
+The annotations are given by name, so JSpecify does not have to be on the classpath of Taikai.
+`NullMarking.annotations` uses another pair of annotations, one that marks a scope and one that
+opts it out again:
+
+```java
+.java(java -> java
+    .classesShouldBeNullMarked(NullMarking.annotations(
+        "com.example.NonNullByDefault", "com.example.NullUnmarked")))
 ```
 
 #### `finalClassesShouldNotHaveProtectedMembers` { #finalClassesShouldNotHaveProtectedMembers }
@@ -3393,6 +3427,7 @@ class ArchitectureTest {
             .methodsShouldNotDeclareGenericExceptions()
             .fieldsShouldNotBePublic()
             .serialVersionUIDFieldsShouldBeStaticFinalLong()
+            .classesShouldBeNullMarked()
             .classesShouldResideInPackage("com.enofex.taikai..")
             .imports(imports -> imports
                 .shouldHaveNoCycles()
