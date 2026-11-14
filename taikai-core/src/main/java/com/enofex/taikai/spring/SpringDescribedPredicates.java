@@ -29,6 +29,12 @@ final class SpringDescribedPredicates {
   static final String ANNOTATION_JAKARTA_INJECT = "jakarta.inject.Inject";
   static final String ANNOTATION_JAVAX_INJECT = "javax.inject.Inject";
   static final String ANNOTATION_VALIDATED = "org.springframework.validation.annotation.Validated";
+  static final String ANNOTATION_REQUEST_BODY =
+      "org.springframework.web.bind.annotation.RequestBody";
+  static final String ANNOTATION_REQUEST_PART =
+      "org.springframework.web.bind.annotation.RequestPart";
+  static final String ANNOTATION_MODEL_ATTRIBUTE =
+      "org.springframework.web.bind.annotation.ModelAttribute";
   static final String ANNOTATION_TRANSACTIONAL =
       "org.springframework.transaction.annotation.Transactional";
   static final String ANNOTATION_JAKARTA_TRANSACTIONAL = "jakarta.transaction.Transactional";

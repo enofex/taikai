@@ -1,8 +1,10 @@
 package com.enofex.taikai.spring;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
@@ -10,12 +12,19 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
+import jakarta.validation.Constraint;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
@@ -27,8 +36,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 class ControllersConfigurerTest {
@@ -423,6 +435,256 @@ class ControllersConfigurerTest {
   }
 
   @Nested
+  class RequestBodiesShouldBeValidated {
+
+    static Stream<Named<Customizer<ControllersConfigurer>>> rules() {
+      return Stream.of(
+          Named.of("requestBodiesShouldBeValidated()",
+              ControllersConfigurer::requestBodiesShouldBeValidated),
+          Named.of("requestBodiesShouldBeValidated(Configuration)",
+              ctrl -> ctrl.requestBodiesShouldBeValidated(Configuration.defaultConfiguration())));
+    }
+
+    private static Taikai taikai(Class<?> controller, Customizer<ControllersConfigurer> rule) {
+      return Taikai.builder()
+          .classes(controller)
+          .spring(spring -> spring.controllers(rule))
+          .build();
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldNotThrowWhenParametersAreValidated(Customizer<ControllersConfigurer> rule) {
+      assertDoesNotThrow(taikai(ValidatedRequestController.class, rule)::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rules")
+    void shouldThrowWhenRequestBodyIsNotValidated(Customizer<ControllersConfigurer> rule) {
+      AssertionError failure = assertThrows(AssertionError.class,
+          taikai(UnvalidatedRequestController.class, rule)::check);
+
+      assertTrue(failure.getMessage().contains(
+          ("Parameter 0 of method %s.body(%s) is annotated with @RequestBody but not with @Valid "
+              + "or @Validated, so the constraints of %s are not validated").formatted(
+              UnvalidatedRequestController.class.getName(),
+              OrderRequest.class.getName(),
+              OrderRequest.class.getName())));
+    }
+
+    @Test
+    void shouldThrowForEachParameterThatIsNotValidated() {
+      AssertionError failure = assertThrows(AssertionError.class,
+          taikai(UnvalidatedRequestController.class,
+              ControllersConfigurer::requestBodiesShouldBeValidated)::check);
+
+      assertAll(Stream.of("body", "part", "modelAttribute", "classConstraint", "inheritedField",
+              "interfaceGetter", "cascade", "cascadeGetter", "secondParameter")
+          .map(method -> () -> assertTrue(failure.getMessage().contains(
+              "%s.%s(".formatted(UnvalidatedRequestController.class.getName(), method)), method)));
+    }
+
+    @Test
+    void shouldThrowWhenOnlyOverriddenMethodIsValidated() {
+      AssertionError failure = assertThrows(AssertionError.class,
+          taikai(InheritedValidationController.class,
+              ControllersConfigurer::requestBodiesShouldBeValidated)::check);
+
+      assertTrue(failure.getMessage().contains("%s.create(%s)".formatted(
+          InheritedValidationController.class.getName(), OrderRequest.class.getName())));
+    }
+
+    @Test
+    void shouldNotCheckParameterBoundByOverriddenMethodOnly() {
+      assertDoesNotThrow(taikai(InheritedBindingController.class,
+          ControllersConfigurer::requestBodiesShouldBeValidated)::check);
+    }
+
+    @Test
+    void shouldNotCheckClassesThatAreNotControllers() {
+      assertDoesNotThrow(taikai(OrderHandler.class,
+          ControllersConfigurer::requestBodiesShouldBeValidated)::check);
+    }
+
+    record OrderRequest(@NotBlank String name) {
+
+    }
+
+    record UnconstrainedRequest(String name) {
+
+    }
+
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.RUNTIME)
+    @Constraint(validatedBy = {})
+    @interface ConsistentOrder {
+
+    }
+
+    @ConsistentOrder
+    record ClassConstrainedRequest(String name) {
+
+    }
+
+    static class BaseRequest {
+
+      @NotBlank
+      String name;
+    }
+
+    static class InheritedRequest extends BaseRequest {
+
+    }
+
+    interface NamedRequest {
+
+      @NotBlank
+      String getName();
+    }
+
+    static class InterfaceRequest implements NamedRequest {
+
+      @Override
+      public String getName() {
+        return "";
+      }
+    }
+
+    record CascadingRequest(@Valid UnconstrainedRequest item) {
+
+    }
+
+    static class CascadingGetterRequest {
+
+      @Valid
+      public UnconstrainedRequest getItem() {
+        return new UnconstrainedRequest("");
+      }
+    }
+
+    static class StaticConstraintRequest {
+
+      @NotBlank
+      static String DEFAULT_NAME = "";
+
+      String name;
+
+      @NotBlank
+      static String defaultName() {
+        return DEFAULT_NAME;
+      }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface ValidOrder {
+
+    }
+
+    @Validated
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface CheckedOrder {
+
+    }
+
+    @RestController
+    static class ValidatedRequestController {
+
+      void valid(@RequestBody @Valid OrderRequest request) {
+      }
+
+      void validated(@RequestBody @Validated OrderRequest request) {
+      }
+
+      void nameStartingWithValid(@RequestBody @ValidOrder OrderRequest request) {
+      }
+
+      void annotatedWithValidated(@RequestBody @CheckedOrder OrderRequest request) {
+      }
+
+      void part(@RequestPart @Valid ClassConstrainedRequest request) {
+      }
+
+      void modelAttribute(@ModelAttribute @Valid InheritedRequest request) {
+      }
+
+      void unconstrained(@RequestBody UnconstrainedRequest request) {
+      }
+
+      void staticConstraint(@RequestBody StaticConstraintRequest request) {
+      }
+
+      void typeArgument(@RequestBody List<OrderRequest> requests) {
+      }
+
+      void text(@RequestBody String text) {
+      }
+    }
+
+    @RestController
+    static class UnvalidatedRequestController {
+
+      void body(@RequestBody OrderRequest request) {
+      }
+
+      void part(@RequestPart OrderRequest request) {
+      }
+
+      void modelAttribute(@ModelAttribute OrderRequest request) {
+      }
+
+      void classConstraint(@RequestBody ClassConstrainedRequest request) {
+      }
+
+      void inheritedField(@RequestBody InheritedRequest request) {
+      }
+
+      void interfaceGetter(@RequestBody InterfaceRequest request) {
+      }
+
+      void cascade(@RequestBody CascadingRequest request) {
+      }
+
+      void cascadeGetter(@RequestBody CascadingGetterRequest request) {
+      }
+
+      void secondParameter(@RequestParam String id, @RequestBody OrderRequest request) {
+      }
+    }
+
+    interface ValidatingOrderApi {
+
+      void create(@Valid OrderRequest request);
+    }
+
+    @RestController
+    static class InheritedValidationController implements ValidatingOrderApi {
+
+      @Override
+      public void create(@RequestBody OrderRequest request) {
+      }
+    }
+
+    interface BindingOrderApi {
+
+      void create(@RequestBody OrderRequest request);
+    }
+
+    @RestController
+    static class InheritedBindingController implements BindingOrderApi {
+
+      @Override
+      public void create(OrderRequest request) {
+      }
+    }
+
+    static class OrderHandler {
+
+      void create(@RequestBody OrderRequest request) {
+      }
+    }
+  }
+
+  @Nested
   class ShouldNotDependOnOtherControllers {
 
     @Test
@@ -623,6 +885,8 @@ class ControllersConfigurerTest {
       assertSame(configurer, configurer.namesShouldEndWithController(Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.namesShouldMatch(".*"));
       assertSame(configurer, configurer.namesShouldMatch(".*", Configuration.defaultConfiguration()));
+      assertSame(configurer, configurer.requestBodiesShouldBeValidated());
+      assertSame(configurer, configurer.requestBodiesShouldBeValidated(Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithRestController());
       assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(Configuration.defaultConfiguration()));
       assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*")));

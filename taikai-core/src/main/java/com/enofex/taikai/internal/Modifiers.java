@@ -111,6 +111,16 @@ public final class Modifiers {
   }
 
   /**
+   * Checks if a class or member is static.
+   *
+   * @param element the Java class or member to check
+   * @return {@code true} if the element is static, {@code false} otherwise
+   */
+  public static boolean isStatic(HasModifiers element) {
+    return element.getModifiers().contains(JavaModifier.STATIC);
+  }
+
+  /**
    * Returns the names of the given modifiers in their order, separated by commas, as rule
    * descriptions and violation messages show them.
    *
