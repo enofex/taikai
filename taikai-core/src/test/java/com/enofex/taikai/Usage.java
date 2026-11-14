@@ -431,6 +431,9 @@ class Usage {
                 .namesShouldMatch("regex")
                 .namesShouldMatch("regex", defaultConfiguration())
 
+                .requestBodiesShouldBeValidated()
+                .requestBodiesShouldBeValidated(defaultConfiguration())
+
                 .shouldBeAnnotatedWithController()
                 .shouldBeAnnotatedWithController(defaultConfiguration())
                 .shouldBeAnnotatedWithController(ClassCriteria.nameMatching("regex"))

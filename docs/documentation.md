@@ -2620,6 +2620,7 @@ Applies to classes annotated `@Controller` or `@RestController`.
 | `shouldBeAnnotatedWithValidated(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
 | `shouldNotBeAnnotatedWithValidated()` | controllers do not carry `@Validated` |
 | `shouldNotBeAnnotatedWithValidated(DescribedPredicate<? super JavaClass> classes)` | same, for classes matching criteria |
+| `requestBodiesShouldBeValidated()` | `@RequestBody`, `@RequestPart` and `@ModelAttribute` parameters with constraints carry `@Valid` or `@Validated` |
 
 ```java
 .spring(spring -> spring
@@ -2629,7 +2630,8 @@ Applies to classes annotated `@Controller` or `@RestController`.
         .shouldBePackagePrivate()
         .shouldNotDependOnOtherControllers()
         .shouldNotDependOnRepositories()
-        .shouldBeAnnotatedWithValidated()))
+        .shouldBeAnnotatedWithValidated()
+        .requestBodiesShouldBeValidated()))
 ```
 
 The criteria overloads of `shouldBeAnnotatedWith...` select classes by name, package
@@ -2680,6 +2682,61 @@ parameter annotated `@PathVariable` or `@RequestParam` that also carries one of 
 never evaluates those constraints.
 Use `shouldNotBeAnnotatedWithValidated` for the opposite convention, where validation is handled
 elsewhere.
+
+`requestBodiesShouldBeValidated` reports parameters annotated `@RequestBody`, `@RequestPart` or
+`@ModelAttribute` whose type declares constraints but that are not annotated `@Valid` or
+`@Validated`. Spring binds such a parameter without ever evaluating its constraints:
+
+```java
+record InviteRequest(@Email @Size(max = 255) String email) {
+}
+
+@RestController
+class InviteController {
+
+  @PostMapping("/invites")
+  void invite(@RequestBody InviteRequest request) { // reported, @Email and @Size are never checked
+  }
+}
+```
+
+The rule makes the same decision as Spring: an annotation that is annotated with `@Validated` or
+whose name starts with `Valid` triggers the validation as well. A type declares constraints if it,
+an instance field or a method without parameters, including those of its superclasses and
+interfaces, carries a Bean Validation constraint from `jakarta.validation` or `javax.validation`,
+including custom and composed constraints, or if a field or method is annotated `@Valid`.
+Parameters whose type declares no constraints, such as `String` or `MultipartFile`, are not
+reported.
+
+Only the annotations of the controller method itself count. Spring also takes the annotations of
+the parameter from a method that the controller method overrides, but which methods it considers
+depends on the Spring version, so the rule ignores them and gives the same result for every version.
+Put `@Valid` next to `@RequestBody` on the controller method, even if an interface, such as one
+generated from an OpenAPI specification, already declares it there:
+
+```java
+interface InviteApi {
+
+  void invite(@Valid @RequestBody InviteRequest request);
+}
+
+@RestController
+class InviteController implements InviteApi {
+
+  @Override
+  public void invite(@RequestBody InviteRequest request) { // reported, add @Valid here as well
+  }
+}
+```
+
+A controller method without annotations on the parameter, which relies on the interface entirely,
+is not checked. The rule also does not see:
+
+- type arguments, so `@RequestBody List<InviteRequest>` and `Optional<InviteRequest>` are not
+  checked
+- constraints on type arguments only, such as `List<@NotBlank String> tags`, as ArchUnit does not
+  import type annotations
+- parameters without annotation, which Spring MVC binds as model attributes implicitly
 
 `shouldNotDependOnRepositories` completes the layering rules together with
 `services.shouldNotDependOnControllers`, `repositories.shouldNotDependOnServices` and

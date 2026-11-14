@@ -4,6 +4,7 @@ import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.notReturnTypesMatching;
 import static com.enofex.taikai.internal.ArchConditions.returnTypesMatching;
 import static com.enofex.taikai.spring.ValidatedController.beAnnotatedWithValidated;
+import static com.enofex.taikai.spring.ValidatedRequestBodies.validateConstrainedRequestBodies;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
@@ -47,6 +48,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *             .shouldBePackagePrivate()
  *             .shouldNotDependOnOtherControllers()
  *             .shouldBeAnnotatedWithValidated()
+ *             .requestBodiesShouldBeValidated()
  *         )
  *     );
  * }</pre>
@@ -178,6 +180,46 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
         .that(are(annotatedWithControllerOrRestController(true)))
         .should().haveNameMatching(regex)
         .as("Controllers should have names matching %s".formatted(regex)), configuration));
+  }
+
+  /**
+   * Adds a rule that controller method parameters annotated with {@code @RequestBody},
+   * {@code @RequestPart} or {@code @ModelAttribute} must be annotated with {@code @Valid} or
+   * {@code @Validated} if their type declares constraints. Otherwise Spring binds the parameter
+   * without ever evaluating them.
+   *
+   * <p>Spring's own decision is applied: an annotation annotated with {@code @Validated} or with a
+   * name starting with {@code Valid} triggers the validation as well. Only the annotations of the
+   * controller method itself count, not those of a method it overrides, so the result is the same
+   * for every Spring version. A type declares constraints if it, an instance field or a method
+   * without parameters, including those of its superclasses and interfaces, is annotated with a
+   * Bean Validation constraint from {@code jakarta.validation} or {@code javax.validation}, or a
+   * field or method is annotated with {@code @Valid}. Only the type of the parameter itself is
+   * inspected, not its type arguments, so parameters such as {@code List<Order>} are not checked.
+   * Constraints on type arguments, such as {@code List<@NotBlank String>}, are not seen either, as
+   * ArchUnit does not import type annotations.</p>
+   *
+   * @return this configurer for fluent chaining
+   */
+  public ControllersConfigurer requestBodiesShouldBeValidated() {
+    return requestBodiesShouldBeValidated(defaultConfiguration());
+  }
+
+  /**
+   * See {@link #requestBodiesShouldBeValidated()}, but with {@link Configuration} for
+   * customization.
+   *
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   */
+  public ControllersConfigurer requestBodiesShouldBeValidated(Configuration configuration) {
+    return addRule(TaikaiRule.of(methods()
+            .that().areDeclaredInClassesThat(annotatedWithControllerOrRestController(true))
+            .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
+            .should(validateConstrainedRequestBodies())
+            .as("Controller @RequestBody, @RequestPart and @ModelAttribute parameters whose type "
+                + "declares constraints should be annotated with @Valid or @Validated"),
+        configuration));
   }
 
   /**
