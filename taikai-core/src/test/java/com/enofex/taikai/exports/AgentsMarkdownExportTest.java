@@ -27,16 +27,11 @@ class AgentsMarkdownExportTest {
   void shouldWriteDescriptionsOfRules() throws IOException {
     Path file = this.directory.resolve("ARCHITECTURE.md");
 
-    Taikai.builder()
+    export(Taikai.builder()
         .namespace("com.company.project")
         .java(java -> java
             .noUsageOfSystemOutOrErr()
-            .fieldsShouldNotBePublic())
-        .discoverExports(exports -> exports
-            .exclude(SarifExport.class)
-            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
-        .build()
-        .export();
+            .fieldsShouldNotBePublic()), file);
 
     assertEquals("""
             # Architecture Rules
@@ -54,14 +49,9 @@ class AgentsMarkdownExportTest {
   void shouldNotNameNamespaceForDirectlySuppliedClasses() throws IOException {
     Path file = this.directory.resolve("ARCHITECTURE.md");
 
-    Taikai.builder()
+    export(Taikai.builder()
         .classes(AgentsMarkdownExportTest.class)
-        .java(JavaConfigurer::noUsageOfSystemOutOrErr)
-        .discoverExports(exports -> exports
-            .exclude(SarifExport.class)
-            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
-        .build()
-        .export();
+        .java(JavaConfigurer::noUsageOfSystemOutOrErr), file);
 
     assertEquals("""
             # Architecture Rules
@@ -80,15 +70,10 @@ class AgentsMarkdownExportTest {
     TaikaiRule rule = TaikaiRule.of(ArchRuleDefinition.classes()
         .should().haveSimpleNameNotEndingWith("Impl"));
 
-    Taikai.builder()
+    export(Taikai.builder()
         .namespace("com.company.project")
         .addRule(rule)
-        .addRule(rule)
-        .discoverExports(exports -> exports
-            .exclude(SarifExport.class)
-            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
-        .build()
-        .export();
+        .addRule(rule), file);
 
     assertEquals(1, Files.readString(file, StandardCharsets.UTF_8)
         .lines()
@@ -100,16 +85,11 @@ class AgentsMarkdownExportTest {
   void shouldIndentFurtherLinesOfMultiLineDescriptions() throws IOException {
     Path file = this.directory.resolve("ARCHITECTURE.md");
 
-    Taikai.builder()
+    export(Taikai.builder()
         .namespace("com.company.project")
         .addRule(TaikaiRule.of(ArchRuleDefinition.classes()
             .should().haveSimpleNameNotEndingWith("Impl")
-            .as("Layered architecture, consisting of\nlayer 'Api'\r\nlayer 'Domain'")))
-        .discoverExports(exports -> exports
-            .exclude(SarifExport.class)
-            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
-        .build()
-        .export();
+            .as("Layered architecture, consisting of\nlayer 'Api'\r\nlayer 'Domain'"))), file);
 
     assertEquals("""
             # Architecture Rules
@@ -130,13 +110,7 @@ class AgentsMarkdownExportTest {
     Files.createDirectories(file.getParent());
     Files.writeString(file, "old content that is longer than the new one".repeat(10));
 
-    Taikai.builder()
-        .namespace("com.company.project")
-        .discoverExports(exports -> exports
-            .exclude(SarifExport.class)
-            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
-        .build()
-        .export();
+    export(Taikai.builder().namespace("com.company.project"), file);
 
     assertTrue(Files.readString(file, StandardCharsets.UTF_8).startsWith("# Architecture Rules"));
     assertFalse(Files.readString(file, StandardCharsets.UTF_8).contains("old content"));
@@ -146,7 +120,7 @@ class AgentsMarkdownExportTest {
   void shouldFailWithoutConfiguredFile() {
     Taikai taikai = Taikai.builder()
         .namespace("com.company.project")
-        .discoverExports(exports -> exports.exclude(SarifExport.class))
+        .discoverExports(exports -> exports.exclude(MetricsMarkdownExport.class, SarifExport.class))
         .build();
 
     TaikaiException exception = assertThrows(TaikaiException.class, taikai::export);
@@ -160,5 +134,14 @@ class AgentsMarkdownExportTest {
   @Test
   void shouldRejectBlankFile() {
     assertThrows(IllegalArgumentException.class, () -> AgentsMarkdownExport.file(" "));
+  }
+
+  private static void export(Taikai.Builder builder, Path file) {
+    builder
+        .discoverExports(exports -> exports
+            .exclude(MetricsMarkdownExport.class, SarifExport.class)
+            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
+        .build()
+        .export();
   }
 }

@@ -1,7 +1,5 @@
 package com.enofex.taikai.exports;
 
-import static java.util.Objects.requireNonNull;
-
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
@@ -13,10 +11,7 @@ import com.tngtech.archunit.core.domain.SourceCodeLocation;
 import com.tngtech.archunit.core.domain.properties.HasSourceCodeLocation;
 import com.tngtech.archunit.lang.EvaluationResult;
 import com.tngtech.archunit.lang.Priority;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -32,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -52,14 +46,14 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>The location of a violation is the source file of its class, looked up in the
  * {@linkplain Settings#sourceDirectories() source directories} by the package of the class, or
- * else by its file name if exactly one source file has that name, as Kotlin files do not need to
- * be in the directory of their package. The report names source files by absolute {@code file}
- * URIs, so that they do not depend on the directory the report is read from, also in
- * multi-module builds. Violations without a line, such as of classes or fields, point to the
- * first line of their file. Code scanning on GitHub only shows violations with a location, so
- * violations of a package point to its {@code package-info}, or else to its first class by name,
- * and violations of a cycle to its first dependency. Violations without a source file have no
- * location.</p>
+ * else by its file name if exactly one source file of that name declares the package, as Kotlin
+ * files do not need to be in the directory of their package. The report names source files by
+ * absolute {@code file} URIs, so that they do not depend on the directory the report is read
+ * from, also in multi-module builds. Violations without a line, such as of classes or fields,
+ * point to the first line of their file. Code scanning on GitHub only shows violations with a
+ * location, so violations of a package point to its {@code package-info}, or else to its first
+ * class by name, and violations of a cycle to its first dependency. Violations without a source
+ * file have no location.</p>
  *
  * <p>Taikai does not register its predefined exports itself, so that a new Taikai version never
  * writes files on its own. To run this export, list its class name in the file
@@ -68,8 +62,6 @@ import org.jspecify.annotations.Nullable;
  */
 public final class SarifExport implements TaikaiExport {
 
-  private static final List<String> SOURCE_DIRECTORIES = List.of(
-      "src/main/java", "src/main/kotlin", "src/test/java", "src/test/kotlin");
   private static final String SCHEMA = "https://json.schemastore.org/sarif-2.1.0.json";
   private static final int MAX_DESCRIPTION_LENGTH = 1024;
   private static final Comparator<Result> RESULT_ORDER = Comparator
@@ -88,7 +80,7 @@ public final class SarifExport implements TaikaiExport {
    * @see Settings#withSourceDirectories(String...)
    */
   public static Settings file(String file) {
-    return new Settings(file, SOURCE_DIRECTORIES);
+    return new Settings(file, SourceFiles.DEFAULT_DIRECTORIES);
   }
 
   @Override
@@ -99,9 +91,8 @@ public final class SarifExport implements TaikaiExport {
   @Override
   public void export(ExportContext context) {
     Settings settings = context.requireConfiguration(Settings.class);
-    SourceFiles sourceFiles = new SourceFiles(settings.sourceDirectories().stream()
-        .map(directory -> context.projectDirectory().resolve(directory).normalize())
-        .toList());
+    SourceFiles sourceFiles = SourceFiles.in(context.projectDirectory(),
+        settings.sourceDirectories());
     List<Rule> rules = new ArrayList<>();
     Map<String, Integer> ruleIndexes = new HashMap<>();
     Set<Result> results = new LinkedHashSet<>();
@@ -118,7 +109,7 @@ public final class SarifExport implements TaikaiExport {
           results.add(new Result(ruleIndex, message, location(objects, sourceFiles))));
     }
 
-    write(context.projectDirectory().resolve(settings.file()).normalize(),
+    write(ExportFiles.resolve(context, settings.file()),
         sarif(rules, results.stream().sorted(RESULT_ORDER).toList()));
   }
 
@@ -287,18 +278,7 @@ public final class SarifExport implements TaikaiExport {
   private static void write(Path file, Map<String, Object> sarif) {
     StringBuilder json = new StringBuilder();
     json(sarif, "", json);
-
-    try {
-      Path directory = file.getParent();
-
-      if (directory != null) {
-        Files.createDirectories(directory);
-      }
-
-      Files.writeString(file, json.append('\n'), StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not write " + file, e);
-    }
+    ExportFiles.write(file, json.append('\n'));
   }
 
   /**
@@ -319,16 +299,8 @@ public final class SarifExport implements TaikaiExport {
      * @throws IllegalArgumentException if the file is blank or no source directory is given
      */
     public Settings {
-      requireNonNull(file);
-      sourceDirectories = List.copyOf(sourceDirectories);
-
-      if (file.isBlank()) {
-        throw new IllegalArgumentException("The file to export to must be given");
-      }
-
-      if (sourceDirectories.isEmpty()) {
-        throw new IllegalArgumentException("At least one source directory must be given");
-      }
+      file = ExportFiles.requireFile(file);
+      sourceDirectories = SourceFiles.requireDirectories(sourceDirectories);
     }
 
     /**
@@ -359,71 +331,5 @@ public final class SarifExport implements TaikaiExport {
 
   private record Location(Path file, int line) {
 
-  }
-
-  private static final class SourceFiles {
-
-    private final List<Path> directories;
-    private final Map<String, Optional<Path>> found;
-    private @Nullable Map<String, List<Path>> byName;
-
-    SourceFiles(List<Path> directories) {
-      this.directories = directories;
-      this.found = new HashMap<>();
-    }
-
-    Optional<Path> find(SourceCodeLocation location) {
-      String packageName = location.getSourceClass().getPackageName();
-      String fileName = location.getSourceFileName();
-
-      return this.found.computeIfAbsent(packageName + "/" + fileName,
-          key -> inPackageDirectory(packageName, fileName).or(() -> uniqueByName(fileName)));
-    }
-
-    private Optional<Path> inPackageDirectory(String packageName, String fileName) {
-      String packageDirectory = packageName.replace('.', '/');
-
-      return this.directories.stream()
-          .map(directory -> directory.resolve(packageDirectory).resolve(fileName))
-          .filter(Files::isRegularFile)
-          .findFirst();
-    }
-
-    private Optional<Path> uniqueByName(String fileName) {
-      List<Path> files = byName().getOrDefault(fileName, List.of());
-
-      return files.size() == 1 ? Optional.of(files.get(0)) : Optional.empty();
-    }
-
-    private Map<String, List<Path>> byName() {
-      Map<String, List<Path>> files = this.byName;
-
-      if (files == null) {
-        files = new HashMap<>();
-
-        for (Path directory : this.directories) {
-          addFiles(directory, files);
-        }
-
-        this.byName = files;
-      }
-
-      return files;
-    }
-
-    private static void addFiles(Path directory, Map<String, List<Path>> files) {
-      if (!Files.isDirectory(directory)) {
-        return;
-      }
-
-      try (Stream<Path> paths = Files.walk(directory)) {
-        paths.filter(Files::isRegularFile)
-            .forEach(file -> files
-                .computeIfAbsent(file.getFileName().toString(), name -> new ArrayList<>())
-                .add(file));
-      } catch (IOException e) {
-        throw new UncheckedIOException("Could not read " + directory, e);
-      }
-    }
   }
 }

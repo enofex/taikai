@@ -189,7 +189,10 @@ Taikai.builder()
 
 The predefined `com.enofex.taikai.exports.SarifExport` writes the rule violations as a SARIF
 report, for example with `SarifExport.file("target/taikai.sarif")`, with the file and line of each
-violation.
+violation. The predefined `com.enofex.taikai.exports.MetricsMarkdownExport` writes architecture
+metrics as Markdown with SVG charts, for example with
+`MetricsMarkdownExport.file("docs/METRICS.md")`: the main sequence, the package dependencies and
+their cycles, the libraries of the packages, and the inheritance, coupling and cohesion of classes.
 
 ## User Guide
 

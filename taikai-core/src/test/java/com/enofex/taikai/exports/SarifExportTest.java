@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiException;
@@ -18,12 +20,17 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.Priority;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -173,33 +180,6 @@ class SarifExportTest {
   }
 
   @Test
-  void shouldFindSourceFileOutsideOfItsPackageDirectory() throws IOException {
-    Path sourceFile = this.directory.resolve("sources/SarifExportTest.java");
-    Files.createDirectories(sourceFile.getParent());
-    Files.copy(SOURCE_FILE, sourceFile);
-
-    String sarif = export(Taikai.builder()
-            .classes(Printer.class)
-            .java(JavaConfigurer::noUsageOfSystemOutOrErr),
-        SarifExport.file(sarifFile())
-            .withSourceDirectories(this.directory.resolve("sources").toString()));
-
-    assertTrue(sarif.contains("\"uri\": \"" + sourceFile.toUri() + "\""), sarif);
-  }
-
-  @Test
-  void shouldWriteViolationsWithoutLocationIfSourceFileIsMissing() throws IOException {
-    String sarif = export(Taikai.builder()
-            .classes(Printer.class)
-            .java(JavaConfigurer::noUsageOfSystemOutOrErr),
-        SarifExport.file(sarifFile())
-            .withSourceDirectories(this.directory.resolve("missing").toString()));
-
-    assertTrue(sarif.contains("calls java.lang.System.out"), sarif);
-    assertFalse(sarif.contains("\"locations\""), sarif);
-  }
-
-  @Test
   void shouldEscapeJson() throws IOException {
     String sarif = export(Taikai.builder()
         .classes(Printer.class)
@@ -213,7 +193,8 @@ class SarifExportTest {
   void shouldFailWithoutConfiguredFile() {
     Taikai taikai = Taikai.builder()
         .classes(Printer.class)
-        .discoverExports(exports -> exports.exclude(AgentsMarkdownExport.class))
+        .discoverExports(exports -> exports
+            .exclude(AgentsMarkdownExport.class, MetricsMarkdownExport.class))
         .build();
 
     TaikaiException exception = assertThrows(TaikaiException.class, taikai::export);
@@ -236,6 +217,109 @@ class SarifExportTest {
     assertThrows(IllegalArgumentException.class, settings::withSourceDirectories);
   }
 
+  /**
+   * The lookup of the source file of the {@link Printer} in the source directory {@code sources},
+   * which the tests fill, outside of the directory of its package.
+   */
+  @Nested
+  class SourceFileLookup {
+
+    private static final String OTHER_PACKAGE =
+        "package com.enofex.other;\n\nclass SarifExportTest {\n}\n";
+
+    @Test
+    void shouldFindFileOutsideOfItsPackageDirectory() throws IOException {
+      assertFound(copy("SarifExportTest.java"));
+    }
+
+    @Test
+    void shouldFindFileByItsPackageAmongFilesOfItsName() throws IOException {
+      Path sourceFile = copy("own/SarifExportTest.java");
+      Files.writeString(source("other/SarifExportTest.java"), OTHER_PACKAGE);
+
+      assertFound(sourceFile);
+    }
+
+    @Test
+    void shouldFindFileWithByteOrderMark() throws IOException {
+      assertFound(copy("SarifExportTest.java", (byte) 0xEF, (byte) 0xBB, (byte) 0xBF));
+    }
+
+    @Test
+    void shouldFindFileThatIsNotUtf8() throws IOException {
+      assertFound(copy("SarifExportTest.java",
+          "// Gr\u00FC\u00DFe\n".getBytes(StandardCharsets.ISO_8859_1)));
+    }
+
+    @Test
+    void shouldSkipUnreadableDirectories() throws IOException {
+      assumeTrue(FileSystems.getDefault().supportedFileAttributeViews().contains("posix"));
+      Path sourceFile = copy("SarifExportTest.java");
+      Path unreadable = Files.createDirectories(source("unreadable"));
+      Files.setPosixFilePermissions(unreadable, Set.of());
+
+      try {
+        assumeFalse(Files.isReadable(unreadable), "A superuser reads every directory");
+
+        assertFound(sourceFile);
+      } finally {
+        Files.setPosixFilePermissions(unreadable, PosixFilePermissions.fromString("rwx------"));
+      }
+    }
+
+    @Test
+    void shouldNotTakeFileOfAnotherPackageForTheOneOfTheClass() throws IOException {
+      Files.writeString(source("SarifExportTest.java"), OTHER_PACKAGE);
+
+      String sarif = export();
+
+      assertFalse(sarif.contains("\"locations\""), sarif);
+    }
+
+    @Test
+    void shouldWriteViolationsWithoutLocationIfFileIsMissing() throws IOException {
+      String sarif = export();
+
+      assertTrue(sarif.contains("calls java.lang.System.out"), sarif);
+      assertFalse(sarif.contains("\"locations\""), sarif);
+    }
+
+    /**
+     * Copies this file to the given path in the source directory, after the given bytes.
+     */
+    private Path copy(String path, byte... start) throws IOException {
+      byte[] source = Files.readAllBytes(SOURCE_FILE);
+      byte[] content = Arrays.copyOf(start, start.length + source.length);
+      System.arraycopy(source, 0, content, start.length, source.length);
+
+      return Files.write(source(path), content);
+    }
+
+    /**
+     * Returns the given path in the source directory, and creates its parent directories.
+     */
+    private Path source(String path) throws IOException {
+      Path file = SarifExportTest.this.directory.resolve("sources").resolve(path);
+      Files.createDirectories(file.getParent());
+
+      return file;
+    }
+
+    private void assertFound(Path sourceFile) throws IOException {
+      String sarif = export();
+
+      assertTrue(sarif.contains("\"uri\": \"" + sourceFile.toUri() + "\""), sarif);
+    }
+
+    private String export() throws IOException {
+      return SarifExportTest.this.export(Taikai.builder()
+              .classes(Printer.class)
+              .java(JavaConfigurer::noUsageOfSystemOutOrErr),
+          SarifExport.file(sarifFile()).withSourceDirectories(
+              SarifExportTest.this.directory.resolve("sources").toString()));
+    }
+  }
+
   private String sarifFile() {
     return this.directory.resolve("reports/taikai.sarif").toString();
   }
@@ -243,7 +327,7 @@ class SarifExportTest {
   private String export(Taikai.Builder builder, SarifExport.Settings settings) throws IOException {
     builder
         .discoverExports(exports -> exports
-            .exclude(AgentsMarkdownExport.class)
+            .exclude(AgentsMarkdownExport.class, MetricsMarkdownExport.class)
             .configure(SarifExport.class, settings))
         .build()
         .export();

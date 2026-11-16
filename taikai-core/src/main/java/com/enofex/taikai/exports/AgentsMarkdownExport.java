@@ -1,16 +1,10 @@
 package com.enofex.taikai.exports;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Collection;
 import org.jspecify.annotations.Nullable;
 
@@ -65,11 +59,9 @@ public final class AgentsMarkdownExport implements TaikaiExport {
 
   @Override
   public void export(ExportContext context) {
-    Path file = context.projectDirectory()
-        .resolve(context.requireConfiguration(Settings.class).file())
-        .normalize();
-
-    write(file, markdown(context.namespace(), context.rules()));
+    ExportFiles.write(
+        ExportFiles.resolve(context, context.requireConfiguration(Settings.class).file()),
+        markdown(context.namespace(), context.rules()));
   }
 
   private static String markdown(@Nullable String namespace, Collection<TaikaiRule> rules) {
@@ -96,20 +88,6 @@ public final class AgentsMarkdownExport implements TaikaiExport {
     return description.lines().collect(joining("\n  ", "- ", "\n"));
   }
 
-  private static void write(Path file, String content) {
-    try {
-      Path directory = file.getParent();
-
-      if (directory != null) {
-        Files.createDirectories(directory);
-      }
-
-      Files.writeString(file, content, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not write " + file, e);
-    }
-  }
-
   /**
    * The settings of the {@link AgentsMarkdownExport}.
    *
@@ -124,11 +102,7 @@ public final class AgentsMarkdownExport implements TaikaiExport {
      * @throws IllegalArgumentException if the file is blank
      */
     public Settings {
-      requireNonNull(file);
-
-      if (file.isBlank()) {
-        throw new IllegalArgumentException("The file to export to must be given");
-      }
+      file = ExportFiles.requireFile(file);
     }
   }
 }
