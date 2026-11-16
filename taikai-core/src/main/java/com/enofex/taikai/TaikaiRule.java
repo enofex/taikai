@@ -92,7 +92,7 @@ public final class TaikaiRule {
    *
    * @param globalNamespace the global namespace (used if no explicit namespace is configured)
    * @param classes optional pre-imported Java classes to analyze
-   * @param excludedClasses optional list of fully qualified class names to exclude
+   * @param excludedClasses the class names or package patterns to exclude
    */
   public void check(@Nullable String globalNamespace, @Nullable JavaClasses classes,
       Collection<String> excludedClasses) {
@@ -171,11 +171,10 @@ public final class TaikaiRule {
    *
    * <p>A configuration that does not name an import mode uses
    * {@link Namespace.IMPORT#WITHOUT_TESTS}. Excluded classes are given either as {@code String}
-   * patterns or as {@code Class<?>} literals, not both in the same collection. A pattern is a fully
-   * qualified class name, a package followed by {@code .*} for the classes directly in it, or a
-   * package followed by {@code ..} for the package and all subpackages. The excluded classes of a
-   * configuration also apply to its own explicit set of classes, but the global exclusions of
-   * {@link Taikai} only apply when the classes are imported from a namespace.</p>
+   * patterns, see {@link Taikai.Builder#excludeClasses(Collection)}, or as {@code Class<?>}
+   * literals, not both in the same collection. The excluded classes of a configuration also apply
+   * to its own explicit set of classes, but the global exclusions of {@link Taikai} only apply when
+   * the classes are imported from a namespace.</p>
    */
   public static final class Configuration {
 

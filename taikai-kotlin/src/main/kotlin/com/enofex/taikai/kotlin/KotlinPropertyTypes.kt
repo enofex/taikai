@@ -6,7 +6,10 @@ import kotlin.metadata.KmProperty
 import kotlin.metadata.jvm.fieldSignature
 import kotlin.metadata.jvm.getterSignature
 
-/** Matches source classifiers or exact erased JVM types, including computed and delegated properties. */
+/**
+ * Matches source classifiers or exact erased JVM types, including computed and delegated
+ * properties.
+ */
 internal fun KmProperty.hasType(owner: JavaClass, typeName: String): Boolean {
     val requested = typeName.replace('$', '.')
     val classifier = returnType.classifier as? KmClassifier.Class

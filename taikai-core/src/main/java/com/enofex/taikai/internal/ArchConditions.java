@@ -1,7 +1,7 @@
 package com.enofex.taikai.internal;
 
-import static com.enofex.taikai.internal.Modifiers.isFieldPublic;
-import static com.enofex.taikai.internal.Modifiers.isFieldStatic;
+import static com.enofex.taikai.internal.Modifiers.isPublic;
+import static com.enofex.taikai.internal.Modifiers.isStatic;
 import static java.util.Objects.requireNonNull;
 
 import com.tngtech.archunit.base.DescribedPredicate;
@@ -16,10 +16,7 @@ import java.util.Collection;
 import java.util.Comparator;
 
 /**
- * Internal utility class for defining general {@link ArchCondition}s used in architectural rules.
- * <p>
- * This class is intended for internal use only and is not part of the public API. Developers should
- * not rely on this class for any public API usage.
+ * {@link ArchCondition}s that several rules share.
  */
 public final class ArchConditions {
 
@@ -27,11 +24,11 @@ public final class ArchConditions {
   }
 
   /**
-   * Rejects matching types anywhere in a method's declared return signature, including
-   * generic arguments, bounds and array component types.
+   * Returns a condition that a method has no matching type in its declared return signature,
+   * including generic arguments, bounds and array component types.
    *
    * @param forbiddenTypes the predicate selecting forbidden return types
-   * @return the return type condition
+   * @return the condition
    */
   public static ArchCondition<JavaMethod> notReturnTypesMatching(
       DescribedPredicate<? super JavaClass> forbiddenTypes) {
@@ -51,11 +48,11 @@ public final class ArchConditions {
   }
 
   /**
-   * Requires at least one matching type in each method's declared return signature, including
-   * generic arguments, bounds and array component types.
+   * Returns a condition that a method has at least one matching type in its declared return
+   * signature, including generic arguments, bounds and array component types.
    *
    * @param requiredTypes the predicate selecting required return types
-   * @return the return type condition
+   * @return the condition
    */
   public static ArchCondition<JavaMethod> returnTypesMatching(
       DescribedPredicate<? super JavaClass> requiredTypes) {
@@ -74,11 +71,11 @@ public final class ArchConditions {
   }
 
   /**
-   * Prevents forbidden types in a field's declared type, including generic arguments, bounds and
-   * array component types.
+   * Returns a condition that a field has no matching type in its declared type, including generic
+   * arguments, bounds and array component types.
    *
    * @param forbiddenTypes the predicate selecting forbidden field types
-   * @return the field type condition
+   * @return the condition
    */
   public static ArchCondition<JavaField> notHaveFieldTypesMatching(
       DescribedPredicate<? super JavaClass> forbiddenTypes) {
@@ -98,9 +95,9 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a method does not declare thrown exceptions.
+   * Returns a condition that a method declares no thrown exceptions.
    *
-   * @return an architectural condition for checking thrown exceptions in methods
+   * @return the condition
    */
   public static ArchCondition<JavaMethod> notDeclareThrownExceptions() {
     return new ArchCondition<>("not declare thrown exceptions") {
@@ -116,15 +113,15 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a field is not public, unless it is static.
+   * Returns a condition that a field is not public, unless it is static.
    *
-   * @return an architectural condition for checking that non-static fields are not public
+   * @return the condition
    */
   public static ArchCondition<JavaField> notBePublicUnlessStatic() {
     return new ArchCondition<>("not be public") {
       @Override
       public void check(JavaField field, ConditionEvents events) {
-        if (!isFieldStatic(field) && isFieldPublic(field)) {
+        if (!isStatic(field) && isPublic(field)) {
           events.add(SimpleConditionEvent.violated(field,
               "Field %s in class %s is public".formatted(
                   field.getName(),
@@ -135,10 +132,11 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a class has a field of the given type.
+   * Returns a condition that a class has at least one field, declared or inherited, of exactly the
+   * given type.
    *
-   * @param typeName the name of the type to check for in the fields of the class
-   * @return an architectural condition for checking if a class has a field of the given type
+   * @param typeName the fully qualified name of the type
+   * @return the condition
    */
   public static ArchCondition<JavaClass> haveFieldOfType(String typeName) {
     return new ArchCondition<>("have a field of type %s".formatted(typeName)) {
@@ -158,11 +156,11 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a class has at least one field, declared or inherited,
-   * matching the given predicate. Synthetic fields are ignored.
+   * Returns a condition that a class has at least one field, declared or inherited, matching the
+   * given predicate. Synthetic fields are ignored.
    *
    * @param requiredFields the predicate selecting the required field
-   * @return an architectural condition for checking if a class has a matching field
+   * @return the condition
    */
   public static ArchCondition<JavaClass> haveFieldMatching(
       DescribedPredicate<? super JavaField> requiredFields) {
@@ -185,10 +183,10 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a field contains all the given modifiers.
+   * Returns a condition that a field has all the given modifiers.
    *
-   * @param requiredModifiers the collection of modifiers that the field is required to have
-   * @return an architectural condition for checking if a field has the required modifiers
+   * @param requiredModifiers the modifiers that the field must have
+   * @return the condition
    */
   public static ArchCondition<JavaField> haveFieldModifiers(
       Collection<JavaModifier> requiredModifiers) {
@@ -207,11 +205,10 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a field does <strong>not</strong> contain
-   * any of the given modifiers.
+   * Returns a condition that a field has none of the given modifiers.
    *
-   * @param forbiddenModifiers the collection of modifiers that the field must not have
-   * @return an architectural condition for checking that a field does not have the given modifiers
+   * @param forbiddenModifiers the modifiers that the field must not have
+   * @return the condition
    */
   public static ArchCondition<JavaField> notHaveFieldModifiers(
       Collection<JavaModifier> forbiddenModifiers) {
@@ -233,10 +230,10 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a method contains all the given modifiers.
+   * Returns a condition that a method has all the given modifiers.
    *
-   * @param requiredModifiers the collection of modifiers that the method is required to have
-   * @return an architectural condition for checking if a method has the required modifiers
+   * @param requiredModifiers the modifiers that the method must have
+   * @return the condition
    */
   public static ArchCondition<JavaMethod> haveMethodModifiers(
       Collection<JavaModifier> requiredModifiers) {
@@ -255,11 +252,10 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a method does <strong>not</strong> contain
-   * any of the given modifiers.
+   * Returns a condition that a method has none of the given modifiers.
    *
-   * @param forbiddenModifiers the collection of modifiers that the method must not have
-   * @return an architectural condition for checking that a method does not have the given modifiers
+   * @param forbiddenModifiers the modifiers that the method must not have
+   * @return the condition
    */
   public static ArchCondition<JavaMethod> notHaveMethodModifiers(
       Collection<JavaModifier> forbiddenModifiers) {
@@ -281,10 +277,10 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a class contains all the given modifiers.
+   * Returns a condition that a class has all the given modifiers.
    *
-   * @param requiredModifiers the collection of modifiers that the class is required to have
-   * @return an architectural condition for checking if a class has the required modifiers
+   * @param requiredModifiers the modifiers that the class must have
+   * @return the condition
    */
   public static ArchCondition<JavaClass> haveClassModifiers(
       Collection<JavaModifier> requiredModifiers) {
@@ -302,11 +298,10 @@ public final class ArchConditions {
   }
 
   /**
-   * Creates a condition that checks if a class does <strong>not</strong> contain
-   * any of the given modifiers.
+   * Returns a condition that a class has none of the given modifiers.
    *
-   * @param forbiddenModifiers the collection of modifiers that the class must not have
-   * @return an architectural condition for checking that a class does not have the given modifiers
+   * @param forbiddenModifiers the modifiers that the class must not have
+   * @return the condition
    */
   public static ArchCondition<JavaClass> notHaveClassModifiers(
       Collection<JavaModifier> forbiddenModifiers) {

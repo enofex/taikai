@@ -35,7 +35,7 @@ fun String.extension(value: String) = this + value
 suspend fun String.suspendExtension(value: String) = this + value
 
 class DefaultDependency {
-    fun text(value: String = com.enofex.taikai.kotlin.JavaDependency.value()) = value
+    fun text(value: String = JavaDependency.value()) = value
 }
 interface Worker { fun inheritedName(): String }
 class DelegatingWorker(private val worker: Worker) : Worker by worker

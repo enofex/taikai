@@ -300,7 +300,7 @@ public final class SarifExport implements TaikaiExport {
      */
     public Settings {
       file = ExportFiles.requireFile(file);
-      sourceDirectories = SourceFiles.requireDirectories(sourceDirectories);
+      sourceDirectories = ExportFiles.requireDirectories(sourceDirectories);
     }
 
     /**

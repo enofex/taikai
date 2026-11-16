@@ -19,13 +19,9 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for Spring {@code @ConfigurationProperties} classes
- * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Spring configuration properties, the classes annotated with
+ * {@code @ConfigurationProperties}:
  *
- * <p>This configurer ensures that configuration property classes follow consistent naming,
- * and that they are properly annotated with {@code @Validated} when needed.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -38,9 +34,6 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *         )
  *     );
  * }</pre>
- *
- * <p>By default, this configurer applies to classes annotated with
- * {@code @ConfigurationProperties}.</p>
  */
 public final class PropertiesConfigurer extends AbstractConfigurer implements
     DisableableConfigurer {
@@ -147,14 +140,12 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that classes matching the given criteria must be annotated with
-   * {@code @ConfigurationProperties}. Interfaces are excluded.
+   * See {@link #shouldBeAnnotatedWithConfigurationProperties()}, but for the classes matching the
+   * given criteria instead.
    *
    * @param classes the classes expected to be configuration properties, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(
       DescribedPredicate<? super JavaClass> classes) {
@@ -168,8 +159,6 @@ public final class PropertiesConfigurer extends AbstractConfigurer implements
    * @param classes the classes expected to be configuration properties
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public PropertiesConfigurer shouldBeAnnotatedWithConfigurationProperties(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {

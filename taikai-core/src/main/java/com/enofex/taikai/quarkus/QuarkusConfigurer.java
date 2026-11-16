@@ -13,14 +13,8 @@ import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
- * Top-level configurer for Quarkus architectural rules using
- * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Quarkus applications, with groups for REST resources, Panache and AI services:
  *
- * <p>This configurer groups sub-configurers for each Quarkus layer — REST resources,
- * Panache entities and repositories, and AI services — and also enforces project-wide
- * Quarkus-specific rules such as prohibiting {@code @Inject} field injection.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -45,6 +39,9 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  */
 public final class QuarkusConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
+  /**
+   * @param configurerContext the context of the builder
+   */
   public QuarkusConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }

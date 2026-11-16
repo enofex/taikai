@@ -1,5 +1,7 @@
 package com.enofex.taikai.exports;
 
+import static com.enofex.taikai.internal.Modifiers.isAbstract;
+import static com.enofex.taikai.internal.Modifiers.isPublic;
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
@@ -9,7 +11,6 @@ import static java.util.stream.Collectors.toList;
 import com.tngtech.archunit.core.domain.Dependency;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -25,14 +26,12 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * The metrics of the measured classes, which are all classes but the synthetic ones. Every package
- * counts on its own, without its subpackages, and nested classes count for their top-level class.
- * Only dependencies between measured classes count, but for the libraries. The component metrics of
- * ArchUnit are not used, as they count packages instead of classes.
+ * The metrics of all classes but the synthetic ones. A package counts without its subpackages, and
+ * a nested class counts for its top-level class.
  *
- * @param prefix the package that all packages are in, or an empty string if they share none
- * @param layeredOrder the packages from top to bottom, each before the packages it depends on but
- *     for the dependencies that close a cycle
+ * @param prefix the package that all packages share, or empty
+ * @param layeredOrder the packages from top to bottom, each above the packages it depends on,
+ *     except where a dependency closes a cycle
  */
 record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<ClassMetric> classes,
     List<InheritanceMetric> inheritance, List<CohesionMetric> cohesion,
@@ -40,7 +39,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     List<String> layeredOrder, List<LibraryUsage> libraryUsages) {
 
   /**
-   * The distance from the main sequence above which a package is in a zone.
+   * Packages farther from the main sequence are in a zone.
    */
   static final double ZONE_DISTANCE = 0.5;
 
@@ -92,7 +91,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
   }
 
   /**
-   * Returns the libraries, the one used by the most classes first.
+   * Returns the libraries, the most used first.
    */
   List<Library> libraries() {
     return this.libraryUsages.stream()
@@ -104,15 +103,12 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
         .toList();
   }
 
-  /**
-   * Returns the name of a package relative to the {@link #prefix()}.
-   */
   String packageLabel(String packageName) {
     return packageName.isEmpty() ? "(default package)" : classLabel(packageName);
   }
 
   /**
-   * Returns the name of a class relative to the {@link #prefix()}.
+   * Returns the name relative to the {@link #prefix()}.
    */
   String classLabel(String className) {
     return this.prefix.isEmpty() || !className.startsWith(this.prefix + ".")
@@ -125,7 +121,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
   }
 
   /**
-   * Returns the average distance of the packages that are coupled to others.
+   * Returns the average distance of the coupled packages.
    */
   OptionalDouble averageDistance() {
     return this.packages.stream()
@@ -136,7 +132,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
   }
 
   /**
-   * Rounds to the two decimal places that are shown, so that values compare as they are shown.
+   * Rounds to the two decimals shown, so that values compare as shown.
    */
   static double rounded(double value) {
     return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
@@ -146,15 +142,12 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     return String.format(Locale.ROOT, "%.2f", rounded(value));
   }
 
-  /**
-   * Formats a missing metric as {@code -}.
-   */
   static String formatted(OptionalDouble value) {
     return value.isPresent() ? formatted(value.getAsDouble()) : "-";
   }
 
   /**
-   * Returns the outermost measured class that the class is nested in, or the class itself.
+   * Returns the outermost measured class around the class.
    */
   private static String topLevelClass(JavaClass javaClass, Map<String, JavaClass> measured) {
     JavaClass topLevelClass = javaClass;
@@ -199,9 +192,6 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
         .toList();
   }
 
-  /**
-   * Returns the longest package, by segments, that contains all given packages.
-   */
   private static String commonPrefix(Collection<String> packageNames) {
     List<String> prefix = null;
 
@@ -228,7 +218,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
   }
 
   /**
-   * The zones of packages far from the main sequence.
+   * The zones far from the main sequence.
    */
   enum Zone {
 
@@ -248,7 +238,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
   }
 
   /**
-   * The metrics of a package of Robert C. Martin, counted in top-level classes.
+   * The metrics of Robert C. Martin for a package, counted in top-level classes.
    *
    * @param afferentCouplings Ca, the classes of other packages that depend on the package
    * @param efferentCouplings Ce, the classes of the package that depend on other packages
@@ -264,7 +254,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     }
 
     /**
-     * Returns I = Ce / (Ca + Ce), or nothing without couplings.
+     * Returns I = Ce / (Ca + Ce), or empty without couplings.
      */
     OptionalDouble instability() {
       int couplings = this.afferentCouplings + this.efferentCouplings;
@@ -275,7 +265,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     }
 
     /**
-     * Returns D = |A + I - 1|, or nothing without couplings.
+     * Returns D = |A + I - 1|, or empty without couplings.
      */
     OptionalDouble distance() {
       OptionalDouble instability = instability();
@@ -286,14 +276,14 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     }
 
     /**
-     * Returns the relative visibility of Herbert Dowalil, the share of public classes.
+     * Returns the share of public classes, after Herbert Dowalil.
      */
     double relativeVisibility() {
       return (double) this.publicClasses / this.classes;
     }
 
     /**
-     * Returns the zone of the package if its rounded distance is above {@link #ZONE_DISTANCE}.
+     * Returns the zone if the rounded distance is above {@link #ZONE_DISTANCE}.
      */
     Optional<Zone> zone() {
       OptionalDouble instability = instability();
@@ -308,8 +298,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     }
 
     /**
-     * Returns the CSS class of the package in the charts: its zone, {@code balanced} or
-     * {@code isolated} without couplings.
+     * Returns the CSS class: the zone, {@code balanced} or {@code isolated}.
      */
     String style() {
       return instability().isEmpty() ? "isolated" : zone().map(Zone::label).orElse("balanced");
@@ -317,38 +306,35 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
   }
 
   /**
-   * The coupling of a top-level class, including its nested classes.
+   * Fan-in and fan-out of a top-level class together with its nested classes.
    */
   record ClassMetric(String name, int fanIn, int fanOut) {
 
   }
 
-  /**
-   * The superclasses and subclasses of a class among the measured classes.
-   */
   record InheritanceMetric(String name, int depth, int subclasses) {
 
   }
 
   /**
-   * The cohesion of a class: LCOM4 is the number of {@code groups} of its methods that count.
+   * LCOM4 is the number of {@code groups}.
    */
   record CohesionMetric(String name, int methods, int groups) {
 
   }
 
   /**
-   * The dependencies of the classes of one package on those of another.
+   * The dependencies of one package on another.
    *
    * @param closesCycle whether the dependency points upwards in the layered order
-   * @param originInstability the instability of the origin, rounded as it is shown
-   * @param targetInstability the instability of the target, rounded as it is shown
+   * @param originInstability the rounded instability of the origin
+   * @param targetInstability the rounded instability of the target
    */
   record PackageDependency(String origin, String target, List<ClassDependency> classDependencies,
       boolean closesCycle, double originInstability, double targetInstability) {
 
     /**
-     * Returns the number of pairs of classes.
+     * Returns the number of class pairs.
      */
     int dependencies() {
       return this.classDependencies.size();
@@ -366,7 +352,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     }
 
     /**
-     * Returns the kind, in which closing a cycle wins over depending on a less stable package.
+     * Returns the kind, where closing a cycle wins.
      */
     Kind kind() {
       if (this.closesCycle) {
@@ -377,16 +363,13 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     }
 
     /**
-     * The kinds of dependencies in the order in which the charts draw them, the most severe on top.
+     * In the order in which the charts draw them, the most severe on top.
      */
     enum Kind {
       REGULAR, ON_LESS_STABLE, CLOSES_CYCLE
     }
   }
 
-  /**
-   * A dependency of a top-level class on another, including their nested classes.
-   */
   record ClassDependency(String origin, String target) {
 
   }
@@ -398,23 +381,14 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
 
   }
 
-  /**
-   * The top-level classes of a package that use a library.
-   */
   record LibraryUsage(String packageName, String library, List<String> classes) {
 
   }
 
-  /**
-   * Packages in a cycle, with the dependencies that close it.
-   */
   record PackageCycle(List<String> packages, List<PackageDependency> closingDependencies) {
 
   }
 
-  /**
-   * The packages of the top-level classes and the dependencies between them.
-   */
   private static final class Packages {
 
     private final List<String> names;
@@ -426,8 +400,8 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     private final List<PackageMetric> metrics;
 
     /**
-     * Visits the classes and their targets in the order of their names, so that the results do not
-     * depend on the order of ArchUnit.
+     * Visits the classes in the order of their names, so that the results do not depend on the
+     * order of ArchUnit.
      */
     Packages(List<JavaClass> topLevelClasses, DependencyGraph classes) {
       this.topLevelClasses = topLevelClasses;
@@ -493,11 +467,11 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
 
         classes[packageIndex]++;
 
-        if (javaClass.isInterface() || javaClass.getModifiers().contains(JavaModifier.ABSTRACT)) {
+        if (javaClass.isInterface() || isAbstract(javaClass)) {
           abstractClasses[packageIndex]++;
         }
 
-        if (javaClass.getModifiers().contains(JavaModifier.PUBLIC)) {
+        if (isPublic(javaClass)) {
           publicClasses[packageIndex]++;
         }
       }
@@ -552,7 +526,7 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     }
 
     /**
-     * Returns the components of more than one package, with the dependencies that close them.
+     * Returns the components with more than one package.
      */
     List<PackageCycle> cycles(List<PackageDependency> dependencies) {
       Map<String, List<PackageDependency>> closingByOrigin = dependencies.stream()

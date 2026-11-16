@@ -28,6 +28,13 @@ final class TestCheckContext implements CheckContext {
     return new TestCheckContext(check, projectDirectory, null, null);
   }
 
+  /**
+   * Returns the given relative path with the separator of the platform, as checks report it.
+   */
+  static String path(String file) {
+    return Path.of(file).toString();
+  }
+
   TestCheckContext withClasses(JavaClasses classes) {
     return new TestCheckContext(this.check, this.projectDirectory, classes, this.configuration);
   }

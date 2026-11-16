@@ -23,18 +23,8 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for transactional code annotated with
- * {@code @Transactional} using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for transactional code, annotated with Spring's or Jakarta's {@code @Transactional}:
  *
- * <p>This configurer ensures that transaction boundaries are effective, reside in the correct
- * layer and are read-only where intended. Spring's default proxy-based transaction management
- * only intercepts calls to public methods, so {@code @Transactional} on non-public methods is
- * silently ignored.</p>
- *
- * <p>Both {@code org.springframework.transaction.annotation.Transactional} and
- * {@code jakarta.transaction.Transactional} are taken into account.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -111,8 +101,6 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
    *     {@code MethodCriteria.nameMatching("(find|get|count).*")}, or an ArchUnit predicate
    * @return this configurer for fluent chaining
    * @throws IllegalStateException if spring-tx or spring-context is not on the classpath
-   * @see com.enofex.taikai.MethodCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public TransactionalConfigurer methodsShouldBeReadOnly(
       DescribedPredicate<? super JavaMethod> methods) {
@@ -127,8 +115,6 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalStateException if spring-tx or spring-context is not on the classpath
-   * @see com.enofex.taikai.MethodCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public TransactionalConfigurer methodsShouldBeReadOnly(
       DescribedPredicate<? super JavaMethod> methods, Configuration configuration) {

@@ -9,22 +9,18 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiException;
-import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.exports.ArchitectureMetrics.CohesionMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.PackageMetric;
 import com.enofex.taikai.exports.spi.ExportContext;
-import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.lang.EvaluationResult;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,20 +42,17 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 /**
- * The fixtures in {@code metrics}, {@code stability} and {@code libraries} are described in their
- * {@code package-info}.
+ * The fixtures are described in their {@code package-info}.
  */
 class MetricsMarkdownExportTest {
 
-  private static final String METRICS = "com.enofex.taikai.exports.metrics";
-  private static final String STABILITY = "com.enofex.taikai.exports.stability";
-  private static final String LIBRARIES = "com.enofex.taikai.exports.libraries";
+  private static final String FIXTURES = "com.enofex.taikai.exports.fixtures";
   private static final List<String> CHARTS = List.of("METRICS-main-sequence.svg",
       "METRICS-package-map.svg", "METRICS-dependencies.svg", "METRICS-dependency-matrix.svg",
       "METRICS-libraries.svg");
 
   /**
-   * The zone of every package of the fixtures, which the charts mark it with.
+   * The zone of every package of the fixtures.
    */
   private static final Map<String, String> PACKAGE_ZONES = Map.of(
       "api", "balanced",
@@ -85,7 +78,8 @@ class MetricsMarkdownExportTest {
             together with the classes nested in it, while inheritance and cohesion count every \
             class on its own. Only dependencies between the measured classes count, except for the \
             libraries the packages use, and never those on the JDK. Packages and classes are named \
-            relative to `com.enofex.taikai.exports.metrics`. The lists show at most 10 classes each.
+            relative to `com.enofex.taikai.exports.fixtures`. The lists show at most 10 classes \
+            each.
 
             **Contents:** [Summary](#summary) \u00b7 [Main Sequence](#main-sequence) \u00b7 \
             [Package Map](#package-map) \u00b7 [Packages](#packages) \u00b7 [Package \
@@ -99,12 +93,12 @@ class MetricsMarkdownExportTest {
             | Packages | 6 |
             | Classes | 9 |
             | Abstract classes and interfaces | 3 |
-            | Average distance from the main sequence | 0.64 |
+            | Average distance from the main sequence | 0.58 |
             | Packages in the zone of pain | 1 |
             | Packages in the zone of uselessness | 1 |
             | Package cycles | 1 |
-            | Dependencies on less stable packages | 0 |
-            | Libraries | 0 |
+            | Dependencies on less stable packages | 1 |
+            | Libraries | 2 |
             | Maximum inheritance depth | 1 |
 
             ## Main Sequence
@@ -147,17 +141,17 @@ class MetricsMarkdownExportTest {
 
             | Package | Classes | Abstract | Ca | Ce | I | A | D | Visibility | Libraries | Zone |
             | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-            | [`api`](src/com/enofex/taikai/exports/metrics/api) | 1 | 1 | 1 | 1 | 0.50 | 1.00 | \
+            | [`api`](src/com/enofex/taikai/exports/fixtures/api) | 1 | 1 | 1 | 1 | 0.50 | 1.00 | \
             0.50 | 1.00 | 0 |  |
-            | [`app`](src/com/enofex/taikai/exports/metrics/app) | 3 | 1 | 0 | 2 | 1.00 | 0.33 | \
-            0.33 | 0.67 | 0 |  |
-            | [`billing`](src/com/enofex/taikai/exports/metrics/billing) | 1 | 0 | 1 | 1 | 0.50 | \
-            0.00 | 0.50 | 1.00 | 0 |  |
-            | [`domain`](src/com/enofex/taikai/exports/metrics/domain) | 2 | 0 | 4 | 0 | 0.00 | \
+            | [`app`](src/com/enofex/taikai/exports/fixtures/app) | 3 | 1 | 1 | 2 | 0.67 | 0.33 | \
+            0.00 | 0.67 | 1 |  |
+            | [`billing`](src/com/enofex/taikai/exports/fixtures/billing) | 1 | 0 | 1 | 1 | 0.50 | \
+            0.00 | 0.50 | 1.00 | 1 |  |
+            | [`domain`](src/com/enofex/taikai/exports/fixtures/domain) | 2 | 0 | 4 | 0 | 0.00 | \
             0.00 | 1.00 | 0.50 | 0 | pain |
-            | [`payment`](src/com/enofex/taikai/exports/metrics/payment) | 1 | 0 | 1 | 1 | 0.50 | \
+            | [`payment`](src/com/enofex/taikai/exports/fixtures/payment) | 1 | 0 | 1 | 1 | 0.50 | \
             0.00 | 0.50 | 1.00 | 0 |  |
-            | [`spi`](src/com/enofex/taikai/exports/metrics/spi) | 1 | 1 | 0 | 1 | 1.00 | 1.00 | \
+            | [`spi`](src/com/enofex/taikai/exports/fixtures/spi) | 1 | 1 | 0 | 1 | 1.00 | 1.00 | \
             1.00 | 1.00 | 0 | uselessness |
 
             Visibility is the relative visibility of Herbert Dowalil, the share of public classes, \
@@ -190,12 +184,12 @@ class MetricsMarkdownExportTest {
             with up to 10 of the pairs of classes behind it. Without them, the packages would have \
             no cycles, so they are the dependencies to remove or invert.
 
-            - [`billing`](src/com/enofex/taikai/exports/metrics/billing), \
-            [`payment`](src/com/enofex/taikai/exports/metrics/payment)
-              - [`payment`](src/com/enofex/taikai/exports/metrics/payment) \u2192 \
-            [`billing`](src/com/enofex/taikai/exports/metrics/billing): 1 dependency
-                - [`payment.Payment`](src/com/enofex/taikai/exports/metrics/payment/Payment.java) \
-            \u2192 [`billing.Invoice`](src/com/enofex/taikai/exports/metrics/billing/Invoice.java)
+            - [`billing`](src/com/enofex/taikai/exports/fixtures/billing), \
+            [`payment`](src/com/enofex/taikai/exports/fixtures/payment)
+              - [`payment`](src/com/enofex/taikai/exports/fixtures/payment) \u2192 \
+            [`billing`](src/com/enofex/taikai/exports/fixtures/billing): 1 dependency
+                - [`payment.Payment`](src/com/enofex/taikai/exports/fixtures/payment/Payment.java) \
+            \u2192 [`billing.Invoice`](src/com/enofex/taikai/exports/fixtures/billing/Invoice.java)
 
             ### Dependencies on Less Stable Packages
 
@@ -205,7 +199,10 @@ class MetricsMarkdownExportTest {
             easily. These dependencies point to a package with a higher instability I, the largest \
             increase first. They are orange in the chart and the matrix, unless they close a cycle.
 
-            None.
+            | Package | Depends on | Instability | Dependencies |
+            | --- | --- | --- | ---: |
+            | [`payment`](src/com/enofex/taikai/exports/fixtures/payment) | \
+            [`app`](src/com/enofex/taikai/exports/fixtures/app) | 0.50 \u2192 0.67 | 1 |
 
             ## Libraries
 
@@ -219,16 +216,17 @@ class MetricsMarkdownExportTest {
             project: those in the measured packages and in the package of at least two segments \
             that they share.
 
-            None.
+            | Library | Packages | Classes |
+            | --- | ---: | ---: |
+            | `jakarta.validation` | 1 | 1 |
+            | `org.springframework` | 1 | 1 |
 
             ### Packages Without Libraries
 
-            [`api`](src/com/enofex/taikai/exports/metrics/api), \
-            [`app`](src/com/enofex/taikai/exports/metrics/app), \
-            [`billing`](src/com/enofex/taikai/exports/metrics/billing), \
-            [`domain`](src/com/enofex/taikai/exports/metrics/domain), \
-            [`payment`](src/com/enofex/taikai/exports/metrics/payment), \
-            [`spi`](src/com/enofex/taikai/exports/metrics/spi)
+            [`api`](src/com/enofex/taikai/exports/fixtures/api), \
+            [`domain`](src/com/enofex/taikai/exports/fixtures/domain), \
+            [`payment`](src/com/enofex/taikai/exports/fixtures/payment), \
+            [`spi`](src/com/enofex/taikai/exports/fixtures/spi)
 
             ## Inheritance
 
@@ -239,14 +237,14 @@ class MetricsMarkdownExportTest {
 
             | Class | Depth |
             | --- | ---: |
-            | [`app.OrderService`](src/com/enofex/taikai/exports/metrics/app/OrderService.java) | \
+            | [`app.OrderService`](src/com/enofex/taikai/exports/fixtures/app/OrderService.java) | \
             1 |
 
             ### Most Extended Classes
 
             | Class | Subclasses |
             | --- | ---: |
-            | [`app.BaseService`](src/com/enofex/taikai/exports/metrics/app/BaseService.java) | 1 |
+            | [`app.BaseService`](src/com/enofex/taikai/exports/fixtures/app/BaseService.java) | 1 |
 
             ## Coupling
 
@@ -257,26 +255,28 @@ class MetricsMarkdownExportTest {
 
             | Class | Fan-in |
             | --- | ---: |
-            | [`domain.Order`](src/com/enofex/taikai/exports/metrics/domain/Order.java) | 4 |
-            | [`api.OrderPort`](src/com/enofex/taikai/exports/metrics/api/OrderPort.java) | 1 |
-            | [`app.BaseService`](src/com/enofex/taikai/exports/metrics/app/BaseService.java) | 1 |
-            | [`app.Report`](src/com/enofex/taikai/exports/metrics/app/Report.java) | 1 |
-            | [`billing.Invoice`](src/com/enofex/taikai/exports/metrics/billing/Invoice.java) | 1 |
-            | [`domain.LineItem`](src/com/enofex/taikai/exports/metrics/domain/LineItem.java) | 1 |
-            | [`payment.Payment`](src/com/enofex/taikai/exports/metrics/payment/Payment.java) | 1 |
+            | [`domain.Order`](src/com/enofex/taikai/exports/fixtures/domain/Order.java) | 4 |
+            | [`api.OrderPort`](src/com/enofex/taikai/exports/fixtures/api/OrderPort.java) | 1 |
+            | [`app.BaseService`](src/com/enofex/taikai/exports/fixtures/app/BaseService.java) | 1 |
+            | [`app.OrderService`](src/com/enofex/taikai/exports/fixtures/app/OrderService.java) | \
+            1 |
+            | [`app.Report`](src/com/enofex/taikai/exports/fixtures/app/Report.java) | 1 |
+            | [`billing.Invoice`](src/com/enofex/taikai/exports/fixtures/billing/Invoice.java) | 1 |
+            | [`domain.LineItem`](src/com/enofex/taikai/exports/fixtures/domain/LineItem.java) | 1 |
+            | [`payment.Payment`](src/com/enofex/taikai/exports/fixtures/payment/Payment.java) | 1 |
 
             ### Classes with the Most Dependencies
 
             | Class | Fan-out |
             | --- | ---: |
-            | [`app.OrderService`](src/com/enofex/taikai/exports/metrics/app/OrderService.java) | \
+            | [`app.OrderService`](src/com/enofex/taikai/exports/fixtures/app/OrderService.java) | \
             4 |
-            | [`api.OrderPort`](src/com/enofex/taikai/exports/metrics/api/OrderPort.java) | 1 |
-            | [`app.BaseService`](src/com/enofex/taikai/exports/metrics/app/BaseService.java) | 1 |
-            | [`billing.Invoice`](src/com/enofex/taikai/exports/metrics/billing/Invoice.java) | 1 |
-            | [`domain.Order`](src/com/enofex/taikai/exports/metrics/domain/Order.java) | 1 |
-            | [`payment.Payment`](src/com/enofex/taikai/exports/metrics/payment/Payment.java) | 1 |
-            | [`spi.Plugin`](src/com/enofex/taikai/exports/metrics/spi/Plugin.java) | 1 |
+            | [`payment.Payment`](src/com/enofex/taikai/exports/fixtures/payment/Payment.java) | 2 |
+            | [`api.OrderPort`](src/com/enofex/taikai/exports/fixtures/api/OrderPort.java) | 1 |
+            | [`app.BaseService`](src/com/enofex/taikai/exports/fixtures/app/BaseService.java) | 1 |
+            | [`billing.Invoice`](src/com/enofex/taikai/exports/fixtures/billing/Invoice.java) | 1 |
+            | [`domain.Order`](src/com/enofex/taikai/exports/fixtures/domain/Order.java) | 1 |
+            | [`spi.Plugin`](src/com/enofex/taikai/exports/fixtures/spi/Plugin.java) | 1 |
 
             ## Cohesion
 
@@ -292,7 +292,7 @@ class MetricsMarkdownExportTest {
 
             | Class | LCOM4 | Methods |
             | --- | ---: | ---: |
-            | [`app.Report`](src/com/enofex/taikai/exports/metrics/app/Report.java) | 2 | 3 |
+            | [`app.Report`](src/com/enofex/taikai/exports/fixtures/app/Report.java) | 2 | 3 |
             """,
         Files.readString(file, StandardCharsets.UTF_8));
   }
@@ -321,6 +321,8 @@ class MetricsMarkdownExportTest {
     assertEquals(List.of("payment \u2192 billing: 1 dependency, closes a cycle"),
         titles(svg, "path", "cycle"));
     assertEquals(5, elements(svg, "path", "edge").size());
+    assertEquals(List.of("payment \u2192 app: 1 dependency, on a less stable package"),
+        titles(svg, "path", "unstable"));
   }
 
   @Test
@@ -335,50 +337,19 @@ class MetricsMarkdownExportTest {
         titles(svg, "g", "dependency-cell"));
     assertEquals(List.of("payment \u2192 billing: 1 dependency, closes a cycle"),
         titles(svg, "g", "closing-cell"));
+    assertEquals(List.of("payment \u2192 app: 1 dependency, on a less stable package"),
+        titles(svg, "g", "unstable-cell"));
     assertEquals(1, elements(svg, "rect", "group").stream()
         .filter(rect -> rect.getAttribute("rx").equals("4"))
         .count());
   }
 
   @Test
-  void shouldMarkDependenciesOnLessStablePackages() throws IOException {
-    String markdown = Files.readString(exportFixtures(STABILITY), StandardCharsets.UTF_8);
-    Document chart = svg(this.directory.resolve("METRICS-dependencies.svg"));
+  void shouldDrawLibraries() {
+    exportFixtures();
 
-    assertTrue(markdown.contains("| Dependencies on less stable packages | 1 |\n"), markdown);
-    assertTrue(markdown.contains("""
-        | Package | Depends on | Instability | Dependencies |
-        | --- | --- | --- | ---: |
-        | `core` | `helper` | 0.33 \u2192 0.50 | 1 |
-        """), markdown);
-    assertEquals(List.of("core \u2192 helper: 1 dependency, on a less stable package"),
-        titles(chart, "path", "unstable"));
-    assertEquals(List.of("batch \u2192 core: 1 dependency", "helper \u2192 text: 1 dependency",
-        "web \u2192 core: 1 dependency"), titles(chart, "path", "edge"));
-    assertEquals(List.of("core \u2192 helper: 1 dependency, on a less stable package"),
-        titles(svg(this.directory.resolve("METRICS-dependency-matrix.svg")), "g",
-            "unstable-cell"));
-  }
-
-  @Test
-  void shouldShowLibrariesOfPackages() throws IOException {
-    String markdown = Files.readString(exportFixtures(LIBRARIES), StandardCharsets.UTF_8);
-
-    assertTrue(markdown.contains("| Libraries | 2 |\n"), markdown);
-    assertTrue(markdown.contains("""
-        | Library | Packages | Classes |
-        | --- | ---: | ---: |
-        | `jakarta.validation` | 2 | 3 |
-        | `org.springframework` | 1 | 1 |
-
-        ### Packages Without Libraries
-
-        `api`
-        """), markdown);
-    assertEquals(List.of(
-            "domain uses jakarta.validation: 2 classes\ndomain.LineItem\ndomain.Order",
-            "web uses jakarta.validation: 1 class\nweb.OrderController",
-            "web uses org.springframework: 1 class\nweb.OrderController"),
+    assertEquals(List.of("app uses org.springframework: 1 class\napp.OrderService",
+            "billing uses jakarta.validation: 1 class\nbilling.Invoice"),
         titles(svg(this.directory.resolve("METRICS-libraries.svg")), "g", "library-cell"));
   }
 
@@ -387,7 +358,7 @@ class MetricsMarkdownExportTest {
     ArchConfiguration.get().setResolveMissingDependenciesFromClassPath(false);
 
     try {
-      exportFixtures(LIBRARIES);
+      exportFixtures();
     } finally {
       ArchConfiguration.get().reset();
     }
@@ -396,78 +367,52 @@ class MetricsMarkdownExportTest {
         StandardCharsets.UTF_8);
 
     assertTrue(markdown.contains("| Libraries | 2 |\n"), markdown);
-    assertTrue(markdown.contains("### Packages Without Libraries\n\n`api`\n"), markdown);
-  }
-
-  @Test
-  void shouldNotDrawLibrariesIfThereAreNone() throws IOException {
-    exportFixtures();
-
-    assertTrue(Files.readString(this.directory.resolve("METRICS-libraries.svg"),
-        StandardCharsets.UTF_8).contains(">No libraries</text>"));
+    assertTrue(markdown.contains(
+        "### Packages Without Libraries\n\n`api`, `domain`, `payment`, `spi`\n"), markdown);
   }
 
   @Test
   void shouldNameNamespace() throws IOException {
     Path file = this.directory.resolve("METRICS.md");
 
-    export(Taikai.builder().namespace("com.enofex.taikai.exports"),
-        settings(file));
+    ExportChecks.export(Taikai.builder().namespace("com.enofex.taikai.exports"),
+        MetricsMarkdownExport.class, settings(file));
 
     assertTrue(Files.readString(file, StandardCharsets.UTF_8).contains(
         "The metrics of `com.enofex.taikai.exports`, measured by Taikai."));
   }
 
   @Test
-  void shouldNotDrawPackagesWithoutCouplings() throws Exception {
-    String markdown = Files.readString(exportFixtures(METRICS + ".domain"),
+  void shouldNotDrawPackageWithoutCouplingsOrLibraries() throws Exception {
+    String markdown = Files.readString(exportFixtures(FIXTURES + ".domain"),
         StandardCharsets.UTF_8);
 
     assertTrue(markdown.contains("| Average distance from the main sequence | - |"), markdown);
     assertTrue(markdown.contains(
-        "| `com.enofex.taikai.exports.metrics.domain` | 2 | 0 | 0 | 0 | - | 0.00 | - | 0.50 "
+        "| `com.enofex.taikai.exports.fixtures.domain` | 2 | 0 | 0 | 0 | - | 0.00 | - | 0.50 "
             + "| 0 |  |"),
         markdown);
     assertTrue(markdown.contains("### Package Cycles\n\nNone.\n"), markdown);
     assertTrue(markdown.contains("| `Order` | 1 |"), markdown);
     assertEquals(Map.of(), zones(this.directory.resolve("METRICS-main-sequence.svg"), "dot"));
+    assertTrue(Files.readString(this.directory.resolve("METRICS-libraries.svg"),
+        StandardCharsets.UTF_8).contains(">No libraries</text>"));
   }
 
   @Test
   void shouldWriteChartsToConfiguredDirectoryAndLinkThem() throws IOException {
     Path file = this.directory.resolve("docs/METRICS.md");
-    Path images = this.directory.resolve("docs/my images");
+    Path images = this.directory.resolve("docs/c# 100%");
 
-    export(classes(METRICS), settings(file)
-        .withImageDirectory(images.toString()));
-
-    String markdown = Files.readString(file, StandardCharsets.UTF_8);
-
-    CHARTS.forEach(chart -> assertTrue(Files.isRegularFile(images.resolve(chart)), chart));
-    assertFalse(Files.exists(this.directory.resolve("docs/METRICS-main-sequence.svg")));
-    assertTrue(markdown.contains("![Abstractness and instability of the packages]"
-        + "(<my images/METRICS-main-sequence.svg>)"), markdown);
-    assertTrue(markdown.contains("![Map of the packages]"
-        + "(<my images/METRICS-package-map.svg>)"), markdown);
-    assertTrue(markdown.contains("![Dependencies between the packages]"
-        + "(<my images/METRICS-dependencies.svg>)"), markdown);
-    assertTrue(markdown.contains("![Dependency structure matrix of the packages]"
-        + "(<my images/METRICS-dependency-matrix.svg>)"), markdown);
-    assertTrue(markdown.contains("![Libraries used by the packages]"
-        + "(<my images/METRICS-libraries.svg>)"), markdown);
-  }
-
-  @Test
-  void shouldEncodeCharactersWithMeaningInLinks() throws IOException {
-    Path file = this.directory.resolve("docs/METRICS.md");
-
-    export(classes(METRICS), settings(file)
-        .withImageDirectory(this.directory.resolve("docs/c#-100%").toString()));
+    export(classes(FIXTURES), settings(file).withImageDirectory(images.toString()));
 
     String markdown = Files.readString(file, StandardCharsets.UTF_8);
 
-    assertTrue(markdown.contains("![Map of the packages](c%23-100%25/METRICS-package-map.svg)"),
-        markdown);
+    for (String chart : CHARTS) {
+      assertTrue(Files.isRegularFile(images.resolve(chart)), chart);
+      assertFalse(Files.exists(file.resolveSibling(chart)), chart);
+      assertTrue(markdown.contains("](<c%23 100%25/" + chart + ">)"), markdown);
+    }
   }
 
   @Test
@@ -481,7 +426,7 @@ class MetricsMarkdownExportTest {
       Files.writeString(chart, "old content that is longer than the new one".repeat(100));
     }
 
-    export(classes(METRICS), settings(file));
+    export(classes(FIXTURES), settings(file));
 
     String markdown = Files.readString(file, StandardCharsets.UTF_8);
 
@@ -526,12 +471,12 @@ class MetricsMarkdownExportTest {
   @Test
   void shouldLinkToSourcesInDefaultDirectories() throws IOException {
     Path file = this.directory.resolve("METRICS.md");
-    Path sources = Path.of("src/test/java/com/enofex/taikai/exports/metrics").toAbsolutePath();
+    Path sources = Path.of("src/test/java/com/enofex/taikai/exports/fixtures").toAbsolutePath();
 
     // on Windows, the temporary directory may be on another drive, which nothing can link to
     assumeTrue(file.getRoot().equals(sources.getRoot()));
 
-    export(classes(METRICS), MetricsMarkdownExport.file(file.toString()));
+    export(classes(FIXTURES), MetricsMarkdownExport.file(file.toString()));
 
     String markdown = Files.readString(file, StandardCharsets.UTF_8);
 
@@ -545,10 +490,10 @@ class MetricsMarkdownExportTest {
   void shouldLinkToDirectoryOfFile() throws IOException {
     copySources();
 
-    Path file = this.directory.resolve("src").resolve(METRICS.replace('.', '/'))
+    Path file = this.directory.resolve("src").resolve(FIXTURES.replace('.', '/'))
         .resolve("api/METRICS.md");
 
-    export(classes(METRICS), settings(file));
+    export(classes(FIXTURES), settings(file));
 
     String markdown = Files.readString(file, StandardCharsets.UTF_8);
 
@@ -578,49 +523,14 @@ class MetricsMarkdownExportTest {
   void shouldWriteNoFileIfExportFails() {
     Path file = this.directory.resolve("METRICS.md");
     MetricsMarkdownExport.Settings settings = settings(file);
-    JavaClasses classes = classes(METRICS);
+    JavaClasses classes = classes(FIXTURES);
     // the export reads the namespace only after it has built the charts
-    ExportContext context = new ExportContext() {
-      @Override
-      public Class<? extends TaikaiExport> export() {
-        return MetricsMarkdownExport.class;
-      }
-
-      @Override
-      public Path projectDirectory() {
-        return MetricsMarkdownExportTest.this.directory;
-      }
-
-      @Override
-      public String namespace() {
-        throw new IllegalStateException("No namespace");
-      }
-
-      @Override
-      public JavaClasses classes() {
-        return classes;
-      }
-
-      @Override
-      public Collection<TaikaiRule> rules() {
-        return List.of();
-      }
-
-      @Override
-      public EvaluationResult evaluate(TaikaiRule rule) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public ClassLoader classLoader() {
-        return MetricsMarkdownExportTest.class.getClassLoader();
-      }
-
-      @Override
-      public <T> Optional<T> configuration(Class<T> type) {
-        return Optional.of(type.cast(settings));
-      }
-    };
+    ExportContext context = TestExportContext.of(MetricsMarkdownExport.class, this.directory)
+        .withNamespace(() -> {
+          throw new IllegalStateException("No namespace");
+        })
+        .withClasses(classes)
+        .withConfiguration(settings);
 
     assertThrows(IllegalStateException.class, () -> new MetricsMarkdownExport().export(context));
 
@@ -629,20 +539,21 @@ class MetricsMarkdownExportTest {
   }
 
   @Test
-  void shouldPutChartsNextToFile() {
+  void shouldPutChartsNextToFileAndLookUpSourcesInMavenAndGradleDirectories() {
     assertEquals("docs", MetricsMarkdownExport.file("docs/METRICS.md").imageDirectory());
     assertEquals(".", MetricsMarkdownExport.file("METRICS.md").imageDirectory());
     assertEquals("docs", MetricsMarkdownExport.file("docs\\METRICS.md").imageDirectory());
     assertEquals("/", MetricsMarkdownExport.file("/METRICS.md").imageDirectory());
     assertEquals("C:\\", MetricsMarkdownExport.file("C:\\METRICS.md").imageDirectory());
+    assertEquals(List.of("src/main/java", "src/main/kotlin", "src/test/java", "src/test/kotlin"),
+        MetricsMarkdownExport.file("METRICS.md").sourceDirectories());
   }
 
   @Test
   void shouldFailWithoutConfiguredFile() {
     Taikai taikai = Taikai.builder()
-        .classes(classes(METRICS))
-        .discoverExports(exports -> exports
-            .exclude(AgentsMarkdownExport.class, SarifExport.class))
+        .classes(classes(FIXTURES))
+        .discoverExports(ExportChecks.only(MetricsMarkdownExport.class))
         .build();
 
     TaikaiException exception = assertThrows(TaikaiException.class, taikai::export);
@@ -660,16 +571,6 @@ class MetricsMarkdownExportTest {
     assertThrows(IllegalArgumentException.class, () -> MetricsMarkdownExport.file(" "));
     assertThrows(IllegalArgumentException.class, () -> settings.withImageDirectory(" "));
     assertThrows(IllegalArgumentException.class, settings::withSourceDirectories);
-  }
-
-  @Test
-  void shouldLookUpSourcesInMavenAndGradleDirectories() {
-    assertEquals(List.of("src/main/java", "src/main/kotlin", "src/test/java", "src/test/kotlin"),
-        MetricsMarkdownExport.file("METRICS.md").sourceDirectories());
-    assertEquals(List.of("src"), MetricsMarkdownExport.file("METRICS.md")
-        .withImageDirectory("images")
-        .withSourceDirectories("src")
-        .sourceDirectories());
   }
 
   /**
@@ -724,8 +625,7 @@ class MetricsMarkdownExportTest {
     }
 
     /**
-     * Returns the metrics of the given number of packages without dependencies, which are all next
-     * to each other in the one layer of the dependency graph.
+     * Returns packages without dependencies, all in one layer of the dependency graph.
      */
     private static ArchitectureMetrics packages(int packages) {
       List<String> names = IntStream.range(0, packages).mapToObj(index -> "p" + index).toList();
@@ -736,9 +636,8 @@ class MetricsMarkdownExportTest {
     }
 
     /**
-     * Returns the metrics of packages that are all dots of their own in the main sequence chart,
-     * next to each other in a grid: their instability grows in steps of 0.01 from 0 to 0.29, then
-     * their abstractness by 0.01.
+     * Returns packages that are all dots of their own, in steps of 0.01 of instability, then of
+     * abstractness.
      */
     private static ArchitectureMetrics dots(int packages) {
       List<PackageMetric> metrics = IntStream.range(0, packages)
@@ -785,8 +684,7 @@ class MetricsMarkdownExportTest {
     }
 
     /**
-     * Returns a graph of the given number of nodes, with dependencies given as pairs of origin and
-     * target.
+     * Returns a graph with the dependencies given as pairs of origin and target.
      */
     private static DependencyGraph graph(int nodes, int... dependencies) {
       DependencyGraph graph = new DependencyGraph(nodes);
@@ -800,7 +698,8 @@ class MetricsMarkdownExportTest {
   }
 
   /**
-   * The cohesion of the fixtures below, each of which says what connects its methods.
+   * The cohesion of the fixtures at the end of this class, each of which says what connects its
+   * methods.
    */
   @Nested
   class ClassCohesion {
@@ -816,8 +715,7 @@ class MetricsMarkdownExportTest {
     }
 
     /**
-     * Returns every fixture with the number of its methods that count and of their groups, or
-     * with none if the class is not measured.
+     * Returns every fixture with its counted methods and groups, or none if it is not measured.
      */
     static Stream<Arguments> fixtures() {
       return Stream.of(
@@ -832,224 +730,15 @@ class MetricsMarkdownExportTest {
           Arguments.of(WithOuterObject.Inner.class, 2, 2),
           Arguments.of(NoOperations.class, 0, 0));
     }
-
-    /**
-     * Both methods use the name, one of them through its getter.
-     */
-    static class ViaGetter {
-
-      private String name;
-
-      String getName() {
-        return this.name;
-      }
-
-      int length() {
-        return getName().length();
-      }
-
-      boolean blank() {
-        return this.name.isBlank();
-      }
-    }
-
-    /**
-     * The methods use different fields, but both call the same static method.
-     */
-    static class ViaStaticMethod {
-
-      private int width;
-      private int height;
-
-      private static int twice(int value) {
-        return 2 * value;
-      }
-
-      int doubledWidth() {
-        return twice(this.width);
-      }
-
-      int doubledHeight() {
-        return twice(this.height);
-      }
-    }
-
-    /**
-     * Both methods call the same abstract method.
-     */
-    abstract static class ViaAbstractMethod {
-
-      abstract String delegate();
-
-      int length() {
-        return delegate().length();
-      }
-
-      boolean blank() {
-        return delegate().isBlank();
-      }
-    }
-
-    /**
-     * The superclass of {@link ViaInheritedMethod}.
-     */
-    static class Registry {
-
-      private final List<String> names = new ArrayList<>();
-
-      void register(String name) {
-        this.names.add(name);
-      }
-    }
-
-    /**
-     * Both methods call the same inherited method.
-     */
-    static class ViaInheritedMethod extends Registry {
-
-      void registerFirst() {
-        register("first");
-      }
-
-      void registerSecond() {
-        register("second");
-      }
-    }
-
-    /**
-     * The methods use different fields and only share a static field, which does not connect
-     * them.
-     */
-    static class ViaStaticField {
-
-      private static final List<String> LOG = new ArrayList<>();
-
-      private String title;
-      private int count;
-
-      String heading() {
-        LOG.add("heading");
-        return this.title.strip();
-      }
-
-      int next() {
-        LOG.add("next");
-        return this.count + 1;
-      }
-    }
-
-    /**
-     * The methods use different fields. {@link #describe()} returns a text made from the id, with
-     * the type of the id and without calling a method, but is no getter, as it is not named like
-     * one.
-     */
-    static class NoGetter {
-
-      private String id;
-      private int count;
-
-      String describe() {
-        return "Order " + this.id;
-      }
-
-      int next() {
-        return this.count + 1;
-      }
-    }
-
-    /**
-     * Both methods use the name, one of them through {@link #name()}, a getter in the style of a
-     * record, which does not count.
-     */
-    static class RecordStyleGetter {
-
-      private String name;
-
-      String name() {
-        return this.name;
-      }
-
-      int length() {
-        return this.name.length();
-      }
-
-      boolean blank() {
-        return name().isBlank();
-      }
-    }
-
-    /**
-     * Two methods use the name. The other two use nothing of their object and do not count.
-     */
-    static class WithUnconnectedMethods {
-
-      private String name;
-
-      int length() {
-        return this.name.length();
-      }
-
-      boolean blank() {
-        return this.name.isBlank();
-      }
-
-      String constant() {
-        return "constant";
-      }
-
-      void nothing() {
-      }
-    }
-
-    /**
-     * The methods of the inner class use different fields of their own and of the outer object,
-     * which they reach through the same field that the compiler generates.
-     */
-    static class WithOuterObject {
-
-      private int first;
-      private int second;
-
-      class Inner {
-
-        private int ownFirst;
-        private int ownSecond;
-
-        void copyFirst() {
-          this.ownFirst = first;
-        }
-
-        void copySecond() {
-          this.ownSecond = second;
-        }
-      }
-    }
-
-    /**
-     * No method uses anything of its object, so the cohesion of the class is not measured.
-     */
-    static class NoOperations {
-
-      void first() {
-      }
-
-      void second() {
-      }
-    }
   }
 
   /**
-   * Exports the fixtures in {@code metrics} to {@code METRICS.md} in the temporary directory and
-   * returns it.
+   * Exports all fixtures to {@code METRICS.md} in the temporary directory.
    */
   private Path exportFixtures() {
-    return exportFixtures(METRICS);
+    return exportFixtures(FIXTURES);
   }
 
-  /**
-   * Exports the fixtures in the given package to {@code METRICS.md} in the temporary directory and
-   * returns it.
-   */
   private Path exportFixtures(String packageName) {
     Path file = this.directory.resolve("METRICS.md");
     export(classes(packageName), settings(file));
@@ -1058,8 +747,8 @@ class MetricsMarkdownExportTest {
   }
 
   /**
-   * Returns the settings that export to the file, with the sources looked up in {@code src} of the
-   * temporary directory, which only {@link #copySources()} fills.
+   * Looks up the sources in {@code src} of the temporary directory, which {@link #copySources()}
+   * fills.
    */
   private MetricsMarkdownExport.Settings settings(Path file) {
     return MetricsMarkdownExport.file(file.toString())
@@ -1067,12 +756,11 @@ class MetricsMarkdownExportTest {
   }
 
   /**
-   * Copies the sources of the fixtures into {@code src} of the temporary directory, so that the
-   * links to them do not depend on where the project is.
+   * Copies the fixtures, so that the links to them do not depend on where the project is.
    */
   private void copySources() throws IOException {
     Path sources = Path.of("src/test/java");
-    Path fixtures = sources.resolve(METRICS.replace('.', '/'));
+    Path fixtures = sources.resolve(FIXTURES.replace('.', '/'));
 
     try (Stream<Path> paths = Files.walk(fixtures)) {
       for (Path path : paths.filter(Files::isRegularFile).toList()) {
@@ -1092,20 +780,11 @@ class MetricsMarkdownExportTest {
   }
 
   private static void export(JavaClasses classes, MetricsMarkdownExport.Settings settings) {
-    export(Taikai.builder().classes(classes), settings);
-  }
-
-  private static void export(Taikai.Builder builder, MetricsMarkdownExport.Settings settings) {
-    builder
-        .discoverExports(exports -> exports
-            .exclude(AgentsMarkdownExport.class, SarifExport.class)
-            .configure(MetricsMarkdownExport.class, settings))
-        .build()
-        .export();
+    ExportChecks.export(Taikai.builder().classes(classes), MetricsMarkdownExport.class, settings);
   }
 
   /**
-   * Returns the zone of every group of the given class in the chart, by the label of the group.
+   * Returns the zone of every group of the given class, by its label.
    */
   private static Map<String, String> zones(Path chart, String groupClass) {
     Map<String, String> zoneByLabel = new LinkedHashMap<>();
@@ -1116,9 +795,6 @@ class MetricsMarkdownExportTest {
     return zoneByLabel;
   }
 
-  /**
-   * Returns the tooltips of the elements with the given tag and class.
-   */
   private static List<String> titles(Document svg, String tag, String elementClass) {
     return elements(svg, tag, elementClass).stream()
         .map(element -> element.getElementsByTagName("title").item(0).getTextContent())
@@ -1129,9 +805,6 @@ class MetricsMarkdownExportTest {
     return elements(svg(chart), "g", groupClass);
   }
 
-  /**
-   * Returns the first text of a group, which names its package.
-   */
   private static String label(Element group) {
     return group.getElementsByTagName("text").item(0).getTextContent();
   }
@@ -1144,9 +817,6 @@ class MetricsMarkdownExportTest {
     }
   }
 
-  /**
-   * Returns the elements with the given tag and class.
-   */
   private static List<Element> elements(Document document, String tag, String elementClass) {
     NodeList nodes = document.getElementsByTagName(tag);
     List<Element> elements = new ArrayList<>();
@@ -1160,5 +830,208 @@ class MetricsMarkdownExportTest {
     }
 
     return elements;
+  }
+
+  /**
+   * Both methods use the name, one of them through its getter.
+   */
+  static class ViaGetter {
+
+    private String name;
+
+    String getName() {
+      return this.name;
+    }
+
+    int length() {
+      return getName().length();
+    }
+
+    boolean blank() {
+      return this.name.isBlank();
+    }
+  }
+
+  /**
+   * The methods use different fields, but both call the same static method.
+   */
+  static class ViaStaticMethod {
+
+    private int width;
+    private int height;
+
+    private static int twice(int value) {
+      return 2 * value;
+    }
+
+    int doubledWidth() {
+      return twice(this.width);
+    }
+
+    int doubledHeight() {
+      return twice(this.height);
+    }
+  }
+
+  /**
+   * Both methods call the same abstract method.
+   */
+  abstract static class ViaAbstractMethod {
+
+    abstract String delegate();
+
+    int length() {
+      return delegate().length();
+    }
+
+    boolean blank() {
+      return delegate().isBlank();
+    }
+  }
+
+  /**
+   * The superclass of {@link ViaInheritedMethod}.
+   */
+  static class Registry {
+
+    private final List<String> names = new ArrayList<>();
+
+    void register(String name) {
+      this.names.add(name);
+    }
+  }
+
+  /**
+   * Both methods call the same inherited method.
+   */
+  static class ViaInheritedMethod extends Registry {
+
+    void registerFirst() {
+      register("first");
+    }
+
+    void registerSecond() {
+      register("second");
+    }
+  }
+
+  /**
+   * The methods use different fields and only share a static field, which does not connect
+   * them.
+   */
+  static class ViaStaticField {
+
+    private static final List<String> LOG = new ArrayList<>();
+
+    private String title;
+    private int count;
+
+    String heading() {
+      LOG.add("heading");
+      return this.title.strip();
+    }
+
+    int next() {
+      LOG.add("next");
+      return this.count + 1;
+    }
+  }
+
+  /**
+   * The methods use different fields. {@link #describe()} uses only the id, but is not named like
+   * a getter.
+   */
+  static class NoGetter {
+
+    private String id;
+    private int count;
+
+    String describe() {
+      return "Order " + this.id;
+    }
+
+    int next() {
+      return this.count + 1;
+    }
+  }
+
+  /**
+   * Both methods use the name, one of them through {@link #name()}, a getter in the style of a
+   * record, which does not count.
+   */
+  static class RecordStyleGetter {
+
+    private String name;
+
+    String name() {
+      return this.name;
+    }
+
+    int length() {
+      return this.name.length();
+    }
+
+    boolean blank() {
+      return name().isBlank();
+    }
+  }
+
+  /**
+   * Two methods use the name. The other two use nothing of their object and do not count.
+   */
+  static class WithUnconnectedMethods {
+
+    private String name;
+
+    int length() {
+      return this.name.length();
+    }
+
+    boolean blank() {
+      return this.name.isBlank();
+    }
+
+    String constant() {
+      return "constant";
+    }
+
+    void nothing() {
+    }
+  }
+
+  /**
+   * The methods of the inner class use different fields of their own and of the outer object,
+   * which they reach through the same field that the compiler generates.
+   */
+  static class WithOuterObject {
+
+    private int first;
+    private int second;
+
+    class Inner {
+
+      private int ownFirst;
+      private int ownSecond;
+
+      void copyFirst() {
+        this.ownFirst = first;
+      }
+
+      void copySecond() {
+        this.ownSecond = second;
+      }
+    }
+  }
+
+  /**
+   * No method uses anything of its object, so the cohesion of the class is not measured.
+   */
+  static class NoOperations {
+
+    void first() {
+    }
+
+    void second() {
+    }
   }
 }

@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Draws the abstractness and instability of the packages coupled to others as dots, sized by their
- * classes, with the main sequence and the zones of pain and uselessness. Packages with the same
- * rounded values share a dot, and a dot without room for its label goes without it.
+ * Draws every coupled package as a dot of its abstractness and instability, with the main sequence
+ * and the zones. Packages with the same rounded values share a dot, and a dot without room for its
+ * label goes without it.
  */
 final class MainSequenceChart {
 
@@ -35,7 +35,7 @@ final class MainSequenceChart {
   private static final double[] TICKS = {0, 0.25, 0.5, 0.75, 1};
 
   /**
-   * How far the zones reach along the axes from their corners.
+   * How far the zones reach from their corners.
    */
   private static final double ZONE = 1 - ArchitectureMetrics.ZONE_DISTANCE;
   private static final double LINE_HEIGHT = 16;
@@ -53,10 +53,6 @@ final class MainSequenceChart {
   private MainSequenceChart() {
   }
 
-  /**
-   * Returns the chart, which leaves out the packages without couplings and their style in the
-   * legend.
-   */
   static String svg(ArchitectureMetrics metrics) {
     StringBuilder svg = Svg.start(WIDTH, HEIGHT, DESCRIPTION, MAIN_SEQUENCE_LABEL,
         Svg.ZONE_LEGEND.subList(0, 3));
@@ -69,10 +65,6 @@ final class MainSequenceChart {
     return Svg.end(svg);
   }
 
-  /**
-   * Defines the clip of the plot and the gradients of the zones, which fade towards the main
-   * sequence.
-   */
   private static void definitions(StringBuilder svg) {
     svg.append("  <defs>\n")
         .append(("    <clipPath id=\"plot\"><rect x=\"%s\" y=\"%s\" width=\"%s\" height=\"%s\" "
@@ -92,9 +84,6 @@ final class MainSequenceChart {
         .formatted(id, number(x1), number(y1), number(x2), number(y2), color, color);
   }
 
-  /**
-   * Draws the plot: a rounded plane with the zones, the grid and the main sequence.
-   */
   private static void plot(StringBuilder svg) {
     svg.append(Svg.rect(LEFT, TOP, SIZE, SIZE, "rx=\"8\" class=\"plane\""))
         .append("  <g clip-path=\"url(#plot)\">\n")
@@ -120,9 +109,6 @@ final class MainSequenceChart {
                 number(SEQUENCE_LABEL_X), number(SEQUENCE_LABEL_Y)), MAIN_SEQUENCE_LABEL));
   }
 
-  /**
-   * Draws the ticks and the titles of the axes, with what their ends mean.
-   */
   private static void axes(StringBuilder svg) {
     double titleY = y(0) + MAX_RADIUS + 40;
     double titleX = Svg.PADDING + 10;
@@ -178,8 +164,8 @@ final class MainSequenceChart {
   }
 
   /**
-   * Places the label of a dot at the first free position: next to it, above or below it, or further
-   * away with a line, or nowhere, as a label on top of others could not be read.
+   * Places the label of a dot at the first free position: next to it, above or below it, or farther
+   * away with a line. A dot without a free position gets no label.
    */
   private static Optional<Label> label(String text, Circle circle, List<Box> obstacles) {
     List<Label> candidates = new ArrayList<>(List.of(
@@ -223,9 +209,6 @@ final class MainSequenceChart {
     return TOP + (1 - abstractness) * SIZE;
   }
 
-  /**
-   * A rectangle that a label or dot covers.
-   */
   private record Box(double x1, double y1, double x2, double y2) {
 
     boolean overlaps(Box other) {
@@ -248,7 +231,7 @@ final class MainSequenceChart {
   }
 
   /**
-   * A label at the baseline {@code y}, with the width estimated from its number of characters.
+   * A label at the baseline {@code y}, with an estimated width.
    */
   private record Label(String content, double x, double y, String anchor, Box box) {
 
@@ -285,14 +268,11 @@ final class MainSequenceChart {
   }
 
   /**
-   * A dot of one or more packages with the same rounded instability and abstractness.
+   * A dot of the packages with the same rounded instability and abstractness.
    */
   private record Dot(String label, String title, String style, int classes, double instability,
       double abstractness) {
 
-    /**
-     * Returns the dot of the given packages, which are sorted by name.
-     */
     static Dot of(List<PackageMetric> packages, ArchitectureMetrics metrics) {
       PackageMetric first = packages.get(0);
 

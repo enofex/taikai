@@ -18,6 +18,30 @@ import org.springframework.validation.annotation.Validated;
 
 class PropertiesConfigurerTest {
 
+  static Stream<Named<Customizer<PropertiesConfigurer>>> allRules() {
+    return Stream.of(
+        Named.of("namesShouldEndWithProperties()",
+            props -> props.namesShouldEndWithProperties()),
+        Named.of("shouldBeAnnotatedWithValidated()",
+            props -> props.shouldBeAnnotatedWithValidated()),
+        Named.of("shouldBeAnnotatedWithConfigurationProperties()",
+            props -> props.shouldBeAnnotatedWithConfigurationProperties()),
+        Named.of("shouldBeRecords()",
+            props -> props.shouldBeRecords()));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("allRules")
+  void shouldNotThrowWhenClassIsNotConfigurationProperties(
+      Customizer<PropertiesConfigurer> rule) {
+    Taikai taikai = Taikai.builder()
+        .classes(RandomUtility.class)
+        .spring(spring -> spring.properties(rule))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
   @Nested
   class NamesShouldEndWithProperties {
 
@@ -146,6 +170,30 @@ class PropertiesConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenSelectedClassesAreConfigurationProperties() {
+      Taikai taikai = Taikai.builder()
+          .classes(MailSettings.class)
+          .spring(spring -> spring.properties(properties -> properties
+              .shouldBeAnnotatedWithConfigurationProperties(
+                  ClassCriteria.nameMatching(".*Settings"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesAreNotConfigurationProperties() {
+      Taikai taikai = Taikai.builder()
+          .classes(CacheSettings.class)
+          .spring(spring -> spring.properties(properties -> properties
+              .shouldBeAnnotatedWithConfigurationProperties(
+                  ClassCriteria.nameMatching(".*Settings"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
   @Nested
@@ -183,27 +231,16 @@ class PropertiesConfigurerTest {
   }
 
   @Nested
-  class UnrelatedClasses {
+  class Disable {
 
-    static Stream<Named<Customizer<PropertiesConfigurer>>> rules() {
-      return Stream.of(
-          Named.of("namesShouldEndWithProperties()",
-              props -> props.namesShouldEndWithProperties()),
-          Named.of("shouldBeAnnotatedWithValidated()",
-              props -> props.shouldBeAnnotatedWithValidated()),
-          Named.of("shouldBeAnnotatedWithConfigurationProperties()",
-              props -> props.shouldBeAnnotatedWithConfigurationProperties()),
-          Named.of("shouldBeRecords()",
-              props -> props.shouldBeRecords()));
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("rules")
-    void shouldNotThrowWhenClassIsNotConfigurationProperties(
-        Customizer<PropertiesConfigurer> rule) {
+    @Test
+    void shouldDisablePropertiesConfigurer() {
       Taikai taikai = Taikai.builder()
-          .classes(RandomUtility.class)
-          .spring(spring -> spring.properties(rule))
+          .classes(InvalidConfig.class)
+          .spring(spring -> spring.properties(props -> {
+            props.namesShouldEndWithProperties();
+            props.disable();
+          }))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -260,20 +297,10 @@ class PropertiesConfigurerTest {
   record RecordApplicationProperties(String name, int port) {
   }
 
-  @Nested
-  class Disable {
+  @ConfigurationProperties("mail")
+  record MailSettings(String host) {
+  }
 
-    @Test
-    void shouldDisablePropertiesConfigurer() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidConfig.class)
-          .spring(spring -> spring.properties(props -> {
-            props.namesShouldEndWithProperties();
-            props.disable();
-          }))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
+  record CacheSettings(int size) {
   }
 }

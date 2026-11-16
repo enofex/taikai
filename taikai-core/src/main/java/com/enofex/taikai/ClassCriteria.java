@@ -23,9 +23,7 @@ public final class ClassCriteria {
   }
 
   /**
-   * Matches classes directly or meta-annotated with the given annotation. Only annotations kept
-   * in the class files can match, so annotations with {@code RetentionPolicy.SOURCE}, such as
-   * {@code jakarta.annotation.Generated}, never do.
+   * Same as {@link #annotatedWith(String)}, with the class instead of its name.
    *
    * @param annotationType the annotation class
    * @return the class predicate
@@ -48,9 +46,7 @@ public final class ClassCriteria {
   }
 
   /**
-   * Matches exactly the given type, for example to forbid {@code java.util.Optional} itself in
-   * {@code noUsageOf} or a return type rule. Subtypes do not match; use
-   * {@link #assignableTo(Class)} for those.
+   * Same as {@link #type(String)}, with the class instead of its name.
    *
    * @param clazz the type
    * @return the class predicate
@@ -78,9 +74,7 @@ public final class ClassCriteria {
   }
 
   /**
-   * Matches classes assignable to the given type, whether by extending a class or implementing an
-   * interface, directly or indirectly. The type itself does not match, so a rule about the
-   * subtypes of an interface does not constrain the interface.
+   * Same as {@link #assignableTo(String)}, with the class instead of its name.
    *
    * @param clazz the supertype
    * @return the class predicate
@@ -108,8 +102,7 @@ public final class ClassCriteria {
   }
 
   /**
-   * Matches classes implementing the given interface, directly or through a superclass or another
-   * interface. Interfaces themselves never match, unlike {@link #assignableTo(Class)}.
+   * Same as {@link #implementing(String)}, with the class instead of its name.
    *
    * @param clazz the interface
    * @return the class predicate

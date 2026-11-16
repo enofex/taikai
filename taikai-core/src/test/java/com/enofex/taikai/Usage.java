@@ -1,9 +1,6 @@
 package com.enofex.taikai;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
-import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
-import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
-import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 
 import com.enofex.taikai.checks.ClassFileVersionCheck;
 import com.enofex.taikai.checks.FileContentCheck;
@@ -17,6 +14,7 @@ import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.java.NullMarking;
 import com.enofex.taikai.test.TestConfigurer;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,8 +55,8 @@ class Usage {
             .classesShouldBeRecords(ClassCriteria.nameMatching("regex"))
             .classesShouldBeRecords(ClassCriteria.nameMatching("regex"), defaultConfiguration())
 
-            .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .classesShouldHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
             .classesShouldHaveField(ClassCriteria.nameMatching("regex"), FieldCriteria.nameMatching("regex"))
             .classesShouldHaveField(ClassCriteria.nameMatching("regex"), FieldCriteria.nameMatching("regex"), defaultConfiguration())
@@ -76,8 +74,8 @@ class Usage {
             .classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName")
             .classesShouldNotBeAnnotatedWith(ClassCriteria.nameMatching("regex"), "org.junit.jupiter.api.DisplayName", defaultConfiguration())
 
-            .classesShouldNotHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .classesShouldNotHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .classesShouldNotHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .classesShouldNotHaveModifiers(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
             .classesShouldResideInPackage("com.enofex.taikai..")
             .classesShouldResideInPackage("com.enofex.taikai..", defaultConfiguration())
@@ -87,11 +85,11 @@ class Usage {
             .classesShouldResideOutsidePackage(ClassCriteria.nameMatching("regex"), "com.enofex.taikai")
             .classesShouldResideOutsidePackage(ClassCriteria.nameMatching("regex"), "com.enofex.taikai", defaultConfiguration())
 
-            .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL))
-            .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL), defaultConfiguration())
+            .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(JavaModifier.PRIVATE, JavaModifier.FINAL))
+            .fieldsShouldHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(JavaModifier.PRIVATE, JavaModifier.FINAL), defaultConfiguration())
 
-            .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL))
-            .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PRIVATE, FINAL), defaultConfiguration())
+            .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PRIVATE, JavaModifier.FINAL))
+            .fieldsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PRIVATE, JavaModifier.FINAL), defaultConfiguration())
 
             .fieldsShouldNotBeOfType(FieldCriteria.nameMatching("regex"), ClassCriteria.type(UUID.class))
             .fieldsShouldNotBeOfType(FieldCriteria.nameMatching("regex"), ClassCriteria.type(UUID.class), defaultConfiguration())
@@ -102,11 +100,11 @@ class Usage {
             .fieldsShouldNotBePublic()
             .fieldsShouldNotBePublic(defaultConfiguration())
 
-            .fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .fieldsShouldNotHaveModifiers(FieldCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
-            .fieldsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .fieldsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .fieldsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .fieldsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
             .finalClassesShouldNotHaveProtectedMembers()
             .finalClassesShouldNotHaveProtectedMembers(defaultConfiguration())
@@ -127,11 +125,11 @@ class Usage {
             .methodsShouldBeAnnotatedWithAllForClass(ClassCriteria.nameMatching("regex"), List.of("org.junit.jupiter.api.Disabled"))
             .methodsShouldBeAnnotatedWithAllForClass(ClassCriteria.nameMatching("regex"), List.of("org.junit.jupiter.api.Disabled"), defaultConfiguration())
 
-            .methodsShouldHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .methodsShouldHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .methodsShouldHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .methodsShouldHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
-            .methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .methodsShouldHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
             .methodsShouldNotBeAnnotatedWith(MethodCriteria.annotatedWith(DisplayName.class), Disabled.class)
             .methodsShouldNotBeAnnotatedWith(MethodCriteria.annotatedWith(DisplayName.class), Disabled.class, defaultConfiguration())
@@ -160,11 +158,11 @@ class Usage {
             .methodsShouldNotDeclareGenericExceptions()
             .methodsShouldNotDeclareGenericExceptions(defaultConfiguration())
 
-            .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .methodsShouldNotHaveModifiers(MethodCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
-            .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC))
-            .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(PUBLIC), defaultConfiguration())
+            .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC))
+            .methodsShouldNotHaveModifiersForClass(ClassCriteria.nameMatching("regex"), List.of(JavaModifier.PUBLIC), defaultConfiguration())
 
             .methodsShouldNotReturn(MethodCriteria.nameMatching("find.*"), ClassCriteria.type(Optional.class))
             .methodsShouldNotReturn(MethodCriteria.nameMatching("find.*"), ClassCriteria.type(Optional.class), defaultConfiguration())
@@ -297,10 +295,10 @@ class Usage {
             .loggersShouldFollowConventions(Logger.class, "logger", defaultConfiguration())
             .loggersShouldFollowConventions("java.util.logging.Logger", "logger")
             .loggersShouldFollowConventions("java.util.logging.Logger", "logger", defaultConfiguration())
-            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL))
-            .loggersShouldFollowConventions(Logger.class, "logger", List.of(PRIVATE, FINAL), defaultConfiguration())
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(PRIVATE, FINAL))
-            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(PRIVATE, FINAL), defaultConfiguration()))
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(JavaModifier.PRIVATE, JavaModifier.FINAL))
+            .loggersShouldFollowConventions(Logger.class, "logger", List.of(JavaModifier.PRIVATE, JavaModifier.FINAL), defaultConfiguration())
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(JavaModifier.PRIVATE, JavaModifier.FINAL))
+            .loggersShouldFollowConventions("java.util.logging.Logger", "logger", List.of(JavaModifier.PRIVATE, JavaModifier.FINAL), defaultConfiguration()))
         .quarkus(quarkus -> quarkus
             .noInjectionFields()
             .noInjectionFields(defaultConfiguration())
@@ -576,7 +574,7 @@ class Usage {
         .namespace("com.enofex.taikai")
         .java(java -> {
           DEFAULT_JAVA_PROFILE.customize(java);
-          java.classesShouldHaveModifiers(ClassCriteria.nameMatching(".*"), List.of(PRIVATE, FINAL));
+          java.classesShouldHaveModifiers(ClassCriteria.nameMatching(".*"), List.of(JavaModifier.PRIVATE, JavaModifier.FINAL));
         })
         .test(DEFAULT_TEST_PROFILE)
         .build()

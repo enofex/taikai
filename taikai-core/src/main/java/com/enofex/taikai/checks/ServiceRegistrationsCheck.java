@@ -193,11 +193,8 @@ public final class ServiceRegistrationsCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no directory is given
      */
     public Settings {
-      directories = List.copyOf(directories);
-
-      if (directories.isEmpty()) {
-        throw new IllegalArgumentException("At least one directory must be given");
-      }
+      directories = CheckSettings.requireNotEmpty(directories,
+          "At least one directory must be given");
     }
   }
 }

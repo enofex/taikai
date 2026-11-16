@@ -6,15 +6,9 @@ import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
- * Top-level configurer for Jakarta Persistence (JPA) architectural rules using
- * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Jakarta Persistence (JPA) code, which apply to any JPA provider, as they only reference
+ * the {@code jakarta.persistence} annotations by name:
  *
- * <p>The rules only depend on the {@code jakarta.persistence} annotations, so they apply to any
- * JPA provider or framework, such as Spring Data JPA, Quarkus Hibernate ORM or Jakarta EE.
- * Annotations are referenced by name, so no compile-time dependency on the JPA API is
- * required.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -33,6 +27,9 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  */
 public final class JpaConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
+  /**
+   * @param configurerContext the context of the builder
+   */
   public JpaConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }

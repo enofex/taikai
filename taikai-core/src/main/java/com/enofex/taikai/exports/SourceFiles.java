@@ -19,14 +19,13 @@ import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Finds the source files of classes and the directories of packages in source directories: a file
- * in the directory of its package, or else the only file of its name that declares the package, as
- * Kotlin files may be anywhere.
+ * Finds the source files of classes: in the directory of their package, or else the only file of
+ * their name that declares the package, as Kotlin files may be anywhere.
  */
 final class SourceFiles {
 
   /**
-   * The source directories of Maven and Gradle in Java and Kotlin.
+   * The source directories of Maven and Gradle.
    */
   static final List<String> DEFAULT_DIRECTORIES = List.of(
       "src/main/java", "src/main/kotlin", "src/test/java", "src/test/kotlin");
@@ -43,26 +42,10 @@ final class SourceFiles {
     this.directories = directories;
   }
 
-  /**
-   * Returns the lookup in source directories relative to the project directory.
-   */
   static SourceFiles in(Path projectDirectory, List<String> directories) {
     return new SourceFiles(directories.stream()
         .map(directory -> projectDirectory.resolve(directory).normalize())
         .toList());
-  }
-
-  /**
-   * Returns the given directories, of which there must be at least one.
-   */
-  static List<String> requireDirectories(List<String> directories) {
-    List<String> required = List.copyOf(directories);
-
-    if (required.isEmpty()) {
-      throw new IllegalArgumentException("At least one source directory must be given");
-    }
-
-    return required;
   }
 
   Optional<Path> find(SourceCodeLocation location) {
@@ -93,10 +76,6 @@ final class SourceFiles {
         .findFirst();
   }
 
-  /**
-   * Returns the only file of the given name that declares the package, so that the file of another
-   * class of that name is not taken.
-   */
   private Optional<Path> uniqueByName(String packageName, String fileName) {
     List<Path> files = byName().getOrDefault(fileName, List.of()).stream()
         .filter(file -> declares(file, packageName))
@@ -106,8 +85,8 @@ final class SourceFiles {
   }
 
   /**
-   * Returns whether a file declares the package, read leniently, so that neither a byte order mark
-   * nor bytes that are not UTF-8 hide it.
+   * Reads the file leniently, so that a byte order mark or bytes that are not UTF-8 do not hide the
+   * package.
    */
   private static boolean declares(Path file, String packageName) {
     try {
@@ -137,7 +116,7 @@ final class SourceFiles {
   }
 
   /**
-   * Adds the files in the directory and below, skipping those that cannot be read.
+   * Skips the files that cannot be read.
    */
   private static void addFiles(Path directory, Map<String, List<Path>> files) {
     if (!Files.isDirectory(directory)) {

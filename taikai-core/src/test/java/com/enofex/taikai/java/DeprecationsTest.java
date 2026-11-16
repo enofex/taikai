@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.java.DeprecatedApi.DeprecatedClass;
-import com.enofex.taikai.java.DeprecatedApi.DeprecatedHolder;
+import com.enofex.taikai.java.fixtures.deprecations.DeprecatedApi.DeprecatedClass;
+import com.enofex.taikai.java.fixtures.deprecations.DeprecatedApi.DeprecatedHolder;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;

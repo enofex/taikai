@@ -28,14 +28,8 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces best practices for JUnit tests using
- * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for the naming, visibility, annotations and content of JUnit test classes and methods:
  *
- * <p>This configurer helps ensure that test classes and methods follow consistent standards,
- * including naming, visibility, annotation usage and content (assertions or verifications).
- * It applies to both {@code @Test} and {@code @ParameterizedTest} methods.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -55,9 +49,6 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *         )
  *     );
  * }</pre>
- *
- * <p>Each rule is internally wrapped in a {@link TaikaiRule}, allowing you to customize
- * configurations such as namespaces or import scopes.</p>
  */
 public final class JUnitConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -241,14 +232,26 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
   }
 
   /**
+   * See {@link #classesShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for
+   * customization.
+   *
+   * @param configuration the rule configuration
+   * @return this configurer for fluent chaining
+   */
+  public JUnitConfigurer classesShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
+    return addRule(TaikaiRule.of(noClasses()
+            .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
+            .as("Classes should not be annotated with %s".formatted(ANNOTATION_DISABLED)),
+        configuration));
+  }
+
+  /**
    * Adds a rule that classes matching the given criteria must be package-private. Interfaces are
    * excluded.
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public JUnitConfigurer classesShouldBePackagePrivate(
       DescribedPredicate<? super JavaClass> classes) {
@@ -262,8 +265,6 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
    * @param classes the classes to check
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public JUnitConfigurer classesShouldBePackagePrivate(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
@@ -272,20 +273,6 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
             .and().doNotHaveModifier(JavaModifier.SYNTHETIC)
             .should().bePackagePrivate()
             .as("Classes %s should be package-private".formatted(classes.getDescription())),
-        configuration));
-  }
-
-  /**
-   * See {@link #classesShouldNotBeAnnotatedWithDisabled()}, but with {@link Configuration} for
-   * customization.
-   *
-   * @param configuration the rule configuration
-   * @return this configurer for fluent chaining
-   */
-  public JUnitConfigurer classesShouldNotBeAnnotatedWithDisabled(Configuration configuration) {
-    return addRule(TaikaiRule.of(noClasses()
-            .should().beMetaAnnotatedWith(ANNOTATION_DISABLED)
-            .as("Classes should not be annotated with %s".formatted(ANNOTATION_DISABLED)),
         configuration));
   }
 

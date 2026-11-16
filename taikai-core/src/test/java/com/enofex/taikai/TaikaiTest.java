@@ -67,7 +67,8 @@ class TaikaiTest {
 
     Taikai taikai = Taikai.builder()
         .classes(TaikaiTest.class)
-        .excludeClasses("com.enofex.taikai.foo.ClassToExclude", "com.enofex.taikai.bar.ClassToExclude")
+        .excludeClasses("com.enofex.taikai.foo.ClassToExclude",
+            "com.enofex.taikai.bar.ClassToExclude")
         .failOnEmpty(true)
         .addRules(rules)
         .build();
@@ -285,7 +286,8 @@ class TaikaiTest {
         .namespace("com.enofex.taikai.java")
         .excludeClasses(ClassCriteria.simpleNameMatching("ImportPatterns"))
         .excludeClasses(ClassCriteria.nameMatching(".*Naming"))
-        .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*(Patterns|Naming)")))
+        .java(java -> java.classesShouldBeInterfaces(
+            ClassCriteria.nameMatching(".*(Patterns|Naming)")))
         .build();
 
     assertEquals(2, taikai.excludedCriteria().size());
@@ -298,7 +300,8 @@ class TaikaiTest {
         .namespace("com.enofex.taikai.java")
         .excludeClasses("com.enofex.taikai.java.ImportPatterns")
         .excludeClasses(ClassCriteria.nameMatching(".*Naming"))
-        .java(java -> java.classesShouldBeInterfaces(ClassCriteria.nameMatching(".*(Patterns|Naming)")))
+        .java(java -> java.classesShouldBeInterfaces(
+            ClassCriteria.nameMatching(".*(Patterns|Naming)")))
         .build();
 
     assertDoesNotThrow(taikai::check);

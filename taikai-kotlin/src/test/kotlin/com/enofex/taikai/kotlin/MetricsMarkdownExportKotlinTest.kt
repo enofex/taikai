@@ -29,13 +29,33 @@ class MetricsMarkdownExportKotlinTest {
             Class.forName("com.enofex.taikai.kotlin.fixtures.MultiFileFixtures"),
             DefaultArguments::class.java)
 
-        MetricsMarkdownExport().export(context(classes, MetricsMarkdownExport.file(file.toString())))
+        MetricsMarkdownExport().export(
+            context(classes, MetricsMarkdownExport.file(file.toString())))
 
         val markdown = Files.readString(file)
 
         assertTrue(markdown.contains("### Least Cohesive Classes\n\nNone."), markdown)
         assertTrue(markdown.contains("| Libraries | 0 |"), markdown)
     }
+
+    /** The context of the export, which Taikai provides when it discovers and runs the export. */
+    private fun context(classes: JavaClasses, settings: MetricsMarkdownExport.Settings) =
+        object : ExportContext {
+            override fun export(): Class<out TaikaiExport> = MetricsMarkdownExport::class.java
+            override fun projectDirectory(): Path = directory
+            override fun namespace(): String? = null
+            override fun classes(): JavaClasses = classes
+            override fun rules(): Collection<TaikaiRule> = emptyList()
+            override fun evaluate(rule: TaikaiRule): EvaluationResult =
+                throw UnsupportedOperationException()
+            override fun classLoader(): ClassLoader = javaClass.classLoader
+            override fun <T : Any> configuration(type: Class<T>): Optional<T> =
+                if (type == MetricsMarkdownExport.Settings::class.java) {
+                    Optional.of(type.cast(settings))
+                } else {
+                    Optional.empty()
+                }
+        }
 
     /** Calls [add] with its default argument through a function that the compiler generates. */
     class DefaultArguments {
@@ -51,20 +71,4 @@ class MetricsMarkdownExportKotlinTest {
             name = "renamed"
         }
     }
-
-    /** The context of the export, which Taikai provides when it discovers and runs the export. */
-    private fun context(classes: JavaClasses, settings: MetricsMarkdownExport.Settings) =
-        object : ExportContext {
-            override fun export(): Class<out TaikaiExport> = MetricsMarkdownExport::class.java
-            override fun projectDirectory(): Path = directory
-            override fun namespace(): String? = null
-            override fun classes(): JavaClasses = classes
-            override fun rules(): Collection<TaikaiRule> = emptyList()
-            override fun evaluate(rule: TaikaiRule): EvaluationResult =
-                throw UnsupportedOperationException()
-            override fun classLoader(): ClassLoader = javaClass.classLoader
-            override fun <T : Any> configuration(type: Class<T>): Optional<T> =
-                if (type == MetricsMarkdownExport.Settings::class.java) Optional.of(type.cast(settings))
-                else Optional.empty()
-        }
 }

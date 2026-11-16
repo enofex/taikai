@@ -1,16 +1,29 @@
 package com.enofex.taikai.jpa;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.Configurers;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class JpaConfigurerTest {
+
+  @Test
+  void shouldReturnSameConfigurerFromEveryMethod() {
+    JpaConfigurer configurer = new JpaConfigurer(new ConfigurerContext(null, new Configurers()));
+
+    assertAll(
+        () -> assertSame(configurer,
+            configurer.entities(EntitiesConfigurer::shouldBePackagePrivate)),
+        () -> assertSame(configurer, configurer.disable()));
+  }
 
   @Nested
   class Entities {
@@ -51,13 +64,6 @@ class JpaConfigurerTest {
           .build();
 
       assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldReturnSameConfigurerFromDisable() {
-      Taikai.builder()
-          .jpa(jpa -> assertSame(jpa, jpa.disable()))
-          .build();
     }
   }
 

@@ -20,13 +20,8 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for Quarkus (and Jakarta EE) REST APIs
- * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Quarkus and Jakarta REST resources, the classes annotated with {@code @Path}:
  *
- * <p>This configurer ensures that resource classes follow consistent naming,
- * annotations and dependency rules, promoting clarity and maintainability.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -39,8 +34,6 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *         )
  *     );
  * }</pre>
- *
- * <p>By default, this configurer checks classes annotated with {@code @Path}.</p>
  */
 public final class ResourcesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -116,7 +109,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule that resource classes (matching the default name pattern) must be annotated with
+   * Adds a rule that classes with names ending with {@code Resource} must be annotated with
    * {@code @Path}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
@@ -138,14 +131,12 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
   }
 
   /**
-   * Adds a rule that resource classes matching the given criteria must be annotated with
-   * {@code @Path}. Interfaces are excluded.
+   * See {@link #shouldBeAnnotatedWithPath()}, but for the classes matching the given criteria
+   * instead.
    *
    * @param classes the resource classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ResourcesConfigurer shouldBeAnnotatedWithPath(
       DescribedPredicate<? super JavaClass> classes) {
@@ -159,8 +150,6 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
    * @param classes the resource classes
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ResourcesConfigurer shouldBeAnnotatedWithPath(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {

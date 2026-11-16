@@ -17,14 +17,11 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Draws the dependencies between packages as a layered graph: every package above the packages it
- * depends on and in the color of its zone, the arrows the thicker the more classes depend. Arrows
- * upwards are red and close a cycle, the other arrows to a less stable package are orange.
+ * Draws the package dependencies as a layered graph: every package above the packages it depends
+ * on. Red arrows point upwards and close a cycle, orange ones depend on a less stable package.
  *
- * <p>The layers follow the {@linkplain DependencyGraph#layeredPositions(List) layered order}, and
- * the packages of a layer the average position of their neighbors, which reduces crossings. A graph
- * wider than {@value #MAX_WIDTH} pixels could not be read on a page, so a note refers to the
- * {@link DependencyMatrix} instead.</p>
+ * <p>A graph wider than {@value #MAX_WIDTH} pixels could not be read on a page, so a note refers to
+ * the {@link DependencyMatrix} instead.</p>
  */
 final class DependencyChart {
 
@@ -86,13 +83,13 @@ final class DependencyChart {
    */
   static String svg(ArchitectureMetrics metrics) {
     return metrics.packages().isEmpty()
-        ? Svg.empty(Svg.headerWidth(TITLE, LEGEND), DESCRIPTION, TITLE, LEGEND)
+        ? Svg.empty(DESCRIPTION, TITLE, LEGEND, Svg.NO_PACKAGES)
         : new DependencyChart(metrics).draw();
   }
 
   /**
-   * Returns the rank of every package: 0 without a dependency on a package below it, else one more
-   * than the deepest such package.
+   * Returns the rank of every package: one more than the deepest package below it that it depends
+   * on.
    */
   private static int[] ranks(List<String> layeredOrder, Map<String, Integer> indexOf,
       List<Edge> edges) {
@@ -116,9 +113,6 @@ final class DependencyChart {
     return rank;
   }
 
-  /**
-   * Adds a node to its layer and returns its index.
-   */
   private int add(Node node) {
     int index = this.nodes.size();
     this.nodes.add(node);
@@ -151,8 +145,8 @@ final class DependencyChart {
   }
 
   /**
-   * Orders every layer by the average position of the neighbors above, then below, and keeps the
-   * order with the fewest crossings.
+   * Orders the layers by the average position of the neighbors and keeps the order with the fewest
+   * crossings.
    */
   private void orderLayers() {
     List<List<Integer>> best = copy(this.layers);
@@ -199,8 +193,7 @@ final class DependencyChart {
   }
 
   /**
-   * Returns the number of crossings between adjacent layers, counted as inversions with a Fenwick
-   * tree.
+   * Returns the crossings between adjacent layers, counted as inversions with a Fenwick tree.
    */
   private long crossings() {
     long crossings = 0;
@@ -230,9 +223,6 @@ final class DependencyChart {
     return crossings;
   }
 
-  /**
-   * Returns the sum of the Fenwick tree up to the position, starting at 1.
-   */
   private static long prefix(long[] counts, int position) {
     long sum = 0;
 
@@ -244,8 +234,7 @@ final class DependencyChart {
   }
 
   /**
-   * Returns the horizontal center of every node: the layers are packed and centered, then the nodes
-   * move towards their neighbors as far as their layer allows.
+   * Returns the horizontal center of every node, as close to its neighbors as its layer allows.
    */
   private double[] positions() {
     double[] position = new double[this.nodes.size()];
@@ -298,8 +287,8 @@ final class DependencyChart {
   }
 
   /**
-   * Places the nodes of a layer as close to their desired positions as their order and gaps allow:
-   * halfway between pushing overlapping nodes to the right and to the left.
+   * Places the nodes of a layer close to their desired positions: halfway between pushing
+   * overlapping nodes to the right and to the left.
    */
   private void place(List<Integer> nodes, double[] desired, double[] position) {
     int count = nodes.size();
@@ -323,9 +312,6 @@ final class DependencyChart {
     }
   }
 
-  /**
-   * Returns the distance between the centers of the node at the index and the next one.
-   */
   private double spacing(List<Integer> nodes, int index) {
     int node = nodes.get(index);
     int next = nodes.get(index + 1);
@@ -344,8 +330,8 @@ final class DependencyChart {
   }
 
   /**
-   * Lays out and draws the graph, without the layout if the nodes of a layer alone are too wide, as
-   * it would take long.
+   * Lays out and draws the graph. A layer that alone is too wide skips the layout, which would take
+   * long.
    */
   private String draw() {
     if (this.layers.stream()
@@ -404,7 +390,7 @@ final class DependencyChart {
   }
 
   private static String tooWide() {
-    return Svg.empty(Svg.headerWidth(TITLE, LEGEND), DESCRIPTION, TITLE, LEGEND, TOO_WIDE);
+    return Svg.empty(DESCRIPTION, TITLE, LEGEND, TOO_WIDE);
   }
 
   private static void definitions(StringBuilder svg) {
@@ -419,9 +405,6 @@ final class DependencyChart {
     svg.append("  </defs>\n");
   }
 
-  /**
-   * Returns the CSS class of the arrows of a kind of dependency.
-   */
   private static String style(Kind kind) {
     return switch (kind) {
       case REGULAR -> "edge";
@@ -437,9 +420,8 @@ final class DependencyChart {
   }
 
   /**
-   * Returns where every chain leaves its upper and enters its lower package, at the index of the
-   * chain times two, plus one for the lower end. The ends spread over the width of the package, so
-   * that arrows do not start on top of each other.
+   * Returns where every chain leaves and enters its packages, spread over their width, at the index
+   * of the chain times two, plus one for the lower end.
    */
   private double[] ports() {
     Map<Integer, List<int[]>> bottoms = new HashMap<>();
@@ -540,8 +522,8 @@ final class DependencyChart {
   }
 
   /**
-   * A dependency between the upper and the lower package in the layered order, whose depending
-   * package is the upper one unless it closes a cycle.
+   * A dependency between the upper and the lower package; the upper one depends on the lower one
+   * unless the dependency closes a cycle.
    */
   private record Edge(int upper, int lower, PackageDependency dependency) {
 
@@ -555,9 +537,6 @@ final class DependencyChart {
     }
   }
 
-  /**
-   * The nodes of a dependency from the upper to the lower package.
-   */
   private record Chain(List<Integer> nodes, PackageDependency dependency) {
 
     boolean isUpwards() {

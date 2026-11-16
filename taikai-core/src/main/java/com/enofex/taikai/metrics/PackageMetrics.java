@@ -1,12 +1,12 @@
 package com.enofex.taikai.metrics;
 
+import static com.enofex.taikai.internal.Modifiers.isPublic;
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toCollection;
 
 import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -83,7 +83,7 @@ final class PackageMetrics {
           }
 
           long publicClasses = topLevelClasses.stream()
-              .filter(javaClass -> javaClass.getModifiers().contains(JavaModifier.PUBLIC))
+              .filter(javaClass -> isPublic(javaClass))
               .count();
           double relativeVisibility = rounded((double) publicClasses / topLevelClasses.size());
 

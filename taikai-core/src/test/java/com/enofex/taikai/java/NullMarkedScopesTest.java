@@ -12,20 +12,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.java.nullmarked.NonNullByDefault;
-import com.enofex.taikai.java.nullmarked.NullableByDefault;
-import com.enofex.taikai.java.nullmarked.custom.MarkedByCustomPackage;
-import com.enofex.taikai.java.nullmarked.custom.OptedOutByCustomAnnotation;
-import com.enofex.taikai.java.nullmarked.marked.MarkedByPackage;
-import com.enofex.taikai.java.nullmarked.marked.OptedOutClass;
-import com.enofex.taikai.java.nullmarked.marked.OptedOutConstructor;
-import com.enofex.taikai.java.nullmarked.marked.OptedOutMethod;
-import com.enofex.taikai.java.nullmarked.optedout.OptedOutByPackage;
-import com.enofex.taikai.java.nullmarked.unmarked.BothAnnotations;
-import com.enofex.taikai.java.nullmarked.unmarked.MarkedClass;
-import com.enofex.taikai.java.nullmarked.unmarked.MarkedCodeUnits;
-import com.enofex.taikai.java.nullmarked.unmarked.NotMarked;
-import com.enofex.taikai.java.nullmarked.unmarked.OptedOutNestedClass;
+import com.enofex.taikai.java.fixtures.nullmarked.NonNullByDefault;
+import com.enofex.taikai.java.fixtures.nullmarked.NullableByDefault;
+import com.enofex.taikai.java.fixtures.nullmarked.custom.MarkedByCustomPackage;
+import com.enofex.taikai.java.fixtures.nullmarked.custom.OptedOutByCustomAnnotation;
+import com.enofex.taikai.java.fixtures.nullmarked.marked.MarkedByPackage;
+import com.enofex.taikai.java.fixtures.nullmarked.marked.OptedOutClass;
+import com.enofex.taikai.java.fixtures.nullmarked.marked.OptedOutConstructor;
+import com.enofex.taikai.java.fixtures.nullmarked.marked.OptedOutMethod;
+import com.enofex.taikai.java.fixtures.nullmarked.optedout.OptedOutByPackage;
+import com.enofex.taikai.java.fixtures.nullmarked.unmarked.BothAnnotations;
+import com.enofex.taikai.java.fixtures.nullmarked.unmarked.MarkedClass;
+import com.enofex.taikai.java.fixtures.nullmarked.unmarked.MarkedCodeUnits;
+import com.enofex.taikai.java.fixtures.nullmarked.unmarked.NotMarked;
+import com.enofex.taikai.java.fixtures.nullmarked.unmarked.OptedOutNestedClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.IOException;
@@ -47,7 +47,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class NullMarkedScopesTest {
 
   private static final JavaClasses FIXTURES = new ClassFileImporter()
-      .importPackages("com.enofex.taikai.java.nullmarked");
+      .importPackages("com.enofex.taikai.java.fixtures.nullmarked");
   private static final NullMarking CUSTOM_MARKING = NullMarking.annotations(
       NonNullByDefault.class.getName(), NullableByDefault.class.getName());
 

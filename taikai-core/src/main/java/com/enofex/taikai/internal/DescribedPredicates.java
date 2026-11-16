@@ -8,11 +8,7 @@ import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import java.util.Collection;
 
 /**
- * Internal utility class for defining general {@link DescribedPredicate}s used in architectural
- * rules.
- * <p>
- * This class is intended for internal use only and is not part of the public API. Developers should
- * not rely on this class for any public API usage.
+ * {@link DescribedPredicate}s that several rules share.
  */
 public final class DescribedPredicates {
 
@@ -20,12 +16,12 @@ public final class DescribedPredicates {
   }
 
   /**
-   * Creates a predicate that checks if an element is annotated with the given annotation.
+   * Returns a predicate that an element is annotated with the given annotation.
    *
-   * @param annotation      the annotation to check for
-   * @param isMetaAnnotated {@code true} if the annotation should be meta-annotated,
-   *                        {@code false} otherwise
-   * @return a described predicate for the annotation check
+   * @param annotation the fully qualified name of the annotation
+   * @param isMetaAnnotated whether an annotation that is itself annotated with the annotation
+   *     counts as well, besides the annotation directly on the element
+   * @return the predicate
    */
   public static DescribedPredicate<CanBeAnnotated> annotatedWith(String annotation,
       boolean isMetaAnnotated) {
@@ -39,12 +35,12 @@ public final class DescribedPredicates {
   }
 
   /**
-   * Creates a predicate that checks if an element is annotated with all the given annotations.
+   * Returns a predicate that an element is annotated with all the given annotations.
    *
-   * @param annotations     the collection of annotations to check for
-   * @param isMetaAnnotated {@code true} if the annotations should be meta-annotated,
-   *                        {@code false} otherwise
-   * @return a described predicate for the annotation check
+   * @param annotations the fully qualified names of the annotations
+   * @param isMetaAnnotated whether an annotation that is itself annotated with one of the
+   *     annotations counts as well, besides the annotations directly on the element
+   * @return the predicate
    */
   public static DescribedPredicate<CanBeAnnotated> annotatedWithAll(Collection<String> annotations,
       boolean isMetaAnnotated) {
@@ -59,9 +55,9 @@ public final class DescribedPredicates {
   }
 
   /**
-   * Creates a predicate that checks if a class is final.
+   * Returns a predicate that a class is final.
    *
-   * @return a described predicate for the final modifier check
+   * @return the predicate
    */
   public static DescribedPredicate<JavaClass> areFinal() {
     return new DescribedPredicate<>("are final") {

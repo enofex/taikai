@@ -22,14 +22,9 @@ import com.tngtech.archunit.core.domain.JavaModifier;
 import java.util.Collection;
 
 /**
- * Top-level configurer for Spring Framework architectural rules using
- * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Spring applications, with groups for properties, configurations, controllers,
+ * services, repositories, transactional code and Spring Boot:
  *
- * <p>This configurer groups sub-configurers for each Spring layer — properties, configurations,
- * controllers, services, repositories, transactional code and Spring Boot — and also enforces
- * project-wide Spring-specific rules such as prohibiting {@code @Autowired} field injection.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -58,6 +53,9 @@ import java.util.Collection;
  */
 public final class SpringConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
+  /**
+   * @param configurerContext the context of the builder
+   */
   public SpringConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }

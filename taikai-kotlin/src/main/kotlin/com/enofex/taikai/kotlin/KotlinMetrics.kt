@@ -12,6 +12,11 @@ import kotlin.metadata.jvm.signature
  * Adds a Kotlin rule to the metrics group that declared functions must not have more than [max]
  * value parameters. Extension and context receivers, suspend continuations, default-argument
  * machinery, generated overloads and constructors do not count.
+ *
+ * @param max the maximum number of value parameters
+ * @param configuration the rule configuration
+ * @return this configurer for fluent chaining
+ * @throws IllegalArgumentException if [max] is negative
  */
 @JvmOverloads
 fun MetricsConfigurer.functionsShouldNotExceedMaxParameters(
@@ -22,7 +27,9 @@ fun MetricsConfigurer.functionsShouldNotExceedMaxParameters(
     return configure({ it.functionsShouldNotExceedMaxParameters(max, configuration) }, ::KotlinMetricsConfigurer)
 }
 
-/** Holds the Kotlin rules of the metrics group, so that disabling the group removes them as well. */
+/**
+ * Holds the Kotlin rules of the metrics group, so that disabling the group removes them as well.
+ */
 internal class KotlinMetricsConfigurer(context: ConfigurerContext) : AbstractConfigurer(context) {
     fun functionsShouldNotExceedMaxParameters(max: Int, configuration: Configuration) {
         val description = "Kotlin functions should not have more than $max value parameters"

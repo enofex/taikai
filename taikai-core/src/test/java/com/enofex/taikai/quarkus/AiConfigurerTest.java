@@ -66,7 +66,7 @@ class AiConfigurerTest {
   }
 
   @Nested
-  class AiServicesShouldBeAnnotatedWithApplicationScoped {
+  class ShouldBeAnnotatedWithApplicationScoped {
 
     static Stream<Named<Customizer<AiConfigurer>>> rules() {
       return Stream.of(
@@ -102,7 +102,7 @@ class AiConfigurerTest {
   }
 
   @Nested
-  class AiServicesShouldNotUseToolsToRegisterTools {
+  class ShouldNotUseToolsAttributeInAiService {
 
     @Test
     void shouldNotThrowWhenAiServiceIsNotUsingTools() {

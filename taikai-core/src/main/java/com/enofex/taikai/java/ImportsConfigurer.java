@@ -17,13 +17,8 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces import-related rules using {@link com.tngtech.archunit ArchUnit} through
- * the Taikai framework.
+ * Configures rules for the imports of classes and for cycles between packages.
  *
- * <p>This configurer ensures that classes do not import from restricted packages,
- * only import from expected ones and that the codebase remains free of cyclic dependencies.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -41,6 +36,11 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  */
 public final class ImportsConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
+  /**
+   * Creates a configurer of import rules.
+   *
+   * @param configurerContext the context of the builder
+   */
   ImportsConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
@@ -54,8 +54,6 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    * @see #shouldNotImport(DescribedPredicate, Configuration)
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ImportsConfigurer shouldNotImport(
       DescribedPredicate<? super JavaClass> forbiddenImports) {
@@ -70,8 +68,6 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @see #shouldNotImport(DescribedPredicate)
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ImportsConfigurer shouldNotImport(DescribedPredicate<? super JavaClass> forbiddenImports,
       Configuration configuration) {
@@ -83,17 +79,14 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
   }
 
   /**
-   * Adds a rule that classes matching the given criteria must not import classes matching other
-   * criteria. Selected classes that match the disallowed criteria themselves are not checked, so
-   * the classes of a banned package may still import each other.
+   * See {@link #shouldNotImport(DescribedPredicate)}, but only for classes matching the given
+   * criteria.
    *
    * @param classes the classes to check, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @param forbiddenImports the forbidden imports
    * @return this configurer for fluent chaining
    * @see #shouldNotImport(DescribedPredicate, DescribedPredicate, Configuration)
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ImportsConfigurer shouldNotImport(DescribedPredicate<? super JavaClass> classes,
       DescribedPredicate<? super JavaClass> forbiddenImports) {
@@ -110,8 +103,6 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @see #shouldNotImport(DescribedPredicate, DescribedPredicate)
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ImportsConfigurer shouldNotImport(DescribedPredicate<? super JavaClass> classes,
       DescribedPredicate<? super JavaClass> forbiddenImports, Configuration configuration) {
@@ -132,8 +123,6 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * @param requiredImports the required imports
    * @return this configurer for fluent chaining
    * @see #shouldImport(DescribedPredicate, DescribedPredicate, Configuration)
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ImportsConfigurer shouldImport(DescribedPredicate<? super JavaClass> classes,
       DescribedPredicate<? super JavaClass> requiredImports) {
@@ -149,8 +138,6 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @see #shouldImport(DescribedPredicate, DescribedPredicate)
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ImportsConfigurer shouldImport(DescribedPredicate<? super JavaClass> classes,
       DescribedPredicate<? super JavaClass> requiredImports, Configuration configuration) {

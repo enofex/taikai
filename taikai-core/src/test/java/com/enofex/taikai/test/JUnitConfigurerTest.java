@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
@@ -34,219 +35,491 @@ import org.mockito.Mockito;
 
 class JUnitConfigurerTest {
 
-  @Test
-  void shouldApplyMethodNameConvention() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidTestMethodName.class)
-        .test(test -> test.junit(
-            junit -> junit.methodsShouldMatch("should[A-Z].*")
-        ))
-        .build();
+  @Nested
+  class MethodsShouldMatch {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldApplyMethodNameConvention() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidTestMethodName.class)
+          .test(test -> test.junit(
+              junit -> junit.methodsShouldMatch("should[A-Z].*")
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowOnInvalidMethodNameConvention() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidTestMethodName.class)
+          .test(test -> test.junit(
+              junit -> junit.methodsShouldMatch("should[A-Z].*")
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldThrowOnInvalidMethodNameConvention() {
-    Taikai taikai = Taikai.builder()
-        .classes(InvalidTestMethodName.class)
-        .test(test -> test.junit(
-            junit -> junit.methodsShouldMatch("should[A-Z].*")
-        ))
-        .build();
+  @Nested
+  class MethodsShouldNotDeclareExceptions {
 
-    assertThrows(AssertionError.class, taikai::check);
+    @Test
+    void shouldApplyNoDeclaredExceptionsRule() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidNoExceptionTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldNotDeclareExceptions
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMethodDeclaresException() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidExceptionTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldNotDeclareExceptions
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldApplyNoDeclaredExceptionsRule() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidNoExceptionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldNotDeclareExceptions
-        ))
-        .build();
+  @Nested
+  class MethodsShouldBeAnnotatedWithDisplayName {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldApplyDisplayNameAnnotationRule() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidDisplayNameTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldBeAnnotatedWithDisplayName
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMissingDisplayNameAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidDisplayNameTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldBeAnnotatedWithDisplayName
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldThrowWhenMethodDeclaresException() {
-    Taikai taikai = Taikai.builder()
-        .classes(InvalidExceptionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldNotDeclareExceptions
-        ))
-        .build();
+  @Nested
+  class MethodsShouldBePackagePrivate {
 
-    assertThrows(AssertionError.class, taikai::check);
+    @Test
+    void shouldApplyPackagePrivateMethodRule() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidPackagePrivateMethodTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldBePackagePrivate
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotCheckTestMethodsDeclaredInInterfacesForPackagePrivate() {
+      Taikai taikai = Taikai.builder()
+          .classes(ComparableContract.class, ComparableContractTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldBePackagePrivate
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMethodIsNotPackagePrivate() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidPackagePrivateMethodTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldBePackagePrivate
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldApplyDisplayNameAnnotationRule() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidDisplayNameTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldBeAnnotatedWithDisplayName
-        ))
-        .build();
+  @Nested
+  class MethodsShouldNotBeAnnotatedWithDisabled {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldApplyNoDisabledMethodRule() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidNoDisabledTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldNotBeAnnotatedWithDisabled
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMethodIsDisabled() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidDisabledTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldNotBeAnnotatedWithDisabled
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldThrowWhenMissingDisplayNameAnnotation() {
-    Taikai taikai = Taikai.builder()
-        .classes(InvalidDisplayNameTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldBeAnnotatedWithDisplayName
-        ))
-        .build();
+  @Nested
+  class MethodsShouldContainAssertionsOrVerifications {
 
-    assertThrows(AssertionError.class, taikai::check);
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {
+        ValidAssertionTest.class,
+        MockitoInOrderTest.class,
+        ArchRuleCheckTest.class,
+        SubtypeAssertionTest.class,
+        HelperMethodAssertionTest.class,
+        MethodReferenceAssertionTest.class})
+    void shouldApplyMethodsContainAssertionsOrVerificationsRule(Class<?> fixture) {
+      Taikai taikai = Taikai.builder()
+          .classes(fixture)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {
+        InvalidAssertionTest.class,
+        RecursiveHelperMethodWithoutAssertionTest.class})
+    void shouldThrowWhenMethodDoesNotContainAssertionsOrVerifications(Class<?> fixture) {
+      Taikai taikai = Taikai.builder()
+          .classes(fixture)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldApplyMethodsContainAssertionsOrVerificationsWithInheritedHelperMethod() {
+      Taikai taikai = Taikai.builder()
+          .classes(InheritedHelperMethodAssertionTest.class, BaseAssertionTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
-  @Test
-  void shouldApplyPackagePrivateMethodRule() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidPackagePrivateMethodTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldBePackagePrivate
-        ))
-        .build();
+  @Nested
+  class ClassesShouldNotBeAnnotatedWithDisabled {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldApplyNoDisabledClassRule() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidNoDisabledTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::classesShouldNotBeAnnotatedWithDisabled
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenClassIsDisabled() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidDisabledClass.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::classesShouldNotBeAnnotatedWithDisabled
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldNotCheckTestMethodsDeclaredInInterfacesForPackagePrivate() {
-    Taikai taikai = Taikai.builder()
-        .classes(ComparableContract.class, ComparableContractTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldBePackagePrivate
-        ))
-        .build();
+  @Nested
+  class ClassesShouldBePackagePrivate {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldNotThrowWhenSelectedClassesArePackagePrivate() {
+      Taikai taikai = Taikai.builder()
+          .classes(PackagePrivateSpec.class, PublicSupport.class)
+          .test(test -> test.junit(junit -> junit
+              .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Spec"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesArePublic() {
+      Taikai taikai = Taikai.builder()
+          .classes(PublicSpec.class)
+          .test(test -> test.junit(junit -> junit
+              .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Spec"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldExcludeInterfaces() {
+      Taikai taikai = Taikai.builder()
+          .classes(SpecContract.class)
+          .test(test -> test.junit(junit -> junit
+              .classesShouldBePackagePrivate(ClassCriteria.nameMatching(".*Spec.*"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
-  @Test
-  void shouldThrowWhenMethodIsNotPackagePrivate() {
-    Taikai taikai = Taikai.builder()
-        .classes(InvalidPackagePrivateMethodTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldBePackagePrivate
-        ))
-        .build();
+  @Nested
+  class ClassesShouldEndWithTest {
 
-    assertThrows(AssertionError.class, taikai::check);
+    @Test
+    void shouldApplyClassesShouldEndWithTest() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidNoExceptionTest.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::classesShouldEndWithTest
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForClassesShouldEndWithTest() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidNoExceptionTest.class)
+          .test(test -> test.junit(
+              junit -> junit.classesShouldEndWithTest(
+                  defaultConfiguration())
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
-  @Test
-  void shouldApplyNoDisabledMethodRule() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidNoDisabledTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldNotBeAnnotatedWithDisabled
-        ))
-        .build();
+  @Nested
+  class ClassesShouldMatch {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldApplyTestClassNameConvention() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidNoExceptionTest.class)
+          .test(test -> test.junit(
+              junit -> junit.classesShouldMatch(".*Test")
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowOnInvalidTestClassNameConvention() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidNoExceptionTest.class)
+          .test(test -> test.junit(
+              junit -> junit.classesShouldMatch(".*IT")
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotApplyTestClassNameConventionToClassesWithoutTests() {
+      Taikai taikai = Taikai.builder()
+          .classes(HelperWithoutTests.class)
+          .test(test -> test.junit(
+              junit -> junit.classesShouldMatch(".*IT")
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
-  @Test
-  void shouldThrowWhenMethodIsDisabled() {
-    Taikai taikai = Taikai.builder()
-        .classes(InvalidDisabledTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldNotBeAnnotatedWithDisabled
-        ))
-        .build();
+  @Nested
+  class NestedClassesShouldBeAnnotatedWithNested {
 
-    assertThrows(AssertionError.class, taikai::check);
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {ValidNestedTest.Inner.class, ValidMetaNestedTest.Inner.class})
+    void shouldApplyNestedClassesShouldBeAnnotatedWithNested(Class<?> fixture) {
+      Taikai taikai = Taikai.builder()
+          .classes(fixture)
+          .failOnEmpty(true)
+          .test(test -> test.junit(
+              JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {
+        MissingNestedTest.Inner.class,
+        MissingNestedParameterizedTest.Inner.class})
+    void shouldThrowWhenInnerClassWithTestMethodsIsNotAnnotatedWithNested(Class<?> fixture) {
+      Taikai taikai = Taikai.builder()
+          .classes(fixture)
+          .test(test -> test.junit(
+              JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(classes = {
+        StaticNestedTest.Inner.class,
+        AbstractInnerTest.Inner.class,
+        InnerHelperTest.Helper.class})
+    void shouldNotApplyNestedClassesShouldBeAnnotatedWithNested(Class<?> fixture) {
+      Taikai taikai = Taikai.builder()
+          .classes(fixture)
+          .test(test -> test.junit(
+              JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationForNestedClassesShouldBeAnnotatedWithNested() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingNestedTest.Inner.class)
+          .test(test -> test.junit(
+              junit -> junit.nestedClassesShouldBeAnnotatedWithNested(
+                  defaultConfiguration())
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldApplyNoDisabledClassRule() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidNoDisabledTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::classesShouldNotBeAnnotatedWithDisabled
-        ))
-        .build();
+  @Nested
+  class TestsShouldBeExecutable {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldApplyTestsShouldBeExecutable() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidTestDeclarationsTest.class, ValidTestDeclarationsTest.Inner.class,
+              PrivateAbstractTest.class, NestedAnnotation.class, ValidMetaNestedTest.Inner.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::testsShouldBeExecutable
+          ))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @ParameterizedTest
+    @MethodSource("nonExecutableTests")
+    void shouldThrowWhenTestsAreNotExecutable(Class<?> fixture, String expectedViolation) {
+      Taikai taikai = Taikai.builder()
+          .classes(fixture)
+          .test(test -> test.junit(
+              JUnitConfigurer::testsShouldBeExecutable
+          ))
+          .build();
+
+      AssertionError error = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(error.getMessage().contains(fixture.getName()), error.getMessage());
+      assertTrue(error.getMessage().contains(expectedViolation), error.getMessage());
+    }
+
+    static Stream<Arguments> nonExecutableTests() {
+      return Stream.of(
+          Arguments.of(PrivateTestMethodTest.class, "annotated with @Test is private"),
+          Arguments.of(StaticTestMethodTest.class, "annotated with @Test is static"),
+          Arguments.of(TestMethodReturningValueTest.class,
+              "annotated with @Test returns a value"),
+          Arguments.of(MetaAnnotatedPrivateTestMethodTest.class,
+              "annotated with @UnitTest is private"),
+          Arguments.of(ParameterizedTestReturningValueTest.class,
+              "annotated with @ParameterizedTest returns a value"),
+          Arguments.of(StaticRepeatedTestTest.class, "annotated with @RepeatedTest is static"),
+          Arguments.of(PrivateTestFactoryTest.class, "annotated with @TestFactory is private"),
+          Arguments.of(TestFactoryReturningVoidTest.class,
+              "annotated with @TestFactory does not return a DynamicNode"),
+          Arguments.of(TestFactoryReturningStringsTest.class,
+              "annotated with @TestFactory does not return a DynamicNode"),
+          Arguments.of(TestFactoryReturningStringArrayTest.class,
+              "annotated with @TestFactory does not return a DynamicNode"),
+          Arguments.of(TestFactoryReturningLowerBoundTest.class,
+              "annotated with @TestFactory does not return a DynamicNode"),
+          Arguments.of(StaticNestedClassTest.Inner.class, "annotated with @Nested is static"),
+          Arguments.of(PrivateNestedClassTest.Inner.class, "annotated with @Nested is private"),
+          Arguments.of(PrivateTestClass.class, "containing test methods is private"),
+          Arguments.of(localTestClass(), "containing test methods is a local class"),
+          Arguments.of(anonymousTestClass(), "containing test methods is an anonymous class"));
+    }
+
+    @Test
+    void shouldSupportConfigurationForTestsShouldBeExecutable() {
+      Taikai taikai = Taikai.builder()
+          .classes(PrivateTestMethodTest.class)
+          .test(test -> test.junit(
+              junit -> junit.testsShouldBeExecutable(
+                  defaultConfiguration())
+          ))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
-  @Test
-  void shouldThrowWhenClassIsDisabled() {
-    Taikai taikai = Taikai.builder()
-        .classes(InvalidDisabledClass.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::classesShouldNotBeAnnotatedWithDisabled
-        ))
-        .build();
+  @Nested
+  class Disable {
 
-    assertThrows(AssertionError.class, taikai::check);
-  }
+    @Test
+    void shouldDisableJUnitConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidDisplayNameTest.class)
+          .test(test -> test.junit(junit -> {
+            junit.methodsShouldBeAnnotatedWithDisplayName();
+            junit.disable();
+          }))
+          .build();
 
-  @ParameterizedTest(name = "{0}")
-  @ValueSource(classes = {
-      ValidAssertionTest.class,
-      MockitoInOrderTest.class,
-      ArchRuleCheckTest.class,
-      SubtypeAssertionTest.class,
-      HelperMethodAssertionTest.class,
-      MethodReferenceAssertionTest.class})
-  void shouldApplyMethodsContainAssertionsOrVerificationsRule(Class<?> fixture) {
-    Taikai taikai = Taikai.builder()
-        .classes(fixture)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @ValueSource(classes = {
-      InvalidAssertionTest.class,
-      RecursiveHelperMethodWithoutAssertionTest.class})
-  void shouldThrowWhenMethodDoesNotContainAssertionsOrVerifications(Class<?> fixture) {
-    Taikai taikai = Taikai.builder()
-        .classes(fixture)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldDisableJUnitConfigurer() {
-    Taikai taikai = Taikai.builder()
-        .classes(InvalidDisplayNameTest.class)
-        .test(test -> test.junit(junit -> {
-          junit.methodsShouldBeAnnotatedWithDisplayName();
-          junit.disable();
-        }))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldApplyMethodsContainAssertionsOrVerificationsWithInheritedHelperMethod() {
-    Taikai taikai = Taikai.builder()
-        .classes(InheritedHelperMethodAssertionTest.class, BaseAssertionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldContainAssertionsOrVerifications
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   static class ValidAssertionTest {
@@ -329,186 +602,6 @@ class JUnitConfigurerTest {
         ping(n - 1);
       }
     }
-  }
-
-  @Test
-  void shouldApplyTestClassNameConvention() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidNoExceptionTest.class)
-        .test(test -> test.junit(
-            junit -> junit.classesShouldMatch(".*Test")
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldThrowOnInvalidTestClassNameConvention() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidNoExceptionTest.class)
-        .test(test -> test.junit(
-            junit -> junit.classesShouldMatch(".*IT")
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldApplyClassesShouldEndWithTest() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidNoExceptionTest.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::classesShouldEndWithTest
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldNotApplyTestClassNameConventionToClassesWithoutTests() {
-    Taikai taikai = Taikai.builder()
-        .classes(HelperWithoutTests.class)
-        .test(test -> test.junit(
-            junit -> junit.classesShouldMatch(".*IT")
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldSupportConfigurationForClassesShouldEndWithTest() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidNoExceptionTest.class)
-        .test(test -> test.junit(
-            junit -> junit.classesShouldEndWithTest(
-                defaultConfiguration())
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @ValueSource(classes = {ValidNestedTest.Inner.class, ValidMetaNestedTest.Inner.class})
-  void shouldApplyNestedClassesShouldBeAnnotatedWithNested(Class<?> fixture) {
-    Taikai taikai = Taikai.builder()
-        .classes(fixture)
-        .failOnEmpty(true)
-        .test(test -> test.junit(
-            JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @ValueSource(classes = {
-      MissingNestedTest.Inner.class,
-      MissingNestedParameterizedTest.Inner.class})
-  void shouldThrowWhenInnerClassWithTestMethodsIsNotAnnotatedWithNested(Class<?> fixture) {
-    Taikai taikai = Taikai.builder()
-        .classes(fixture)
-        .test(test -> test.junit(
-            JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @ParameterizedTest(name = "{0}")
-  @ValueSource(classes = {
-      StaticNestedTest.Inner.class,
-      AbstractInnerTest.Inner.class,
-      InnerHelperTest.Helper.class})
-  void shouldNotApplyNestedClassesShouldBeAnnotatedWithNested(Class<?> fixture) {
-    Taikai taikai = Taikai.builder()
-        .classes(fixture)
-        .test(test -> test.junit(
-            JUnitConfigurer::nestedClassesShouldBeAnnotatedWithNested
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldSupportConfigurationForNestedClassesShouldBeAnnotatedWithNested() {
-    Taikai taikai = Taikai.builder()
-        .classes(MissingNestedTest.Inner.class)
-        .test(test -> test.junit(
-            junit -> junit.nestedClassesShouldBeAnnotatedWithNested(
-                defaultConfiguration())
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldApplyTestsShouldBeExecutable() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidTestDeclarationsTest.class, ValidTestDeclarationsTest.Inner.class,
-            PrivateAbstractTest.class, NestedAnnotation.class, ValidMetaNestedTest.Inner.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::testsShouldBeExecutable
-        ))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @ParameterizedTest
-  @MethodSource("nonExecutableTests")
-  void shouldThrowWhenTestsAreNotExecutable(Class<?> fixture, String expectedViolation) {
-    Taikai taikai = Taikai.builder()
-        .classes(fixture)
-        .test(test -> test.junit(
-            JUnitConfigurer::testsShouldBeExecutable
-        ))
-        .build();
-
-    AssertionError error = assertThrows(AssertionError.class, taikai::check);
-    assertTrue(error.getMessage().contains(fixture.getName()), error.getMessage());
-    assertTrue(error.getMessage().contains(expectedViolation), error.getMessage());
-  }
-
-  static Stream<Arguments> nonExecutableTests() {
-    return Stream.of(
-        Arguments.of(PrivateTestMethodTest.class, "annotated with @Test is private"),
-        Arguments.of(StaticTestMethodTest.class, "annotated with @Test is static"),
-        Arguments.of(TestMethodReturningValueTest.class, "annotated with @Test returns a value"),
-        Arguments.of(MetaAnnotatedPrivateTestMethodTest.class, "annotated with @UnitTest is private"),
-        Arguments.of(ParameterizedTestReturningValueTest.class, "annotated with @ParameterizedTest returns a value"),
-        Arguments.of(StaticRepeatedTestTest.class, "annotated with @RepeatedTest is static"),
-        Arguments.of(PrivateTestFactoryTest.class, "annotated with @TestFactory is private"),
-        Arguments.of(TestFactoryReturningVoidTest.class, "annotated with @TestFactory does not return a DynamicNode"),
-        Arguments.of(TestFactoryReturningStringsTest.class, "annotated with @TestFactory does not return a DynamicNode"),
-        Arguments.of(TestFactoryReturningStringArrayTest.class, "annotated with @TestFactory does not return a DynamicNode"),
-        Arguments.of(TestFactoryReturningLowerBoundTest.class, "annotated with @TestFactory does not return a DynamicNode"),
-        Arguments.of(StaticNestedClassTest.Inner.class, "annotated with @Nested is static"),
-        Arguments.of(PrivateNestedClassTest.Inner.class, "annotated with @Nested is private"),
-        Arguments.of(PrivateTestClass.class, "containing test methods is private"),
-        Arguments.of(localTestClass(), "containing test methods is a local class"),
-        Arguments.of(anonymousTestClass(), "containing test methods is an anonymous class"));
-  }
-
-  @Test
-  void shouldSupportConfigurationForTestsShouldBeExecutable() {
-    Taikai taikai = Taikai.builder()
-        .classes(PrivateTestMethodTest.class)
-        .test(test -> test.junit(
-            junit -> junit.testsShouldBeExecutable(
-                defaultConfiguration())
-        ))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
   }
 
   static class ValidTestMethodName {
@@ -869,5 +962,17 @@ class JUnitConfigurerTest {
 
   @Test
   @interface UnitTest {
+  }
+
+  static class PackagePrivateSpec {
+  }
+
+  public static class PublicSpec {
+  }
+
+  public static class PublicSupport {
+  }
+
+  public interface SpecContract {
   }
 }

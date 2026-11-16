@@ -2,16 +2,16 @@
 
 First off, thank you for taking the time to contribute! :+1: :tada:
 
-### How to Contribute
+## How to Contribute
 
-#### Ask questions
+### Ask questions
 
 If you believe there is an issue, search through existing issues for this project trying a
 few different ways to find discussions, past or current, that are related to the issue.
 Reading those discussions helps you to learn about the issue, and helps us to make a
 decision.
 
-#### Create an issue
+### Create an issue
 
 Reporting an issue or making a feature request is a great way to contribute. Your feedback
 and the conversations that result from it provide a continuous flow of ideas. However,
@@ -19,16 +19,17 @@ before creating a ticket, please take the time to [ask and research](#ask-questi
 
 Once you're ready, create an issue on the module.
 
-#### Before submitting a pull request
+### Before submitting a pull request
 
-To contribute to this project, please fork the repository and submit a pull request with your changes. Please ensure that your changes adhere to the following guidelines:
+To contribute to this project, please fork the repository and submit a pull request with your
+changes. Please ensure that your changes adhere to the following guidelines:
 
 * Code should follow the conventions.
 * All code should be well-documented.
 * All new functionality should be covered by tests.
 * Changes should not break existing functionality.
 
-#### Submit a pull request
+### Submit a pull request
 
 1. Always check out the `main` branch and submit pull requests against it.
 
@@ -46,20 +47,23 @@ To contribute to this project, please fork the repository and submit a pull requ
    pull request.
 
 
-#### Participate in reviews
+### Participate in reviews
 
 Helping to review pull requests is another great way to contribute. Your feedback
 can help to shape the implementation of new features. When reviewing pull requests,
 however, please refrain from approving or rejecting a PR unless you are a core
 committer for this project.
 
-### Code Conventions
+## Code Conventions
 
-#### Java
-Please follow the Google Java Style Guide when writing Java code for this project. You can also import the IntelliJ IDEA code style configuration file for Java from [here](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml).
+### Java
+
+Please follow the Google Java Style Guide when writing Java code for this project. You can also
+import the IntelliJ IDEA code style configuration file for Java from
+[here](https://github.com/google/styleguide/blob/gh-pages/intellij-java-google-style.xml).
 
 
-### Building the Java and Kotlin Modules
+## Building the Java and Kotlin Modules
 
 The root POM builds `taikai-core` (published as `com.enofex:taikai`),
 `taikai-kotlin`, `examples/spring-java` and `examples/spring-kotlin`. Existing Java

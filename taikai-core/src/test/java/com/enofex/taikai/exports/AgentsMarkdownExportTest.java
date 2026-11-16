@@ -1,5 +1,7 @@
 package com.enofex.taikai.exports;
 
+import static com.enofex.taikai.exports.ExportChecks.export;
+import static com.enofex.taikai.exports.ExportChecks.only;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -31,7 +33,8 @@ class AgentsMarkdownExportTest {
         .namespace("com.company.project")
         .java(java -> java
             .noUsageOfSystemOutOrErr()
-            .fieldsShouldNotBePublic()), file);
+            .fieldsShouldNotBePublic()),
+        AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString()));
 
     assertEquals("""
             # Architecture Rules
@@ -51,7 +54,8 @@ class AgentsMarkdownExportTest {
 
     export(Taikai.builder()
         .classes(AgentsMarkdownExportTest.class)
-        .java(JavaConfigurer::noUsageOfSystemOutOrErr), file);
+        .java(JavaConfigurer::noUsageOfSystemOutOrErr),
+        AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString()));
 
     assertEquals("""
             # Architecture Rules
@@ -73,7 +77,8 @@ class AgentsMarkdownExportTest {
     export(Taikai.builder()
         .namespace("com.company.project")
         .addRule(rule)
-        .addRule(rule), file);
+        .addRule(rule),
+        AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString()));
 
     assertEquals(1, Files.readString(file, StandardCharsets.UTF_8)
         .lines()
@@ -89,7 +94,8 @@ class AgentsMarkdownExportTest {
         .namespace("com.company.project")
         .addRule(TaikaiRule.of(ArchRuleDefinition.classes()
             .should().haveSimpleNameNotEndingWith("Impl")
-            .as("Layered architecture, consisting of\nlayer 'Api'\r\nlayer 'Domain'"))), file);
+            .as("Layered architecture, consisting of\nlayer 'Api'\r\nlayer 'Domain'"))),
+        AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString()));
 
     assertEquals("""
             # Architecture Rules
@@ -110,7 +116,8 @@ class AgentsMarkdownExportTest {
     Files.createDirectories(file.getParent());
     Files.writeString(file, "old content that is longer than the new one".repeat(10));
 
-    export(Taikai.builder().namespace("com.company.project"), file);
+    export(Taikai.builder().namespace("com.company.project"),
+        AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString()));
 
     assertTrue(Files.readString(file, StandardCharsets.UTF_8).startsWith("# Architecture Rules"));
     assertFalse(Files.readString(file, StandardCharsets.UTF_8).contains("old content"));
@@ -120,7 +127,7 @@ class AgentsMarkdownExportTest {
   void shouldFailWithoutConfiguredFile() {
     Taikai taikai = Taikai.builder()
         .namespace("com.company.project")
-        .discoverExports(exports -> exports.exclude(MetricsMarkdownExport.class, SarifExport.class))
+        .discoverExports(only(AgentsMarkdownExport.class))
         .build();
 
     TaikaiException exception = assertThrows(TaikaiException.class, taikai::export);
@@ -134,14 +141,5 @@ class AgentsMarkdownExportTest {
   @Test
   void shouldRejectBlankFile() {
     assertThrows(IllegalArgumentException.class, () -> AgentsMarkdownExport.file(" "));
-  }
-
-  private static void export(Taikai.Builder builder, Path file) {
-    builder
-        .discoverExports(exports -> exports
-            .exclude(MetricsMarkdownExport.class, SarifExport.class)
-            .configure(AgentsMarkdownExport.class, AgentsMarkdownExport.file(file.toString())))
-        .build()
-        .export();
   }
 }

@@ -12,6 +12,9 @@ import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import jakarta.validation.Constraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -32,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -44,6 +48,56 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 class ControllersConfigurerTest {
+
+  @Test
+  void shouldReturnSameConfigurerFromEveryMethod() {
+    ControllersConfigurer configurer =
+        new ControllersConfigurer(new ConfigurerContext(null, new Configurers()));
+    DescribedPredicate<JavaClass> all = ClassCriteria.nameMatching(".*");
+    Configuration configuration = Configuration.defaultConfiguration();
+
+    assertAll(
+        () -> assertSame(configurer, configurer.namesShouldEndWithController()),
+        () -> assertSame(configurer, configurer.namesShouldEndWithController(configuration)),
+        () -> assertSame(configurer, configurer.namesShouldMatch(".*")),
+        () -> assertSame(configurer, configurer.namesShouldMatch(".*", configuration)),
+        () -> assertSame(configurer, configurer.requestBodiesShouldBeValidated()),
+        () -> assertSame(configurer, configurer.requestBodiesShouldBeValidated(configuration)),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithRestController()),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithRestController(configuration)),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(all)),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithRestController(all, configuration)),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithController()),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithController(configuration)),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithController(all)),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithController(all, configuration)),
+        () -> assertSame(configurer, configurer.shouldBePackagePrivate()),
+        () -> assertSame(configurer, configurer.shouldBePackagePrivate(configuration)),
+        () -> assertSame(configurer, configurer.shouldNotDependOnOtherControllers()),
+        () -> assertSame(configurer,
+            configurer.shouldNotDependOnOtherControllers(configuration)),
+        () -> assertSame(configurer, configurer.shouldNotDependOnRepositories()),
+        () -> assertSame(configurer, configurer.shouldNotDependOnRepositories(configuration)),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(all)),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithValidated(all, configuration)),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithValidated()),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(configuration)),
+        () -> assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(all)),
+        () -> assertSame(configurer,
+            configurer.shouldNotBeAnnotatedWithValidated(all, configuration)),
+        () -> assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated()),
+        () -> assertSame(configurer,
+            configurer.shouldNotBeAnnotatedWithValidated(configuration)),
+        () -> assertSame(configurer, configurer.methodsShouldNotReturn(all)),
+        () -> assertSame(configurer, configurer.methodsShouldNotReturn(all, configuration)),
+        () -> assertSame(configurer, configurer.methodsShouldReturn(all)),
+        () -> assertSame(configurer, configurer.methodsShouldReturn(all, configuration)),
+        () -> assertSame(configurer, configurer.disable()));
+  }
 
   @Nested
   class NamesShouldEndWithController {
@@ -158,6 +212,41 @@ class ControllersConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenSelectedClassesAreRestControllers() {
+      Taikai taikai = Taikai.builder()
+          .classes(OrderApi.class, ApiContract.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*Api.*"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesAreNotRestControllers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PlainApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*Api"))))
+          .build();
+
+      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(failure.getMessage().contains(PlainApi.class.getName()));
+    }
+
+    @Test
+    void shouldHonorConfiguredClasses() {
+      Taikai taikai = Taikai.builder()
+          .classes(PlainApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*Api"),
+                  Configuration.of(new ClassFileImporter().importClasses(OrderApi.class)))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -210,6 +299,29 @@ class ControllersConfigurerTest {
           .build();
 
       assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenSelectedClassesAreControllers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PageApi.class, OrderApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithController(ClassCriteria.inPackage("com.enofex.taikai.spring")
+                  .and(ClassCriteria.nameMatching(".*Api")))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesAreNotControllers() {
+      Taikai taikai = Taikai.builder()
+          .classes(PlainApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".*Api"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
     }
   }
 
@@ -311,13 +423,38 @@ class ControllersConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-  }
 
-  @RestController
-  static class UnvalidatedApiController {
+    @Test
+    void shouldNotThrowWhenSelectedControllersAreValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidatedQueryApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*QueryApi"))))
+          .build();
 
-    public String getUser(@RequestParam @NotNull String id) {
-      return id;
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedControllersAreNotValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnvalidatedQueryApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*QueryApi"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldIgnoreControllersNotMatchingCriteria() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnvalidatedQueryApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldBeAnnotatedWithValidated(ClassCriteria.inPackage("com.company.web.."))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
     }
   }
 
@@ -367,71 +504,29 @@ class ControllersConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
-  }
 
-  @RestController
-  static class ValidUserController {
+    @Test
+    void shouldNotThrowWhenSelectedControllersAreNotValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(UnvalidatedQueryApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldNotBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*QueryApi"))))
+          .build();
 
-  }
-
-  @Controller
-  static class BasicController {
-
-  }
-
-  static class InvalidUserHandler {
-
-  }
-
-  @Controller
-  static class MissingRestController {
-
-  }
-
-  @Controller
-  public static class PublicController {
-
-  }
-
-  @Controller
-  static class PackagePrivateController {
-
-  }
-
-  @RestController
-  @Validated
-  static class ValidatedUserController {
-
-  }
-
-  @RestController
-  static class UnvalidatedUserController {
-
-  }
-
-  @RestController
-  static class UnvalidatedControllerWithValidationAnnotations {
-
-    public String getUser(@RequestParam @NotNull String id) {
-      return id;
+      assertDoesNotThrow(taikai::check);
     }
 
-    public String getByPath(@PathVariable @NotNull String userId) {
-      return userId;
+    @Test
+    void shouldThrowWhenSelectedControllersAreValidated() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidatedQueryApi.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .shouldNotBeAnnotatedWithValidated(
+                  ClassCriteria.annotatedWith(RestController.class))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
     }
-  }
-
-  static class UnannotatedController {
-
-  }
-
-  interface OrderController {
-
-  }
-
-  @RestController
-  static class DefaultOrderController implements OrderController {
-
   }
 
   @Nested
@@ -504,183 +599,6 @@ class ControllersConfigurerTest {
     void shouldNotCheckClassesThatAreNotControllers() {
       assertDoesNotThrow(taikai(OrderHandler.class,
           ControllersConfigurer::requestBodiesShouldBeValidated)::check);
-    }
-
-    record OrderRequest(@NotBlank String name) {
-
-    }
-
-    record UnconstrainedRequest(String name) {
-
-    }
-
-    @Target(ElementType.TYPE)
-    @Retention(RetentionPolicy.RUNTIME)
-    @Constraint(validatedBy = {})
-    @interface ConsistentOrder {
-
-    }
-
-    @ConsistentOrder
-    record ClassConstrainedRequest(String name) {
-
-    }
-
-    static class BaseRequest {
-
-      @NotBlank
-      String name;
-    }
-
-    static class InheritedRequest extends BaseRequest {
-
-    }
-
-    interface NamedRequest {
-
-      @NotBlank
-      String getName();
-    }
-
-    static class InterfaceRequest implements NamedRequest {
-
-      @Override
-      public String getName() {
-        return "";
-      }
-    }
-
-    record CascadingRequest(@Valid UnconstrainedRequest item) {
-
-    }
-
-    static class CascadingGetterRequest {
-
-      @Valid
-      public UnconstrainedRequest getItem() {
-        return new UnconstrainedRequest("");
-      }
-    }
-
-    static class StaticConstraintRequest {
-
-      @NotBlank
-      static String DEFAULT_NAME = "";
-
-      String name;
-
-      @NotBlank
-      static String defaultName() {
-        return DEFAULT_NAME;
-      }
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface ValidOrder {
-
-    }
-
-    @Validated
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface CheckedOrder {
-
-    }
-
-    @RestController
-    static class ValidatedRequestController {
-
-      void valid(@RequestBody @Valid OrderRequest request) {
-      }
-
-      void validated(@RequestBody @Validated OrderRequest request) {
-      }
-
-      void nameStartingWithValid(@RequestBody @ValidOrder OrderRequest request) {
-      }
-
-      void annotatedWithValidated(@RequestBody @CheckedOrder OrderRequest request) {
-      }
-
-      void part(@RequestPart @Valid ClassConstrainedRequest request) {
-      }
-
-      void modelAttribute(@ModelAttribute @Valid InheritedRequest request) {
-      }
-
-      void unconstrained(@RequestBody UnconstrainedRequest request) {
-      }
-
-      void staticConstraint(@RequestBody StaticConstraintRequest request) {
-      }
-
-      void typeArgument(@RequestBody List<OrderRequest> requests) {
-      }
-
-      void text(@RequestBody String text) {
-      }
-    }
-
-    @RestController
-    static class UnvalidatedRequestController {
-
-      void body(@RequestBody OrderRequest request) {
-      }
-
-      void part(@RequestPart OrderRequest request) {
-      }
-
-      void modelAttribute(@ModelAttribute OrderRequest request) {
-      }
-
-      void classConstraint(@RequestBody ClassConstrainedRequest request) {
-      }
-
-      void inheritedField(@RequestBody InheritedRequest request) {
-      }
-
-      void interfaceGetter(@RequestBody InterfaceRequest request) {
-      }
-
-      void cascade(@RequestBody CascadingRequest request) {
-      }
-
-      void cascadeGetter(@RequestBody CascadingGetterRequest request) {
-      }
-
-      void secondParameter(@RequestParam String id, @RequestBody OrderRequest request) {
-      }
-    }
-
-    interface ValidatingOrderApi {
-
-      void create(@Valid OrderRequest request);
-    }
-
-    @RestController
-    static class InheritedValidationController implements ValidatingOrderApi {
-
-      @Override
-      public void create(@RequestBody OrderRequest request) {
-      }
-    }
-
-    interface BindingOrderApi {
-
-      void create(@RequestBody OrderRequest request);
-    }
-
-    @RestController
-    static class InheritedBindingController implements BindingOrderApi {
-
-      @Override
-      public void create(OrderRequest request) {
-      }
-    }
-
-    static class OrderHandler {
-
-      void create(@RequestBody OrderRequest request) {
-      }
     }
   }
 
@@ -771,6 +689,178 @@ class ControllersConfigurerTest {
     }
   }
 
+  @Nested
+  class MethodsShouldNotReturn {
+
+    @ParameterizedTest
+    @ValueSource(classes = {MvcController.class, RestApi.class, ComposedController.class})
+    void shouldRejectForbiddenControllerReturns(Class<?> controller) {
+      Taikai taikai = Taikai.builder()
+          .classes(controller)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .methodsShouldNotReturn(ClassCriteria.simpleNameMatching("InternalDTO"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldAllowSafeControllersAndIgnoreOtherClasses() {
+      Taikai taikai = Taikai.builder()
+          .classes(SafeController.class, NonController.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .methodsShouldNotReturn(ClassCriteria.simpleNameMatching("InternalDTO"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldHonorConfigurationExclusions() {
+      Taikai taikai = Taikai.builder()
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .methodsShouldNotReturn(ClassCriteria.simpleNameMatching("InternalDTO"),
+                  Configuration.of(
+                      new ClassFileImporter().importClasses(SafeController.class,
+                          MvcController.class, RestApi.class, ComposedController.class),
+                      List.of(MvcController.class.getName(), RestApi.class.getName(),
+                          ComposedController.class.getName())))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class MethodsShouldReturn {
+
+    @ParameterizedTest
+    @ValueSource(classes = {MvcController.class, RestApi.class, ComposedController.class})
+    void shouldRequireControllerReturnsEndingInDto(Class<?> controller) {
+      Taikai taikai = Taikai.builder()
+          .classes(controller, SafeReturnOutsideController.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .methodsShouldReturn(ClassCriteria.nameMatching(".*DTO"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldRejectControllersWithoutRequiredReturnTypes() {
+      Taikai taikai = Taikai.builder()
+          .classes(SafeController.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .methodsShouldReturn(ClassCriteria.nameMatching(".*DTO"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldHonorConfiguredClassesForRequiredReturns() {
+      Taikai taikai = Taikai.builder()
+          .classes(SafeController.class)
+          .spring(spring -> spring.controllers(controllers -> controllers
+              .methodsShouldReturn(ClassCriteria.nameMatching(".*DTO"), Configuration.of(
+                  new ClassFileImporter().importClasses(
+                      MvcController.class, RestApi.class, ComposedController.class)))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableControllersConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingRestController.class)
+          .spring(spring -> spring.controllers(ctrl -> {
+            ctrl.shouldBeAnnotatedWithRestController();
+            ctrl.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @RestController
+  static class UnvalidatedApiController {
+
+    public String getUser(@RequestParam @NotNull String id) {
+      return id;
+    }
+  }
+
+  @RestController
+  static class ValidUserController {
+
+  }
+
+  @Controller
+  static class BasicController {
+
+  }
+
+  static class InvalidUserHandler {
+
+  }
+
+  @Controller
+  static class MissingRestController {
+
+  }
+
+  @Controller
+  public static class PublicController {
+
+  }
+
+  @Controller
+  static class PackagePrivateController {
+
+  }
+
+  @RestController
+  @Validated
+  static class ValidatedUserController {
+
+  }
+
+  @RestController
+  static class UnvalidatedUserController {
+
+  }
+
+  @RestController
+  static class UnvalidatedControllerWithValidationAnnotations {
+
+    public String getUser(@RequestParam @NotNull String id) {
+      return id;
+    }
+
+    public String getByPath(@PathVariable @NotNull String userId) {
+      return userId;
+    }
+  }
+
+  static class UnannotatedController {
+
+  }
+
+  interface OrderController {
+
+  }
+
+  @RestController
+  static class DefaultOrderController implements OrderController {
+
+  }
+
   @RestController
   static class ControllerWithMinAndSizeAnnotations {
 
@@ -859,57 +949,259 @@ class ControllersConfigurerTest {
     public String get() { return "test"; }
   }
 
-  @Nested
-  class Disable {
+  record OrderRequest(@NotBlank String name) {
 
-    @Test
-    void shouldDisableControllersConfigurer() {
-      Taikai taikai = Taikai.builder()
-          .classes(MissingRestController.class)
-          .spring(spring -> spring.controllers(ctrl -> {
-            ctrl.shouldBeAnnotatedWithRestController();
-            ctrl.disable();
-          }))
-          .build();
+  }
 
-      assertDoesNotThrow(taikai::check);
+  record UnconstrainedRequest(String name) {
+
+  }
+
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
+  @Constraint(validatedBy = {})
+  @interface ConsistentOrder {
+
+  }
+
+  @ConsistentOrder
+  record ClassConstrainedRequest(String name) {
+
+  }
+
+  static class BaseRequest {
+
+    @NotBlank
+    String name;
+  }
+
+  static class InheritedRequest extends BaseRequest {
+
+  }
+
+  interface NamedRequest {
+
+    @NotBlank
+    String getName();
+  }
+
+  static class InterfaceRequest implements NamedRequest {
+
+    @Override
+    public String getName() {
+      return "";
+    }
+  }
+
+  record CascadingRequest(@Valid UnconstrainedRequest item) {
+
+  }
+
+  static class CascadingGetterRequest {
+
+    @Valid
+    public UnconstrainedRequest getItem() {
+      return new UnconstrainedRequest("");
+    }
+  }
+
+  static class StaticConstraintRequest {
+
+    @NotBlank
+    static String DEFAULT_NAME = "";
+
+    String name;
+
+    @NotBlank
+    static String defaultName() {
+      return DEFAULT_NAME;
+    }
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ValidOrder {
+
+  }
+
+  @Validated
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface CheckedOrder {
+
+  }
+
+  @RestController
+  static class ValidatedRequestController {
+
+    void valid(@RequestBody @Valid OrderRequest request) {
     }
 
-    @Test
-    void shouldReturnSameConfigurerFromAllFluentMethods() {
-      Configurers configurers = new Configurers();
-      ConfigurerContext context = new ConfigurerContext("test", configurers);
-      ControllersConfigurer configurer = new ControllersConfigurer(context);
+    void validated(@RequestBody @Validated OrderRequest request) {
+    }
 
-      assertSame(configurer, configurer.namesShouldEndWithController());
-      assertSame(configurer, configurer.namesShouldEndWithController(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.namesShouldMatch(".*"));
-      assertSame(configurer, configurer.namesShouldMatch(".*", Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.requestBodiesShouldBeValidated());
-      assertSame(configurer, configurer.requestBodiesShouldBeValidated(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController());
-      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*")));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithRestController(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithController());
-      assertSame(configurer, configurer.shouldBeAnnotatedWithController(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".*")));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithController(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBePackagePrivate());
-      assertSame(configurer, configurer.shouldBePackagePrivate(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldNotDependOnOtherControllers());
-      assertSame(configurer, configurer.shouldNotDependOnOtherControllers(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldNotDependOnRepositories());
-      assertSame(configurer, configurer.shouldNotDependOnRepositories(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*")));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated());
-      assertSame(configurer, configurer.shouldBeAnnotatedWithValidated(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*")));
-      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(ClassCriteria.nameMatching(".*"), Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated());
-      assertSame(configurer, configurer.shouldNotBeAnnotatedWithValidated(Configuration.defaultConfiguration()));
-      assertSame(configurer, configurer.disable());
+    void nameStartingWithValid(@RequestBody @ValidOrder OrderRequest request) {
+    }
+
+    void annotatedWithValidated(@RequestBody @CheckedOrder OrderRequest request) {
+    }
+
+    void part(@RequestPart @Valid ClassConstrainedRequest request) {
+    }
+
+    void modelAttribute(@ModelAttribute @Valid InheritedRequest request) {
+    }
+
+    void unconstrained(@RequestBody UnconstrainedRequest request) {
+    }
+
+    void staticConstraint(@RequestBody StaticConstraintRequest request) {
+    }
+
+    void typeArgument(@RequestBody List<OrderRequest> requests) {
+    }
+
+    void text(@RequestBody String text) {
+    }
+  }
+
+  @RestController
+  static class UnvalidatedRequestController {
+
+    void body(@RequestBody OrderRequest request) {
+    }
+
+    void part(@RequestPart OrderRequest request) {
+    }
+
+    void modelAttribute(@ModelAttribute OrderRequest request) {
+    }
+
+    void classConstraint(@RequestBody ClassConstrainedRequest request) {
+    }
+
+    void inheritedField(@RequestBody InheritedRequest request) {
+    }
+
+    void interfaceGetter(@RequestBody InterfaceRequest request) {
+    }
+
+    void cascade(@RequestBody CascadingRequest request) {
+    }
+
+    void cascadeGetter(@RequestBody CascadingGetterRequest request) {
+    }
+
+    void secondParameter(@RequestParam String id, @RequestBody OrderRequest request) {
+    }
+  }
+
+  interface ValidatingOrderApi {
+
+    void create(@Valid OrderRequest request);
+  }
+
+  @RestController
+  static class InheritedValidationController implements ValidatingOrderApi {
+
+    @Override
+    public void create(@RequestBody OrderRequest request) {
+    }
+  }
+
+  interface BindingOrderApi {
+
+    void create(@RequestBody OrderRequest request);
+  }
+
+  @RestController
+  static class InheritedBindingController implements BindingOrderApi {
+
+    @Override
+    public void create(OrderRequest request) {
+    }
+  }
+
+  static class OrderHandler {
+
+    void create(@RequestBody OrderRequest request) {
+    }
+  }
+
+  @RestController
+  static class OrderApi {
+  }
+
+  @Controller
+  static class PageApi {
+  }
+
+  static class PlainApi {
+  }
+
+  interface ApiContract {
+  }
+
+  @RestController
+  @Validated
+  static class ValidatedQueryApi {
+
+    public String find(@RequestParam @NotNull String id) {
+      return id;
+    }
+  }
+
+  @RestController
+  static class UnvalidatedQueryApi {
+
+    public String find(@RequestParam @NotNull String id) {
+      return id;
+    }
+  }
+
+  static class SafeReturnOutsideController {
+    String result() {
+      return "safe";
+    }
+  }
+
+  static class InternalDTO {
+  }
+
+  @Controller
+  static class MvcController {
+    InternalDTO result() {
+      return null;
+    }
+  }
+
+  @RestController
+  static class RestApi {
+    ResponseEntity<List<InternalDTO>> result() {
+      return null;
+    }
+  }
+
+  @RestController
+  @Retention(RetentionPolicy.RUNTIME)
+  @interface ApiController {
+  }
+
+  @ApiController
+  static class ComposedController {
+    InternalDTO[] result() {
+      return null;
+    }
+  }
+
+  @RestController
+  static class SafeController {
+    List<String> result() {
+      return null;
+    }
+  }
+
+  static class NonController {
+    InternalDTO result() {
+      return null;
     }
   }
 }

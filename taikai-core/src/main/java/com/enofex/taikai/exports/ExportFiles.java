@@ -8,6 +8,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Writes the files of the exports.
@@ -17,9 +18,6 @@ final class ExportFiles {
   private ExportFiles() {
   }
 
-  /**
-   * Returns the given file of the settings of an export, which must not be blank.
-   */
   static String requireFile(String file) {
     return requireNotBlank(file, "The file to export to must be given");
   }
@@ -34,15 +32,25 @@ final class ExportFiles {
     return path;
   }
 
+  static List<String> requireDirectories(List<String> directories) {
+    List<String> required = List.copyOf(directories);
+
+    if (required.isEmpty()) {
+      throw new IllegalArgumentException("At least one source directory must be given");
+    }
+
+    return required;
+  }
+
   /**
-   * Resolves a path of the settings of an export against the project directory.
+   * Resolves a path of the settings against the project directory.
    */
   static Path resolve(ExportContext context, String path) {
     return context.projectDirectory().resolve(path).normalize();
   }
 
   /**
-   * Writes the content in UTF-8 and creates the missing parent directories.
+   * Writes UTF-8 and creates the missing parent directories.
    */
   static void write(Path file, CharSequence content) {
     try {

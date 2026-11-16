@@ -1,5 +1,6 @@
 package com.enofex.taikai.checks;
 
+import static com.enofex.taikai.checks.TestCheckContext.path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -246,9 +247,5 @@ class FileContentCheckTest {
     Path path = this.directory.resolve(file);
     Files.createDirectories(path.getParent());
     Files.write(path, content);
-  }
-
-  private static String path(String file) {
-    return Path.of(file).toString();
   }
 }

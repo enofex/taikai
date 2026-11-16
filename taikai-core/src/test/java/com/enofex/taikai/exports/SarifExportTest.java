@@ -39,7 +39,8 @@ class SarifExportTest {
   private static final Path SOURCE_FILE =
       Path.of("src/test/java/com/enofex/taikai/exports/SarifExportTest.java");
   private static final Pattern RULE_ID = Pattern.compile("\"id\": \"(taikai-[0-9a-f]{12})\"");
-  private static final Path CYCLE = Path.of("src/test/java/com/enofex/taikai/exports/cycle");
+  private static final Path FIXTURES =
+      Path.of("src/test/java/com/enofex/taikai/exports/fixtures");
 
   @TempDir
   private Path directory;
@@ -147,11 +148,11 @@ class SarifExportTest {
   void shouldPointCyclesToTheirFirstDependency() throws IOException {
     String sarif = export(Taikai.builder()
         .classes(cycle())
-        .addRule(TaikaiRule.of(slices().matching("com.enofex.taikai.exports.cycle.(*)..")
+        .addRule(TaikaiRule.of(slices().matching("com.enofex.taikai.exports.fixtures.(*)..")
             .should().beFreeOfCycles())), SarifExport.file(sarifFile()));
 
     assertEquals(1, occurrences(sarif, "\"locations\""), sarif);
-    assertTrue(sarif.contains(cycleUri("left/Left.java")), sarif);
+    assertTrue(sarif.contains(fixtureUri("billing/Invoice.java")), sarif);
   }
 
   @Test
@@ -162,8 +163,8 @@ class SarifExportTest {
         SarifExport.file(sarifFile()));
 
     assertEquals(2, occurrences(sarif, "\"locations\""), sarif);
-    assertTrue(sarif.contains(cycleUri("left/Left.java")), sarif);
-    assertTrue(sarif.contains(cycleUri("right/package-info.java")), sarif);
+    assertTrue(sarif.contains(fixtureUri("billing/Invoice.java")), sarif);
+    assertTrue(sarif.contains(fixtureUri("payment/package-info.java")), sarif);
   }
 
   @Test
@@ -193,8 +194,7 @@ class SarifExportTest {
   void shouldFailWithoutConfiguredFile() {
     Taikai taikai = Taikai.builder()
         .classes(Printer.class)
-        .discoverExports(exports -> exports
-            .exclude(AgentsMarkdownExport.class, MetricsMarkdownExport.class))
+        .discoverExports(ExportChecks.only(SarifExport.class))
         .build();
 
     TaikaiException exception = assertThrows(TaikaiException.class, taikai::export);
@@ -219,7 +219,7 @@ class SarifExportTest {
 
   /**
    * The lookup of the source file of the {@link Printer} in the source directory {@code sources},
-   * which the tests fill, outside of the directory of its package.
+   * outside of its package directory.
    */
   @Nested
   class SourceFileLookup {
@@ -285,7 +285,7 @@ class SarifExportTest {
     }
 
     /**
-     * Copies this file to the given path in the source directory, after the given bytes.
+     * Copies this file into the source directory, after the given bytes.
      */
     private Path copy(String path, byte... start) throws IOException {
       byte[] source = Files.readAllBytes(SOURCE_FILE);
@@ -295,9 +295,6 @@ class SarifExportTest {
       return Files.write(source(path), content);
     }
 
-    /**
-     * Returns the given path in the source directory, and creates its parent directories.
-     */
     private Path source(String path) throws IOException {
       Path file = SarifExportTest.this.directory.resolve("sources").resolve(path);
       Files.createDirectories(file.getParent());
@@ -325,12 +322,7 @@ class SarifExportTest {
   }
 
   private String export(Taikai.Builder builder, SarifExport.Settings settings) throws IOException {
-    builder
-        .discoverExports(exports -> exports
-            .exclude(AgentsMarkdownExport.class, MetricsMarkdownExport.class)
-            .configure(SarifExport.class, settings))
-        .build()
-        .export();
+    ExportChecks.export(builder, SarifExport.class, settings);
 
     return Files.readString(Path.of(settings.file()), StandardCharsets.UTF_8);
   }
@@ -355,15 +347,16 @@ class SarifExportTest {
   }
 
   /**
-   * Imports the packages {@code left} and {@code right}, which depend on each other. Only
-   * {@code right} has a {@code package-info}.
+   * Returns the fixtures {@code billing} and {@code payment}, which depend on each other in a
+   * cycle, and of which only {@code payment} has a {@code package-info}.
    */
   private static JavaClasses cycle() {
-    return new ClassFileImporter().importPackages("com.enofex.taikai.exports.cycle");
+    return new ClassFileImporter().importPackages("com.enofex.taikai.exports.fixtures.billing",
+        "com.enofex.taikai.exports.fixtures.payment");
   }
 
-  private static String cycleUri(String file) {
-    return "\"uri\": \"" + CYCLE.resolve(file).toAbsolutePath().toUri() + "\"";
+  private static String fixtureUri(String file) {
+    return "\"uri\": \"" + FIXTURES.resolve(file).toAbsolutePath().toUri() + "\"";
   }
 
   static final class Printer {

@@ -161,22 +161,8 @@ public final class Taikai {
   }
 
   /**
-   * Returns the list of class exclusion patterns that should not be validated by any rule.
-   *
-   * <p>The following patterns are supported:
-   * <ul>
-   *   <li><b>Fully qualified class name</b><br>
-   *       {@code com.enofex.taikai.internal.a.MyClass}</li>
-   *
-   *   <li><b>Package wildcard</b> (classes directly in a package)<br>
-   *       {@code com.enofex.taikai.internal.a.*}</li>
-   *
-   *   <li><b>Recursive package wildcard</b> (package and all subpackages)<br>
-   *       {@code com.enofex.taikai.internal.a..}</li>
-   * </ul>
-   *
-   * <p>Patterns are matched against the fully qualified class name, for example
-   * {@code com.enofex.taikai.internal.a.MyClass}.</p>
+   * Returns the names and patterns of the classes that no rule checks, see
+   * {@link Builder#excludeClasses(Collection)}.
    *
    * @return the collection of class exclusion patterns
    */
@@ -703,7 +689,7 @@ public final class Taikai {
     }
 
     /**
-     * Excludes the given classes from all rule checks by their class objects.
+     * Excludes the given classes from all rules by their class objects.
      *
      * @param classes the classes to exclude
      * @return this builder for fluent chaining
@@ -716,8 +702,8 @@ public final class Taikai {
     }
 
     /**
-     * Excludes the given classes from all rule checks by their fully qualified names.
-     * Supports wildcard patterns:
+     * Excludes the given classes from all rules by their fully qualified names. Supports wildcard
+     * patterns, which are matched against the fully qualified class names:
      * <ul>
      *   <li>{@code com.company.project.Foo} — single class</li>
      *   <li>{@code com.company.project.*} — all classes directly in the package</li>
@@ -733,8 +719,8 @@ public final class Taikai {
     }
 
     /**
-     * Excludes the given classes from all rule checks by their fully qualified names.
-     * Supports the same wildcard patterns as {@link #excludeClasses(Collection)}.
+     * Excludes the given classes from all rules by their fully qualified names. Supports the same
+     * wildcard patterns as {@link #excludeClasses(Collection)}.
      *
      * @param classNames the class names or patterns to exclude
      * @return this builder for fluent chaining
@@ -745,7 +731,7 @@ public final class Taikai {
     }
 
     /**
-     * Excludes all classes matching the given criteria from all rule checks, for example
+     * Excludes all classes matching the given criteria from all rules, for example
      * generated code: {@code excludeClasses(ClassCriteria.inPackage("..generated.."))}.
      * Can be called multiple times; a class matching any of the criteria is excluded.
      *
@@ -756,8 +742,6 @@ public final class Taikai {
      * @param classes the classes to exclude, selected with {@link ClassCriteria} or an ArchUnit
      *     predicate
      * @return this builder for fluent chaining
-     * @see com.enofex.taikai.ClassCriteria
-     * @see com.tngtech.archunit.base.DescribedPredicate
      */
     public Builder excludeClasses(DescribedPredicate<? super JavaClass> classes) {
       this.excludedCriteria.add(requireNonNull(classes));

@@ -16,13 +16,9 @@ import com.enofex.taikai.configures.DisableableConfigurer;
 import com.enofex.taikai.internal.Namespaces;
 
 /**
- * Configures and enforces conventions for Spring Boot application classes using
- * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for the Spring Boot application class, the class annotated with
+ * {@code @SpringBootApplication}:
  *
- * <p>This configurer ensures that the class annotated with {@code @SpringBootApplication}
- * resides in the correct package, maintaining a clear and predictable project structure.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -32,9 +28,6 @@ import com.enofex.taikai.internal.Namespaces;
  *         )
  *     );
  * }</pre>
- *
- * <p>By default, this rule ensures that your {@code @SpringBootApplication}-annotated class
- * is located in the defined root package or a designated boot package.</p>
  */
 public final class BootConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -43,14 +36,10 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
   }
 
   /**
-   * Adds a rule that classes annotated with {@code @SpringBootApplication} must reside in the
-   * project's root package, which is the namespace configured via
-   * {@link com.enofex.taikai.Taikai.Builder#namespace(String)}.
-   *
-   * <p>This variant uses the namespace provided in the Taikai configuration
-   * and applies the rule without requiring an explicit package argument. The namespace is read
-   * when the rule is configured, so it must be set on the builder before {@code spring(...)} is
-   * first configured.</p>
+   * See {@link #applicationClassShouldResideInPackage(String)}, but for the namespace configured
+   * with {@link com.enofex.taikai.Taikai.Builder#namespace(String)} as the package. The namespace
+   * is read when the rule is configured, so it must be set on the builder before
+   * {@code spring(...)} is first configured.
    *
    * @return this configurer for fluent chaining
    * @throws TaikaiException if no namespace is configured

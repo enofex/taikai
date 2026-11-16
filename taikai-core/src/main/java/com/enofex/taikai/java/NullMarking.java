@@ -43,7 +43,7 @@ public final class NullMarking {
   /**
    * Returns a null marking with the given annotations.
    *
-   * @param marked   the fully qualified name of the annotation that marks a scope as null-marked
+   * @param marked the fully qualified name of the annotation that marks a scope as null-marked
    * @param unmarked the fully qualified name of the annotation that opts a scope out again
    * @return the null marking
    */

@@ -21,14 +21,8 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for Spring {@code @Service} classes
- * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Spring services, the classes annotated with {@code @Service}:
  *
- * <p>This configurer ensures that service-layer classes follow consistent naming conventions,
- * are properly annotated with {@code @Service} and maintain clean architectural boundaries
- * by not depending on controller-layer components.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -40,8 +34,6 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *         )
  *     );
  * }</pre>
- *
- * <p>By default, this configurer applies to classes annotated with {@code @Service}.</p>
  */
 public final class ServicesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -119,14 +111,12 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
   }
 
   /**
-   * Adds a rule that classes matching the given criteria must be annotated with {@code @Service}.
-   * Interfaces are excluded.
+   * See {@link #shouldBeAnnotatedWithService()}, but for the classes matching the given criteria
+   * instead.
    *
    * @param classes the service classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ServicesConfigurer shouldBeAnnotatedWithService(
       DescribedPredicate<? super JavaClass> classes) {
@@ -140,8 +130,6 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
    * @param classes the service classes
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ServicesConfigurer shouldBeAnnotatedWithService(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {

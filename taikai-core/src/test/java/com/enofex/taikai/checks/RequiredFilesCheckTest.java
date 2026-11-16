@@ -79,7 +79,8 @@ class RequiredFilesCheckTest {
     Path license = Files.writeString(this.directory.resolve("LICENSE"), "");
 
     TestCheckContext context = TestCheckContext.of(RequiredFilesCheck.class, module)
-        .withConfiguration(RequiredFilesCheck.files("../README.md", "../LICENSE", "../SECURITY.md"));
+        .withConfiguration(
+            RequiredFilesCheck.files("../README.md", "../LICENSE", "../SECURITY.md"));
 
     assertEquals(List.of(
             license + " is empty",

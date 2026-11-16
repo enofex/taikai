@@ -23,14 +23,8 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for Spring {@code @Repository} classes
- * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Spring repositories, the classes annotated with {@code @Repository}:
  *
- * <p>This configurer ensures that repository classes follow consistent naming conventions,
- * are properly annotated with {@code @Repository} and maintain clean architectural boundaries
- * by not depending on service-layer components.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -43,8 +37,6 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *         )
  *     );
  * }</pre>
- *
- * <p>By default, this configurer applies to classes annotated with {@code @Repository}.</p>
  */
 public final class RepositoriesConfigurer extends AbstractConfigurer implements
     DisableableConfigurer {
@@ -124,14 +116,12 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that classes matching the given criteria must be annotated with
-   * {@code @Repository}. Interfaces, such as Spring Data repositories, are excluded.
+   * See {@link #shouldBeAnnotatedWithRepository()}, but for the classes matching the given
+   * criteria instead.
    *
    * @param classes the repository classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(
       DescribedPredicate<? super JavaClass> classes) {
@@ -145,8 +135,6 @@ public final class RepositoriesConfigurer extends AbstractConfigurer implements
    * @param classes the repository classes
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public RepositoriesConfigurer shouldBeAnnotatedWithRepository(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {

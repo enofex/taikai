@@ -1,7 +1,7 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.internal.Modifiers.isFieldFinal;
-import static com.enofex.taikai.internal.Modifiers.isFieldStatic;
+import static com.enofex.taikai.internal.Modifiers.isStatic;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaField;
@@ -18,7 +18,7 @@ final class SerialVersionUID {
     return new ArchCondition<>("be static final long") {
       @Override
       public void check(JavaField javaField, ConditionEvents events) {
-        if (!isFieldStatic(javaField) || !isFieldFinal(javaField) || !isLong(javaField)) {
+        if (!isStatic(javaField) || !isFieldFinal(javaField) || !isLong(javaField)) {
           events.add(SimpleConditionEvent.violated(javaField,
               "Field %s in class %s is not static final long".formatted(
                   javaField.getName(),

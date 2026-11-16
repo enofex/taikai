@@ -1,65 +1,77 @@
 package com.enofex.taikai.metrics;
 
+import static com.enofex.taikai.metrics.MetricsChecks.SHOP;
 import static com.enofex.taikai.metrics.MetricsChecks.check;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 /**
- * The fixtures in {@code shop} form three packages: {@code app} depends on {@code api} and
- * {@code domain}, and {@code api} depends on {@code domain}.
+ * The fixtures in {@code fixtures.shop} form three packages: {@code app} depends on {@code api}
+ * and {@code domain}, and {@code api} depends on {@code domain}.
  */
 class PackageMetricsTest {
 
-  private static final String SHOP = "com.enofex.taikai.metrics.shop";
+  @Nested
+  class PackagesShouldNotExceedMaxClasses {
 
-  @Test
-  void shouldAllowClassesUpToMax() {
-    assertDoesNotThrow(check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxClasses(2)));
+    @Test
+    void shouldAllowClassesUpToMax() {
+      assertDoesNotThrow(check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxClasses(2)));
+    }
+
+    @Test
+    void shouldThrowWhenClassesExceedMax() {
+      AssertionError error = assertThrows(AssertionError.class,
+          check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxClasses(1)));
+
+      assertTrue(error.getMessage().contains(
+          "Package %s.app contains 2 classes, max allowed: 1".formatted(SHOP)));
+    }
   }
 
-  @Test
-  void shouldThrowWhenClassesExceedMax() {
-    AssertionError error = assertThrows(AssertionError.class,
-        check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxClasses(1)));
+  @Nested
+  class PackagesShouldNotExceedMaxDependencies {
 
-    assertTrue(error.getMessage().contains(
-        "Package %s.app contains 2 classes, max allowed: 1".formatted(SHOP)));
+    @Test
+    void shouldAllowPackageDependenciesUpToMax() {
+      assertDoesNotThrow(check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxDependencies(2)));
+    }
+
+    @Test
+    void shouldThrowWhenPackageDependenciesExceedMax() {
+      AssertionError error = assertThrows(AssertionError.class,
+          check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxDependencies(1)));
+
+      assertTrue(error.getMessage().contains(
+          "Package %1$s.app depends on 2 packages (%1$s.api, %1$s.domain), max allowed: 1"
+              .formatted(SHOP)));
+      assertFalse(error.getMessage().contains("Package %s.api ".formatted(SHOP)));
+    }
   }
 
-  @Test
-  void shouldAllowPackageDependenciesUpToMax() {
-    assertDoesNotThrow(check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxDependencies(2)));
-  }
+  @Nested
+  class PackagesShouldNotExceedMaxRelativeVisibility {
 
-  @Test
-  void shouldThrowWhenPackageDependenciesExceedMax() {
-    AssertionError error = assertThrows(AssertionError.class,
-        check(SHOP, metrics -> metrics.packagesShouldNotExceedMaxDependencies(1)));
+    @Test
+    void shouldAllowRelativeVisibilityUpToMax() {
+      assertDoesNotThrow(check(SHOP + ".app",
+          metrics -> metrics.packagesShouldNotExceedMaxRelativeVisibility(0.5)));
+    }
 
-    assertTrue(error.getMessage().contains(
-        "Package %1$s.app depends on 2 packages (%1$s.api, %1$s.domain), max allowed: 1"
-            .formatted(SHOP)));
-    assertFalse(error.getMessage().contains("Package %s.api ".formatted(SHOP)));
-  }
+    @Test
+    void shouldThrowWhenRelativeVisibilityExceedsMax() {
+      AssertionError error = assertThrows(AssertionError.class, check(SHOP,
+          metrics -> metrics.packagesShouldNotExceedMaxRelativeVisibility(0.5)));
 
-  @Test
-  void shouldAllowRelativeVisibilityUpToMax() {
-    assertDoesNotThrow(check(SHOP + ".app",
-        metrics -> metrics.packagesShouldNotExceedMaxRelativeVisibility(0.5)));
-  }
-
-  @Test
-  void shouldThrowWhenRelativeVisibilityExceedsMax() {
-    AssertionError error = assertThrows(AssertionError.class, check(SHOP,
-        metrics -> metrics.packagesShouldNotExceedMaxRelativeVisibility(0.5)));
-
-    assertTrue(error.getMessage().contains(
-        "Package %s.domain has a relative visibility of 1.00 (1 of 1 classes are public), "
-            .formatted(SHOP) + "max allowed: 0.5"));
-    assertFalse(error.getMessage().contains("Package %s.app ".formatted(SHOP)));
+      assertTrue(error.getMessage().contains(
+          "Package %s.domain has a relative visibility of 1.00 (1 of 1 classes are public), "
+              .formatted(SHOP) + "max allowed: 0.5"));
+      assertFalse(error.getMessage().contains("Package %s.app ".formatted(SHOP)));
+    }
   }
 }

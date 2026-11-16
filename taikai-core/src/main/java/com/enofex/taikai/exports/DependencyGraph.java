@@ -17,8 +17,8 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 /**
- * A directed graph of the nodes {@code 0} to {@code nodes - 1} without dependencies of a node on
- * itself. The targets are sorted, so that the graph does not depend on the order of adding them.
+ * A directed graph of the nodes {@code 0} to {@code nodes - 1}. Its targets are sorted, so that it
+ * does not depend on the order of adding them.
  */
 final class DependencyGraph {
 
@@ -32,9 +32,6 @@ final class DependencyGraph {
     }
   }
 
-  /**
-   * Returns the index of every item of a list.
-   */
   static <T> Map<T, Integer> indexes(List<T> items) {
     Map<T, Integer> indexOf = new HashMap<>();
 
@@ -133,10 +130,9 @@ final class DependencyGraph {
   }
 
   /**
-   * Returns the position of every node from top to bottom in the layered order, which the
-   * {@link DependencyChart} and the {@link DependencyMatrix} share: the components in the order of
-   * their dependencies, and the nodes of a cycle by the heuristic of Eades, Lin and Smyth, which
-   * puts as few of their dependencies upwards as it can.
+   * Returns the position of every node in the layered order that the {@link DependencyChart} and
+   * the {@link DependencyMatrix} share: the components in the order of their dependencies, and the
+   * nodes of a cycle by the heuristic of Eades, Lin and Smyth, which puts few dependencies upwards.
    *
    * @param components the components, as {@link #components()} returns them
    */
@@ -157,9 +153,8 @@ final class DependencyGraph {
   }
 
   /**
-   * Orders the nodes of a cycle: sinks go to the end and sources to the start, then the node with
-   * the most outgoing over incoming dependencies to the start, counting only the nodes not ordered
-   * yet.
+   * Orders the nodes of a cycle: sinks to the end, sources to the start, else the node with the
+   * most outgoing over incoming dependencies to the start.
    */
   private List<Integer> greedyOrder(List<Integer> component) {
     Set<Integer> remaining = new LinkedHashSet<>(component);

@@ -31,15 +31,13 @@ import java.util.Set;
 import java.util.function.Function;
 
 /**
- * Configures and enforces rules that limit code metrics using {@link com.tngtech.archunit ArchUnit}
- * through the Taikai framework: the depth of inheritance, the number of method parameters, the size
- * of packages, and the coupling between classes and between packages.
+ * Rules that limit code metrics: the depth of inheritance, the number of method parameters, the
+ * size of packages, and the coupling between classes and between packages.
  *
  * <p>Only checked classes count, never those of the JDK or of frameworks. Rules that take criteria
  * check only the matching classes or methods, but still count all checked classes. Every package
  * is a component of its own, without its subpackages. A negative limit is rejected.</p>
  *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -54,6 +52,9 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
 
   private final Set<Class<? extends Configurer>> extensions = new LinkedHashSet<>();
 
+  /**
+   * @param configurerContext the context of the builder
+   */
   public MetricsConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }
@@ -62,7 +63,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * Adds a rule that classes must not have more than the given number of superclasses among the
    * checked classes. Interfaces and anonymous classes are not checked.
    *
-   * @param maxInheritanceDepth maximum number of superclasses
+   * @param maxInheritanceDepth the maximum number of superclasses
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxInheritanceDepth} is negative
    */
@@ -74,7 +75,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #classesShouldNotExceedMaxInheritanceDepth(int)}, but with {@link Configuration}
    * for customization.
    *
-   * @param maxInheritanceDepth maximum number of superclasses
+   * @param maxInheritanceDepth the maximum number of superclasses
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxInheritanceDepth} is negative
@@ -95,11 +96,9 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
    *     an ArchUnit predicate
-   * @param maxInheritanceDepth maximum number of superclasses
+   * @param maxInheritanceDepth the maximum number of superclasses
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxInheritanceDepth} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer classesShouldNotExceedMaxInheritanceDepth(
       DescribedPredicate<? super JavaClass> classes, int maxInheritanceDepth) {
@@ -112,12 +111,10 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * {@link Configuration} for customization.
    *
    * @param classes the classes to check
-   * @param maxInheritanceDepth maximum number of superclasses
+   * @param maxInheritanceDepth the maximum number of superclasses
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxInheritanceDepth} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer classesShouldNotExceedMaxInheritanceDepth(
       DescribedPredicate<? super JavaClass> classes, int maxInheritanceDepth,
@@ -135,7 +132,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * Adds a rule that classes must not have more than the given number of direct subclasses among
    * the checked classes. Anonymous classes do not count, and interfaces are not checked.
    *
-   * @param maxSubclasses maximum number of direct subclasses
+   * @param maxSubclasses the maximum number of direct subclasses
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxSubclasses} is negative
    */
@@ -147,7 +144,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #classesShouldNotExceedMaxSubclasses(int)}, but with {@link Configuration} for
    * customization.
    *
-   * @param maxSubclasses maximum number of direct subclasses
+   * @param maxSubclasses the maximum number of direct subclasses
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxSubclasses} is negative
@@ -168,11 +165,9 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
    *     an ArchUnit predicate
-   * @param maxSubclasses maximum number of direct subclasses
+   * @param maxSubclasses the maximum number of direct subclasses
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxSubclasses} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer classesShouldNotExceedMaxSubclasses(
       DescribedPredicate<? super JavaClass> classes, int maxSubclasses) {
@@ -184,12 +179,10 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * {@link Configuration} for customization.
    *
    * @param classes the classes to check
-   * @param maxSubclasses maximum number of direct subclasses
+   * @param maxSubclasses the maximum number of direct subclasses
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxSubclasses} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer classesShouldNotExceedMaxSubclasses(
       DescribedPredicate<? super JavaClass> classes, int maxSubclasses,
@@ -206,7 +199,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * Adds a rule that methods must not have more than the given number of parameters. Constructors
    * and synthetic methods generated by the compiler are not checked.
    *
-   * @param maxMethodParameters maximum number of allowed parameters
+   * @param maxMethodParameters the maximum number of allowed parameters
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
    */
@@ -218,7 +211,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #methodsShouldNotExceedMaxParameters(int)}, but with {@link Configuration} for
    * customization.
    *
-   * @param maxMethodParameters maximum number of allowed parameters
+   * @param maxMethodParameters the maximum number of allowed parameters
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
@@ -240,11 +233,9 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    *
    * @param methods the methods to check, selected with
    *     {@link com.enofex.taikai.MethodCriteria} or an ArchUnit predicate
-   * @param maxMethodParameters maximum number of allowed parameters
+   * @param maxMethodParameters the maximum number of allowed parameters
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
-   * @see com.enofex.taikai.MethodCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer methodsShouldNotExceedMaxParameters(
       DescribedPredicate<? super JavaMethod> methods, int maxMethodParameters) {
@@ -257,12 +248,10 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * {@link Configuration} for customization.
    *
    * @param methods the methods to check
-   * @param maxMethodParameters maximum number of allowed parameters
+   * @param maxMethodParameters the maximum number of allowed parameters
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
-   * @see com.enofex.taikai.MethodCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer methodsShouldNotExceedMaxParameters(
       DescribedPredicate<? super JavaMethod> methods, int maxMethodParameters,
@@ -283,11 +272,9 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    *
    * @param classes the classes whose declared methods are checked, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
-   * @param maxMethodParameters maximum number of allowed parameters
+   * @param maxMethodParameters the maximum number of allowed parameters
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer methodsShouldNotExceedMaxParametersForClass(
       DescribedPredicate<? super JavaClass> classes, int maxMethodParameters) {
@@ -300,12 +287,10 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * {@link Configuration} for customization.
    *
    * @param classes the classes whose declared methods are checked
-   * @param maxMethodParameters maximum number of allowed parameters
+   * @param maxMethodParameters the maximum number of allowed parameters
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer methodsShouldNotExceedMaxParametersForClass(
       DescribedPredicate<? super JavaClass> classes, int maxMethodParameters,
@@ -323,7 +308,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
   /**
    * Adds a rule that packages must not contain more than the given number of top-level classes.
    *
-   * @param maxClasses maximum number of top-level classes in a package
+   * @param maxClasses the maximum number of top-level classes in a package
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxClasses} is negative
    */
@@ -335,7 +320,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #packagesShouldNotExceedMaxClasses(int)}, but with {@link Configuration} for
    * customization.
    *
-   * @param maxClasses maximum number of top-level classes in a package
+   * @param maxClasses the maximum number of top-level classes in a package
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxClasses} is negative
@@ -356,7 +341,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * their top-level class, and a nested class counts as its top-level class. Only top-level classes
    * are checked.
    *
-   * @param maxDependencies maximum number of classes a class depends on
+   * @param maxDependencies the maximum number of classes a class depends on
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxDependencies} is negative
    */
@@ -368,7 +353,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #classesShouldNotExceedMaxDependencies(int)}, but with {@link Configuration} for
    * customization.
    *
-   * @param maxDependencies maximum number of classes a class depends on
+   * @param maxDependencies the maximum number of classes a class depends on
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxDependencies} is negative
@@ -389,11 +374,9 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    *
    * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
    *     an ArchUnit predicate
-   * @param maxDependencies maximum number of classes a class depends on
+   * @param maxDependencies the maximum number of classes a class depends on
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxDependencies} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer classesShouldNotExceedMaxDependencies(
       DescribedPredicate<? super JavaClass> classes, int maxDependencies) {
@@ -406,12 +389,10 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * {@link Configuration} for customization.
    *
    * @param classes the classes to check
-   * @param maxDependencies maximum number of classes a class depends on
+   * @param maxDependencies the maximum number of classes a class depends on
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxDependencies} is negative
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public MetricsConfigurer classesShouldNotExceedMaxDependencies(
       DescribedPredicate<? super JavaClass> classes, int maxDependencies,
@@ -428,7 +409,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * Adds a rule that packages must not depend on more than the given number of other packages of
    * checked classes.
    *
-   * @param maxDependencies maximum number of packages a package depends on
+   * @param maxDependencies the maximum number of packages a package depends on
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxDependencies} is negative
    */
@@ -440,7 +421,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #packagesShouldNotExceedMaxDependencies(int)}, but with {@link Configuration} for
    * customization.
    *
-   * @param maxDependencies maximum number of packages a package depends on
+   * @param maxDependencies the maximum number of packages a package depends on
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxDependencies} is negative
@@ -460,7 +441,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * The relative visibility is the share of public top-level classes among all top-level classes of
    * a package, as defined by Herbert Dowalil. The value is rounded to two decimal places.
    *
-   * @param maxRelativeVisibility maximum share of public classes, between 0 and 1
+   * @param maxRelativeVisibility the maximum share of public classes, between 0 and 1
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxRelativeVisibility} is not between 0 and 1
    */
@@ -474,7 +455,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #packagesShouldNotExceedMaxRelativeVisibility(double)}, but with
    * {@link Configuration} for customization.
    *
-   * @param maxRelativeVisibility maximum share of public classes, between 0 and 1
+   * @param maxRelativeVisibility the maximum share of public classes, between 0 and 1
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxRelativeVisibility} is not between 0 and 1
@@ -495,7 +476,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * them as well. Repeated registrations of the same configurer type accumulate rules.
    *
    * @param customizer the configuration callback
-   * @param supplier factory receiving this builder's configuration context
+   * @param supplier the factory receiving this builder's configuration context
    * @param <T> the configurer type
    * @return this configurer for fluent chaining
    */

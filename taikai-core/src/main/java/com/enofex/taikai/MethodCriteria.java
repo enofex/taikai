@@ -2,6 +2,7 @@ package com.enofex.taikai;
 
 import static java.util.Objects.requireNonNull;
 
+import com.enofex.taikai.internal.DescribedPredicates;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import java.lang.annotation.Annotation;
@@ -23,9 +24,7 @@ public final class MethodCriteria {
   }
 
   /**
-   * Matches methods directly or meta-annotated with the given annotation. Only annotations
-   * kept in the class files can match, so annotations with {@code RetentionPolicy.SOURCE} never
-   * do.
+   * Same as {@link #annotatedWith(String)}, with the class instead of its name.
    *
    * @param annotationType the annotation class
    * @return the method predicate
@@ -44,13 +43,7 @@ public final class MethodCriteria {
    * @return the method predicate
    */
   public static DescribedPredicate<JavaMethod> annotatedWith(String annotationType) {
-    requireNonNull(annotationType);
-    return new DescribedPredicate<>("annotated with " + annotationType) {
-      @Override
-      public boolean test(JavaMethod javaMethod) {
-        return javaMethod.isMetaAnnotatedWith(annotationType);
-      }
-    };
+    return DescribedPredicates.annotatedWith(requireNonNull(annotationType), true).forSubtype();
   }
 
   /**

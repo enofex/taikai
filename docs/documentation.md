@@ -40,7 +40,8 @@ in your own build, verify it after upgrading Taikai.
 
 ## 3. Installation
 
-Taikai belongs on the test classpath only.
+Taikai belongs on the test classpath only. To upgrade from Taikai 1.x, follow the
+[migration guide](https://github.com/enofex/taikai/blob/main/MIGRATION.md).
 
 ### 3.1 Maven
 
@@ -191,7 +192,8 @@ Supported string patterns:
 
 - **Fully qualified class name** — `com.company.project.foo.ClassToExclude`
 - **Package wildcard (`*`)** — classes directly in that package: `com.company.project.foo.*`
-- **Recursive package wildcard (`..`)** — the package and all subpackages: `com.company.project.internal..`
+- **Recursive package wildcard (`..`)** — the package and all subpackages:
+  `com.company.project.internal..`
 
 ```java
 Taikai.builder()
@@ -219,10 +221,11 @@ Taikai.builder()
 ```
 
 !!! warning
-    Class criteria only see annotations that are kept in the class files. `jakarta.annotation.Generated`
-    and `javax.annotation.processing.Generated`, which code generators commonly add, have `SOURCE`
-    retention, so `ClassCriteria.annotatedWith(...)` never matches them. Exclude generated code by
-    package, or by an annotation with `CLASS` or `RUNTIME` retention.
+    Class criteria only see annotations that are kept in the class files.
+    `jakarta.annotation.Generated` and `javax.annotation.processing.Generated`, which code
+    generators commonly add, have `SOURCE` retention, so `ClassCriteria.annotatedWith(...)` never
+    matches them. Exclude generated code by package, or by an annotation with `CLASS` or `RUNTIME`
+    retention.
 
 An exclusion that matches no class has no effect, typically because the class was renamed or
 deleted. Taikai logs a warning for such an exclusion, whether it is global or belongs to a single
@@ -232,12 +235,13 @@ rule, so stale exclusions can be removed:
 WARNING: Exclusion 'com.company.project.foo.ClassToExclude' matches no class, so it can be removed
 ```
 
-To exclude classes from a single rule only, use [`Configuration`](#58-per-rule-configuration) instead.
+To exclude classes from a single rule only, use [`Configuration`](#58-per-rule-configuration)
+instead.
 
 !!! warning
     Exclusions, whether by name or by criteria, are only applied on the namespace path, so they take
-    effect only when the classes come from `namespace(...)`. If you supply the classes yourself — globally via
-    [`classes(...)`](#52-selecting-classes-directly) or per rule via
+    effect only when the classes come from `namespace(...)`. If you supply the classes yourself —
+    globally via [`classes(...)`](#52-selecting-classes-directly) or per rule via
     `Configuration.of(JavaClasses)` — `excludeClasses(...)` is silently ignored. Filter the
     `JavaClasses` before handing them over, or pass the exclusions together with a rule's classes
     in `Configuration.of(JavaClasses, Collection<T>)`.
@@ -412,8 +416,8 @@ rather than class literals.
 
 ### 5.9 Disabling a Rule Group
 
-Every configurer implements `disable()`, which clears all rules registered on that configurer. This
-is mainly useful when a shared [profile](#511-reusable-rule-profiles) enables a group that a
+Every rule configurer implements `disable()`, which clears all rules registered on that configurer.
+This is mainly useful when a shared [profile](#511-reusable-rule-profiles) enables a group that a
 particular module must not run.
 
 ```java
@@ -426,10 +430,6 @@ Taikai.builder()
     .build()
     .checkAll();
 ```
-
-Every rule group has `disable()`: `java`, `imports`, `naming`, `logging`, `test`, `junit`, `spring`,
-`boot`, `properties`, `configurations`, `controllers`, `services`, `repositories`, `transactional`,
-`quarkus`, `resources`, `panache`, `ai`, `jpa`, `entities` and `metrics`.
 
 `disable()` cascades to nested configurers: `java(...)` also clears `naming` and `imports`,
 `spring(...)` clears all its sub-configurers, `quarkus(...)` clears `resources`, `panache` and `ai`,
@@ -550,7 +550,6 @@ types too, and `FieldCriteria.ofType(...)` selects fields by class criteria on t
 | Criterion | Matches |
 |-----------|---------|
 | `ClassCriteria.annotatedWith(Class<? extends Annotation> annotationType)` | classes directly or meta-annotated with the annotation; `SOURCE`-retention annotations never match |
-| `ClassCriteria.annotatedWith(String annotationType)` | same, by fully qualified name without `@` |
 | `ClassCriteria.type(Class<?> clazz)` | exactly the type, without its subtypes, for example `Optional` |
 | `ClassCriteria.assignableTo(Class<?> clazz)` | classes extending or implementing the type, directly or indirectly; the type itself does not match |
 | `ClassCriteria.implementing(Class<?> clazz)` | classes implementing the interface, directly or indirectly; interfaces never match |
@@ -558,8 +557,8 @@ types too, and `FieldCriteria.ofType(...)` selects fields by class criteria on t
 | `ClassCriteria.simpleNameMatching(String regex)` | the entire **simple** class name, for example `OrderDto` |
 | `ClassCriteria.inPackage(String packageIdentifier)` | classes in an ArchUnit package identifier, for example `com.company.internal..` |
 
-Combine criteria with `.and(...)` and `.or(...)`, and negate them with `DescribedPredicate.not(...)`.
-Any other ArchUnit class predicate works as well, for example
+Combine criteria with `.and(...)` and `.or(...)`, and negate them with
+`DescribedPredicate.not(...)`. Any other ArchUnit class predicate works as well, for example
 `JavaClass.Predicates.assignableTo(Repository.class)`.
 
 ```java
@@ -594,9 +593,10 @@ Rules that select fields or methods, such as
 | `MethodCriteria.annotatedWith(Class<? extends Annotation> annotationType)` | methods directly or meta-annotated with the annotation |
 
 Every `annotatedWith`, `type`, `assignableTo`, `implementing` and `ofType(Class)` criterion also
-has an overload taking the fully qualified name as a `String`. Field and method criteria combine like class criteria, and with
-ArchUnit member predicates such as `HasModifiers.Predicates.modifier(PUBLIC)`. This allows
-selections that no single rule variant offers:
+has an overload taking the fully qualified name as a `String`. Field and method criteria combine
+like class criteria, and with ArchUnit member predicates such as
+`HasModifiers.Predicates.modifier(PUBLIC)`. This allows selections that no single rule variant
+offers:
 
 ```java
 .java(java -> java
@@ -781,8 +781,9 @@ Taikai.builder()
 #### Changing the context
 
 A `context(...)` function receives the context of a check, which already contains the
-configuration of the check, and returns the context the check gets instead. Extend `ForwardingCheckContext` from `com.enofex.taikai.checks.spi` to override only
-the methods you want to change; it forwards all others to the wrapped context:
+configuration of the check, and returns the context the check gets instead. Extend
+`ForwardingCheckContext` from `com.enofex.taikai.checks.spi` to override only the methods you want
+to change; it forwards all others to the wrapped context:
 
 ```java
 .discoverChecks(checks -> checks
@@ -955,21 +956,26 @@ private static Taikai taikai() {
 }
 ```
 
-The export finds the source file of a violation in the source directories `src/main/java`,
-`src/main/kotlin`, `src/test/java` and `src/test/kotlin`, by the package of its class, or by its
-file name if exactly one source file of that name declares the package. Other directories are
-configured with `SarifExport.file("target/taikai.sarif").withSourceDirectories("src", "generated")`.
-Violations without a line, such as of classes, point to the first line of their file. Code scanning
-on GitHub only shows violations with a location, so violations of a package, such as of the [metrics
-rules](#13-metrics-rules), point to its `package-info.java`, or else to its first class by name, and
-violations of a cycle to one of its dependencies. Violations without a source file are reported
-without location. The level of a rule is `error`, `warning` or `note` for the ArchUnit priority
-`HIGH`, `MEDIUM` (the default) or `LOW`.
+The level of a violation follows the ArchUnit priority of its rule:
+
+| Priority | Level |
+|----------|-------|
+| `HIGH` | `error` |
+| `MEDIUM` (default) | `warning` |
+| `LOW` | `note` |
+
+Source files are looked up by the package of the class, or else as the only file of their name that
+declares the package, in `src/main/java`, `src/main/kotlin`, `src/test/java` and `src/test/kotlin`
+or the directories set with `.withSourceDirectories("src", "generated")`. GitHub code scanning only
+shows violations with a location, so violations without a line, such as of classes, point to the
+first line of their file, those of a package, such as of the [metrics rules](#13-metrics-rules), to
+its `package-info.java` or else its first class by name, and those of a cycle to one of its
+dependencies. Violations without a source file have no location.
 
 #### Reporting architecture metrics
 
-`MetricsMarkdownExport` writes the architecture metrics as Markdown, with SVG charts next to it, so
-that the architecture and its changes can be reviewed in the repository:
+`MetricsMarkdownExport` writes architecture metrics as Markdown with SVG charts, so that the
+architecture and its changes can be reviewed in the repository:
 
 ```java
 Taikai.builder()
@@ -980,41 +986,27 @@ Taikai.builder()
     .export();
 ```
 
-After a summary, the file has these sections:
+The file explains every metric next to its values:
 
 | Section | Content |
 |---------|---------|
-| Main Sequence | Every package as a dot of its instability and abstractness, sized by its classes, with the main sequence and the zones of pain and uselessness. |
-| Package Map | A treemap of the packages, sized by their classes and colored by their zone. |
-| Packages | Per package its classes, couplings (Ca, Ce), instability (I), abstractness (A), distance from the main sequence (D), relative visibility, libraries and zone. |
-| Package Dependencies | The dependencies as a graph and as a dependency structure matrix. Red arrows and cells close a cycle, orange ones depend on a less stable package. Every cycle lists the dependencies that close it, with the classes behind them. |
-| Libraries | A matrix of the libraries that every package uses, named by the first two segments of their packages, such as `org.springframework`, and the packages that use none. |
+| Main Sequence | The abstractness and instability of every package, with the zones of pain and uselessness. |
+| Package Map | The packages as a treemap, sized by their classes and colored by their zone. |
+| Packages | The classes, couplings, instability, abstractness, distance, visibility, libraries and zone of every package. |
+| Package Dependencies | The dependencies as a graph and as a matrix: red ones close a cycle, orange ones depend on a less stable package. |
+| Libraries | The libraries that every package uses, such as `org.springframework`. |
 | Inheritance | The deepest and most extended classes. |
 | Coupling | The classes with the highest fan-in and fan-out. |
-| Cohesion | The least cohesive classes by LCOM4, the number of groups of methods that share nothing: 1 is best. |
+| Cohesion | The least cohesive classes by LCOM4. Members used through `super` connect no methods. |
 
-`I = Ce / (Ca + Ce)`, `A` is the share of abstract classes and interfaces, and `D = |A + I - 1|`. A
-package with `D` above 0.5 is in the zone of pain if it is concrete and stable, and in the zone of
-uselessness if it is abstract and unstable. As for the [metrics rules](#13-metrics-rules), only the
-configured classes count, every package on its own, and packages and coupling count top-level
-classes together with their nested classes. The JDK, the standard libraries of Kotlin, Groovy and
-Scala and the project itself are no libraries. LCOM4 leaves out interfaces, records and anonymous
-classes, and constructors, static and abstract methods, getters and setters. Members used through
-`super` connect no methods, as ArchUnit cannot tell them from those of other objects.
-
-Packages and classes link to their sources in `src/main/java`, `src/main/kotlin`, `src/test/java`
-and `src/test/kotlin`, or in the directories given with
-`.withSourceDirectories("src", "generated")`. The charts are named after the file, such as
-`docs/METRICS-dependencies.svg`, and written next to it or into the directory given with
-`.withImageDirectory("docs/images")`. A dependency graph wider than 3000 pixels is replaced by a
-note that refers to the matrix. All files only change when the architecture does, so they can be
-committed.
+Names link to their sources, which are looked up as for the SARIF export. The charts are named after
+the file, such as `docs/METRICS-dependencies.svg`, and `.withImageDirectory("docs/images")` writes
+them elsewhere. The files only change when the architecture does, so they can be committed.
 
 ## 6. How to Read the Rule Reference
 
 Sections 7 to 13 document every rule, and Section 14 the predefined checks. To keep them readable,
-examples are shown as **fragments**
-rather than complete tests. A fragment such as
+examples are shown as **fragments** rather than complete tests. A fragment such as
 
 ```java
 .java(java -> java
@@ -1036,24 +1028,22 @@ Conventions used throughout the reference:
 
 - Rules are fluent and chainable; each returns its configurer.
 - Wherever a rule takes a single annotation or type, there are two overloads: one taking a
-  `Class<?>` literal and one taking a fully qualified name as a `String`. The `String` form exists so
-  you can reference types that are not on the test classpath. Only one form is shown per rule. Rules
-  that take several annotations, such as
+  `Class<?>` literal and one taking a fully qualified name as a `String`. The `String` form exists
+  so you can reference types that are not on the test classpath. Only one form is shown per rule.
+  Rules that take several annotations, such as
   [`classesShouldBeAnnotatedWithAll`](#classesShouldBeAnnotatedWithAll) or
   [`noSelfInvocationOfProxiedMethods`](#spring-noSelfInvocationOfProxiedMethods), take their fully
   qualified names only.
-- Rules that apply to a selection of classes take a `DescribedPredicate<? super JavaClass>`,
-  usually built with [`ClassCriteria`](#513-selecting-with-criteria), listed as `classes`.
-  Rules that select fields or methods by name take `FieldCriteria` or `MethodCriteria`, listed as
-  `fields` or `methods`.
+- Parameters such as `classes`, `fields`, `methods` or `forbiddenTypes` take
+  [criteria](#513-selecting-with-criteria).
 - Every rule also has an overload with a trailing `TaikaiRule.Configuration` parameter
   (see [5.8](#58-per-rule-configuration)). It is omitted from the signatures below.
 - `Collection<JavaModifier>` parameters take ArchUnit's
   `com.tngtech.archunit.core.domain.JavaModifier` constants, for example
   `List.of(PUBLIC, STATIC, FINAL)`.
 - A *regex* must match the **whole** name, not merely occur inside it.
-- For **classes**, a regex, including the one in `ClassCriteria.nameMatching`, is matched against the
-  **fully qualified** name, so anchor it with a leading `.*`: `.*Dto` matches
+- For **classes**, a regex, including the one in `ClassCriteria.nameMatching`, is matched against
+  the **fully qualified** name, so anchor it with a leading `.*`: `.*Dto` matches
   `com.company.project.OrderDto`, while `Dto` and `[A-Z].*` match nothing at all.
 - For **methods and fields**, a regex, including the ones in `FieldCriteria.nameMatching` and
   `MethodCriteria.nameMatching`, is matched against the member's own name, without the declaring
@@ -1547,8 +1537,7 @@ limitations, but the methods are selected with method criteria, for example by n
 `methodsShouldNotReturnForClass(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> forbiddenTypes)`
 
 Keeps implementation types out of a layer's return signatures while allowing them to be used
-internally. Both class selectors can be created with `com.enofex.taikai.ClassCriteria` or supplied as
-ArchUnit predicates:
+internally.
 
 ```java
 .java(java -> java
@@ -1561,15 +1550,12 @@ ArchUnit predicates:
             .or(ClassCriteria.inPackage("com.collaborator.client.."))))
 ```
 
-See [5.13](#513-selecting-with-criteria) for the available criteria and how to combine
-them.
-
 The rule checks all methods declared in selected classes, including private methods. It checks the
 declared return type, nested generic arguments, wildcard and type-variable bounds, and array
 components. For example, banning entities rejects `Entity`, `Entity[]`, `List<Entity>` and
 `ResponseEntity<List<Entity>>`. It does not inspect fields, parameters, method bodies or inherited
 methods declared in other classes. Types hidden by an erased signature such as `Object` or a raw
-`List` cannot be detected. A final `Configuration` parameter supports the usual customization.
+`List` cannot be detected.
 
 #### `methodsShouldReturn` { #methodsShouldReturn }
 
@@ -1607,8 +1593,7 @@ Matching one type satisfies the requirement even if the signature contains other
 `Map<Entity, OrderDTO>`. Combine `methodsShouldReturnForClass` with
 `methodsShouldNotReturnForClass` to prohibit entities or internal types as well. The
 [same scope and limitations](#methodsShouldNotReturnForClass) apply: all visibilities are checked,
-inherited declarations are excluded and only declared types are inspected. A final
-`Configuration` parameter supports customization.
+inherited declarations are excluded and only declared types are inspected.
 
 #### `methodsShouldBeAnnotatedWith` { #methodsShouldBeAnnotatedWith }
 
@@ -1751,10 +1736,11 @@ Selects methods by the *declaring class*, so every method of a matching class is
 `noUsageOf(DescribedPredicate<? super JavaClass> classes, DescribedPredicate<? super JavaClass> forbiddenTypes)`
 
 Forbids all usage of a type. With two arguments, the first one selects the classes to check, which
-lets you retire an API layer by layer, for example with `ClassCriteria.inPackage(...)`. A type passed as
-`Class` or name is banned together with its subtypes; with `forbiddenTypes`, every type that matches
-the criteria is banned, for example a whole package. Classes that match `forbiddenTypes` themselves
-are not checked, so the classes of a banned package may still use each other.
+lets you retire an API layer by layer, for example with `ClassCriteria.inPackage(...)`. A type
+passed as `Class` or name is banned together with its subtypes; with `forbiddenTypes`, every type
+that matches the criteria is banned, for example a whole package. Classes that match
+`forbiddenTypes` themselves are not checked, so the classes of a banned package may still use each
+other.
 
 ```java
 .java(java -> java
@@ -1996,7 +1982,7 @@ implementations of an interface or subtypes of a class.
 `methodsShouldMatch(DescribedPredicate<? super JavaMethod> methods, String regex)`
 
 With one argument, all methods must match. The criteria overload restricts the rule to matching
-methods. Synthetic methods generated by the compiler are ignored.
+methods.
 
 ```java
 .java(java -> java
@@ -2016,7 +2002,7 @@ methods.
 ```java
 .java(java -> java
     .naming(naming -> naming
-        .methodsShouldNotMatch("^(foo|bar).*")
+        .methodsShouldNotMatch("^(foo|bar)$")
         .methodsShouldNotMatch(MethodCriteria.annotatedWith(Test.class), "^test.*")))
 ```
 
@@ -2025,7 +2011,7 @@ methods.
 `methodsShouldMatchForClass(DescribedPredicate<? super JavaClass> classes, String regex)`
 
 Selects methods by their *declaring class*, so every method of a matching class must have a name
-matching the regex. Synthetic methods generated by the compiler are ignored.
+matching the regex.
 
 ```java
 .java(java -> java
@@ -2039,7 +2025,7 @@ matching the regex. Synthetic methods generated by the compiler are ignored.
 `methodsShouldNotMatchForClass(DescribedPredicate<? super JavaClass> classes, String regex)`
 
 Selects methods by their *declaring class*, so no method of a matching class may have a name
-matching the regex. Synthetic methods generated by the compiler are ignored.
+matching the regex.
 
 ```java
 .java(java -> java
@@ -2052,12 +2038,11 @@ matching the regex. Synthetic methods generated by the compiler are ignored.
 `fieldsShouldMatch(String regex)`
 `fieldsShouldMatch(DescribedPredicate<? super JavaField> fields, String regex)`
 
-With one argument, all fields must match. Synthetic fields generated by the compiler are ignored.
-The criteria overload constrains the *name* of fields matching the criteria, for example by their
-declared **type** with `FieldCriteria.ofType`. The example below requires every field name to start
-with a letter and contain only letters, digits and underscores, every field of type `Matcher` to be
-named `matcher`, every field whose type is a repository to end with `Repository`, and every
-`@Value` field to be camel case.
+With one argument, all fields must match. The criteria overload constrains the *name* of fields
+matching the criteria, for example by their declared **type** with `FieldCriteria.ofType`. The
+example below requires every field name to start with a letter and contain only letters, digits and
+underscores, every field of type `Matcher` to be named `matcher`, every field whose type is a
+repository to end with `Repository`, and every `@Value` field to be camel case.
 
 ```java
 .java(java -> java
@@ -2092,8 +2077,7 @@ With one argument, no field may match. The criteria overload restricts the rule 
 
 Selects fields by their *declaring class*, so every field of a matching class must have a name
 matching the regex. Unlike [`fieldsShouldMatch`](#naming-fieldsShouldMatch), the criteria select the
-class the field is declared in, not the field's type. Synthetic fields generated by the compiler are
-ignored.
+class the field is declared in, not the field's type.
 
 ```java
 .java(java -> java
@@ -2152,7 +2136,7 @@ Methods returning `boolean` or `Boolean` must start with one of the given prefix
 is `is`, `has`, `can`, `should`; passing a collection replaces it. A prefix has to be followed by an
 uppercase letter or nothing at all, so `is` and `isValid` pass but `issue` does not.
 
-`equals(Object)`, record component accessors and synthetic methods are exempt.
+`equals(Object)` and record component accessors are exempt.
 
 ```java
 .java(java -> java
@@ -2184,6 +2168,8 @@ Default import mode: `WITHOUT_TESTS`.
 |------|----------|
 | [`loggersShouldFollowConventions`](#loggersShouldFollowConventions) | logger fields have a fixed name and modifiers |
 | [`classesShouldUseLogger`](#classesShouldUseLogger) | matching classes have a logger field |
+
+### 8.1 Loggers
 
 #### `loggersShouldFollowConventions` { #loggersShouldFollowConventions }
 
@@ -2251,6 +2237,8 @@ the test sources, including helpers and fixtures without test methods:
 - [`testsShouldBeExecutable`](#junit-testsShouldBeExecutable) applies to all imported classes and
   follows JUnit's own definition of a test method, which also includes `@TestTemplate` and
   `@TestFactory` methods.
+
+### 9.1 JUnit
 
 #### `classesShouldEndWithTest` { #junit-classesShouldEndWithTest }
 
@@ -2366,8 +2354,9 @@ The rule follows the discovery validation of JUnit Jupiter and reports:
 ```
 
 !!! note
-    Inner classes containing test methods without `@Nested` are skipped by JUnit as well. They are
-    reported by [`nestedClassesShouldBeAnnotatedWithNested`](#junit-nestedClassesShouldBeAnnotatedWithNested).
+    Inner classes containing test methods without `@Nested` are skipped by JUnit as well.
+    [`nestedClassesShouldBeAnnotatedWithNested`](#junit-nestedClassesShouldBeAnnotatedWithNested)
+    reports them.
 
 !!! tip
     JUnit can fail the build on these warnings itself. Set the critical severity for discovery
@@ -2443,9 +2432,10 @@ following counts:
 | ArchUnit       | `com.tngtech.archunit.lang.ArchRule.check`                                   |
 | Taikai         | `com.enofex.taikai.Taikai.check` / `checkAll`                                |
 
-Calls made indirectly through helper methods also count, for example a private `assertValid(...)` method in
-the same test class, a method inherited from a base test class or a shared assertion utility. Helper
-methods are followed transitively as long as their classes are part of the imported classes.
+Calls made indirectly through helper methods also count, for example a private `assertValid(...)`
+method in the same test class, a method inherited from a base test class or a shared assertion
+utility. Helper methods are followed transitively as long as their classes are part of the imported
+classes.
 
 ```java
 .test(test -> test
@@ -2702,8 +2692,7 @@ from internal and collaborator packages:
 ```
 
 Composed controller annotations are recognized. The signature checks and limitations are the
-same as the [Java return-type rule](#methodsShouldNotReturnForClass); a `Configuration` overload
-is available.
+same as the [Java return-type rule](#methodsShouldNotReturnForClass).
 
 Use `methodsShouldReturn` to require a matching return type, including inside wrappers. For example,
 require class names ending in `DTO` and also forbid entities:
@@ -2716,8 +2705,7 @@ require class names ending in `DTO` and also forbid entities:
 ```
 
 The requirement applies to each declared controller method, including private helpers and `void`
-methods. It has the [same semantics as the Java rule](#methodsShouldReturnForClass) and a
-`Configuration` overload.
+methods. It has the [same semantics as the Java rule](#methodsShouldReturnForClass).
 
 `shouldBeAnnotatedWithValidated` only flags controllers that actually need it: those with a method
 parameter annotated `@PathVariable` or `@RequestParam` that also carries one of the constraints
@@ -2847,7 +2835,7 @@ are recognized.
 | Rule | Enforces |
 |------|----------|
 | `methodsShouldBePublic()` | `@Transactional` methods are `public` |
-| `methodsShouldBeReadOnly(methods)` | matching transactional methods are read-only |
+| `methodsShouldBeReadOnly(DescribedPredicate<? super JavaMethod> methods)` | matching transactional methods are read-only |
 | `shouldNotBeSelfInvoked()` | `@Transactional` methods are not called from within their own class |
 | `shouldNotBeUsedInControllers()` | transaction boundaries live in the service layer |
 
@@ -3033,14 +3021,8 @@ Default import mode: `WITHOUT_TESTS`.
 
 A value equal to the maximum passes; a negative maximum throws an `IllegalArgumentException`. Only
 checked classes count, so the JDK, frameworks and
-[excluded classes](#54-excluding-classes-globally) never do. Every package counts as a component of
-its own, without its subpackages.
-
-The rules on inheritance depth, subclasses and dependencies, and
-[`methodsShouldNotExceedMaxParametersForClass`](#methodsShouldNotExceedMaxParametersForClass), take
-the classes to check, selected with `ClassCriteria`; `methodsShouldNotExceedMaxParameters` takes the
-methods to check, selected with `MethodCriteria` (see [5.13](#513-selecting-with-criteria)). Classes
-outside the selection still count.
+[excluded classes](#54-excluding-classes-globally) never do, while classes outside the criteria of a
+rule do. Every package counts as a component of its own, without its subpackages.
 
 | Rule | Enforces |
 |------|----------|
@@ -3095,9 +3077,8 @@ enum constant bodies, do not count. Interfaces are not checked.
 `methodsShouldNotExceedMaxParameters(int maxMethodParameters)`
 `methodsShouldNotExceedMaxParameters(DescribedPredicate<? super JavaMethod> methods, int maxMethodParameters)`
 
-Methods must not declare more parameters than the given maximum. Constructors and synthetic methods
-are not checked. For Kotlin, see `functionsShouldNotExceedMaxParameters` in the
-[Kotlin manual](kotlin.md).
+Methods must not declare more parameters than the given maximum. Constructors are not checked. For
+Kotlin, see `functionsShouldNotExceedMaxParameters` in the [Kotlin manual](kotlin.md).
 
 ```java
 .metrics(metrics -> metrics
@@ -3235,16 +3216,16 @@ keep looking at the module:
     .configure(ForbiddenFilesCheck.class, ForbiddenFilesCheck.files("src/main/**/*.key")))
 ```
 
-#### `ClassFileVersionCheck` { #ClassFileVersionCheck }
+### `ClassFileVersionCheck` { #ClassFileVersionCheck }
 
 *Classes should not be compiled for a newer Java version than configured*
 
 Reads the Java version from the header of every class file of the configuration and reports the
 classes compiled for a newer Java version than allowed. Classes imported from the namespace exclude
 test classes and the [globally excluded classes](#54-excluding-classes-globally); classes set with
-[`classes(...)`](#52-selecting-classes-directly) are checked as given. Use it to keep a library usable on
-older Java versions, even when the build runs on a newer JDK. The check needs the newest allowed
-Java version:
+[`classes(...)`](#52-selecting-classes-directly) are checked as given. Use it to keep a library
+usable on older Java versions, even when the build runs on a newer JDK. The check needs the newest
+allowed Java version:
 
 ```java
 .discoverChecks(checks -> checks
@@ -3256,7 +3237,7 @@ Check: Classes should not be compiled for a newer Java version than configured
 	Class com.company.project.OrderService is compiled for Java 21, but at most Java 17 is allowed
 ```
 
-#### `FileContentCheck` { #FileContentCheck }
+### `FileContentCheck` { #FileContentCheck }
 
 *Project files should follow the content rules*
 
@@ -3283,7 +3264,7 @@ Check: Project files should follow the content rules
 	src/main/java/com/company/project/order/package-info.java does not contain required content (should match @NullMarked)
 ```
 
-#### `ForbiddenFilesCheck` { #ForbiddenFilesCheck }
+### `ForbiddenFilesCheck` { #ForbiddenFilesCheck }
 
 *Project should not contain forbidden files*
 
@@ -3316,7 +3297,7 @@ Check: Project should not contain forbidden files
 	src/main/resources/server.key is forbidden (matches src/main/**/*.key)
 ```
 
-#### `GradleWrapperCheck` { #GradleWrapperCheck }
+### `GradleWrapperCheck` { #GradleWrapperCheck }
 
 *Project should have the Gradle Wrapper*
 
@@ -3340,7 +3321,7 @@ Check: Project should have the Gradle Wrapper
 	gradle/wrapper/gradle-wrapper.jar is missing in /home/dev/project
 ```
 
-#### `MavenWrapperCheck` { #MavenWrapperCheck }
+### `MavenWrapperCheck` { #MavenWrapperCheck }
 
 *Project should have the Maven Wrapper*
 
@@ -3363,7 +3344,7 @@ Check: Project should have the Maven Wrapper
 	mvnw.cmd is missing in /home/dev/project
 ```
 
-#### `RequiredFilesCheck` { #RequiredFilesCheck }
+### `RequiredFilesCheck` { #RequiredFilesCheck }
 
 *Project should have the required files*
 
@@ -3387,7 +3368,7 @@ Check: Project should have the required files
 A missing file outside of the project directory is reported with its path, such as
 `/home/dev/README.md is missing`.
 
-#### `ServiceRegistrationsCheck` { #ServiceRegistrationsCheck }
+### `ServiceRegistrationsCheck` { #ServiceRegistrationsCheck }
 
 *Service registrations should refer to valid providers*
 

@@ -1,5 +1,9 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.java.JavaChecks.assertReportsViolations;
+import static com.enofex.taikai.java.JavaChecks.importsOverload;
+import static com.enofex.taikai.java.JavaFixtures.MARKED;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -7,107 +11,181 @@ import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiException;
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.java.JavaFixtures.DateUser;
+import com.enofex.taikai.java.JavaFixtures.PlainClass;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ImportsConfigurerTest {
 
-  @Test
-  void shouldImportByName() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassUsingAllowedImport.class)
-        .java(java -> java.imports(
-            imports -> imports.shouldImport(ClassCriteria.nameMatching(".*ClassUsingAllowedImport"), ClassCriteria.nameMatching("java\\.lang\\..*"))))
-        .build();
+  @Nested
+  class ShouldNotImport {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldNotImportSpecificPackage() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassUsingDisallowedImport.class)
+          .java(java -> java.imports(imports -> imports.shouldNotImport(
+              ClassCriteria.inPackage("java.util"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotImportByName() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassUsingDisallowedImport.class)
+          .java(java -> java.imports(imports -> imports.shouldNotImport(
+              ClassCriteria.nameMatching(".*ClassUsingDisallowedImport"),
+              ClassCriteria.nameMatching("java\\.util\\..*"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldAllowValidImports() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassUsingAllowedImport.class)
+          .java(java -> java.imports(imports -> imports.shouldNotImport(
+              ClassCriteria.inPackage("java.sql"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenUnselectedClassesImportForbiddenTypes() {
+      Taikai taikai = Taikai.builder()
+          .classes(DateUser.class)
+          .java(java -> java.imports(imports -> imports
+              .shouldNotImport(MARKED, ClassCriteria.inPackage("java.util"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          importsOverload("shouldNotImport(DescribedPredicate, Configuration)",
+              imports -> imports.shouldNotImport(ClassCriteria.inPackage("java.util"),
+                  defaultConfiguration()),
+              ClassUsingAllowedImport.class, ClassUsingDisallowedImport.class),
+          importsOverload("shouldNotImport(DescribedPredicate, DescribedPredicate, Configuration)",
+              imports -> imports.shouldNotImport(
+                  ClassCriteria.simpleNameMatching("ClassUsing.*Import"),
+                  ClassCriteria.inPackage("java.util"), defaultConfiguration()),
+              ClassUsingAllowedImport.class, ClassUsingDisallowedImport.class));
+    }
   }
 
-  @Test
-  void shouldThrowExceptionForImportByName() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassUsingAllowedImport.class)
-        .java(java -> java.imports(
-            imports -> imports.shouldImport(ClassCriteria.nameMatching(".*ClassUsingAllowedImport"), ClassCriteria.nameMatching("java\\.not\\.found..*"))))
-        .build();
+  @Nested
+  class ShouldImport {
 
-    assertThrows(AssertionError.class, taikai::check);
+    @Test
+    void shouldImportByName() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassUsingAllowedImport.class)
+          .java(java -> java.imports(imports -> imports.shouldImport(
+              ClassCriteria.nameMatching(".*ClassUsingAllowedImport"),
+              ClassCriteria.nameMatching("java\\.lang\\..*"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowExceptionForImportByName() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassUsingAllowedImport.class)
+          .java(java -> java.imports(imports -> imports.shouldImport(
+              ClassCriteria.nameMatching(".*ClassUsingAllowedImport"),
+              ClassCriteria.nameMatching("java\\.not\\.found..*"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          importsOverload("shouldImport(DescribedPredicate, DescribedPredicate, Configuration)",
+              imports -> imports.shouldImport(
+                  ClassCriteria.simpleNameMatching("DateUser|PlainClass"),
+                  ClassCriteria.inPackage("java.util"), defaultConfiguration()),
+              DateUser.class, PlainClass.class));
+    }
   }
 
-  @Test
-  void shouldNotImportSpecificPackage() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassUsingDisallowedImport.class)
-        .java(java -> java.imports(imports -> imports.shouldNotImport(
-            ClassCriteria.inPackage("java.util"))))
-        .build();
+  @Nested
+  class ShouldHaveNoCycles {
 
-    assertThrows(AssertionError.class, taikai::check);
+    @Test
+    void shouldThrowWhenNamespaceNotSetForCycles() {
+      assertThrows(TaikaiException.class, () -> Taikai.builder()
+          .classes(ClassUsingAllowedImport.class)
+          // no namespace configured
+          .java(java -> java.imports(ImportsConfigurer::shouldHaveNoCycles))
+          .build());
+    }
+
+    @Test
+    void shouldThrowWhenNamespaceNotSetForCyclesWithConfiguration() {
+      assertThrows(TaikaiException.class, () -> Taikai.builder()
+          .classes(ClassUsingAllowedImport.class)
+          .java(java -> java.imports(
+              imports -> imports.shouldHaveNoCycles(defaultConfiguration())))
+          .build());
+    }
+
+    @Test
+    void shouldNotThrowWhenNamespaceSetInConfigurationForCycles() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassUsingAllowedImport.class)
+          .java(java -> java.imports(
+              imports -> imports.shouldHaveNoCycles(Configuration.of(
+                  "com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
-  @Test
-  void shouldDisableImportsConfigurer() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassUsingDisallowedImport.class)
-        .java(java -> java.imports(imports -> {
-          imports.shouldNotImport(ClassCriteria.inPackage("java.util"));
-          imports.disable();
-        }))
-        .build();
+  @Nested
+  class Disable {
 
-    assertDoesNotThrow(taikai::check);
-  }
+    @Test
+    void shouldDisableImportsConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassUsingDisallowedImport.class)
+          .java(java -> java.imports(imports -> {
+            imports.shouldNotImport(ClassCriteria.inPackage("java.util"));
+            imports.disable();
+          }))
+          .build();
 
-  @Test
-  void shouldNotImportByName() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassUsingDisallowedImport.class)
-        .java(java -> java.imports(
-            imports -> imports.shouldNotImport(ClassCriteria.nameMatching(".*ClassUsingDisallowedImport"), ClassCriteria.nameMatching("java\\.util\\..*"))))
-        .build();
-
-    assertThrows(AssertionError.class, taikai::check);
-  }
-
-  @Test
-  void shouldThrowWhenNamespaceNotSetForCycles() {
-    assertThrows(TaikaiException.class, () -> Taikai.builder()
-        .classes(ClassUsingAllowedImport.class)
-        .java(java -> java.imports(ImportsConfigurer::shouldHaveNoCycles)) // no namespace configured
-        .build());
-  }
-
-  @Test
-  void shouldThrowWhenNamespaceNotSetForCyclesWithConfiguration() {
-    assertThrows(TaikaiException.class, () -> Taikai.builder()
-        .classes(ClassUsingAllowedImport.class)
-        .java(java -> java.imports(
-            imports -> imports.shouldHaveNoCycles(
-                TaikaiRule.Configuration.defaultConfiguration())))
-        .build());
-  }
-
-  @Test
-  void shouldNotThrowWhenNamespaceSetInConfigurationForCycles() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassUsingAllowedImport.class)
-        .java(java -> java.imports(
-            imports -> imports.shouldHaveNoCycles(
-                TaikaiRule.Configuration.of("com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS))))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
-  @Test
-  void shouldAllowValidImports() {
-    Taikai taikai = Taikai.builder()
-        .classes(ClassUsingAllowedImport.class)
-        .java(java -> java.imports(imports -> imports.shouldNotImport(
-            ClassCriteria.inPackage("java.sql"))))
-        .build();
-
-    assertDoesNotThrow(taikai::check);
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   static class ClassUsingAllowedImport {

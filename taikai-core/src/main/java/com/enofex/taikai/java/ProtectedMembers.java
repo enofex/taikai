@@ -2,6 +2,9 @@ package com.enofex.taikai.java;
 
 import static com.enofex.taikai.internal.Modifiers.isFieldProtected;
 import static com.enofex.taikai.internal.Modifiers.isMethodProtected;
+import static com.enofex.taikai.internal.Modifiers.isPrivate;
+import static com.enofex.taikai.internal.Modifiers.isPublic;
+import static com.enofex.taikai.internal.Modifiers.isStatic;
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -12,7 +15,6 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.List;
-import java.util.Set;
 
 final class ProtectedMembers {
 
@@ -69,13 +71,11 @@ final class ProtectedMembers {
   }
 
   private static boolean canBeOverriddenFrom(JavaMethod superMethod, JavaClass owner) {
-    Set<JavaModifier> modifiers = superMethod.getModifiers();
-
-    if (modifiers.contains(JavaModifier.PRIVATE) || modifiers.contains(JavaModifier.STATIC)) {
+    if (isPrivate(superMethod) || isStatic(superMethod)) {
       return false;
     }
 
-    return modifiers.contains(JavaModifier.PUBLIC) || modifiers.contains(JavaModifier.PROTECTED)
+    return isPublic(superMethod) || isMethodProtected(superMethod)
         || superMethod.getOwner().getPackageName().equals(owner.getPackageName());
   }
 

@@ -83,11 +83,7 @@ public final class ForbiddenFilesCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no pattern is given
      */
     public Settings {
-      files = List.copyOf(files);
-
-      if (files.isEmpty()) {
-        throw new IllegalArgumentException("At least one forbidden file must be given");
-      }
+      files = CheckSettings.requireNotEmpty(files, "At least one forbidden file must be given");
     }
   }
 }

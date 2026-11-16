@@ -2,6 +2,7 @@ package com.enofex.taikai;
 
 import static java.util.Objects.requireNonNull;
 
+import com.enofex.taikai.internal.DescribedPredicates;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
@@ -24,9 +25,7 @@ public final class FieldCriteria {
   }
 
   /**
-   * Matches fields directly or meta-annotated with the given annotation. Only annotations
-   * kept in the class files can match, so annotations with {@code RetentionPolicy.SOURCE} never
-   * do.
+   * Same as {@link #annotatedWith(String)}, with the class instead of its name.
    *
    * @param annotationType the annotation class
    * @return the field predicate
@@ -45,19 +44,11 @@ public final class FieldCriteria {
    * @return the field predicate
    */
   public static DescribedPredicate<JavaField> annotatedWith(String annotationType) {
-    requireNonNull(annotationType);
-    return new DescribedPredicate<>("annotated with " + annotationType) {
-      @Override
-      public boolean test(JavaField javaField) {
-        return javaField.isMetaAnnotatedWith(annotationType);
-      }
-    };
+    return DescribedPredicates.annotatedWith(requireNonNull(annotationType), true).forSubtype();
   }
 
   /**
-   * Matches fields whose declared raw type is exactly the given type. Subtypes do not match, and
-   * for generic fields only the raw type counts, so {@code List<String>} has the type
-   * {@code java.util.List}.
+   * Same as {@link #ofType(String)}, with the class instead of its name.
    *
    * @param clazz the field type
    * @return the field predicate

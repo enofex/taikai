@@ -22,13 +22,9 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for JPA entities using {@link com.tngtech.archunit ArchUnit}
- * through the Taikai framework.
+ * Rules for JPA entities, the classes annotated with {@code jakarta.persistence.Entity}, including
+ * composed annotations:
  *
- * <p>This configurer ensures that entity classes follow consistent visibility, identifier,
- * optimistic locking, field type and naming rules.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -44,9 +40,6 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *     .build()
  *     .check();
  * }</pre>
- *
- * <p>Entities are classes annotated with {@code jakarta.persistence.Entity}, including composed
- * annotations.</p>
  */
 public final class EntitiesConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -86,8 +79,6 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
    * @param forbiddenTypes the forbidden identifier types, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public EntitiesConfigurer idsShouldNotBeOfType(
       DescribedPredicate<? super JavaClass> forbiddenTypes) {
@@ -101,8 +92,6 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
    * @param forbiddenTypes the forbidden identifier types
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public EntitiesConfigurer idsShouldNotBeOfType(
       DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
@@ -149,8 +138,6 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
    * @param forbiddenTypes the forbidden field types, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public EntitiesConfigurer fieldsShouldNotBeOfType(
       DescribedPredicate<? super JavaClass> forbiddenTypes) {
@@ -164,8 +151,6 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
    * @param forbiddenTypes the forbidden field types
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public EntitiesConfigurer fieldsShouldNotBeOfType(
       DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {

@@ -9,10 +9,8 @@ import java.util.List;
 import java.util.OptionalDouble;
 
 /**
- * Draws the packages as a treemap: every package is a tile whose area is its number of classes and
- * whose color is its zone, the stronger the farther it is from the main sequence. The tiles are
- * laid out by the squarified algorithm of Bruls, Huizing and van Wijk, which keeps them close to
- * squares.
+ * Draws the packages as a treemap: a tile per package, sized by its classes and colored by its
+ * zone. The tiles are laid out by the squarified algorithm of Bruls, Huizing and van Wijk.
  */
 final class PackageMap {
 
@@ -30,9 +28,6 @@ final class PackageMap {
   private PackageMap() {
   }
 
-  /**
-   * Returns the treemap of the packages.
-   */
   static String svg(ArchitectureMetrics metrics) {
     List<PackageMetric> packages = metrics.packages();
 
@@ -94,8 +89,8 @@ final class PackageMap {
   }
 
   /**
-   * Returns a text shortened with an ellipsis to the width, or nothing if not even three characters
-   * fit.
+   * Returns the text shortened with an ellipsis to the width, or nothing if not even three
+   * characters fit.
    */
   private static String text(double x, double y, double width, String text, double charWidth,
       String attributes) {
@@ -111,9 +106,8 @@ final class PackageMap {
   }
 
   /**
-   * Lays out the packages, from the largest to the smallest, in rows along the shorter side of the
-   * remaining space. A package joins the current row as long as that does not make its most
-   * elongated tile worse.
+   * Lays out the packages, largest first, in rows along the shorter side of the remaining space, as
+   * long as a row does not make its most elongated tile worse.
    */
   private static List<Tile> squarify(List<PackageMetric> packages, Space space) {
     double scale = space.width() * space.height()
@@ -157,7 +151,7 @@ final class PackageMap {
   }
 
   /**
-   * Places a row along the shorter side and returns the space that is left.
+   * Places a row and returns the space that is left.
    */
   private static Space place(List<PackageMetric> row, Space space, double scale,
       List<Tile> tiles) {
@@ -194,9 +188,6 @@ final class PackageMap {
 
   }
 
-  /**
-   * The part of the map that is not covered by tiles yet.
-   */
   private record Space(double left, double top, double width, double height) {
 
   }

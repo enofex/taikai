@@ -68,21 +68,6 @@ class ConfigurationsConfigurerTest {
     }
   }
 
-  @Configuration
-  static class ValidAppConfiguration {
-
-  }
-
-  @Configuration
-  static class InvalidAppConfig {
-
-  }
-
-  @SpringBootApplication
-  static class DemoApplication {
-
-  }
-
   @Nested
   class Disable {
 
@@ -98,5 +83,20 @@ class ConfigurationsConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+  }
+
+  @Configuration
+  static class ValidAppConfiguration {
+
+  }
+
+  @Configuration
+  static class InvalidAppConfig {
+
+  }
+
+  @SpringBootApplication
+  static class DemoApplication {
+
   }
 }

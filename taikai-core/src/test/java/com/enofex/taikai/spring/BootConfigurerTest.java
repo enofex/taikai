@@ -37,10 +37,6 @@ class BootConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-  }
-
-  @Nested
-  class ApplicationClassShouldResideInPackageZeroArg {
 
     @Test
     void shouldThrowWhenApplicationClassResideInPackageCalledWithoutNamespace() {
@@ -52,16 +48,13 @@ class BootConfigurerTest {
 
     @Test
     void shouldDelegateToTwoArgMethodWhenNamespaceIsSet() {
-      assertThrows(AssertionError.class, () -> Taikai.builder()
+      Taikai taikai = Taikai.builder()
           .namespace("com.enofex.taikai.spring")
           .spring(spring -> spring.boot(BootConfigurer::applicationClassShouldResideInPackage))
-          .build()
-          .check());
-    }
-  }
+          .build();
 
-  @Nested
-  class ApplicationClassShouldResideInPackageWithConfiguration {
+      assertThrows(AssertionError.class, taikai::check);
+    }
 
     @Test
     void shouldRejectNullPackage() {

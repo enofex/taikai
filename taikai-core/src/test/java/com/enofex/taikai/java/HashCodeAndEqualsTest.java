@@ -12,7 +12,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class HashCodeAndEqualsTest {
 
   @ParameterizedTest(name = "{0}")
-  @ValueSource(classes = {ValidClass.class, PlainClass.class, ValidRecord.class,
+  @ValueSource(classes = {ValidClass.class, ClassWithoutEqualsAndHashCode.class, ValidRecord.class,
       PlainRecord.class})
   void shouldPassWhenClassImplementsBothOrNeitherEqualsAndHashCode(Class<?> fixture) {
     Taikai taikai = Taikai.builder()
@@ -122,7 +122,7 @@ class HashCodeAndEqualsTest {
     }
   }
 
-  static class PlainClass {
+  static class ClassWithoutEqualsAndHashCode {
 
     private String field;
   }

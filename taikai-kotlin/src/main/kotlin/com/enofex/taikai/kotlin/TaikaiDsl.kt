@@ -21,15 +21,31 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 annotation class TaikaiDslMarker
 
-/** Builds an instance without executing rules. Call check() or checkAll() explicitly. */
+/**
+ * Builds a [Taikai] instance with the receiver DSL. It does not check the rules; call
+ * [Taikai.check] or [Taikai.checkAll] for that.
+ *
+ * @param block the configuration of the builder
+ * @return the instance
+ */
 fun taikai(block: TaikaiDsl.() -> Unit): Taikai =
     TaikaiDsl(Taikai.builder()).apply(block).build()
 
-/** Adds Kotlin rules to an existing builder. */
+/**
+ * Adds Kotlin rules to an existing builder.
+ *
+ * @param block the configuration of the Kotlin rules
+ * @return this builder for fluent chaining
+ */
 fun Taikai.Builder.kotlin(block: @TaikaiDslMarker KotlinConfigurer.() -> Unit): Taikai.Builder =
     configure({ it.block() }, ::KotlinConfigurer)
 
-/** A receiver-based facade; the original Java API remains available without this facade. */
+/**
+ * The receiver of [taikai], whose functions configure the builder like the functions of the same
+ * name of [Taikai.Builder].
+ *
+ * @see Taikai.Builder
+ */
 @TaikaiDslMarker
 class TaikaiDsl internal constructor(private val builder: Taikai.Builder) {
     fun namespace(value: String) { builder.namespace(value) }

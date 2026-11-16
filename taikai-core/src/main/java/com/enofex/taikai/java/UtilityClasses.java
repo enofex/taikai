@@ -1,6 +1,6 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.internal.Modifiers.isMethodStatic;
+import static com.enofex.taikai.internal.Modifiers.isStatic;
 import static com.tngtech.archunit.base.DescribedPredicate.doNot;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
@@ -27,7 +27,7 @@ final class UtilityClasses {
       @Override
       public boolean test(JavaClass javaClass) {
         return !javaClass.getMethods().isEmpty() && javaClass.getMethods().stream()
-            .allMatch(method -> isMethodStatic(method) && !"main".equals(method.getName()));
+            .allMatch(method -> isStatic(method) && !"main".equals(method.getName()));
       }
     };
   }

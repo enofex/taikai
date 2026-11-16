@@ -3,32 +3,41 @@ package com.enofex.taikai.test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.enofex.taikai.Taikai;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class TestConfigurerTest {
 
-  @Test
-  void shouldApplyJUnitCustomizer() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidTestClass.class)
-        .test(test -> test.junit(
-            JUnitConfigurer::methodsShouldBePackagePrivate))
-        .build();
+  @Nested
+  class Junit {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldApplyJUnitCustomizer() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidTestClass.class)
+          .test(test -> test.junit(
+              JUnitConfigurer::methodsShouldBePackagePrivate))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
-  @Test
-  void shouldDisableTestConfigurer() {
-    Taikai taikai = Taikai.builder()
-        .classes(ValidTestClass.class)
-        .test(test -> {
-          test.junit(JUnitConfigurer::methodsShouldBePackagePrivate);
-          test.disable();
-        })
-        .build();
+  @Nested
+  class Disable {
 
-    assertDoesNotThrow(taikai::check);
+    @Test
+    void shouldDisableTestConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidTestClass.class)
+          .test(test -> {
+            test.junit(JUnitConfigurer::methodsShouldBePackagePrivate);
+            test.disable();
+          })
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   static class ValidTestClass {

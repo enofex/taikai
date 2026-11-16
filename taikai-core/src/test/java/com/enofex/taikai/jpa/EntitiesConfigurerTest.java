@@ -1,5 +1,7 @@
 package com.enofex.taikai.jpa;
 
+import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -7,11 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.configures.Configurers;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -27,6 +31,30 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class EntitiesConfigurerTest {
+
+  @Test
+  void shouldReturnSameConfigurerFromEveryMethod() {
+    EntitiesConfigurer configurer =
+        new EntitiesConfigurer(new ConfigurerContext(null, new Configurers()));
+    DescribedPredicate<JavaClass> uuid = ClassCriteria.type(UUID.class);
+
+    assertAll(
+        () -> assertSame(configurer, configurer.shouldBePackagePrivate()),
+        () -> assertSame(configurer, configurer.shouldBePackagePrivate(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.idsShouldNotBeOfType(uuid)),
+        () -> assertSame(configurer,
+            configurer.idsShouldNotBeOfType(uuid, defaultConfiguration())),
+        () -> assertSame(configurer, configurer.shouldHaveFieldAnnotatedWithVersion()),
+        () -> assertSame(configurer,
+            configurer.shouldHaveFieldAnnotatedWithVersion(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.fieldsShouldNotBeOfType(uuid)),
+        () -> assertSame(configurer,
+            configurer.fieldsShouldNotBeOfType(uuid, defaultConfiguration())),
+        () -> assertSame(configurer, configurer.namesShouldMatch(".+Entity")),
+        () -> assertSame(configurer,
+            configurer.namesShouldMatch(".+Entity", defaultConfiguration())),
+        () -> assertSame(configurer, configurer.disable()));
+  }
 
   @Nested
   class ShouldBePackagePrivate {
@@ -128,10 +156,11 @@ class EntitiesConfigurerTest {
     @Test
     void shouldHonorConfigurationExclusions() {
       Taikai taikai = Taikai.builder()
-          .namespace("com.enofex.taikai.jpa")
           .jpa(jpa -> jpa.entities(entities -> entities
               .idsShouldNotBeOfType(ClassCriteria.type(UUID.class),
-                  Configuration.of(Namespace.IMPORT.WITH_TESTS,
+                  Configuration.of(
+                      new ClassFileImporter().importClasses(LongIdEntity.class,
+                          UuidIdEntity.class, UuidBaseEntity.class, InheritingUuidEntity.class),
                       List.of(UuidIdEntity.class.getName(), UuidBaseEntity.class.getName())))))
           .build();
 
@@ -240,11 +269,13 @@ class EntitiesConfigurerTest {
     @Test
     void shouldHonorConfigurationExclusions() {
       Taikai taikai = Taikai.builder()
-          .namespace("com.enofex.taikai.jpa")
           .jpa(jpa -> jpa.entities(entities -> entities
               .fieldsShouldNotBeOfType(legacyDateTypes(),
-                  Configuration.of(Namespace.IMPORT.WITH_TESTS, List.of(
-                      LegacyDateEntity.class.getName(), LegacyDateBase.class.getName())))))
+                  Configuration.of(
+                      new ClassFileImporter().importClasses(ModernDateEntity.class,
+                          LegacyDateEntity.class, LegacyDateBase.class),
+                      List.of(LegacyDateEntity.class.getName(),
+                          LegacyDateBase.class.getName())))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -290,14 +321,6 @@ class EntitiesConfigurerTest {
           .build();
 
       assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldReturnSameConfigurerFromDisable() {
-      Taikai.builder()
-          .classes(PublicEntity.class)
-          .jpa(jpa -> jpa.entities(entities -> assertSame(entities, entities.disable())))
-          .build();
     }
   }
 

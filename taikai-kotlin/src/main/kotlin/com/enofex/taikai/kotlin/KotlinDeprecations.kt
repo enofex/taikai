@@ -1,5 +1,6 @@
 package com.enofex.taikai.kotlin
 
+import com.enofex.taikai.internal.Modifiers
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaCodeUnit
 import com.tngtech.archunit.core.domain.JavaConstructor
@@ -8,13 +9,14 @@ import com.tngtech.archunit.core.domain.JavaAccess
 import com.tngtech.archunit.core.domain.JavaFieldAccess
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.domain.JavaMethod
-import com.tngtech.archunit.core.domain.JavaModifier
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated
 import java.net.URI
 import kotlin.metadata.isData
 import kotlin.metadata.jvm.*
 
-/** Deprecation is read from imported annotations, including Kotlin's property annotation carrier. */
+/**
+ * Deprecation is read from imported annotations, including Kotlin's property annotation carrier.
+ */
 internal class KotlinDeprecations {
     private val declarations = mutableMapOf<JavaClass, KotlinDeclarations?>()
     private val failures = linkedSetOf<String>()
@@ -36,7 +38,7 @@ internal class KotlinDeprecations {
             // JVM method references. Include those implementation helpers for explicit imports.
             if (access.targetOwner.name.startsWith(owner.name + "$") && access.targetOwner.source.isPresent) {
                 val nested = complete(access.targetOwner)
-                if (JavaModifier.SYNTHETIC in nested.modifiers) inspect(nested)
+                if (Modifiers.isSynthetic(nested)) inspect(nested)
             }
             val member = access.target.resolveMember().orElse(null)
             if (member != null && implementationAccess(access, member)) return@forEach
@@ -120,13 +122,13 @@ internal class KotlinDeprecations {
     }
 
     private fun deprecatedDefaultHelper(helper: JavaMethod, declarations: KotlinDeclarations): Boolean {
-        if (!helper.name.endsWith("\$default") || JavaModifier.SYNTHETIC !in helper.modifiers) return false
+        if (!helper.name.endsWith("\$default") || !Modifiers.isSynthetic(helper)) return false
         return declarations.functions.any { function ->
             val signature = function.signature ?: return@any false
             if (helper.name != "${signature.name}\$default") return@any false
             val original = helper.owner.method(signature) ?: return@any false
             if (!deprecated(original)) return@any false
-            val receiver = if (JavaModifier.STATIC in original.modifiers) ""
+            val receiver = if (Modifiers.isStatic(original)) ""
                 else "L${helper.owner.name.replace('.', '/')};"
             val masks = "I".repeat((function.valueParameters.size + 31) / 32)
             val descriptor = "(" + receiver + signature.descriptor.substringAfter('(')
@@ -137,7 +139,7 @@ internal class KotlinDeprecations {
     }
 
     private fun deprecatedDefaultConstructor(helper: JavaConstructor, declarations: KotlinDeclarations): Boolean {
-        if (JavaModifier.SYNTHETIC !in helper.modifiers) return false
+        if (!Modifiers.isSynthetic(helper)) return false
         return declarations.type?.constructors.orEmpty().any { constructor ->
             val signature = constructor.signature ?: return@any false
             val original = helper.owner.constructors.find { it.descriptor == signature.descriptor }

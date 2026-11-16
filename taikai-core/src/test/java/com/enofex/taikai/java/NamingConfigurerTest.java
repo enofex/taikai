@@ -1,24 +1,99 @@
 package com.enofex.taikai.java;
 
 import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.java.JavaChecks.assertReportsViolations;
+import static com.enofex.taikai.java.JavaChecks.namingOverload;
+import static com.enofex.taikai.java.JavaFixtures.MARKED;
+import static com.enofex.taikai.java.JavaFixtures.THIS_PACKAGE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.FieldCriteria;
 import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.java.JavaFixtures.DateUser;
+import com.enofex.taikai.java.JavaFixtures.MarkedClass;
+import com.enofex.taikai.java.JavaFixtures.Marker;
+import com.enofex.taikai.java.JavaFixtures.PackagePrivateField;
+import com.enofex.taikai.java.JavaFixtures.PlainClass;
+import com.enofex.taikai.java.JavaFixtures.PrivateFinalFields;
+import com.enofex.taikai.java.JavaFixtures.QueryMethods;
+import com.enofex.taikai.java.JavaFixtures.StaticField;
+import com.enofex.taikai.java.JavaFixtures.TypedFields;
+import com.enofex.taikai.java.JavaFixtures.UserRepository;
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaModifier;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class NamingConfigurerTest {
+
+  private static final DescribedPredicate<JavaClass> IN_THIS_PACKAGE =
+      ClassCriteria.inPackage(THIS_PACKAGE);
+
+  @Nested
+  class PackagesShouldMatchDefault {
+
+    @Test
+    void shouldNotThrowWhenPackageMatchesDefaultPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidService.class)
+          .java(java -> java.naming(NamingConfigurer::packagesShouldMatchDefault))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldSupportConfigurationOverload() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidService.class)
+          .java(java -> java.naming(naming -> naming.packagesShouldMatchDefault(
+              defaultConfiguration())))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
+  @Nested
+  class PackagesShouldMatch {
+
+    @Test
+    void shouldNotThrowWhenPackageMatchesPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidService.class)
+          .java(java -> java.naming(naming -> naming.packagesShouldMatch("com\\.enofex\\..*")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenPackageDoesNotMatchPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidService.class)
+          .java(java -> java.naming(naming -> naming.packagesShouldMatch("org\\.enofex\\..*")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+  }
 
   @Nested
   class ClassesShouldMatch {
@@ -44,32 +119,127 @@ class NamingConfigurerTest {
     }
 
     @Test
-    void shouldSupportCustomConfiguration() {
+    void shouldNotThrowWhenAnnotatedClassNameMatchesPattern() {
       Taikai taikai = Taikai.builder()
           .classes(ValidService.class)
           .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ".*Service",
-              defaultConfiguration())))
+              ClassCriteria.annotatedWith(Deprecated.class), ".*Service")))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
-  }
-
-  @Nested
-  class Disable {
 
     @Test
-    void shouldDisableNamingConfigurer() {
+    void shouldThrowWhenAnnotatedClassNameDoesNotMatchPattern() {
       Taikai taikai = Taikai.builder()
-          .classes(InvalidNamingClass.class)
-          .java(java -> java.naming(naming -> {
-            naming.classesShouldMatch(".*Service");
-            naming.disable();
-          }))
+          .classes(AnnotatedInvalidClass.class)
+          .java(java -> java.naming(naming -> naming.classesShouldMatch(
+              ClassCriteria.annotatedWith(Deprecated.class), ".*Service")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenSelectedClassesMatchName() {
+      Taikai taikai = Taikai.builder()
+          .classes(UserRepository.class, PlainClass.class)
+          .java(java -> java.naming(naming -> naming.classesShouldMatch(
+              ClassCriteria.inPackage(THIS_PACKAGE).and(ClassCriteria.simpleNameMatching("User.*")),
+              ".*Repository")))
           .build();
 
       assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesDoNotMatchName() {
+      Taikai taikai = Taikai.builder()
+          .classes(MarkedClass.class)
+          .java(java -> java.naming(naming -> naming.classesShouldMatch(MARKED, ".*Entity")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("classesShouldMatch(String, Configuration)",
+              naming -> naming.classesShouldMatch(".*Service", defaultConfiguration()),
+              ValidService.class, InvalidNamingClass.class),
+          namingOverload("classesShouldMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.classesShouldMatch(ClassCriteria.annotatedWith(Deprecated.class),
+                  ".*Service", defaultConfiguration()),
+              ValidService.class, AnnotatedInvalidClass.class));
+    }
+  }
+
+  @Nested
+  class ClassesShouldNotMatch {
+
+    @Test
+    void shouldNotThrowWhenClassNameDoesNotMatchForbiddenPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ValidService.class)
+          .java(java -> java.naming(naming -> naming.classesShouldNotMatch(".*Impl")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenClassNameMatchesForbiddenPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidNamingClass.class)
+          .java(java -> java.naming(naming -> naming.classesShouldNotMatch(".*InvalidNamingClass")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenSelectedClassesDoNotMatchForbiddenName() {
+      Taikai taikai = Taikai.builder()
+          .classes(MarkedClass.class)
+          .java(java -> java.naming(naming -> naming.classesShouldNotMatch(MARKED, ".*Impl")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesMatchForbiddenName() {
+      Taikai taikai = Taikai.builder()
+          .classes(MarkedClass.class)
+          .java(java -> java.naming(naming -> naming.classesShouldNotMatch(MARKED, ".*Class")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("classesShouldNotMatch(String, Configuration)",
+              naming -> naming.classesShouldNotMatch(".*InvalidNamingClass",
+                  defaultConfiguration()),
+              ValidService.class, InvalidNamingClass.class),
+          namingOverload("classesShouldNotMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.classesShouldNotMatch(MARKED, ".*Class", defaultConfiguration()),
+              PrivateFinalFields.class, MarkedClass.class));
     }
   }
 
@@ -97,15 +267,43 @@ class NamingConfigurerTest {
     }
 
     @Test
-    void shouldSupportCustomConfiguration() {
+    void shouldNotThrowWhenAnnotatedMethodNameMatchesPattern() {
       Taikai taikai = Taikai.builder()
-          .classes(ClassWithCamelCaseMethod.class)
+          .classes(ClassWithAnnotatedMethod.class)
           .java(java -> java.naming(naming -> naming.methodsShouldMatch(
-              "[a-z][a-zA-Z0-9]*",
-              defaultConfiguration())))
+              MethodCriteria.annotatedWith(Deprecated.class), "deprecated.*")))
           .build();
 
       assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenAnnotatedMethodNameDoesNotMatchPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithAnnotatedMethod.class)
+          .java(java -> java.naming(naming -> naming.methodsShouldMatch(
+              MethodCriteria.annotatedWith(Deprecated.class), "valid.*")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("methodsShouldMatch(String, Configuration)",
+              naming -> naming.methodsShouldMatch("[a-z][a-zA-Z0-9]*", defaultConfiguration()),
+              ClassWithCamelCaseMethod.class, ClassWithBadMethodName.class),
+          namingOverload("methodsShouldMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.methodsShouldMatch(MethodCriteria.nameMatching(".*Something"),
+                  "[a-z][a-zA-Z0-9]*", defaultConfiguration()),
+              ClassWithCamelCaseMethod.class, ClassWithBadMethodName.class));
     }
   }
 
@@ -131,107 +329,127 @@ class NamingConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldForbidMethodNamesForMethodsMatchingCriteria() {
+      Taikai taikai = Taikai.builder()
+          .classes(QueryMethods.class)
+          .java(java -> java.naming(naming -> naming.methodsShouldNotMatch(
+              MethodCriteria.annotatedWith(Marker.class), "find.*")))
+          .build();
+
+      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(failure.getMessage().contains("findAll"));
+      assertFalse(failure.getMessage().contains("findUnmarked"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("methodsShouldNotMatch(String, Configuration)",
+              naming -> naming.methodsShouldNotMatch(".*Do_.*", defaultConfiguration()),
+              ClassWithCamelCaseMethod.class, ClassWithBadMethodName.class),
+          namingOverload("methodsShouldNotMatch(DescribedPredicate, String)",
+              naming -> naming.methodsShouldNotMatch(MethodCriteria.nameMatching(".*Something"),
+                  ".*_.*"),
+              ClassWithCamelCaseMethod.class, ClassWithBadMethodName.class),
+          namingOverload("methodsShouldNotMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.methodsShouldNotMatch(MethodCriteria.nameMatching(".*Something"),
+                  ".*_.*", defaultConfiguration()),
+              ClassWithCamelCaseMethod.class, ClassWithBadMethodName.class));
+    }
   }
 
   @Nested
-  class ClassesShouldNotMatch {
+  class MethodsShouldMatchForClass {
 
     @Test
-    void shouldNotThrowWhenClassNameDoesNotMatchForbiddenPattern() {
+    void shouldNotThrowWhenMethodsOfSelectedClassesMatchName() {
+      assertTrue(new ClassFileImporter().importClass(FixtureStatus.class).getMethods().stream()
+          .anyMatch(method -> method.getModifiers().contains(JavaModifier.SYNTHETIC)));
+
       Taikai taikai = Taikai.builder()
-          .classes(ValidService.class)
-          .java(java -> java.naming(naming -> naming.classesShouldNotMatch(".*Impl")))
+          .classes(FixtureStatus.class, SnakeCaseMethods.class)
+          .java(java -> java.naming(naming -> naming.methodsShouldMatchForClass(
+              ClassCriteria.simpleNameMatching("FixtureStatus"), "[a-z][a-zA-Z0-9]*")))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
     @Test
-    void shouldThrowWhenClassNameMatchesForbiddenPattern() {
+    void shouldThrowWhenMethodsOfSelectedClassesDoNotMatchName() {
       Taikai taikai = Taikai.builder()
-          .classes(InvalidNamingClass.class)
-          .java(java -> java.naming(naming -> naming.classesShouldNotMatch(".*InvalidNamingClass")))
+          .classes(SnakeCaseMethods.class)
+          .java(java -> java.naming(naming -> naming.methodsShouldMatchForClass(
+              ClassCriteria.simpleNameMatching("SnakeCaseMethods"), "[a-z][a-zA-Z0-9]*")))
           .build();
 
-      assertThrows(AssertionError.class, taikai::check);
+      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(failure.getMessage().contains("do_work"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("methodsShouldMatchForClass(DescribedPredicate, String, Configuration)",
+              naming -> naming.methodsShouldMatchForClass(IN_THIS_PACKAGE, "[a-z][a-zA-Z0-9]*",
+                  defaultConfiguration()),
+              ClassWithCamelCaseMethod.class, SnakeCaseMethods.class));
     }
   }
 
   @Nested
-  class ClassesShouldMatchByAnnotation {
+  class MethodsShouldNotMatchForClass {
 
     @Test
-    void shouldNotThrowWhenAnnotatedClassNameMatchesPattern() {
+    void shouldNotThrowWhenMethodsOfSelectedClassesAvoidForbiddenName() {
       Taikai taikai = Taikai.builder()
-          .classes(ValidService.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.annotatedWith(Deprecated.class), ".*Service")))
+          .classes(FixtureStatus.class)
+          .java(java -> java.naming(naming -> naming.methodsShouldNotMatchForClass(
+              ClassCriteria.simpleNameMatching("FixtureStatus"), ".*\\$.*")))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
 
     @Test
-    void shouldThrowWhenAnnotatedClassNameDoesNotMatchPattern() {
+    void shouldThrowWhenMethodsOfSelectedClassesHaveForbiddenName() {
       Taikai taikai = Taikai.builder()
-          .classes(AnnotatedInvalidClass.class)
-          .java(java -> java.naming(naming -> naming.classesShouldMatch(
-              ClassCriteria.annotatedWith(Deprecated.class), ".*Service")))
+          .classes(SnakeCaseMethods.class, FixtureStatus.class)
+          .java(java -> java.naming(naming -> naming.methodsShouldNotMatchForClass(
+              ClassCriteria.simpleNameMatching("SnakeCaseMethods"), ".*_.*")))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
     }
-  }
 
-  @Nested
-  class MethodsShouldMatchByAnnotation {
-
-    @Test
-    void shouldNotThrowWhenAnnotatedMethodNameMatchesPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedMethod.class)
-          .java(java -> java.naming(naming -> naming.methodsShouldMatch(
-              MethodCriteria.annotatedWith(Deprecated.class), "deprecated.*")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
     }
 
-    @Test
-    void shouldThrowWhenAnnotatedMethodNameDoesNotMatchPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedMethod.class)
-          .java(java -> java.naming(naming -> naming.methodsShouldMatch(
-              MethodCriteria.annotatedWith(Deprecated.class), "valid.*")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-  }
-
-  @Nested
-  class FieldsShouldMatchByAnnotation {
-
-    @Test
-    void shouldNotThrowWhenAnnotatedFieldNameMatchesPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedField.class)
-          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
-              FieldCriteria.annotatedWith(Deprecated.class), "deprecatedField")))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenAnnotatedFieldNameDoesNotMatchPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithAnnotatedField.class)
-          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
-              FieldCriteria.annotatedWith(Deprecated.class), "validField")))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload(
+              "methodsShouldNotMatchForClass(DescribedPredicate, String, Configuration)",
+              naming -> naming.methodsShouldNotMatchForClass(IN_THIS_PACKAGE, ".*_.*",
+                  defaultConfiguration()),
+              ClassWithCamelCaseMethod.class, SnakeCaseMethods.class));
     }
   }
 
@@ -281,14 +499,65 @@ class NamingConfigurerTest {
     }
 
     @Test
-    void shouldThrowWhenFieldNameDoesNotMatchPatternWithConfiguration() {
+    void shouldNotThrowWhenAnnotatedFieldNameMatchesPattern() {
       Taikai taikai = Taikai.builder()
-          .classes(ClassWithStringField.class)
-          .java(java -> java.naming(naming -> naming.fieldsShouldMatch("other.*",
-              defaultConfiguration())))
+          .classes(ClassWithAnnotatedField.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
+              FieldCriteria.annotatedWith(Deprecated.class), "deprecatedField")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenAnnotatedFieldNameDoesNotMatchPattern() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithAnnotatedField.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
+              FieldCriteria.annotatedWith(Deprecated.class), "validField")))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenFieldsOfSelectedTypesMatchName() {
+      Taikai taikai = Taikai.builder()
+          .classes(DateUser.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
+              FieldCriteria.ofType(ClassCriteria.inPackage("java.util")), ".*Date")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenFieldsOfSelectedTypesDoNotMatchName() {
+      Taikai taikai = Taikai.builder()
+          .classes(DateUser.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatch(
+              FieldCriteria.ofType(ClassCriteria.simpleNameMatching("Date")), "timestamp")))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("fieldsShouldMatch(String, Configuration)",
+              naming -> naming.fieldsShouldMatch("my.*", defaultConfiguration()),
+              ClassWithStringField.class, ClassWithAnnotatedField.class),
+          namingOverload("fieldsShouldMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.fieldsShouldMatch(FieldCriteria.ofType(String.class), "my.*",
+                  defaultConfiguration()),
+              ClassWithStringField.class, ClassWithAnnotatedField.class));
     }
   }
 
@@ -313,6 +582,138 @@ class NamingConfigurerTest {
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldForbidFieldNamesForFieldsMatchingCriteria() {
+      Taikai taikai = Taikai.builder()
+          .classes(TypedFields.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldNotMatch(
+              FieldCriteria.ofType(Date.class), "mutable.*")))
+          .build();
+
+      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(failure.getMessage().contains("mutableDate"));
+      assertFalse(failure.getMessage().contains("fixedDate"));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("fieldsShouldNotMatch(String, Configuration)",
+              naming -> naming.fieldsShouldNotMatch("my.*", defaultConfiguration()),
+              ClassWithAnnotatedField.class, ClassWithStringField.class),
+          namingOverload("fieldsShouldNotMatch(DescribedPredicate, String)",
+              naming -> naming.fieldsShouldNotMatch(FieldCriteria.ofType(String.class), "my.*"),
+              ClassWithAnnotatedField.class, ClassWithStringField.class),
+          namingOverload("fieldsShouldNotMatch(DescribedPredicate, String, Configuration)",
+              naming -> naming.fieldsShouldNotMatch(FieldCriteria.ofType(String.class), "my.*",
+                  defaultConfiguration()),
+              ClassWithAnnotatedField.class, ClassWithStringField.class));
+    }
+  }
+
+  @Nested
+  class FieldsShouldMatchForClass {
+
+    @Test
+    void shouldNotThrowWhenFieldsOfSelectedClassesMatchName() {
+      assertTrue(new ClassFileImporter().importClass(PrivateFinalFields.class).getFields().stream()
+          .anyMatch(field -> field.getModifiers().contains(JavaModifier.SYNTHETIC)));
+
+      Taikai taikai = Taikai.builder()
+          .classes(PrivateFinalFields.class, DateUser.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatchForClass(
+              ClassCriteria.simpleNameMatching("PrivateFinalFields"), "name")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenFieldsOfSelectedClassesDoNotMatchName() {
+      Taikai taikai = Taikai.builder()
+          .classes(StaticField.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatchForClass(MARKED, "name")))
+          .build();
+
+      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(failure.getMessage().contains("counter"));
+    }
+
+    @Test
+    void shouldSelectFieldsByDeclaringClassRatherThanByType() {
+      Taikai taikai = Taikai.builder()
+          .classes(DateUser.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldMatchForClass(
+              ClassCriteria.simpleNameMatching("Date"), "timestamp")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("fieldsShouldMatchForClass(DescribedPredicate, String, Configuration)",
+              naming -> naming.fieldsShouldMatchForClass(MARKED, "name", defaultConfiguration()),
+              PrivateFinalFields.class, StaticField.class));
+    }
+  }
+
+  @Nested
+  class FieldsShouldNotMatchForClass {
+
+    @Test
+    void shouldNotThrowWhenFieldsOfSelectedClassesAvoidForbiddenName() {
+      Taikai taikai = Taikai.builder()
+          .classes(PrivateFinalFields.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldNotMatchForClass(
+              MARKED, ".*\\$.*")))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenFieldsOfSelectedClassesHaveForbiddenName() {
+      Taikai taikai = Taikai.builder()
+          .classes(PackagePrivateField.class, DateUser.class)
+          .java(java -> java.naming(naming -> naming.fieldsShouldNotMatchForClass(
+              MARKED, "name|createdDate")))
+          .build();
+
+      AssertionError failure = assertThrows(AssertionError.class, taikai::check);
+      assertTrue(failure.getMessage().contains(PackagePrivateField.class.getName()));
+      assertFalse(failure.getMessage().contains(DateUser.class.getName()));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload(
+              "fieldsShouldNotMatchForClass(DescribedPredicate, String, Configuration)",
+              naming -> naming.fieldsShouldNotMatchForClass(MARKED, "name|createdDate",
+                  defaultConfiguration()),
+              StaticField.class, PackagePrivateField.class));
     }
   }
 
@@ -348,30 +749,19 @@ class NamingConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
-  }
 
-  @Nested
-  class PackagesShouldMatchDefault {
-
-    @Test
-    void shouldNotThrowWhenPackageMatchesDefaultPattern() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidService.class)
-          .java(java -> java.naming(NamingConfigurer::packagesShouldMatchDefault))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
     }
 
-    @Test
-    void shouldSupportConfigurationOverload() {
-      Taikai taikai = Taikai.builder()
-          .classes(ValidService.class)
-          .java(java -> java.naming(naming -> naming.packagesShouldMatchDefault(
-              defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("interfacesShouldNotHavePrefixI(Configuration)",
+              naming -> naming.interfacesShouldNotHavePrefixI(defaultConfiguration()),
+              ValidInterface.class, IInvalidInterface.class));
     }
   }
 
@@ -389,17 +779,6 @@ class NamingConfigurerTest {
     }
 
     @Test
-    void shouldSupportConfigurationOverload() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithProperConstant.class)
-          .java(java -> java.naming(naming -> naming.constantsShouldFollowConventions(
-              defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
     void shouldThrowWhenConstantDoesNotFollowConventions() {
       Taikai taikai = Taikai.builder()
           .classes(ClassWithImproperConstant.class)
@@ -407,6 +786,67 @@ class NamingConfigurerTest {
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldIgnoreSerialVersionUID() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithSerialVersionUID.class)
+          .java(java -> java.naming(NamingConfigurer::constantsShouldFollowConventions))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldIgnoreExcludedFields() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithLoggerConstant.class)
+          .java(java -> java.naming(naming -> naming.constantsShouldFollowConventions(
+              List.of("log"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldIgnoreExcludedFieldsIfMultipleFieldNamesAreProvided() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithLoggerConstant.class)
+          .java(java -> java.naming(naming -> naming.constantsShouldFollowConventions(
+              List.of("log", "logger"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowOnSerialVersionUIDWhenNoFieldsAreExcluded() {
+      Taikai taikai = Taikai.builder()
+          .classes(ClassWithSerialVersionUID.class)
+          .java(java -> java.naming(naming -> naming.constantsShouldFollowConventions(
+              List.of())))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
+
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("constantsShouldFollowConventions(Configuration)",
+              naming -> naming.constantsShouldFollowConventions(defaultConfiguration()),
+              ClassWithProperConstant.class, ClassWithImproperConstant.class),
+          namingOverload("constantsShouldFollowConventions(Collection, Configuration)",
+              naming -> naming.constantsShouldFollowConventions(List.of("log"),
+                  defaultConfiguration()),
+              ClassWithLoggerConstant.class, ClassWithImproperConstant.class));
     }
   }
 
@@ -443,15 +883,18 @@ class NamingConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldSupportConfigurationOverload() {
-      Taikai taikai = Taikai.builder()
-          .classes(EnumWithProperConstants.class)
-          .java(java -> java.naming(naming -> naming.enumConstantsShouldFollowConventions(
-              defaultConfiguration())))
-          .build();
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("overloads")
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
+        Class<?> compliant, Class<?> violating) {
+      assertReportsViolations(rule, compliant, violating);
+    }
 
-      assertDoesNotThrow(taikai::check);
+    static Stream<Arguments> overloads() {
+      return Stream.of(
+          namingOverload("enumConstantsShouldFollowConventions(Configuration)",
+              naming -> naming.enumConstantsShouldFollowConventions(defaultConfiguration()),
+              EnumWithProperConstants.class, EnumWithImproperConstants.class));
     }
   }
 
@@ -519,57 +962,35 @@ class NamingConfigurerTest {
       assertDoesNotThrow(taikai::check);
     }
 
-    @Test
-    void shouldSupportConfigurationOverload() {
-      Taikai taikai = Taikai.builder()
-          .classes(ClassWithProperBooleanMethods.class)
-          .java(java -> java.naming(naming -> naming.booleanMethodsShouldStartWith(
-              defaultConfiguration())))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class ConfigurationOverloads {
-
     @ParameterizedTest(name = "{0}")
     @MethodSource("overloads")
-    void shouldReportViolationsWithConfiguration(Customizer<NamingConfigurer> rule,
+    void shouldReportViolationsWithEveryOverload(Customizer<JavaConfigurer> rule,
         Class<?> compliant, Class<?> violating) {
-      Taikai compliantTaikai = Taikai.builder()
-          .classes(compliant)
-          .java(java -> java.naming(rule))
-          .build();
-      Taikai violatingTaikai = Taikai.builder()
-          .classes(violating)
-          .java(java -> java.naming(rule))
-          .build();
-
-      assertDoesNotThrow(compliantTaikai::check);
-      assertThrows(AssertionError.class, violatingTaikai::check);
+      assertReportsViolations(rule, compliant, violating);
     }
 
     static Stream<Arguments> overloads() {
       return Stream.of(
-          overload("classesShouldMatch(DescribedPredicate, String, Configuration)",
-              naming -> naming.classesShouldMatch(ClassCriteria.annotatedWith(Deprecated.class),
-                  ".*Service", defaultConfiguration()),
-              ValidService.class, AnnotatedInvalidClass.class),
-          overload("methodsShouldMatch(DescribedPredicate, String, Configuration)",
-              naming -> naming.methodsShouldMatch(MethodCriteria.nameMatching(".*Something"),
-                  "[a-z][a-zA-Z0-9]*", defaultConfiguration()),
-              ClassWithCamelCaseMethod.class, ClassWithBadMethodName.class),
-          overload("fieldsShouldMatch(DescribedPredicate, String, Configuration)",
-              naming -> naming.fieldsShouldMatch(FieldCriteria.ofType(String.class), "my.*",
-                  defaultConfiguration()),
-              ClassWithStringField.class, ClassWithAnnotatedField.class));
+          namingOverload("booleanMethodsShouldStartWith(Configuration)",
+              naming -> naming.booleanMethodsShouldStartWith(defaultConfiguration()),
+              ClassWithProperBooleanMethods.class, ClassWithImproperBooleanMethod.class));
     }
+  }
 
-    private static Arguments overload(String name, Customizer<NamingConfigurer> rule,
-        Class<?> compliant, Class<?> violating) {
-      return Arguments.of(Named.of(name, rule), compliant, violating);
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableNamingConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvalidNamingClass.class)
+          .java(java -> java.naming(naming -> {
+            naming.classesShouldMatch(".*Service");
+            naming.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
     }
   }
 
@@ -581,6 +1002,16 @@ class NamingConfigurerTest {
   static class ClassWithImproperConstant {
 
     static final String myConstant = "value";
+  }
+
+  static class ClassWithSerialVersionUID implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+  }
+
+  static class ClassWithLoggerConstant {
+
+    private static final Logger log = LoggerFactory.getLogger(ClassWithLoggerConstant.class);
   }
 
   enum EnumWithProperConstants {
@@ -696,5 +1127,15 @@ class NamingConfigurerTest {
   }
 
   interface I {
+  }
+
+  enum FixtureStatus {
+    ACTIVE
+  }
+
+  static class SnakeCaseMethods {
+
+    void do_work() {
+    }
   }
 }

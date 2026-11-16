@@ -14,13 +14,9 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
- * Configures and enforces conventions for Spring {@code @Configuration} classes using
- * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Spring configuration classes, the classes annotated with {@code @Configuration} but not
+ * with {@code @SpringBootApplication}:
  *
- * <p>This configurer ensures that Spring configuration classes have consistent naming
- * and do not conflict with {@code @SpringBootApplication} classes.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -30,9 +26,6 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *         )
  *     );
  * }</pre>
- *
- * <p>By default, this enforces that all classes annotated with {@code @Configuration}
- * (but not {@code @SpringBootApplication}) end with the suffix {@code Configuration}.</p>
  */
 public final class ConfigurationsConfigurer extends AbstractConfigurer implements
     DisableableConfigurer {

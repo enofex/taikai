@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class QuarkusConfigurerTest {
 
   @Nested
-  class FieldsNotUsingInject {
+  class NoInjectionFields {
 
     static Stream<Named<Customizer<QuarkusConfigurer>>> rules() {
       return Stream.of(
@@ -61,6 +61,23 @@ class QuarkusConfigurerTest {
     }
   }
 
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableQuarkusConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(Injection.class)
+          .quarkus(quarkus -> {
+            quarkus.noInjectionFields();
+            quarkus.disable();
+          })
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   static class Injection {
 
     @Inject
@@ -87,22 +104,5 @@ class QuarkusConfigurerTest {
       this.name = name;
     }
 
-  }
-
-  @Nested
-  class Disable {
-
-    @Test
-    void shouldDisableQuarkusConfigurer() {
-      Taikai taikai = Taikai.builder()
-          .classes(Injection.class)
-          .quarkus(quarkus -> {
-            quarkus.noInjectionFields();
-            quarkus.disable();
-          })
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
   }
 }

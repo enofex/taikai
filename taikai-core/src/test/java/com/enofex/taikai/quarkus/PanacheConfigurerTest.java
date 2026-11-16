@@ -59,7 +59,7 @@ class PanacheConfigurerTest {
   }
 
   @Nested
-  class ActiveRecordPatternShouldBeAnnotatedWithEntity {
+  class ShouldBeAnnotatedWithEntityWhenActiveRecordPattern {
 
     static Stream<Named<Customizer<PanacheConfigurer>>> rules() {
       return Stream.of(

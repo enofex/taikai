@@ -199,11 +199,7 @@ public final class FileContentCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no rule is given
      */
     public Settings {
-      rules = List.copyOf(rules);
-
-      if (rules.isEmpty()) {
-        throw new IllegalArgumentException("At least one rule must be given");
-      }
+      rules = CheckSettings.requireNotEmpty(rules, "At least one rule must be given");
     }
   }
 }

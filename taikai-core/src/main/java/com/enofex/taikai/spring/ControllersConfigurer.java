@@ -31,13 +31,9 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
 
 /**
- * Configures and enforces conventions for Spring MVC controllers
- * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Spring MVC controllers, the classes annotated with {@code @Controller} or
+ * {@code @RestController}, including composed annotations:
  *
- * <p>This configurer ensures that controller classes follow consistent naming,
- * annotations and dependency rules, promoting clarity and maintainability.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -52,9 +48,6 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  *         )
  *     );
  * }</pre>
- *
- * <p>By default, this configurer checks classes annotated with {@code @Controller}
- * or {@code @RestController}.</p>
  */
 public final class ControllersConfigurer extends AbstractConfigurer implements
     DisableableConfigurer {
@@ -74,8 +67,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param forbiddenTypes the forbidden return types, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer methodsShouldNotReturn(
       DescribedPredicate<? super JavaClass> forbiddenTypes) {
@@ -89,8 +80,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param forbiddenTypes the forbidden return types
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer methodsShouldNotReturn(
       DescribedPredicate<? super JavaClass> forbiddenTypes, Configuration configuration) {
@@ -111,8 +100,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param requiredTypes the required return types, selected with
    *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer methodsShouldReturn(
       DescribedPredicate<? super JavaClass> requiredTypes) {
@@ -126,8 +113,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param requiredTypes the required return types
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer methodsShouldReturn(
       DescribedPredicate<? super JavaClass> requiredTypes, Configuration configuration) {
@@ -223,7 +208,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that controller classes (matching the default name pattern) must be annotated with
+   * Adds a rule that classes with names ending in {@code Controller} must be annotated with
    * {@code @RestController}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
@@ -246,14 +231,12 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that controller classes matching the given criteria must be annotated with
-   * {@code @RestController}. Interfaces are excluded.
+   * See {@link #shouldBeAnnotatedWithRestController()}, but for the classes matching the given
+   * criteria instead.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldBeAnnotatedWithRestController(
       DescribedPredicate<? super JavaClass> classes) {
@@ -267,8 +250,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param classes the controller classes
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldBeAnnotatedWithRestController(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
@@ -282,7 +263,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that controller classes (matching the default name pattern) must be annotated with
+   * Adds a rule that classes with names ending in {@code Controller} must be annotated with
    * {@code @Controller}. Interfaces are excluded.
    *
    * @return this configurer for fluent chaining
@@ -305,14 +286,12 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that controller classes matching the given criteria must be annotated with
-   * {@code @Controller}. Interfaces are excluded.
+   * See {@link #shouldBeAnnotatedWithController()}, but for the classes matching the given
+   * criteria instead.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldBeAnnotatedWithController(
       DescribedPredicate<? super JavaClass> classes) {
@@ -326,8 +305,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param classes the controller classes
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldBeAnnotatedWithController(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
@@ -411,16 +388,12 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that controller classes matching the given criteria must be annotated with
-   * {@code @Validated} when a {@code @RequestParam} or {@code @PathVariable} parameter carries one
-   * of the constraints {@code @NotNull}, {@code @NotBlank}, {@code @Size}, {@code @Min},
-   * {@code @Max} or {@code @Pattern}.
+   * See {@link #shouldBeAnnotatedWithValidated()}, but for the classes matching the given criteria
+   * instead of all controllers.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldBeAnnotatedWithValidated(
       DescribedPredicate<? super JavaClass> classes) {
@@ -434,8 +407,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param classes the controller classes
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldBeAnnotatedWithValidated(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {
@@ -478,14 +449,12 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
   }
 
   /**
-   * Adds a rule that controller classes matching the given criteria must not be annotated with
-   * {@code @Validated}.
+   * See {@link #shouldNotBeAnnotatedWithValidated()}, but for the classes matching the given
+   * criteria instead of all controllers.
    *
    * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldNotBeAnnotatedWithValidated(
       DescribedPredicate<? super JavaClass> classes) {
@@ -499,8 +468,6 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * @param classes the controller classes
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
-   * @see com.enofex.taikai.ClassCriteria
-   * @see com.tngtech.archunit.base.DescribedPredicate
    */
   public ControllersConfigurer shouldNotBeAnnotatedWithValidated(
       DescribedPredicate<? super JavaClass> classes, Configuration configuration) {

@@ -1,5 +1,6 @@
 package com.enofex.taikai.checks;
 
+import static com.enofex.taikai.checks.TestCheckContext.path;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -203,9 +204,5 @@ class ForbiddenFilesCheckTest {
 
   private static boolean isPosix() {
     return FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
-  }
-
-  private static String path(String file) {
-    return Path.of(file).toString();
   }
 }

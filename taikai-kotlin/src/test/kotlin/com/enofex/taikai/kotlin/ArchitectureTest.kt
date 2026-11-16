@@ -8,7 +8,6 @@ import com.enofex.taikai.checks.RequiredFilesCheck
 import com.enofex.taikai.configures.AbstractConfigurer
 import com.enofex.taikai.java.ImportPatterns.lombok
 import com.enofex.taikai.java.ImportPatterns.shaded
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.TestFactory
 import java.text.SimpleDateFormat
@@ -18,9 +17,8 @@ import java.util.stream.Stream
 
 class ArchitectureTest {
 
-    @DisplayName("Should fulfill architecture constraints")
     @TestFactory
-    fun architecture(): Stream<DynamicTest> =
+    fun `fulfills architecture constraints`(): Stream<DynamicTest> =
         taikai {
             namespace("com.enofex.taikai.kotlin")
             java {
@@ -39,7 +37,9 @@ class ArchitectureTest {
                 }
                 naming {
                     it.packagesShouldMatchDefault()
-                        .classesShouldMatch(ClassCriteria.assignableTo(AbstractConfigurer::class.java), ".*Configurer")
+                        .classesShouldMatch(
+                            ClassCriteria.assignableTo(AbstractConfigurer::class.java),
+                            ".*Configurer")
                         .interfacesShouldNotHavePrefixI()
                         .enumConstantsShouldFollowConventions()
                 }
@@ -59,8 +59,9 @@ class ArchitectureTest {
                     "../SECURITY.md", "../docs/kotlin.md"))
                 configure(MavenWrapperCheck::class.java, MavenWrapperCheck.directories(".."))
                 configure(ForbiddenFilesCheck::class.java, ForbiddenFilesCheck.files(
-                    "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12", "src/main/**/*.jks",
-                    "src/main/**/.env", "src/main/**/*.class", "src/main/**/*.jar"))
+                    "src/main/**/*.pem", "src/main/**/*.key", "src/main/**/*.p12",
+                    "src/main/**/*.jks", "src/main/**/.env", "src/main/**/*.class",
+                    "src/main/**/*.jar"))
                 configure(ClassFileVersionCheck::class.java, ClassFileVersionCheck.javaVersion(17))
             }
         }.dynamicTests()

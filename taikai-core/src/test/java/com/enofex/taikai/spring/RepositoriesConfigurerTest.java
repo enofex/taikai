@@ -20,6 +20,31 @@ import org.springframework.web.bind.annotation.RestController;
 
 class RepositoriesConfigurerTest {
 
+  static Stream<Named<Customizer<RepositoriesConfigurer>>> allRules() {
+    return Stream.of(
+        Named.of("namesShouldEndWithRepository()",
+            repo -> repo.namesShouldEndWithRepository()),
+        Named.of("shouldBeAnnotatedWithRepository()",
+            repo -> repo.shouldBeAnnotatedWithRepository()),
+        Named.of("shouldNotDependOnControllers()",
+            repo -> repo.shouldNotDependOnControllers()),
+        Named.of("shouldNotDependOnServices()",
+            repo -> repo.shouldNotDependOnServices()),
+        Named.of("shouldBePackagePrivate()",
+            repo -> repo.shouldBePackagePrivate()));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("allRules")
+  void shouldNotThrowWhenClassIsNotARepository(Customizer<RepositoriesConfigurer> rule) {
+    Taikai taikai = Taikai.builder()
+        .classes(UtilityHelper.class)
+        .spring(spring -> spring.repositories(rule))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
   @Nested
   class ShouldBePackagePrivate {
 
@@ -42,14 +67,6 @@ class RepositoriesConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
-  }
-
-  @Repository
-  static class PackagePrivateRepository {
-  }
-
-  @Repository
-  public static class PublicRepository {
   }
 
   @Nested
@@ -141,6 +158,28 @@ class RepositoriesConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenSelectedClassesAreRepositories() {
+      Taikai taikai = Taikai.builder()
+          .classes(CustomerStore.class)
+          .spring(spring -> spring.repositories(repositories -> repositories
+              .shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".*Store"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesAreNotRepositories() {
+      Taikai taikai = Taikai.builder()
+          .classes(InvoiceStore.class)
+          .spring(spring -> spring.repositories(repositories -> repositories
+              .shouldBeAnnotatedWithRepository(ClassCriteria.nameMatching(".*Store"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
   @Nested
@@ -206,32 +245,28 @@ class RepositoriesConfigurerTest {
   }
 
   @Nested
-  class UnrelatedClasses {
+  class Disable {
 
-    static Stream<Named<Customizer<RepositoriesConfigurer>>> rules() {
-      return Stream.of(
-          Named.of("namesShouldEndWithRepository()",
-              repo -> repo.namesShouldEndWithRepository()),
-          Named.of("shouldBeAnnotatedWithRepository()",
-              repo -> repo.shouldBeAnnotatedWithRepository()),
-          Named.of("shouldNotDependOnControllers()",
-              repo -> repo.shouldNotDependOnControllers()),
-          Named.of("shouldNotDependOnServices()",
-              repo -> repo.shouldNotDependOnServices()),
-          Named.of("shouldBePackagePrivate()",
-              repo -> repo.shouldBePackagePrivate()));
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("rules")
-    void shouldNotThrowWhenClassIsNotARepository(Customizer<RepositoriesConfigurer> rule) {
+    @Test
+    void shouldDisableRepositoriesConfigurer() {
       Taikai taikai = Taikai.builder()
-          .classes(UtilityHelper.class)
-          .spring(spring -> spring.repositories(rule))
+          .classes(InvalidRepoName.class)
+          .spring(spring -> spring.repositories(repo -> {
+            repo.namesShouldEndWithRepository();
+            repo.disable();
+          }))
           .build();
 
       assertDoesNotThrow(taikai::check);
     }
+  }
+
+  @Repository
+  static class PackagePrivateRepository {
+  }
+
+  @Repository
+  public static class PublicRepository {
   }
 
   @Repository
@@ -300,20 +335,10 @@ class RepositoriesConfigurerTest {
     }
   }
 
-  @Nested
-  class Disable {
+  @Repository
+  static class CustomerStore {
+  }
 
-    @Test
-    void shouldDisableRepositoriesConfigurer() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidRepoName.class)
-          .spring(spring -> spring.repositories(repo -> {
-            repo.namesShouldEndWithRepository();
-            repo.disable();
-          }))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
+  static class InvoiceStore {
   }
 }

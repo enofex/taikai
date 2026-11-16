@@ -33,26 +33,18 @@ import java.util.regex.Pattern;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Exports metrics of the architecture as Markdown, with SVG charts of the main sequence, of the
- * packages as a treemap, of the package dependencies as a graph and as a matrix, and of the
- * libraries that the packages use. The export needs a configuration:
+ * Exports metrics of the architecture as Markdown, with SVG charts of the main sequence, the
+ * packages, their dependencies and the libraries they use. The export needs a configuration:
  *
  * <pre>{@code
  * .discoverExports(exports -> exports
  *     .configure(MetricsMarkdownExport.class, MetricsMarkdownExport.file("docs/METRICS.md")))
  * }</pre>
  *
- * <p>The file shows the metrics of Robert C. Martin for every package, the package cycles with the
- * dependencies that close them, the dependencies on less stable packages, the libraries of the
- * packages, and the classes with the deepest inheritance, the highest coupling and the lowest
- * cohesion. The names of packages and classes link to their sources in the
- * {@linkplain Settings#withSourceDirectories(String...) source directories}, as for the SARIF
- * export.</p>
- *
- * <p>The charts are named after the Markdown file, such as {@code docs/METRICS-dependencies.svg},
- * next to it or in the {@linkplain Settings#withImageDirectory(String) image directory}. All files
- * are replaced and only change when the architecture does, so that they can be committed to review
- * that change.</p>
+ * <p>Names link to their sources in the
+ * {@linkplain Settings#withSourceDirectories(String...) source directories}. The charts are named
+ * after the Markdown file, such as {@code docs/METRICS-dependencies.svg}. The files only change
+ * when the architecture does, so that they can be committed.</p>
  *
  * <p>Taikai does not register its predefined exports itself, so that a new Taikai version never
  * writes files on its own. To run this export, list its class name in the file
@@ -68,14 +60,11 @@ public final class MetricsMarkdownExport implements TaikaiExport {
   private static final Pattern UNSAFE_IN_LINK = Pattern.compile("[\\s()]");
 
   /**
-   * Returns the settings that export to the given Markdown file, with the charts in the same
-   * directory and the source directories {@code src/main/java}, {@code src/main/kotlin},
-   * {@code src/test/java} and {@code src/test/kotlin}.
+   * Returns the settings that export to the given Markdown file, with the charts next to it and the
+   * source directories of Maven and Gradle.
    *
-   * @param file the path of the Markdown file, relative to the project directory
+   * @param file the Markdown file, relative to the project directory
    * @return the settings
-   * @see Settings#withImageDirectory(String)
-   * @see Settings#withSourceDirectories(String...)
    */
   public static Settings file(String file) {
     requireNonNull(file);
@@ -119,8 +108,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
    * Adds a chart to the files to write and returns the link to it. The files are only written when
    * all are built, so that a failing chart leaves no new charts next to an old Markdown file.
    *
-   * @throws IllegalArgumentException if the directory of the charts is on another drive, which no
-   *     link could reach
+   * @throws IllegalArgumentException if the charts are on another drive, which no link reaches
    */
   private static String chart(Map<Path, String> files, Path file, Path imageDirectory,
       String suffix, String svg) {
@@ -141,8 +129,8 @@ public final class MetricsMarkdownExport implements TaikaiExport {
   }
 
   /**
-   * Returns the link from the Markdown file to a target: its relative path, encoded for Markdown,
-   * or nothing on another drive, which only an absolute path would reach.
+   * Returns the relative link from the Markdown file, encoded for Markdown, or nothing on another
+   * drive.
    */
   private static Optional<String> link(Path file, Path target) {
     Path directory = file.toAbsolutePath().getParent();
@@ -165,24 +153,21 @@ public final class MetricsMarkdownExport implements TaikaiExport {
   }
 
   /**
-   * The settings of the {@link MetricsMarkdownExport}.
+   * The settings of the {@link MetricsMarkdownExport}, with paths relative to the project
+   * directory.
    *
-   * @param file the path of the Markdown file, relative to the project directory
-   * @param imageDirectory the path of the directory of the SVG files with the charts, relative to
-   *     the project directory
-   * @param sourceDirectories the paths of the directories with the source files that the names of
-   *     packages and classes link to, relative to the project directory
+   * @param file the Markdown file
+   * @param imageDirectory the directory of the charts
+   * @param sourceDirectories the directories of the sources that names link to
    */
   public record Settings(String file, String imageDirectory, List<String> sourceDirectories) {
 
     /**
      * Creates the settings.
      *
-     * @param file the path of the Markdown file, relative to the project directory
-     * @param imageDirectory the path of the directory of the SVG files with the charts, relative
-     *     to the project directory
-     * @param sourceDirectories the paths of the directories with the source files that the names
-     *     of packages and classes link to, relative to the project directory
+     * @param file the Markdown file
+     * @param imageDirectory the directory of the charts
+     * @param sourceDirectories the directories of the sources that names link to
      * @throws IllegalArgumentException if the file or the directory is blank, or no source
      *     directory is given
      */
@@ -190,14 +175,14 @@ public final class MetricsMarkdownExport implements TaikaiExport {
       file = ExportFiles.requireFile(file);
       imageDirectory = ExportFiles.requireNotBlank(imageDirectory,
           "The directory of the charts must be given");
-      sourceDirectories = SourceFiles.requireDirectories(sourceDirectories);
+      sourceDirectories = ExportFiles.requireDirectories(sourceDirectories);
     }
 
     /**
      * Returns these settings with another directory for the charts.
      *
-     * @param imageDirectory the path of the directory, relative to the project directory
-     * @return the settings with the given directory
+     * @param imageDirectory the directory, relative to the project directory
+     * @return the new settings
      * @throws IllegalArgumentException if the directory is blank
      */
     public Settings withImageDirectory(String imageDirectory) {
@@ -222,17 +207,13 @@ public final class MetricsMarkdownExport implements TaikaiExport {
     }
   }
 
-  /**
-   * The links to the charts, relative to the Markdown file.
-   */
   private record Charts(String mainSequence, String treemap, String dependencies,
       String dependencyMatrix, String libraries) {
 
   }
 
   /**
-   * Writes the names of packages and classes as code, linked to their directory or source file if
-   * found.
+   * Writes names as code, linked to their sources if found.
    */
   private record Links(Path file, JavaClasses classes, SourceFiles sources,
       ArchitectureMetrics metrics) {
@@ -255,9 +236,6 @@ public final class MetricsMarkdownExport implements TaikaiExport {
     }
   }
 
-  /**
-   * The Markdown of the metrics.
-   */
   private static final class Markdown {
 
     private static final List<String> SECTIONS = List.of("Summary", "Main Sequence",
@@ -451,9 +429,6 @@ public final class MetricsMarkdownExport implements TaikaiExport {
       dependenciesOnLessStablePackages();
     }
 
-    /**
-     * Lists the cycles with the dependencies that close them and the pairs of classes behind those.
-     */
     private void cycles() {
       subheading("Package Cycles");
 
@@ -492,10 +467,6 @@ public final class MetricsMarkdownExport implements TaikaiExport {
       this.markdown.append('\n');
     }
 
-    /**
-     * Lists the dependencies on less stable packages, the largest increase of the instability
-     * first.
-     */
     private void dependenciesOnLessStablePackages() {
       subheading("Dependencies on Less Stable Packages");
       this.markdown.append("""
@@ -613,7 +584,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
     }
 
     /**
-     * Lists the classes with the highest positive values, then by name.
+     * Lists the classes with the highest positive values.
      */
     private <T> void classes(String title, String column, List<T> metrics,
         Function<T, String> name, ToIntFunction<T> value) {

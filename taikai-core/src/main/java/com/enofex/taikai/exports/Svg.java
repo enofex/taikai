@@ -6,43 +6,36 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * The look that the charts share: a white card with rounded corners, a title with a legend, the
- * system font and colors that are checked for color vision deficiencies and contrast. The charts
- * have no scripts, so that they work wherever Markdown shows images.
+ * The look that the charts share: a card with a title and a legend, and colors checked for color
+ * vision deficiencies and contrast. The charts have no scripts, so that they work wherever Markdown
+ * shows images.
  */
 final class Svg {
 
-  /**
-   * The space between the card and its content.
-   */
   static final double PADDING = 24;
 
   private static final String BALANCED_COLOR = "#2a78d6";
 
   /**
-   * The status color critical, also of the dependencies that close a cycle.
+   * Also for dependencies that close a cycle.
    */
   static final String PAIN_COLOR = "#d03b3b";
 
   /**
-   * The status color warning, also of the dependencies on less stable packages.
+   * Also for dependencies on less stable packages.
    */
   static final String USELESSNESS_COLOR = "#c98500";
 
-  /**
-   * The legend of the styles of the packages.
-   */
   static final List<Legend> ZONE_LEGEND = List.of(
       Legend.dot("balanced", "Balanced"),
       Legend.dot("pain", "Zone of pain"),
       Legend.dot("uselessness", "Zone of uselessness"),
       Legend.dot("isolated", "No couplings"));
 
+  static final String NO_PACKAGES = "No packages";
+
   private static final double HEADER_BASELINE = 40;
 
-  /**
-   * The top of the content below the title.
-   */
   static final double CONTENT_TOP = 72;
 
   private static final double CHAR_WIDTH = 6.8 / 12;
@@ -87,8 +80,8 @@ final class Svg {
   }
 
   /**
-   * Starts a document of the given size with the card, the title and the legend. The caller appends
-   * the content and closes it with {@link #end(StringBuilder)}.
+   * Starts a document with the card, the title and the legend. The caller adds the content and
+   * closes it with {@link #end(StringBuilder)}.
    */
   static StringBuilder start(double width, double height, String description, String title,
       List<Legend> legend) {
@@ -109,15 +102,19 @@ final class Svg {
     return svg.append("</svg>\n").toString();
   }
 
-  /**
-   * Returns a card with only the header and the note that there are no packages.
-   */
   static String empty(double width, String description, String title, List<Legend> legend) {
-    return empty(width, description, title, legend, "No packages");
+    return empty(width, description, title, legend, NO_PACKAGES);
   }
 
   /**
-   * Returns a card with only the header and the given note.
+   * Returns a card with only the header and the note, as wide as the header.
+   */
+  static String empty(String description, String title, List<Legend> legend, String note) {
+    return empty(headerWidth(title, legend), description, title, legend, note);
+  }
+
+  /**
+   * Returns a card with only the header and the note.
    */
   static String empty(double width, String description, String title, List<Legend> legend,
       String note) {
@@ -149,9 +146,6 @@ final class Svg {
     }
   }
 
-  /**
-   * Returns the width that the title and the legend need.
-   */
   static double headerWidth(String title, List<Legend> legend) {
     return 2 * PADDING + title.length() * TITLE_CHAR_WIDTH + 2 * LEGEND_GAP + legendWidth(legend);
   }
@@ -161,17 +155,14 @@ final class Svg {
   }
 
   /**
-   * Returns a text at the baseline {@code y}. The elements of this and the following methods are
-   * indented for the top level of the document.
+   * Returns a text at the baseline {@code y}. This and the following elements are indented for the
+   * top level of the document.
    */
   static String text(double x, double y, String attributes, String content) {
     return "  <text x=\"%s\" y=\"%s\" %s>%s</text>\n".formatted(number(x), number(y), attributes,
         escaped(content));
   }
 
-  /**
-   * Returns a text that reads from bottom to top.
-   */
   static String rotated(double x, double y, String anchor, String style, String content) {
     return text(x, y, "text-anchor=\"%s\" class=\"%s\" transform=\"rotate(-90 %s %s)\"".formatted(
         anchor, style, number(x), number(y)), content);
@@ -193,8 +184,7 @@ final class Svg {
   }
 
   /**
-   * Returns a group with the attributes and tooltip around the elements that are not empty,
-   * indented once more.
+   * Returns a group around the elements that are not empty, indented once more.
    */
   static String group(String attributes, String title, String... elements) {
     StringBuilder group = new StringBuilder("  <g %s>\n    <title>%s</title>\n".formatted(
@@ -210,7 +200,7 @@ final class Svg {
   }
 
   /**
-   * Returns the estimated width of a text of the font size 12.
+   * Returns the estimated width of a text in the font size 12.
    */
   static double width(String text) {
     return width(text, 12, false);
@@ -220,9 +210,6 @@ final class Svg {
     return text.length() * fontSize * (bold ? BOLD_CHAR_WIDTH : CHAR_WIDTH);
   }
 
-  /**
-   * Returns {@code 1 class} or {@code n classes}.
-   */
   static String classes(int classes) {
     return classes == 1 ? "1 class" : classes + " classes";
   }
@@ -231,17 +218,10 @@ final class Svg {
     return dependencies == 1 ? "1 dependency" : dependencies + " dependencies";
   }
 
-  /**
-   * Returns the description of a dependency between packages, as the list of cycles shows it.
-   */
   static String dependency(String origin, String target, int dependencies) {
     return "%s \u2192 %s: %s".formatted(origin, target, dependencies(dependencies));
   }
 
-  /**
-   * Returns the tooltip of a dependency: its description and whether it closes a cycle or depends
-   * on a less stable package.
-   */
   static String tooltip(String origin, String target, PackageDependency dependency) {
     return dependency(origin, target, dependency.dependencies())
         + (dependency.closesCycle() ? ", closes a cycle" : "")
@@ -249,8 +229,8 @@ final class Svg {
   }
 
   /**
-   * Formats a coordinate with at most two decimal places, so that a chart only changes when the
-   * metrics do.
+   * Formats a coordinate with at most two decimals, so that a chart only changes when the metrics
+   * do.
    */
   static String number(double value) {
     return TRAILING_ZEROS.matcher(String.format(Locale.ROOT, "%.2f", value)).replaceFirst("");
@@ -269,9 +249,6 @@ final class Svg {
         .sum() + LEGEND_GAP * Math.max(0, legend.size() - 1);
   }
 
-  /**
-   * An entry of the legend: a shape in the given style, followed by the label.
-   */
   record Legend(String style, String label, Shape shape) {
 
     static Legend dot(String style, String label) {
@@ -287,9 +264,6 @@ final class Svg {
     }
   }
 
-  /**
-   * The shape of an entry of the legend: a dot, a line or a square, filled or framed by its style.
-   */
   enum Shape {
     DOT, LINE, SQUARE
   }

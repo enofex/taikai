@@ -9,16 +9,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Utility class for importing {@link JavaClasses} from a given package namespace
- * with different import options. It provides cached access to imported classes
- * to improve performance when repeatedly analyzing the same namespace.
- *
- * <p>Supported import modes are:
- * <ul>
- *   <li>{@link IMPORT#WITHOUT_TESTS} – imports production classes only</li>
- *   <li>{@link IMPORT#WITH_TESTS} – imports both production and test classes</li>
- *   <li>{@link IMPORT#ONLY_TESTS} – imports test classes only</li>
- * </ul>
+ * Imports the {@link JavaClasses} of a namespace, the classes of a package and its subpackages,
+ * and caches them, so that rules analyzing the same namespace import it only once.
  */
 public final class Namespace {
 
@@ -54,7 +46,6 @@ public final class Namespace {
    * @param namespace the base package name to import, for example {@code "com.company.project"}
    * @param importOption the import mode defining which classes to include
    * @return the imported {@link JavaClasses}
-   * @throws NullPointerException if {@code namespace} or {@code importOption} is {@code null}
    */
   public static JavaClasses from(String namespace, IMPORT importOption) {
     requireNonNull(namespace);
@@ -73,7 +64,6 @@ public final class Namespace {
    *
    * @param namespace the base package name to import
    * @return the imported {@link JavaClasses} excluding tests
-   * @throws NullPointerException if {@code namespace} is {@code null}
    */
   public static JavaClasses withoutTests(String namespace) {
     requireNonNull(namespace);
@@ -93,7 +83,6 @@ public final class Namespace {
    *
    * @param namespace the base package name to import
    * @return the imported {@link JavaClasses} including tests
-   * @throws NullPointerException if {@code namespace} is {@code null}
    */
   public static JavaClasses withTests(String namespace) {
     requireNonNull(namespace);
@@ -111,7 +100,6 @@ public final class Namespace {
    *
    * @param namespace the base package name to import
    * @return the imported test {@link JavaClasses}
-   * @throws NullPointerException if {@code namespace} is {@code null}
    */
   public static JavaClasses onlyTests(String namespace) {
     requireNonNull(namespace);

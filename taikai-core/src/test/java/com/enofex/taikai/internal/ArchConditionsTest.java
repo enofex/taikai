@@ -150,7 +150,8 @@ class ArchConditionsTest {
 
     ArchConditions.haveMethodModifiers(requiredModifiers).check(this.mockMethod, this.events);
 
-    ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
+    ArgumentCaptor<SimpleConditionEvent> eventCaptor =
+        ArgumentCaptor.forClass(SimpleConditionEvent.class);
     verify(this.events).add(eventCaptor.capture());
     assertEquals("Method %s in class %s is missing one of these modifiers: %s".formatted(
             this.mockMethod.getName(),
@@ -182,7 +183,8 @@ class ArchConditionsTest {
   @Test
   void shouldAddEventWhenMethodHasForbiddenModifiers() {
     Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.STATIC);
-    when(this.mockMethod.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC));
+    when(this.mockMethod.getModifiers())
+        .thenReturn(EnumSet.of(JavaModifier.PUBLIC, JavaModifier.STATIC));
     when(this.mockMethod.getName()).thenReturn("forbiddenMethod");
     when(this.mockMethod.getOwner()).thenReturn(this.mockClass);
 
@@ -199,7 +201,8 @@ class ArchConditionsTest {
 
     ArchConditions.haveClassModifiers(requiredModifiers).check(this.mockClass, this.events);
 
-    ArgumentCaptor<SimpleConditionEvent> eventCaptor = ArgumentCaptor.forClass(SimpleConditionEvent.class);
+    ArgumentCaptor<SimpleConditionEvent> eventCaptor =
+        ArgumentCaptor.forClass(SimpleConditionEvent.class);
     verify(this.events).add(eventCaptor.capture());
     assertEquals("Class %s is missing one of these modifiers: %s".formatted(
             this.mockClass.getName(),
@@ -220,7 +223,8 @@ class ArchConditionsTest {
   @Test
   void shouldAddEventWhenClassHasForbiddenModifiers() {
     Set<JavaModifier> forbiddenModifiers = EnumSet.of(JavaModifier.ABSTRACT);
-    when(this.mockClass.getModifiers()).thenReturn(EnumSet.of(JavaModifier.PUBLIC, JavaModifier.ABSTRACT));
+    when(this.mockClass.getModifiers())
+        .thenReturn(EnumSet.of(JavaModifier.PUBLIC, JavaModifier.ABSTRACT));
     when(this.mockClass.getFullName()).thenReturn("com.example.MyClass");
 
     ArchConditions.notHaveClassModifiers(forbiddenModifiers).check(this.mockClass, this.events);

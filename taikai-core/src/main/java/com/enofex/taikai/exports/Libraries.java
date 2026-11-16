@@ -16,26 +16,26 @@ import java.util.TreeSet;
 import java.util.stream.Stream;
 
 /**
- * Finds the libraries that the packages use, each named by the first two segments of its packages,
- * such as {@code org.springframework}. Neither the project nor the language of a class count: the
- * JDK and the standard libraries of Kotlin, Groovy and Scala.
+ * Finds the libraries that the packages use, named by their first two package segments, such as
+ * {@code org.springframework}. The project, the JDK and the standard libraries of Kotlin, Groovy
+ * and Scala are no libraries.
  */
 final class Libraries {
 
   /**
-   * The packages of the running JDK, so that ArchUnit need not resolve the JDK from the classpath.
+   * The packages of the running JDK, known even if ArchUnit does not resolve the JDK.
    */
   private static final Set<String> JDK_PACKAGES = ModuleFinder.ofSystem().findAll().stream()
       .flatMap(module -> module.descriptor().packages().stream())
       .collect(toUnmodifiableSet());
 
   /**
-   * The packages that only a JDK has, whichever one runs the export.
+   * The packages of every JDK.
    */
   private static final List<String> JDK_ROOTS = List.of("java", "jdk", "sun");
 
   /**
-   * The standard libraries of the languages besides Java, by the extension of their source files.
+   * The standard libraries of other languages, by the extension of their source files.
    */
   private static final Map<String, List<String>> LANGUAGE_PACKAGES = Map.of(
       "kt", List.of("kotlin", "org.jetbrains.annotations"),
@@ -46,9 +46,8 @@ final class Libraries {
   }
 
   /**
-   * Returns the libraries that the classes of every package use. The given packages are the
-   * project, and so is the prefix if it has at least two segments, as a shorter one, such as
-   * {@code com}, is shared with libraries.
+   * Returns the libraries of every package. The prefix belongs to the project if it has at least
+   * two segments, as a shorter one, such as {@code com}, is shared with libraries.
    */
   static List<LibraryUsage> usages(Collection<JavaClass> classes,
       Map<String, String> topLevelClassOf, String prefix, Collection<String> packageNames) {
@@ -81,8 +80,8 @@ final class Libraries {
   }
 
   /**
-   * Returns the standard library of the language of a class, by its source file or for Kotlin by
-   * its metadata, as some classes of Kotlin name no source file.
+   * Returns the standard library of the language of a class. Kotlin is recognized by its metadata,
+   * as some of its classes name no source file.
    */
   private static List<String> languagePackages(JavaClass javaClass) {
     String sourceFile = javaClass.getSourceCodeLocation().getSourceFileName();
@@ -92,9 +91,6 @@ final class Libraries {
         : sourceFile.substring(sourceFile.lastIndexOf('.') + 1), List.of());
   }
 
-  /**
-   * Returns whether a package is of the JDK or of the given standard library.
-   */
   private static boolean isOfLanguage(String packageName, List<String> languagePackages) {
     return JDK_PACKAGES.contains(packageName)
         || Stream.concat(JDK_ROOTS.stream(), languagePackages.stream())

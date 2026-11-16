@@ -15,15 +15,8 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
- * Configures and enforces conventions for LangChain4j AI services annotated with
- * {@code @RegisterAiService} using {@link com.tngtech.archunit ArchUnit} through the Taikai
- * framework.
+ * Rules for LangChain4j AI services, the classes annotated with {@code @RegisterAiService}:
  *
- * <p>This configurer ensures that AI service interfaces follow consistent naming conventions,
- * are scoped correctly with {@code @ApplicationScoped} and do not use the deprecated
- * {@code tools} attribute of {@code @RegisterAiService} (preferring {@code @Toolbox} instead).</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -37,8 +30,6 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *     .build()
  *     .check();
  * }</pre>
- *
- * <p>By default, this configurer checks classes annotated with {@code @RegisterAiService}.</p>
  */
 public final class AiConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
@@ -119,8 +110,8 @@ public final class AiConfigurer extends AbstractConfigurer implements Disableabl
   }
 
   /**
-   * Adds a rule that classes annotated with {@code @RegisterAiService} must not use the
-   * {@code tools} attribute to define tools.
+   * Adds a rule that classes annotated with {@code @RegisterAiService} must not use its deprecated
+   * {@code tools} attribute to define tools, but {@code @Toolbox}.
    *
    * @return this configurer for fluent chaining
    */

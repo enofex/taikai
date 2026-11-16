@@ -55,7 +55,8 @@ class ClassCriteriaTest {
     assertEquals("with names matching .*DTO", ClassCriteria.nameMatching(".*DTO").getDescription());
     assertEquals("with simple names matching UserDTO",
         ClassCriteria.simpleNameMatching("UserDTO").getDescription());
-    assertEquals("in package com.enofex..", ClassCriteria.inPackage("com.enofex..").getDescription());
+    assertEquals("in package com.enofex..",
+        ClassCriteria.inPackage("com.enofex..").getDescription());
   }
 
   @Test

@@ -1,11 +1,5 @@
 package com.enofex.taikai.internal;
 
-import static com.tngtech.archunit.core.domain.JavaModifier.FINAL;
-import static com.tngtech.archunit.core.domain.JavaModifier.PRIVATE;
-import static com.tngtech.archunit.core.domain.JavaModifier.PROTECTED;
-import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
-import static com.tngtech.archunit.core.domain.JavaModifier.STATIC;
-import static com.tngtech.archunit.core.domain.JavaModifier.SYNTHETIC;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -35,17 +29,27 @@ class ModifiersTest {
 
   static Stream<Named<ModifierCheck<?>>> modifierChecks() {
     return Stream.of(
-        check("isClassFinal", JavaClass.class, FINAL, Modifiers::isClassFinal),
-        check("isConstructorPrivate", JavaConstructor.class, PRIVATE,
+        check("isClassFinal", JavaClass.class, JavaModifier.FINAL, Modifiers::isClassFinal),
+        check("isConstructorPrivate", JavaConstructor.class, JavaModifier.PRIVATE,
             Modifiers::isConstructorPrivate),
-        check("isMethodProtected", JavaMethod.class, PROTECTED, Modifiers::isMethodProtected),
-        check("isMethodStatic", JavaMethod.class, STATIC, Modifiers::isMethodStatic),
-        check("isFieldStatic", JavaField.class, STATIC, Modifiers::isFieldStatic),
-        check("isFieldPublic", JavaField.class, PUBLIC, Modifiers::isFieldPublic),
-        check("isFieldProtected", JavaField.class, PROTECTED, Modifiers::isFieldProtected),
-        check("isFieldFinal", JavaField.class, FINAL, Modifiers::isFieldFinal),
-        check("isSynthetic", HasModifiers.class, SYNTHETIC, Modifiers::isSynthetic),
-        check("isStatic", HasModifiers.class, STATIC, Modifiers::isStatic));
+        check("isMethodProtected", JavaMethod.class, JavaModifier.PROTECTED,
+            Modifiers::isMethodProtected),
+        check("isStatic of a method", JavaMethod.class, JavaModifier.STATIC, Modifiers::isStatic),
+        check("isStatic of a field", JavaField.class, JavaModifier.STATIC, Modifiers::isStatic),
+        check("isPublic of a field", JavaField.class, JavaModifier.PUBLIC, Modifiers::isPublic),
+        check("isPublic of a class", JavaClass.class, JavaModifier.PUBLIC, Modifiers::isPublic),
+        check("isPrivate of a class", JavaClass.class, JavaModifier.PRIVATE, Modifiers::isPrivate),
+        check("isPrivate of a method", JavaMethod.class, JavaModifier.PRIVATE,
+            Modifiers::isPrivate),
+        check("isAbstract of a class", JavaClass.class, JavaModifier.ABSTRACT,
+            Modifiers::isAbstract),
+        check("isAbstract of a method", JavaMethod.class, JavaModifier.ABSTRACT,
+            Modifiers::isAbstract),
+        check("isFieldProtected", JavaField.class, JavaModifier.PROTECTED,
+            Modifiers::isFieldProtected),
+        check("isFieldFinal", JavaField.class, JavaModifier.FINAL, Modifiers::isFieldFinal),
+        check("isSynthetic", HasModifiers.class, JavaModifier.SYNTHETIC, Modifiers::isSynthetic),
+        check("isStatic", HasModifiers.class, JavaModifier.STATIC, Modifiers::isStatic));
   }
 
   private static <T extends HasModifiers> Named<ModifierCheck<?>> check(String name,

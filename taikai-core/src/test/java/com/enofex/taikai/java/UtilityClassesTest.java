@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.enofex.taikai.Taikai;
-import org.junit.jupiter.api.Test;
+import com.enofex.taikai.java.JavaFixtures.NonFinalUtilityClass;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -37,18 +37,6 @@ class UtilityClassesTest {
     assertThrows(AssertionError.class, taikai::check);
   }
 
-  @Test
-  void shouldDisableJavaConfigurer() {
-    Taikai taikai = Taikai.builder()
-        .classes(NonFinalUtilityClass.class)
-        .java(java -> java
-            .utilityClassesShouldBeFinalAndHavePrivateConstructor()
-            .disable())
-        .build();
-
-    assertDoesNotThrow(taikai::check);
-  }
-
   private static final class ValidUtilityClass {
 
     public static int number() {
@@ -56,16 +44,6 @@ class UtilityClassesTest {
     }
 
     private ValidUtilityClass() {
-    }
-  }
-
-  private static class NonFinalUtilityClass {
-
-    public static int number() {
-      return 42;
-    }
-
-    private NonFinalUtilityClass() {
     }
   }
 

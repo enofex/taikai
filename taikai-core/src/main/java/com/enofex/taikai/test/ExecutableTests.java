@@ -1,6 +1,8 @@
 package com.enofex.taikai.test;
 
-import static com.enofex.taikai.internal.Modifiers.isMethodStatic;
+import static com.enofex.taikai.internal.Modifiers.isAbstract;
+import static com.enofex.taikai.internal.Modifiers.isPrivate;
+import static com.enofex.taikai.internal.Modifiers.isStatic;
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_NESTED;
 import static com.enofex.taikai.test.JUnitDescribedPredicates.ANNOTATION_TEST;
@@ -11,7 +13,6 @@ import com.tngtech.archunit.base.HasDescription;
 import com.tngtech.archunit.core.domain.JavaAnnotation;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.domain.JavaParameterizedType;
 import com.tngtech.archunit.core.domain.JavaType;
 import com.tngtech.archunit.core.domain.JavaWildcardType;
@@ -64,8 +65,8 @@ final class ExecutableTests {
   }
 
   private static void checkClass(JavaClass javaClass, ConditionEvents events) {
-    boolean isPrivate = javaClass.getModifiers().contains(JavaModifier.PRIVATE);
-    boolean isAbstract = javaClass.getModifiers().contains(JavaModifier.ABSTRACT);
+    boolean privateClass = isPrivate(javaClass);
+    boolean abstractClass = isAbstract(javaClass);
 
     if (javaClass.isMetaAnnotatedWith(ANNOTATION_NESTED)) {
       String description = "%s annotated with @Nested".formatted(javaClass.getDescription());
@@ -76,13 +77,13 @@ final class ExecutableTests {
             ("%s is static and will only be executed if discovered as a standalone test class "
                 + "in %s").formatted(description, javaClass.getSourceCodeLocation())));
       }
-      if (isPrivate && !isAbstract) {
+      if (privateClass && !abstractClass) {
         violated(javaClass, description, "is private", events);
       }
     } else if (containsTestMethods(javaClass)) {
       String description = "%s containing test methods".formatted(javaClass.getDescription());
 
-      if (isPrivate && !isAbstract) {
+      if (privateClass && !abstractClass) {
         violated(javaClass, description, "is private", events);
       }
       if (javaClass.isLocalClass()) {
@@ -100,10 +101,10 @@ final class ExecutableTests {
         String description = "%s annotated with @%s".formatted(
             method.getDescription(), annotationName(method, testAnnotation));
 
-        if (isMethodStatic(method)) {
+        if (isStatic(method)) {
           violated(method, description, "is static", events);
         }
-        if (method.getModifiers().contains(JavaModifier.PRIVATE)) {
+        if (isPrivate(method)) {
           violated(method, description, "is private", events);
         }
         if (testAnnotation.equals(ANNOTATION_TEST_FACTORY)) {
@@ -131,7 +132,7 @@ final class ExecutableTests {
 
   private static boolean containsTestMethods(JavaClass javaClass) {
     return javaClass.getAllMethods().stream()
-        .filter(method -> !method.getModifiers().contains(JavaModifier.ABSTRACT))
+        .filter(method -> !isAbstract(method))
         .anyMatch(method -> TEST_ANNOTATIONS.stream().anyMatch(method::isMetaAnnotatedWith));
   }
 

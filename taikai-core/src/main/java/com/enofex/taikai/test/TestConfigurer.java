@@ -6,13 +6,8 @@ import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
- * Top-level configurer for test-related architectural rules using
- * {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for tests, currently for JUnit with {@link #junit(Customizer)}:
  *
- * <p>Currently, the only supported test framework is JUnit. Access JUnit-specific rules
- * via {@link #junit(Customizer)}.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -31,6 +26,9 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  */
 public final class TestConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
+  /**
+   * @param configurerContext the context of the builder
+   */
   public TestConfigurer(ConfigurerContext configurerContext) {
     super(configurerContext);
   }

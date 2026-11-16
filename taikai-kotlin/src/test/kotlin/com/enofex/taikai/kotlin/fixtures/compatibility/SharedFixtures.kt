@@ -1,5 +1,6 @@
 package com.enofex.taikai.kotlin.fixtures.compatibility
 
+import com.enofex.taikai.kotlin.fixtures.compatibility.shaded.Shadow
 import java.io.IOException
 
 class GenericThrows {
@@ -13,5 +14,5 @@ enum class GoodEnum { FIRST, SECOND }
 enum class BadEnum { wrong }
 interface Service
 interface IService
-class KotlinUsesShaded(val dependency: com.enofex.taikai.kotlin.fixtures.compatibility.shaded.Shadow)
+class KotlinUsesShaded(val dependency: Shadow)
 object UtilityRegistry { fun value() = "value" }

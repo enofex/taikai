@@ -12,6 +12,11 @@ import org.junit.jupiter.api.function.Executable;
  */
 final class MetricsChecks {
 
+  /**
+   * The package of the {@code shop} fixtures, described in {@link PackageMetricsTest}.
+   */
+  static final String SHOP = "com.enofex.taikai.metrics.fixtures.shop";
+
   private MetricsChecks() {
   }
 

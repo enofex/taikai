@@ -61,11 +61,7 @@ public final class RequiredFilesCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no file is given
      */
     public Settings {
-      files = List.copyOf(files);
-
-      if (files.isEmpty()) {
-        throw new IllegalArgumentException("At least one required file must be given");
-      }
+      files = CheckSettings.requireNotEmpty(files, "At least one required file must be given");
     }
   }
 }

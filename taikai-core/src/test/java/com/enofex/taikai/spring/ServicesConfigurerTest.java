@@ -11,6 +11,10 @@ import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;
@@ -22,6 +26,74 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
 class ServicesConfigurerTest {
+
+  static Stream<Named<Customizer<ServicesConfigurer>>> allRules() {
+    return Stream.of(
+        Named.of("namesShouldEndWithService()",
+            services -> services.namesShouldEndWithService()),
+        Named.of("shouldBeAnnotatedWithService()",
+            services -> services.shouldBeAnnotatedWithService()),
+        Named.of("shouldNotDependOnOtherServices()",
+            services -> services.shouldNotDependOnOtherServices()),
+        Named.of("shouldNotDependOnControllers()",
+            services -> services.shouldNotDependOnControllers()),
+        Named.of("shouldBePackagePrivate()",
+            services -> services.shouldBePackagePrivate()));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("allRules")
+  void shouldNotThrowWhenPublicClassIsNotAnnotatedWithService(
+      Customizer<ServicesConfigurer> rule) {
+    Taikai taikai = Taikai.builder()
+        .classes(PublicHelper.class)
+        .spring(spring -> spring.services(rule))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldNotThrowWhenAllRulesAreAppliedToServiceInterface() {
+    Taikai taikai = Taikai.builder()
+        .classes(EmailService.class, JavaMailEmailService.class,
+            ConsoleLoggingEmailService.class)
+        .spring(spring -> spring.services(services -> services
+            .shouldBeAnnotatedWithService()
+            .shouldNotDependOnControllers()
+            .namesShouldEndWithService()))
+        .build();
+
+    assertDoesNotThrow(taikai::check);
+  }
+
+  @Test
+  void shouldReturnSameConfigurerFromEveryMethod() {
+    ServicesConfigurer configurer =
+        new ServicesConfigurer(new ConfigurerContext(null, new Configurers()));
+
+    assertAll(
+        () -> assertSame(configurer, configurer.namesShouldEndWithService()),
+        () -> assertSame(configurer,
+            configurer.namesShouldEndWithService(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.namesShouldMatch(".+Service")),
+        () -> assertSame(configurer,
+            configurer.namesShouldMatch(".+Service", defaultConfiguration())),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithService()),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithService(defaultConfiguration())),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithService(
+            ClassCriteria.nameMatching(".+Service"), defaultConfiguration())),
+        () -> assertSame(configurer, configurer.shouldNotDependOnOtherServices()),
+        () -> assertSame(configurer,
+            configurer.shouldNotDependOnOtherServices(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.shouldNotDependOnControllers()),
+        () -> assertSame(configurer,
+            configurer.shouldNotDependOnControllers(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.disable()));
+  }
 
   @Nested
   class NamesShouldEndWithService {
@@ -56,6 +128,26 @@ class ServicesConfigurerTest {
       Taikai taikai = Taikai.builder()
           .classes(InvalidNaming.class)
           .spring(spring -> spring.services(rule))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenServiceIsMetaAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(MetaAnnotatedService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::namesShouldEndWithService))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenMetaAnnotatedServiceNameDoesNotMatch() {
+      Taikai taikai = Taikai.builder()
+          .classes(MetaAnnotatedBadName.class)
+          .spring(spring -> spring.services(ServicesConfigurer::namesShouldEndWithService))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);
@@ -122,6 +214,38 @@ class ServicesConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenMetaAnnotatedServiceIsAnnotated() {
+      Taikai taikai = Taikai.builder()
+          .classes(MetaAnnotatedService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldNotThrowWhenSelectedClassesAreServices() {
+      Taikai taikai = Taikai.builder()
+          .classes(BillingManager.class, ManagerContract.class)
+          .spring(spring -> spring.services(services -> services
+              .shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".*Manager.*"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedClassesAreNotServices() {
+      Taikai taikai = Taikai.builder()
+          .classes(AuditManager.class)
+          .spring(spring -> spring.services(services -> services
+              .shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".*Manager"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
   }
 
   @Nested
@@ -182,6 +306,16 @@ class ServicesConfigurerTest {
 
       assertThrows(AssertionError.class, taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenMetaAnnotatedServiceDoesNotDependOnControllers() {
+      Taikai taikai = Taikai.builder()
+          .classes(MetaAnnotatedService.class)
+          .spring(spring -> spring.services(ServicesConfigurer::shouldNotDependOnControllers))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -219,47 +353,16 @@ class ServicesConfigurerTest {
   }
 
   @Nested
-  class UnrelatedClasses {
-
-    static Stream<Named<Customizer<ServicesConfigurer>>> rules() {
-      return Stream.of(
-          Named.of("namesShouldEndWithService()",
-              services -> services.namesShouldEndWithService()),
-          Named.of("shouldBeAnnotatedWithService()",
-              services -> services.shouldBeAnnotatedWithService()),
-          Named.of("shouldNotDependOnOtherServices()",
-              services -> services.shouldNotDependOnOtherServices()),
-          Named.of("shouldNotDependOnControllers()",
-              services -> services.shouldNotDependOnControllers()),
-          Named.of("shouldBePackagePrivate()",
-              services -> services.shouldBePackagePrivate()));
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("rules")
-    void shouldNotThrowWhenPublicClassIsNotAnnotatedWithService(
-        Customizer<ServicesConfigurer> rule) {
-      Taikai taikai = Taikai.builder()
-          .classes(PublicHelper.class)
-          .spring(spring -> spring.services(rule))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class ServiceInterfaceWithMultipleImplementations {
+  class Disable {
 
     @Test
-    void shouldNotThrowWhenAllRulesAreAppliedToServiceInterface() {
+    void shouldDisableServicesConfigurer() {
       Taikai taikai = Taikai.builder()
-          .classes(EmailService.class, JavaMailEmailService.class,
-              ConsoleLoggingEmailService.class)
-          .spring(spring -> spring.services(services -> services
-              .shouldBeAnnotatedWithService()
-              .shouldNotDependOnControllers()
-              .namesShouldEndWithService()))
+          .classes(InvalidNaming.class)
+          .spring(spring -> spring.services(svc -> {
+            svc.namesShouldEndWithService();
+            svc.disable();
+          }))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -357,104 +460,8 @@ class ServicesConfigurerTest {
     }
   }
 
-  @Nested
-  class Disable {
-
-    @Test
-    void shouldDisableServicesConfigurer() {
-      Taikai taikai = Taikai.builder()
-          .classes(InvalidNaming.class)
-          .spring(spring -> spring.services(svc -> {
-            svc.namesShouldEndWithService();
-            svc.disable();
-          }))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class FluentChaining {
-
-    private ConfigurerContext createContext() {
-      return new ConfigurerContext(null, new Configurers());
-    }
-
-    @Test
-    void shouldReturnSameConfigurerFromEveryMethod() {
-      ServicesConfigurer configurer = new ServicesConfigurer(createContext());
-
-      assertAll(
-          () -> assertSame(configurer, configurer.namesShouldEndWithService()),
-          () -> assertSame(configurer,
-              configurer.namesShouldEndWithService(defaultConfiguration())),
-          () -> assertSame(configurer, configurer.namesShouldMatch(".+Service")),
-          () -> assertSame(configurer,
-              configurer.namesShouldMatch(".+Service", defaultConfiguration())),
-          () -> assertSame(configurer, configurer.shouldBeAnnotatedWithService()),
-          () -> assertSame(configurer,
-              configurer.shouldBeAnnotatedWithService(defaultConfiguration())),
-          () -> assertSame(configurer,
-              configurer.shouldBeAnnotatedWithService(ClassCriteria.nameMatching(".+Service"))),
-          () -> assertSame(configurer, configurer.shouldBeAnnotatedWithService(
-              ClassCriteria.nameMatching(".+Service"), defaultConfiguration())),
-          () -> assertSame(configurer, configurer.shouldNotDependOnOtherServices()),
-          () -> assertSame(configurer,
-              configurer.shouldNotDependOnOtherServices(defaultConfiguration())),
-          () -> assertSame(configurer, configurer.shouldNotDependOnControllers()),
-          () -> assertSame(configurer,
-              configurer.shouldNotDependOnControllers(defaultConfiguration())),
-          () -> assertSame(configurer, configurer.disable()));
-    }
-  }
-
-  @Nested
-  class MetaAnnotated {
-
-    @Test
-    void shouldNotThrowWhenServiceIsMetaAnnotated() {
-      Taikai taikai = Taikai.builder()
-          .classes(MetaAnnotatedService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::namesShouldEndWithService))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldThrowWhenMetaAnnotatedServiceNameDoesNotMatch() {
-      Taikai taikai = Taikai.builder()
-          .classes(MetaAnnotatedBadName.class)
-          .spring(spring -> spring.services(ServicesConfigurer::namesShouldEndWithService))
-          .build();
-
-      assertThrows(AssertionError.class, taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenMetaAnnotatedServiceIsAnnotated() {
-      Taikai taikai = Taikai.builder()
-          .classes(MetaAnnotatedService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldBeAnnotatedWithService))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-
-    @Test
-    void shouldNotThrowWhenMetaAnnotatedServiceDoesNotDependOnControllers() {
-      Taikai taikai = Taikai.builder()
-          .classes(MetaAnnotatedService.class)
-          .spring(spring -> spring.services(ServicesConfigurer::shouldNotDependOnControllers))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE)
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+  @Target(ElementType.TYPE)
+  @Retention(RetentionPolicy.RUNTIME)
   @Service
   @interface CustomService {
   }
@@ -465,5 +472,15 @@ class ServicesConfigurerTest {
 
   @CustomService
   static class MetaAnnotatedBadName {
+  }
+
+  @Service
+  static class BillingManager {
+  }
+
+  static class AuditManager {
+  }
+
+  interface ManagerContract {
   }
 }

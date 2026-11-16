@@ -16,12 +16,45 @@ import kotlin.reflect.KClass
 /** Source visibility, rather than the JVM visibility of a compiled declaration. */
 enum class KotlinVisibility { PUBLIC, INTERNAL, PROTECTED, PRIVATE }
 
-/** Optional Kotlin/JVM rules. Java rule semantics remain unchanged. Patterns match entire source simple names. */
+/**
+ * Rules for Kotlin declarations, which read the Kotlin metadata of the compiled classes:
+ *
+ * ```
+ * Taikai.builder()
+ *     .namespace("com.company.project")
+ *     .kotlin {
+ *         classesShouldBeDataClasses(".*Response")
+ *         dataClassesShouldBeImmutable()
+ *     }
+ *     .build()
+ *     .checkAll()
+ * ```
+ *
+ * A class is a class, interface, object or companion object declared in Kotlin, but not a file
+ * facade such as `MainKt` or a class that the compiler generates, such as one for a lambda. A
+ * function is a function that a class or file declares in the source, but not a property accessor
+ * or a function that the compiler generates, such as `copy` of a data class. A property is a
+ * property that a class or file declares in the source, also one without a backing field.
+ * Inherited and delegated members do not count. Regexes match the whole simple name in the source,
+ * such as the name of an `internal` function before its JVM name is mangled.
+ *
+ * @param context the context of the builder
+ */
 class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context) {
-    /** Removes every Kotlin rule registered on this builder so far. */
+    /**
+     * Removes every Kotlin rule registered on this builder so far.
+     *
+     * @return this configurer for fluent chaining
+     */
     fun disable(): KotlinConfigurer = apply { clear() }
 
-    /** Adds a rule that the simple name of every declared Kotlin class must match the given regex. */
+    /**
+     * Adds a rule that the simple names of classes must match the given regex.
+     *
+     * @param regex the regex that class names must match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
+     */
     @JvmOverloads
     fun classesShouldMatch(
         regex: String,
@@ -35,8 +68,11 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that source class names must not match the given regex, excluding file facades
-     * and synthetic helpers.
+     * Adds a rule that the simple names of classes must not match the given regex.
+     *
+     * @param regex the regex that class names must not match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun classesShouldNotMatch(
@@ -51,8 +87,12 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that regular and companion object names must match the given regex; other class
-     * kinds are ignored.
+     * Adds a rule that the simple names of objects and companion objects must match the given
+     * regex. Other classes are not checked.
+     *
+     * @param regex the regex that object names must match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun objectsShouldMatch(
@@ -68,8 +108,11 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that declared source function names must match the given regex, excluding
-     * accessors and generated helpers.
+     * Adds a rule that the names of functions must match the given regex.
+     *
+     * @param regex the regex that function names must match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun functionsShouldMatch(
@@ -85,8 +128,11 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that source function names, including names before internal JVM mangling, must
-     * not match the given regex.
+     * Adds a rule that the names of functions must not match the given regex.
+     *
+     * @param regex the regex that function names must not match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun functionsShouldNotMatch(
@@ -103,8 +149,11 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that non-constant source property names must match the given regex, independently
-     * of JVM backing fields.
+     * Adds a rule that the names of properties, except constants, must match the given regex.
+     *
+     * @param regex the regex that property names must match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun propertiesShouldMatch(
@@ -120,8 +169,11 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that declared non-constant property names, including computed properties, must
-     * not match the given regex.
+     * Adds a rule that the names of properties, except constants, must not match the given regex.
+     *
+     * @param regex the regex that property names must not match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun propertiesShouldNotMatch(
@@ -137,8 +189,15 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that the names of properties of an exact source classifier or erased JVM type
-     * must match the given regex, without loading the type.
+     * Adds a rule that the names of properties of the given type, except constants, must match the
+     * given regex. A property has the type if the type of its declaration or the erased JVM type of
+     * its getter or backing field is exactly that type, which is not loaded.
+     *
+     * @param typeName the fully qualified name of the type, for example `com.company.Matcher`
+     * @param regex the regex that property names must match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
+     * @throws IllegalArgumentException if [typeName] is blank
      */
     @JvmOverloads
     fun propertiesShouldMatch(
@@ -150,7 +209,16 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         return propertyNamesForTypes(setOf(typeName), regex, configuration)
     }
 
-    /** Java-friendly overload for selecting an exact erased property type. */
+    /**
+     * Same as [propertiesShouldMatch] with a type name, but with the type given as a Java class,
+     * which only matches the erased JVM type, so that `Int::class.java` matches `Int` properties,
+     * but not `Int?` ones.
+     *
+     * @param type the type of the properties
+     * @param regex the regex that property names must match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
+     */
     @JvmOverloads
     fun propertiesShouldMatch(
         type: Class<*>,
@@ -158,7 +226,16 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         configuration: Configuration = Configuration.defaultConfiguration(),
     ): KotlinConfigurer = propertiesShouldMatch(type.name, regex, configuration)
 
-    /** Kotlin-friendly overload; source classifiers preserve nullable primitive type matching. */
+    /**
+     * Same as [propertiesShouldMatch] with a type name, but with the type given as a Kotlin class,
+     * which matches by its Kotlin and its JVM name, so that `Int::class` matches both `Int` and
+     * `Int?` properties.
+     *
+     * @param type the type of the properties
+     * @param regex the regex that property names must match
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
+     */
     @JvmOverloads
     fun propertiesShouldMatch(
         type: KClass<*>,
@@ -169,8 +246,11 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     )
 
     /**
-     * Adds a rule that Kotlin classes must not use deprecated APIs, checking Kotlin and Java
-     * deprecated classes and member accesses from Kotlin/JVM bytecode.
+     * Adds a rule that Kotlin classes must not use classes or members deprecated with Kotlin's or
+     * Java's annotation, including deprecated properties and accessors.
+     *
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun noUsageOfDeprecatedAPIs(
@@ -179,7 +259,14 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         KotlinDeprecations().violations(owner)
     }
 
-    /** Adds a rule that const val names must use uppercase underscore naming; other properties are not checked. */
+    /**
+     * Adds a rule that the names of constants, the `const val` properties, must consist of
+     * uppercase letters, digits and underscores, starting with a letter. Other properties are not
+     * checked.
+     *
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
+     */
     @JvmOverloads
     fun constantsShouldFollowConventions(
         configuration: Configuration = Configuration.defaultConfiguration(),
@@ -190,7 +277,13 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
             }
         }
 
-    /** Adds a rule that Kotlin classes selected by simple-name regex must be data classes. */
+    /**
+     * Adds a rule that the classes with simple names matching the given regex must be data classes.
+     *
+     * @param regex the regex selecting the classes by their simple names
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
+     */
     @JvmOverloads
     fun classesShouldBeDataClasses(
         regex: String,
@@ -204,8 +297,11 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that data classes must declare only val properties, including properties outside
-     * the primary constructor. Not deep immutability.
+     * Adds a rule that data classes must declare only `val` properties, also outside the primary
+     * constructor. The objects that the properties reference may still be mutable.
+     *
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun dataClassesShouldBeImmutable(
@@ -218,8 +314,12 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         }
 
     /**
-     * Adds a rule that Kotlin classes selected by simple-name regex must be objects. Companion
-     * objects do not satisfy this.
+     * Adds a rule that the classes with simple names matching the given regex must be object
+     * declarations. A companion object does not count as one.
+     *
+     * @param regex the regex selecting the classes by their simple names
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun classesShouldBeObjects(
@@ -238,7 +338,15 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
         }
     }
 
-    /** Adds a rule that selected Kotlin classes must have the requested source visibility. */
+    /**
+     * Adds a rule that the classes with simple names matching the given regex must have the given
+     * visibility in the source.
+     *
+     * @param regex the regex selecting the classes by their simple names
+     * @param visibility the required visibility
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
+     */
     @JvmOverloads
     fun classesShouldHaveVisibility(
         regex: String,
@@ -258,8 +366,14 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that selected source functions, including JVM-mangled internal functions, must
-     * have the requested source visibility.
+     * Adds a rule that the functions with names matching the given regex must have the given
+     * visibility in the source, so that an `internal` function counts as internal, although it is
+     * public on the JVM.
+     *
+     * @param regex the regex selecting the functions by their names
+     * @param visibility the required visibility
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun functionsShouldHaveVisibility(
@@ -277,8 +391,13 @@ class KotlinConfigurer(context: ConfigurerContext) : AbstractConfigurer(context)
     }
 
     /**
-     * Adds a rule that selected source properties must have the requested source visibility;
-     * accessor visibility is not checked separately.
+     * Adds a rule that the properties with names matching the given regex must have the given
+     * visibility in the source. The visibility of their accessors is not checked.
+     *
+     * @param regex the regex selecting the properties by their names
+     * @param visibility the required visibility
+     * @param configuration the rule configuration
+     * @return this configurer for fluent chaining
      */
     @JvmOverloads
     fun propertiesShouldHaveVisibility(

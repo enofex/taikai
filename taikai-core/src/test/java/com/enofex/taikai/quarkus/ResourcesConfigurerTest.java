@@ -21,8 +21,35 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class ResourcesConfigurerTest {
 
+  @Test
+  void shouldReturnSameConfigurerFromEveryMethod() {
+    ResourcesConfigurer configurer = new ResourcesConfigurer(
+        new ConfigurerContext(null, new Configurers()));
+
+    assertAll(
+        () -> assertSame(configurer, configurer.namesShouldEndWithResource()),
+        () -> assertSame(configurer,
+            configurer.namesShouldEndWithResource(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.namesShouldMatch(".+Resource")),
+        () -> assertSame(configurer,
+            configurer.namesShouldMatch(".+Resource", defaultConfiguration())),
+        () -> assertSame(configurer, configurer.shouldBePublic()),
+        () -> assertSame(configurer, configurer.shouldBePublic(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithPath()),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithPath(defaultConfiguration())),
+        () -> assertSame(configurer,
+            configurer.shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".+Resource"))),
+        () -> assertSame(configurer, configurer.shouldBeAnnotatedWithPath(
+            ClassCriteria.nameMatching(".+Resource"), defaultConfiguration())),
+        () -> assertSame(configurer, configurer.shouldNotDependOnOtherResources()),
+        () -> assertSame(configurer,
+            configurer.shouldNotDependOnOtherResources(defaultConfiguration())),
+        () -> assertSame(configurer, configurer.disable()));
+  }
+
   @Nested
-  class NamesShouldEndWithResources {
+  class NamesShouldEndWithResource {
 
     static Stream<Named<Customizer<ResourcesConfigurer>>> rules() {
       return Stream.of(
@@ -128,6 +155,39 @@ class ResourcesConfigurerTest {
 
       assertDoesNotThrow(taikai::check);
     }
+
+    @Test
+    void shouldNotThrowWhenSelectedResourcesAreAnnotatedWithPath() {
+      Taikai taikai = Taikai.builder()
+          .classes(OrderEndpoint.class, EndpointContract.class)
+          .quarkus(quarkus -> quarkus.resources(resources -> resources
+              .shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".*Endpoint.*"))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+
+    @Test
+    void shouldThrowWhenSelectedResourcesMissPathAnnotation() {
+      Taikai taikai = Taikai.builder()
+          .classes(OrderEndpoint.class, PlainEndpoint.class)
+          .quarkus(quarkus -> quarkus.resources(resources -> resources
+              .shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".*Endpoint"))))
+          .build();
+
+      assertThrows(AssertionError.class, taikai::check);
+    }
+
+    @Test
+    void shouldIgnoreClassesNotMatchingCriteria() {
+      Taikai taikai = Taikai.builder()
+          .classes(PlainEndpoint.class)
+          .quarkus(quarkus -> quarkus.resources(resources -> resources
+              .shouldBeAnnotatedWithPath(ClassCriteria.inPackage("com.company.rest.."))))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
   }
 
   @Nested
@@ -199,6 +259,23 @@ class ResourcesConfigurerTest {
     }
   }
 
+  @Nested
+  class Disable {
+
+    @Test
+    void shouldDisableResourcesConfigurer() {
+      Taikai taikai = Taikai.builder()
+          .classes(MissingRestResource.class)
+          .quarkus(quarkus -> quarkus.resources(res -> {
+            res.shouldBeAnnotatedWithPath();
+            res.disable();
+          }))
+          .build();
+
+      assertDoesNotThrow(taikai::check);
+    }
+  }
+
   @Path("/test")
   static public class UserResource {
   }
@@ -230,55 +307,17 @@ class ResourcesConfigurerTest {
   static public class DefaultOrderResource implements OrderResource {
   }
 
-  @Nested
-  class Disable {
-
-    @Test
-    void shouldDisableResourcesConfigurer() {
-      Taikai taikai = Taikai.builder()
-          .classes(MissingRestResource.class)
-          .quarkus(quarkus -> quarkus.resources(res -> {
-            res.shouldBeAnnotatedWithPath();
-            res.disable();
-          }))
-          .build();
-
-      assertDoesNotThrow(taikai::check);
-    }
-  }
-
-  @Nested
-  class FluentChaining {
-
-    @Test
-    void shouldReturnSameConfigurerFromEveryMethod() {
-      ResourcesConfigurer configurer = new ResourcesConfigurer(
-          new ConfigurerContext(null, new Configurers()));
-
-      assertAll(
-          () -> assertSame(configurer, configurer.namesShouldEndWithResource()),
-          () -> assertSame(configurer,
-              configurer.namesShouldEndWithResource(defaultConfiguration())),
-          () -> assertSame(configurer, configurer.namesShouldMatch(".+Resource")),
-          () -> assertSame(configurer,
-              configurer.namesShouldMatch(".+Resource", defaultConfiguration())),
-          () -> assertSame(configurer, configurer.shouldBePublic()),
-          () -> assertSame(configurer, configurer.shouldBePublic(defaultConfiguration())),
-          () -> assertSame(configurer, configurer.shouldBeAnnotatedWithPath()),
-          () -> assertSame(configurer,
-              configurer.shouldBeAnnotatedWithPath(defaultConfiguration())),
-          () -> assertSame(configurer,
-              configurer.shouldBeAnnotatedWithPath(ClassCriteria.nameMatching(".+Resource"))),
-          () -> assertSame(configurer, configurer.shouldBeAnnotatedWithPath(
-              ClassCriteria.nameMatching(".+Resource"), defaultConfiguration())),
-          () -> assertSame(configurer, configurer.shouldNotDependOnOtherResources()),
-          () -> assertSame(configurer,
-              configurer.shouldNotDependOnOtherResources(defaultConfiguration())),
-          () -> assertSame(configurer, configurer.disable()));
-    }
-  }
-
   @Path("/test")
   static public class BadController {
+  }
+
+  @Path("/orders")
+  static class OrderEndpoint {
+  }
+
+  static class PlainEndpoint {
+  }
+
+  interface EndpointContract {
   }
 }

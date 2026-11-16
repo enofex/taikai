@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 final class ConstantNaming {
 
-  private static final Pattern CONSTANT_NAME_PATTERN = Pattern.compile("^[A-Z][A-Z0-9_]*$");
+  static final Pattern CONSTANT_NAME_PATTERN = Pattern.compile("^[A-Z][A-Z0-9_]*$");
 
   private ConstantNaming() {
   }

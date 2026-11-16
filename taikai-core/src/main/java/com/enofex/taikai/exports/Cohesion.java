@@ -1,6 +1,6 @@
 package com.enofex.taikai.exports;
 
-import static com.enofex.taikai.internal.Modifiers.isFieldStatic;
+import static com.enofex.taikai.internal.Modifiers.isStatic;
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.counting;
@@ -25,19 +25,17 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Measures the cohesion of classes as the LCOM4 of Hitz and Montazeri: the number of groups of
- * methods that are connected by using the same field or method of their object, directly or through
- * other methods.
+ * Measures LCOM4 of Hitz and Montazeri: the number of groups of methods that are connected by using
+ * the same field or method of their object.
  *
- * <p>Generated methods, such as those of the default arguments of Kotlin, connect methods, but
- * generated fields, such as the reference of an inner class to its outer object, do not. Only
- * instance methods with a body count, but not generated ones, getters and setters, which would make
- * every data class look incohesive, and methods without a connection to another member.</p>
+ * <p>Only instance methods with a body count, but not getters, setters, generated methods and
+ * methods connected to nothing. Generated methods connect others, generated fields such as
+ * {@code this$0} do not.</p>
  */
 final class Cohesion {
 
   /**
-   * The modifiers of the methods that connect the methods using them, but do not count.
+   * Methods with these modifiers connect others, but do not count.
    */
   private static final Set<JavaModifier> WITHOUT_OBJECT_OR_BODY = Set.of(JavaModifier.STATIC,
       JavaModifier.ABSTRACT, JavaModifier.NATIVE);
@@ -46,8 +44,8 @@ final class Cohesion {
   }
 
   /**
-   * Returns the cohesion of the given classes but for interfaces, records, anonymous classes and
-   * classes without a method that counts.
+   * Returns the cohesion of the classes but for interfaces, records, anonymous classes and classes
+   * without a counted method.
    */
   static List<CohesionMetric> of(Collection<JavaClass> classes) {
     return classes.stream()
@@ -61,7 +59,7 @@ final class Cohesion {
   private static Optional<CohesionMetric> measure(JavaClass javaClass) {
     Map<String, JavaField> instanceFields = new HashMap<>();
     javaClass.getFields().stream()
-        .filter(field -> !isFieldStatic(field) && !isSynthetic(field))
+        .filter(field -> !isStatic(field) && !isSynthetic(field))
         .forEach(field -> instanceFields.put(field.getFullName(), field));
     Map<JavaMethod, Set<String>> membersOf = new HashMap<>();
     javaClass.getMethods()
@@ -96,8 +94,7 @@ final class Cohesion {
   }
 
   /**
-   * Returns the group of every node: the strongly connected components of the uses in both
-   * directions.
+   * Returns the group of every node: the components of the uses in both directions.
    */
   private static int[] groups(Map<String, Integer> nodeOf, Map<JavaMethod, Set<String>> membersOf) {
     DependencyGraph uses = new DependencyGraph(nodeOf.size());
@@ -120,9 +117,8 @@ final class Cohesion {
   }
 
   /**
-   * Returns whether a method is a getter or setter: it uses at most one instance field and nothing
-   * else, and is named like one, such as {@code getName}, or like its field, such as
-   * {@code name()}, with the signature of one.
+   * Returns whether a method is a getter or setter: it uses at most one field and is named like
+   * one, such as {@code getName}, or like its field, such as {@code name()}.
    */
   private static boolean isAccessor(JavaMethod method, Set<String> members,
       Map<String, JavaField> instanceFields) {
@@ -151,9 +147,9 @@ final class Cohesion {
   }
 
   /**
-   * Returns the members of its class that a method uses, also inherited ones and from within
-   * lambdas. Static and generated fields and the methods of {@code Object} do not count, nor do
-   * members used through {@code super}, which ArchUnit cannot tell from those of another object.
+   * Returns the members of its class that a method uses, also inherited ones and those in lambdas.
+   * Static and generated fields, methods of {@code Object} and members used through {@code super}
+   * do not count, as ArchUnit cannot tell the latter from those of other objects.
    */
   private static Set<String> usedMembers(JavaMethod method, JavaClass javaClass) {
     return Stream.<JavaAccess<?>>concat(method.getFieldAccesses().stream(),
@@ -162,7 +158,7 @@ final class Cohesion {
         .map(access -> access.getTarget().resolveMember())
         .flatMap(Optional::stream)
         .filter(member -> !member.getOwner().isEquivalentTo(Object.class)
-            && !(member instanceof JavaField field && (isFieldStatic(field) || isSynthetic(field))))
+            && !(member instanceof JavaField field && (isStatic(field) || isSynthetic(field))))
         .map(JavaMember::getFullName)
         .collect(toSet());
   }

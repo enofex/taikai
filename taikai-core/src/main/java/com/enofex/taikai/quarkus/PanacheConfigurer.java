@@ -14,14 +14,9 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 
 /**
- * Configures and enforces conventions for Quarkus Panache entities and repositories
- * using {@link com.tngtech.archunit ArchUnit} through the Taikai framework.
+ * Rules for Quarkus Panache entities, the classes extending {@code PanacheEntity}, and
+ * repositories, the classes implementing {@code PanacheRepository}:
  *
- * <p>This configurer ensures that Panache Active Record entities are annotated with
- * {@code @Entity}, and that Panache Repository implementations follow consistent naming
- * conventions.</p>
- *
- * <h2>Example Usage</h2>
  * <pre>{@code
  * Taikai.builder()
  *     .namespace("com.company.project")
@@ -35,10 +30,6 @@ import com.enofex.taikai.configures.DisableableConfigurer;
  *     .build()
  *     .check();
  * }</pre>
- *
- * <p>By default, this configurer checks that classes extending {@code PanacheEntity}
- * are annotated with {@code @Entity}, and that classes implementing {@code PanacheRepository}
- * have names ending with {@code Repository}.</p>
  */
 public final class PanacheConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 

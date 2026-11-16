@@ -18,11 +18,9 @@ import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Draws dependencies as matrices with a row for every package in the
- * {@linkplain DependencyGraph#layeredPositions(List) layered order} from the bottom up, numbered
- * alike in both, and cells whose blue gets darker with their count. With more than
- * {@value Grid#MAX_NUMBERED} packages, the cells get smaller and lose their counts, which their
- * tooltips still show.
+ * Draws dependencies as matrices with a row for every package, in the layered order from the bottom
+ * up. With more than {@value Grid#MAX_NUMBERED} packages, the cells get smaller and lose their
+ * counts.
  */
 final class DependencyMatrix {
 
@@ -42,13 +40,12 @@ final class DependencyMatrix {
   }
 
   /**
-   * Returns the dependency structure matrix of the packages. As the rows follow the layers, the
-   * cells above the diagonal close a cycle, as the red arrows of the {@link DependencyChart} do.
+   * Returns the dependency structure matrix of the packages, whose cells above the diagonal close a
+   * cycle.
    */
   static String packages(ArchitectureMetrics metrics) {
     if (metrics.packages().isEmpty()) {
-      return Svg.empty(Svg.headerWidth(PACKAGES_TITLE, PACKAGES_LEGEND), PACKAGES_DESCRIPTION,
-          PACKAGES_TITLE, PACKAGES_LEGEND);
+      return Svg.empty(PACKAGES_DESCRIPTION, PACKAGES_TITLE, PACKAGES_LEGEND, Svg.NO_PACKAGES);
     }
 
     Grid grid = Grid.ofPackages(metrics);
@@ -73,15 +70,14 @@ final class DependencyMatrix {
   }
 
   /**
-   * Returns the matrix of the libraries that the packages use, the most used one at the left.
+   * Returns the matrix of the libraries that the packages use, the most used at the left.
    */
   static String libraries(ArchitectureMetrics metrics) {
     List<String> libraries = metrics.libraries().stream().map(Library::name).toList();
 
     if (libraries.isEmpty()) {
-      return Svg.empty(Svg.headerWidth(LIBRARIES_TITLE, LIBRARIES_LEGEND), LIBRARIES_DESCRIPTION,
-          LIBRARIES_TITLE, LIBRARIES_LEGEND,
-          metrics.packages().isEmpty() ? "No packages" : "No libraries");
+      return Svg.empty(LIBRARIES_DESCRIPTION, LIBRARIES_TITLE, LIBRARIES_LEGEND,
+          metrics.packages().isEmpty() ? Svg.NO_PACKAGES : "No libraries");
     }
 
     Grid grid = Grid.of(metrics, libraries);
@@ -117,9 +113,6 @@ final class DependencyMatrix {
         Svg.tooltip(origin, target, dependency), style.square());
   }
 
-  /**
-   * Frames every group of packages in a cycle, whose rows follow each other.
-   */
   private static void cycles(StringBuilder svg, ArchitectureMetrics metrics, Grid grid) {
     for (PackageCycle cycle : metrics.packageCycles()) {
       IntSummaryStatistics rows = cycle.packages().stream()
@@ -132,10 +125,6 @@ final class DependencyMatrix {
     }
   }
 
-  /**
-   * Returns the tooltip of a cell of a library: how many classes use it, followed by up to
-   * {@value MetricsMarkdownExport#LISTED_CLASSES} of them.
-   */
   private static String tooltip(ArchitectureMetrics metrics, String packageLabel,
       LibraryUsage usage) {
     return Stream.concat(
@@ -148,8 +137,8 @@ final class DependencyMatrix {
   }
 
   /**
-   * The classes of a cell of a kind of dependency: of its group, and of its square unless that has
-   * the blue of its count.
+   * The CSS classes of a cell: of its group, and of its square unless that has the blue of its
+   * count.
    */
   private record CellStyle(String group, @Nullable String square) {
 
@@ -163,8 +152,7 @@ final class DependencyMatrix {
   }
 
   /**
-   * The grid of both matrices: the rows of the packages, the headers of the columns and the empty
-   * cells.
+   * The grid of both matrices: the row and column headers and the empty cells.
    */
   private static final class Grid {
 
@@ -216,18 +204,12 @@ final class DependencyMatrix {
           : NUMBER_HEADER_HEIGHT);
     }
 
-    /**
-     * Returns the grid with a column for every package, numbered as the rows.
-     */
     static Grid ofPackages(ArchitectureMetrics metrics) {
       return new Grid(metrics, IntStream.rangeClosed(1, metrics.packages().size())
           .mapToObj(String::valueOf)
           .toList(), false);
     }
 
-    /**
-     * Returns the grid with the given columns, whose names read from bottom to top.
-     */
     static Grid of(ArchitectureMetrics metrics, List<String> columns) {
       return new Grid(metrics, columns, true);
     }
@@ -253,8 +235,8 @@ final class DependencyMatrix {
     }
 
     /**
-     * Starts a document with the headers and the empty cells. The caller appends the filled cells
-     * and closes it with {@link Svg#end(StringBuilder)}.
+     * Starts a document with the grid. The caller adds the cells and closes it with
+     * {@link Svg#end(StringBuilder)}.
      */
     StringBuilder start(String description, String title, List<Legend> legend) {
       StringBuilder svg = Svg.start(
@@ -270,8 +252,8 @@ final class DependencyMatrix {
     }
 
     /**
-     * Returns a filled cell with its count if the cells are numbered, and its square of the given
-     * class, or else in the blue of its count.
+     * Returns a filled cell, with its count if the cells are numbered, in the given class or else
+     * in the blue of its count.
      */
     String cell(int row, int column, int count, int maxCount, String attributes, String tooltip,
         @Nullable String squareClass) {
@@ -290,17 +272,11 @@ final class DependencyMatrix {
               : "");
     }
 
-    /**
-     * Returns the square of a cell, inside its gap.
-     */
     String square(int row, int column, String attributes) {
       return Svg.rect(x(column) + GAP / 2, y(row) + GAP / 2, this.cell - GAP, this.cell - GAP,
           "rx=\"3\" " + attributes);
     }
 
-    /**
-     * Writes the number, the zone and the name of every package at the left of its row.
-     */
     private void rowHeaders(StringBuilder svg) {
       for (PackageMetric metric : this.metrics.packages()) {
         int row = row(metric.name());
@@ -328,8 +304,7 @@ final class DependencyMatrix {
     }
 
     /**
-     * Fills the grid with a pattern of empty cells, so that the document only grows with the filled
-     * cells.
+     * Draws the empty cells as a pattern, so that the document only grows with the filled cells.
      */
     private void emptyCells(StringBuilder svg) {
       svg.append(("  <defs><pattern id=\"cells\" x=\"%1$s\" y=\"%2$s\" width=\"%3$s\" "
