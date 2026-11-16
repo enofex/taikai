@@ -874,6 +874,7 @@ The package `com.enofex.taikai.exports` contains the exports Taikai provides.
 | Export | Settings | Content |
 |--------|----------|---------|
 | `AgentsMarkdownExport` | `AgentsMarkdownExport.file(String)`, required | The rules as Markdown instructions for coding agents. |
+| `MetricsMarkdownExport` | `MetricsMarkdownExport.file(String)`, required, optionally `.withImageDirectory(String)` and `.withSourceDirectories(String...)` | The architecture metrics as Markdown, with SVG charts. |
 | `SarifExport` | `SarifExport.file(String)`, required, optionally `.withSourceDirectories(String...)` | The rule violations as a SARIF 2.1.0 report. |
 
 #### Configuring the exports
@@ -956,14 +957,58 @@ private static Taikai taikai() {
 
 The export finds the source file of a violation in the source directories `src/main/java`,
 `src/main/kotlin`, `src/test/java` and `src/test/kotlin`, by the package of its class, or by its
-file name if exactly one source file has that name. Other directories are configured with
-`SarifExport.file("target/taikai.sarif").withSourceDirectories("src", "generated")`. Violations
-without a line, such as of classes, point to the first line of their file. Code scanning on GitHub
-only shows violations with a location, so violations of a package, such as of the
-[metrics rules](#13-metrics-rules), point to its `package-info.java`, or else to its first class
-by name, and violations of a cycle to one of its dependencies. Violations without a source file
-are reported without location. The level of a rule is `error`, `warning` or `note` for the
-ArchUnit priority `HIGH`, `MEDIUM` (the default) or `LOW`.
+file name if exactly one source file of that name declares the package. Other directories are
+configured with `SarifExport.file("target/taikai.sarif").withSourceDirectories("src", "generated")`.
+Violations without a line, such as of classes, point to the first line of their file. Code scanning
+on GitHub only shows violations with a location, so violations of a package, such as of the [metrics
+rules](#13-metrics-rules), point to its `package-info.java`, or else to its first class by name, and
+violations of a cycle to one of its dependencies. Violations without a source file are reported
+without location. The level of a rule is `error`, `warning` or `note` for the ArchUnit priority
+`HIGH`, `MEDIUM` (the default) or `LOW`.
+
+#### Reporting architecture metrics
+
+`MetricsMarkdownExport` writes the architecture metrics as Markdown, with SVG charts next to it, so
+that the architecture and its changes can be reviewed in the repository:
+
+```java
+Taikai.builder()
+    .namespace("com.company.project")
+    .discoverExports(exports -> exports
+        .configure(MetricsMarkdownExport.class, MetricsMarkdownExport.file("docs/METRICS.md")))
+    .build()
+    .export();
+```
+
+After a summary, the file has these sections:
+
+| Section | Content |
+|---------|---------|
+| Main Sequence | Every package as a dot of its instability and abstractness, sized by its classes, with the main sequence and the zones of pain and uselessness. |
+| Package Map | A treemap of the packages, sized by their classes and colored by their zone. |
+| Packages | Per package its classes, couplings (Ca, Ce), instability (I), abstractness (A), distance from the main sequence (D), relative visibility, libraries and zone. |
+| Package Dependencies | The dependencies as a graph and as a dependency structure matrix. Red arrows and cells close a cycle, orange ones depend on a less stable package. Every cycle lists the dependencies that close it, with the classes behind them. |
+| Libraries | A matrix of the libraries that every package uses, named by the first two segments of their packages, such as `org.springframework`, and the packages that use none. |
+| Inheritance | The deepest and most extended classes. |
+| Coupling | The classes with the highest fan-in and fan-out. |
+| Cohesion | The least cohesive classes by LCOM4, the number of groups of methods that share nothing: 1 is best. |
+
+`I = Ce / (Ca + Ce)`, `A` is the share of abstract classes and interfaces, and `D = |A + I - 1|`. A
+package with `D` above 0.5 is in the zone of pain if it is concrete and stable, and in the zone of
+uselessness if it is abstract and unstable. As for the [metrics rules](#13-metrics-rules), only the
+configured classes count, every package on its own, and packages and coupling count top-level
+classes together with their nested classes. The JDK, the standard libraries of Kotlin, Groovy and
+Scala and the project itself are no libraries. LCOM4 leaves out interfaces, records and anonymous
+classes, and constructors, static and abstract methods, getters and setters. Members used through
+`super` connect no methods, as ArchUnit cannot tell them from those of other objects.
+
+Packages and classes link to their sources in `src/main/java`, `src/main/kotlin`, `src/test/java`
+and `src/test/kotlin`, or in the directories given with
+`.withSourceDirectories("src", "generated")`. The charts are named after the file, such as
+`docs/METRICS-dependencies.svg`, and written next to it or into the directory given with
+`.withImageDirectory("docs/images")`. A dependency graph wider than 3000 pixels is replaced by a
+note that refers to the matrix. All files only change when the architecture does, so they can be
+committed.
 
 ## 6. How to Read the Rule Reference
 
@@ -3130,6 +3175,9 @@ throws an `IllegalArgumentException`.
 
 Other modules, such as `taikai-kotlin`, add rules to the group through
 `configure(customizer, supplier)`. `disable()` removes them with the rest of the group.
+
+To see the values instead of enforcing limits, export them with the
+[`MetricsMarkdownExport`](#reporting-architecture-metrics).
 
 ## 14. Predefined Checks
 

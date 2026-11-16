@@ -1,2 +1,3 @@
 com.enofex.taikai.exports.AgentsMarkdownExport
+com.enofex.taikai.exports.MetricsMarkdownExport
 com.enofex.taikai.exports.SarifExport
