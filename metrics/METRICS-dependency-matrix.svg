@@ -1,0 +1,340 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680.2" height="538" viewBox="0 0 680.2 538" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12">
+  <title>Dependency structure matrix of the packages</title>
+  <style>
+  .card { fill: #ffffff; stroke: #e1e0d9; }
+  .plane { fill: #f7f7f5; }
+  .ink { fill: #0b0b0b; }
+  .ink-2 { fill: #52514e; }
+  .muted { fill: #898781; }
+  .grid { stroke: #e6e5df; }
+  .sequence { stroke: #52514e; }
+  .leader { stroke: #b4b3ac; }
+  .halo { paint-order: stroke; stroke: #f7f7f5; stroke-width: 3px; stroke-linejoin: round; }
+  .ring { stroke: #f7f7f5; }
+  .node { fill: #ffffff; stroke: #d9d8d1; }
+  .edge { fill: none; stroke: #898781; stroke-opacity: 0.75; }
+  .cycle { fill: none; stroke: #d03b3b; }
+  .unstable { fill: none; stroke: #c98500; }
+  .edge-head { fill: #898781; }
+  .cycle-head { fill: #d03b3b; }
+  .unstable-head { fill: #c98500; }
+  .balanced { fill: #2a78d6; }
+  .pain { fill: #d03b3b; }
+  .uselessness { fill: #c98500; }
+  .isolated { fill: #898781; }
+  .on-fill { fill: #ffffff; }
+  .cell { fill: #f7f7f5; }
+  .self { fill: #e6e5df; }
+  .dependency { fill: #2a78d6; }
+  .closing { fill: #f7d4d4; stroke: #d03b3b; }
+  .unstable-target { fill: #f4e7cc; stroke: #c98500; }
+  .group { fill: none; stroke: #d03b3b; }
+  </style>
+  <rect x="0.5" y="0.5" width="679.2" height="537" rx="12" class="card"/>
+  <text x="24" y="40" class="ink" font-size="15" font-weight="600">Dependency matrix</text>
+  <rect x="206.2" y="31" width="10" height="10" rx="2" class="dependency" stroke-width="1.5"/>
+  <text x="220.2" y="40" text-anchor="start" class="ink-2">Row uses column</text>
+  <rect x="340.2" y="31" width="10" height="10" rx="2" class="closing" stroke-width="1.5"/>
+  <text x="354.2" y="40" text-anchor="start" class="ink-2">Closes a cycle</text>
+  <rect x="467.4" y="31" width="10" height="10" rx="2" class="unstable-target" stroke-width="1.5"/>
+  <text x="481.4" y="40" text-anchor="start" class="ink-2">Uses less stable</text>
+  <rect x="608.2" y="31" width="10" height="10" rx="2" class="group" stroke-width="1.5"/>
+  <text x="622.2" y="40" text-anchor="start" class="ink-2">Cycle</text>
+  <text x="44" y="504" text-anchor="end" class="muted">15</text>
+  <circle cx="54" cy="500" r="4.5" class="balanced"/>
+  <text x="64" y="504" text-anchor="start" class="ink">com.enofex.taikai</text>
+  <text x="44" y="196" text-anchor="end" class="muted">4</text>
+  <circle cx="54" cy="192" r="4.5" class="balanced"/>
+  <text x="64" y="196" text-anchor="start" class="ink">checks</text>
+  <text x="44" y="112" text-anchor="end" class="muted">1</text>
+  <circle cx="54" cy="108" r="4.5" class="balanced"/>
+  <text x="64" y="112" text-anchor="start" class="ink">checks.spi</text>
+  <text x="44" y="224" text-anchor="end" class="muted">5</text>
+  <circle cx="54" cy="220" r="4.5" class="balanced"/>
+  <text x="64" y="224" text-anchor="start" class="ink">configures</text>
+  <text x="44" y="168" text-anchor="end" class="muted">3</text>
+  <circle cx="54" cy="164" r="4.5" class="pain"/>
+  <text x="64" y="168" text-anchor="start" class="ink">core</text>
+  <text x="44" y="280" text-anchor="end" class="muted">7</text>
+  <circle cx="54" cy="276" r="4.5" class="balanced"/>
+  <text x="64" y="280" text-anchor="start" class="ink">exports</text>
+  <text x="44" y="252" text-anchor="end" class="muted">6</text>
+  <circle cx="54" cy="248" r="4.5" class="balanced"/>
+  <text x="64" y="252" text-anchor="start" class="ink">exports.spi</text>
+  <text x="44" y="140" text-anchor="end" class="muted">2</text>
+  <circle cx="54" cy="136" r="4.5" class="pain"/>
+  <text x="64" y="140" text-anchor="start" class="ink">internal</text>
+  <text x="44" y="308" text-anchor="end" class="muted">8</text>
+  <circle cx="54" cy="304" r="4.5" class="balanced"/>
+  <text x="64" y="308" text-anchor="start" class="ink">java</text>
+  <text x="44" y="336" text-anchor="end" class="muted">9</text>
+  <circle cx="54" cy="332" r="4.5" class="balanced"/>
+  <text x="64" y="336" text-anchor="start" class="ink">jpa</text>
+  <text x="44" y="364" text-anchor="end" class="muted">10</text>
+  <circle cx="54" cy="360" r="4.5" class="balanced"/>
+  <text x="64" y="364" text-anchor="start" class="ink">logging</text>
+  <text x="44" y="392" text-anchor="end" class="muted">11</text>
+  <circle cx="54" cy="388" r="4.5" class="balanced"/>
+  <text x="64" y="392" text-anchor="start" class="ink">metrics</text>
+  <text x="44" y="420" text-anchor="end" class="muted">12</text>
+  <circle cx="54" cy="416" r="4.5" class="balanced"/>
+  <text x="64" y="420" text-anchor="start" class="ink">quarkus</text>
+  <text x="44" y="448" text-anchor="end" class="muted">13</text>
+  <circle cx="54" cy="444" r="4.5" class="balanced"/>
+  <text x="64" y="448" text-anchor="start" class="ink">spring</text>
+  <text x="44" y="476" text-anchor="end" class="muted">14</text>
+  <circle cx="54" cy="472" r="4.5" class="balanced"/>
+  <text x="64" y="476" text-anchor="start" class="ink">test</text>
+  <text x="205.6" y="86" text-anchor="middle" class="muted">1</text>
+  <text x="233.6" y="86" text-anchor="middle" class="muted">2</text>
+  <text x="261.6" y="86" text-anchor="middle" class="muted">3</text>
+  <text x="289.6" y="86" text-anchor="middle" class="muted">4</text>
+  <text x="317.6" y="86" text-anchor="middle" class="muted">5</text>
+  <text x="345.6" y="86" text-anchor="middle" class="muted">6</text>
+  <text x="373.6" y="86" text-anchor="middle" class="muted">7</text>
+  <text x="401.6" y="86" text-anchor="middle" class="muted">8</text>
+  <text x="429.6" y="86" text-anchor="middle" class="muted">9</text>
+  <text x="457.6" y="86" text-anchor="middle" class="muted">10</text>
+  <text x="485.6" y="86" text-anchor="middle" class="muted">11</text>
+  <text x="513.6" y="86" text-anchor="middle" class="muted">12</text>
+  <text x="541.6" y="86" text-anchor="middle" class="muted">13</text>
+  <text x="569.6" y="86" text-anchor="middle" class="muted">14</text>
+  <text x="597.6" y="86" text-anchor="middle" class="muted">15</text>
+  <defs><pattern id="cells" x="191.6" y="94" width="28" height="28" patternUnits="userSpaceOnUse"><rect x="1" y="1" width="26" height="26" rx="3" class="cell"/></pattern></defs>
+  <rect x="191.6" y="94" width="420" height="420" fill="url(#cells)"/>
+  <rect x="192.6" y="95" width="26" height="26" rx="3" class="self"/>
+  <rect x="220.6" y="123" width="26" height="26" rx="3" class="self"/>
+  <rect x="248.6" y="151" width="26" height="26" rx="3" class="self"/>
+  <rect x="276.6" y="179" width="26" height="26" rx="3" class="self"/>
+  <rect x="304.6" y="207" width="26" height="26" rx="3" class="self"/>
+  <rect x="332.6" y="235" width="26" height="26" rx="3" class="self"/>
+  <rect x="360.6" y="263" width="26" height="26" rx="3" class="self"/>
+  <rect x="388.6" y="291" width="26" height="26" rx="3" class="self"/>
+  <rect x="416.6" y="319" width="26" height="26" rx="3" class="self"/>
+  <rect x="444.6" y="347" width="26" height="26" rx="3" class="self"/>
+  <rect x="472.6" y="375" width="26" height="26" rx="3" class="self"/>
+  <rect x="500.6" y="403" width="26" height="26" rx="3" class="self"/>
+  <rect x="528.6" y="431" width="26" height="26" rx="3" class="self"/>
+  <rect x="556.6" y="459" width="26" height="26" rx="3" class="self"/>
+  <rect x="584.6" y="487" width="26" height="26" rx="3" class="self"/>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="checks">
+    <title>com.enofex.taikai → checks: 1 dependency</title>
+    <rect x="276.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="289.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="checks.spi">
+    <title>com.enofex.taikai → checks.spi: 2 dependencies</title>
+    <rect x="192.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="205.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="configures">
+    <title>com.enofex.taikai → configures: 4 dependencies</title>
+    <rect x="304.6" y="487" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="317.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">4</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="core">
+    <title>com.enofex.taikai → core: 4 dependencies</title>
+    <rect x="248.6" y="487" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="261.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">4</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="exports">
+    <title>com.enofex.taikai → exports: 1 dependency</title>
+    <rect x="360.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="373.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="exports.spi">
+    <title>com.enofex.taikai → exports.spi: 2 dependencies</title>
+    <rect x="332.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="345.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="internal">
+    <title>com.enofex.taikai → internal: 2 dependencies</title>
+    <rect x="220.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="233.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="java">
+    <title>com.enofex.taikai → java: 1 dependency</title>
+    <rect x="388.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="401.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="jpa">
+    <title>com.enofex.taikai → jpa: 1 dependency</title>
+    <rect x="416.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="429.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="logging">
+    <title>com.enofex.taikai → logging: 1 dependency</title>
+    <rect x="444.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="457.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="metrics">
+    <title>com.enofex.taikai → metrics: 1 dependency</title>
+    <rect x="472.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="485.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="quarkus">
+    <title>com.enofex.taikai → quarkus: 1 dependency</title>
+    <rect x="500.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="513.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="spring">
+    <title>com.enofex.taikai → spring: 1 dependency</title>
+    <rect x="528.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="541.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="com.enofex.taikai" data-target="test">
+    <title>com.enofex.taikai → test: 1 dependency</title>
+    <rect x="556.6" y="487" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="569.6" y="504" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="checks" data-target="checks.spi">
+    <title>checks → checks.spi: 19 dependencies</title>
+    <rect x="192.6" y="179" width="26" height="26" rx="3" fill="#1c5cab"/>
+    <text x="205.6" y="196" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">19</text>
+  </g>
+  <g class="dependency-cell" data-origin="checks" data-target="core">
+    <title>checks → core: 1 dependency</title>
+    <rect x="248.6" y="179" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="261.6" y="196" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="checks" data-target="internal">
+    <title>checks → internal: 2 dependencies</title>
+    <rect x="220.6" y="179" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="233.6" y="196" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="unstable-cell" data-origin="configures" data-target="core">
+    <title>configures → core: 2 dependencies, on a less stable package</title>
+    <rect x="248.6" y="207" width="26" height="26" rx="3" class="unstable-target"/>
+    <text x="261.6" y="224" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="dependency-cell" data-origin="core" data-target="internal">
+    <title>core → internal: 5 dependencies</title>
+    <rect x="220.6" y="151" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="233.6" y="168" text-anchor="middle" class="ink" font-size="11" font-weight="600">5</text>
+  </g>
+  <g class="dependency-cell" data-origin="exports" data-target="core">
+    <title>exports → core: 5 dependencies</title>
+    <rect x="248.6" y="263" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="261.6" y="280" text-anchor="middle" class="ink" font-size="11" font-weight="600">5</text>
+  </g>
+  <g class="dependency-cell" data-origin="exports" data-target="exports.spi">
+    <title>exports → exports.spi: 11 dependencies</title>
+    <rect x="332.6" y="263" width="26" height="26" rx="3" fill="#2a78d6"/>
+    <text x="345.6" y="280" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">11</text>
+  </g>
+  <g class="dependency-cell" data-origin="exports" data-target="internal">
+    <title>exports → internal: 5 dependencies</title>
+    <rect x="220.6" y="263" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="233.6" y="280" text-anchor="middle" class="ink" font-size="11" font-weight="600">5</text>
+  </g>
+  <g class="dependency-cell" data-origin="exports.spi" data-target="core">
+    <title>exports.spi → core: 1 dependency</title>
+    <rect x="248.6" y="235" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="261.6" y="252" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="java" data-target="configures">
+    <title>java → configures: 13 dependencies</title>
+    <rect x="304.6" y="291" width="26" height="26" rx="3" fill="#2a78d6"/>
+    <text x="317.6" y="308" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">13</text>
+  </g>
+  <g class="dependency-cell" data-origin="java" data-target="core">
+    <title>java → core: 5 dependencies</title>
+    <rect x="248.6" y="291" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="261.6" y="308" text-anchor="middle" class="ink" font-size="11" font-weight="600">5</text>
+  </g>
+  <g class="dependency-cell" data-origin="java" data-target="internal">
+    <title>java → internal: 10 dependencies</title>
+    <rect x="220.6" y="291" width="26" height="26" rx="3" fill="#2a78d6"/>
+    <text x="233.6" y="308" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">10</text>
+  </g>
+  <g class="dependency-cell" data-origin="jpa" data-target="configures">
+    <title>jpa → configures: 9 dependencies</title>
+    <rect x="304.6" y="319" width="26" height="26" rx="3" fill="#2a78d6"/>
+    <text x="317.6" y="336" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">9</text>
+  </g>
+  <g class="dependency-cell" data-origin="jpa" data-target="core">
+    <title>jpa → core: 1 dependency</title>
+    <rect x="248.6" y="319" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="261.6" y="336" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="jpa" data-target="internal">
+    <title>jpa → internal: 2 dependencies</title>
+    <rect x="220.6" y="319" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="233.6" y="336" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="dependency-cell" data-origin="logging" data-target="configures">
+    <title>logging → configures: 4 dependencies</title>
+    <rect x="304.6" y="347" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="317.6" y="364" text-anchor="middle" class="ink" font-size="11" font-weight="600">4</text>
+  </g>
+  <g class="dependency-cell" data-origin="logging" data-target="core">
+    <title>logging → core: 1 dependency</title>
+    <rect x="248.6" y="347" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="261.6" y="364" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="logging" data-target="internal">
+    <title>logging → internal: 3 dependencies</title>
+    <rect x="220.6" y="347" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="233.6" y="364" text-anchor="middle" class="ink" font-size="11" font-weight="600">3</text>
+  </g>
+  <g class="dependency-cell" data-origin="metrics" data-target="configures">
+    <title>metrics → configures: 6 dependencies</title>
+    <rect x="304.6" y="375" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="317.6" y="392" text-anchor="middle" class="ink" font-size="11" font-weight="600">6</text>
+  </g>
+  <g class="dependency-cell" data-origin="metrics" data-target="core">
+    <title>metrics → core: 1 dependency</title>
+    <rect x="248.6" y="375" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="261.6" y="392" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="metrics" data-target="internal">
+    <title>metrics → internal: 2 dependencies</title>
+    <rect x="220.6" y="375" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="233.6" y="392" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="dependency-cell" data-origin="quarkus" data-target="configures">
+    <title>quarkus → configures: 17 dependencies</title>
+    <rect x="304.6" y="403" width="26" height="26" rx="3" fill="#1c5cab"/>
+    <text x="317.6" y="420" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">17</text>
+  </g>
+  <g class="dependency-cell" data-origin="quarkus" data-target="core">
+    <title>quarkus → core: 5 dependencies</title>
+    <rect x="248.6" y="403" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="261.6" y="420" text-anchor="middle" class="ink" font-size="11" font-weight="600">5</text>
+  </g>
+  <g class="dependency-cell" data-origin="quarkus" data-target="internal">
+    <title>quarkus → internal: 1 dependency</title>
+    <rect x="220.6" y="403" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="233.6" y="420" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  </g>
+  <g class="dependency-cell" data-origin="spring" data-target="configures">
+    <title>spring → configures: 33 dependencies</title>
+    <rect x="304.6" y="431" width="26" height="26" rx="3" fill="#104281"/>
+    <text x="317.6" y="448" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">33</text>
+  </g>
+  <g class="dependency-cell" data-origin="spring" data-target="core">
+    <title>spring → core: 13 dependencies</title>
+    <rect x="248.6" y="431" width="26" height="26" rx="3" fill="#2a78d6"/>
+    <text x="261.6" y="448" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">13</text>
+  </g>
+  <g class="dependency-cell" data-origin="spring" data-target="internal">
+    <title>spring → internal: 8 dependencies</title>
+    <rect x="220.6" y="431" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="233.6" y="448" text-anchor="middle" class="ink" font-size="11" font-weight="600">8</text>
+  </g>
+  <g class="dependency-cell" data-origin="test" data-target="configures">
+    <title>test → configures: 9 dependencies</title>
+    <rect x="304.6" y="459" width="26" height="26" rx="3" fill="#2a78d6"/>
+    <text x="317.6" y="476" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">9</text>
+  </g>
+  <g class="dependency-cell" data-origin="test" data-target="core">
+    <title>test → core: 2 dependencies</title>
+    <rect x="248.6" y="459" width="26" height="26" rx="3" fill="#86b6ef"/>
+    <text x="261.6" y="476" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  </g>
+  <g class="dependency-cell" data-origin="test" data-target="internal">
+    <title>test → internal: 5 dependencies</title>
+    <rect x="220.6" y="459" width="26" height="26" rx="3" fill="#5598e7"/>
+    <text x="233.6" y="476" text-anchor="middle" class="ink" font-size="11" font-weight="600">5</text>
+  </g>
+</svg>

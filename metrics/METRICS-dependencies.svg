@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1283.06" height="564" viewBox="0 0 1283.06 564" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12">
+  <title>Dependencies between the packages</title>
+  <style>
+  .card { fill: #ffffff; stroke: #e1e0d9; }
+  .plane { fill: #f7f7f5; }
+  .ink { fill: #0b0b0b; }
+  .ink-2 { fill: #52514e; }
+  .muted { fill: #898781; }
+  .grid { stroke: #e6e5df; }
+  .sequence { stroke: #52514e; }
+  .leader { stroke: #b4b3ac; }
+  .halo { paint-order: stroke; stroke: #f7f7f5; stroke-width: 3px; stroke-linejoin: round; }
+  .ring { stroke: #f7f7f5; }
+  .node { fill: #ffffff; stroke: #d9d8d1; }
+  .edge { fill: none; stroke: #898781; stroke-opacity: 0.75; }
+  .cycle { fill: none; stroke: #d03b3b; }
+  .unstable { fill: none; stroke: #c98500; }
+  .edge-head { fill: #898781; }
+  .cycle-head { fill: #d03b3b; }
+  .unstable-head { fill: #c98500; }
+  .balanced { fill: #2a78d6; }
+  .pain { fill: #d03b3b; }
+  .uselessness { fill: #c98500; }
+  .isolated { fill: #898781; }
+  .on-fill { fill: #ffffff; }
+  .cell { fill: #f7f7f5; }
+  .self { fill: #e6e5df; }
+  .dependency { fill: #2a78d6; }
+  .closing { fill: #f7d4d4; stroke: #d03b3b; }
+  .unstable-target { fill: #f4e7cc; stroke: #c98500; }
+  .group { fill: none; stroke: #d03b3b; }
+  </style>
+  <rect x="0.5" y="0.5" width="1282.06" height="563" rx="12" class="card"/>
+  <text x="24" y="40" class="ink" font-size="15" font-weight="600">Package dependencies</text>
+  <circle cx="539.26" cy="36" r="5" class="balanced"/>
+  <text x="548.26" y="40" text-anchor="start" class="ink-2">Balanced</text>
+  <circle cx="625.66" cy="36" r="5" class="pain"/>
+  <text x="634.66" y="40" text-anchor="start" class="ink-2">Zone of pain</text>
+  <circle cx="739.26" cy="36" r="5" class="uselessness"/>
+  <text x="748.26" y="40" text-anchor="start" class="ink-2">Zone of uselessness</text>
+  <circle cx="900.46" cy="36" r="5" class="isolated"/>
+  <text x="909.46" y="40" text-anchor="start" class="ink-2">No couplings</text>
+  <line x1="1009.06" y1="36" x2="1019.06" y2="36" class="cycle" stroke-width="2"/>
+  <text x="1023.06" y="40" text-anchor="start" class="ink-2">Closes a cycle</text>
+  <line x1="1136.26" y1="36" x2="1146.26" y2="36" class="unstable" stroke-width="2"/>
+  <text x="1150.26" y="40" text-anchor="start" class="ink-2">Uses less stable</text>
+  <defs>
+    <filter id="shadow" x="-10%" y="-20%" width="120%" height="150%"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#0b0b0b" flood-opacity="0.08"/></filter>
+    <marker id="edge-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" class="edge-head"/></marker>
+    <marker id="unstable-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" class="unstable-head"/></marker>
+    <marker id="cycle-arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,1 L10,5 L0,9 z" class="cycle-head"/></marker>
+  </defs>
+  <path d="M754.82,124 C754.82,165 1100.58,165 1100.58,206 C1100.58,247 848.8,247 848.8,288" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → checks: 1 dependency</title></path>
+  <path d="M776.28,124 C776.28,165 1256.06,165 1256.06,206 C1256.06,258 1143.75,258 1143.75,310 C1143.75,362 1126.15,362 1126.15,414 C1126.15,455 1128.15,455 1128.15,496" class="edge" stroke-width="1.8" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → checks.spi: 2 dependencies</title></path>
+  <path d="M701.17,124 C701.17,165 657.97,165 657.97,206 C657.97,247 648.13,247 648.13,288" class="edge" stroke-width="2.03" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → configures: 4 dependencies</title></path>
+  <path d="M744.09,124 C744.09,165 1046.5,165 1046.5,206 C1046.5,258 748.63,258 748.63,310 C748.63,351 619.38,351 619.38,392" class="edge" stroke-width="2.03" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → core: 4 dependencies</title></path>
+  <path d="M636.78,124 C636.78,154 75.17,154 75.17,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → exports: 1 dependency</title></path>
+  <path d="M679.71,124 C679.71,165 511.87,165 511.87,206 C511.87,247 471.38,247 471.38,288" class="edge" stroke-width="1.8" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → exports.spi: 2 dependencies</title></path>
+  <path d="M765.55,124 C765.55,165 1142.67,165 1142.67,206 C1142.67,258 924.96,258 924.96,310 C924.96,362 696.57,362 696.57,414 C696.57,455 627.52,455 627.52,496" class="edge" stroke-width="1.8" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → internal: 2 dependencies</title></path>
+  <path d="M647.51,124 C647.51,154 199.5,154 199.5,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → java: 1 dependency</title></path>
+  <path d="M658.24,124 C658.24,154 320.72,154 320.72,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → jpa: 1 dependency</title></path>
+  <path d="M668.98,124 C668.98,154 438.82,154 438.82,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → logging: 1 dependency</title></path>
+  <path d="M690.44,124 C690.44,154 584.92,154 584.92,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → metrics: 1 dependency</title></path>
+  <path d="M711.9,124 C711.9,154 731.02,154 731.02,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → quarkus: 1 dependency</title></path>
+  <path d="M722.63,124 C722.63,154 852.23,154 852.23,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → spring: 1 dependency</title></path>
+  <path d="M733.36,124 C733.36,154 973.45,154 973.45,184" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>com.enofex.taikai → test: 1 dependency</title></path>
+  <path d="M860.8,332 C860.8,373 1118.15,373 1118.15,414 C1118.15,455 1116.15,455 1116.15,496" class="edge" stroke-width="2.96" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>checks → checks.spi: 19 dependencies</title></path>
+  <path d="M836.8,332 C836.8,362 625.57,362 625.57,392" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>checks → core: 1 dependency</title></path>
+  <path d="M848.8,332 C848.8,373 688.57,373 688.57,414 C688.57,455 620.32,455 620.32,496" class="edge" stroke-width="1.8" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>checks → internal: 2 dependencies</title></path>
+  <path d="M591.52,436 C591.52,466 591.52,466 591.52,496" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>core → internal: 5 dependencies</title></path>
+  <path d="M75.17,228 C75.17,269 363.13,269 363.13,310 C363.13,351 557.47,351 557.47,392" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports → core: 5 dependencies</title></path>
+  <path d="M87.17,228 C87.17,258 459.38,258 459.38,288" class="edge" stroke-width="2.55" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports → exports.spi: 11 dependencies</title></path>
+  <path d="M63.17,228 C63.17,269 290.6,269 290.6,310 C290.6,362 486.47,362 486.47,414 C486.47,455 555.52,455 555.52,496" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports → internal: 5 dependencies</title></path>
+  <path d="M465.38,332 C465.38,362 576.04,362 576.04,392" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports.spi → core: 1 dependency</title></path>
+  <path d="M211.5,228 C211.5,258 600.13,258 600.13,288" class="edge" stroke-width="2.66" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>java → configures: 13 dependencies</title></path>
+  <path d="M199.5,228 C199.5,269 371.13,269 371.13,310 C371.13,351 563.66,351 563.66,392" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>java → core: 5 dependencies</title></path>
+  <path d="M187.5,228 C187.5,269 298.6,269 298.6,310 C298.6,362 494.47,362 494.47,414 C494.47,455 562.72,455 562.72,496" class="edge" stroke-width="2.49" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>java → internal: 10 dependencies</title></path>
+  <path d="M332.72,228 C332.72,258 612.13,258 612.13,288" class="edge" stroke-width="2.43" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>jpa → configures: 9 dependencies</title></path>
+  <path d="M320.72,228 C320.72,269 379.13,269 379.13,310 C379.13,351 569.85,351 569.85,392" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>jpa → core: 1 dependency</title></path>
+  <path d="M308.72,228 C308.72,269 306.6,269 306.6,310 C306.6,362 502.47,362 502.47,414 C502.47,455 569.92,455 569.92,496" class="edge" stroke-width="1.8" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>jpa → internal: 2 dependencies</title></path>
+  <path d="M450.82,228 C450.82,258 624.13,258 624.13,288" class="edge" stroke-width="2.03" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>logging → configures: 4 dependencies</title></path>
+  <path d="M438.82,228 C438.82,269 551.63,269 551.63,310 C551.63,351 582.23,351 582.23,392" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>logging → core: 1 dependency</title></path>
+  <path d="M426.82,228 C426.82,269 314.6,269 314.6,310 C314.6,362 510.47,362 510.47,414 C510.47,455 577.12,455 577.12,496" class="edge" stroke-width="1.93" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>logging → internal: 3 dependencies</title></path>
+  <path d="M596.92,228 C596.92,258 636.13,258 636.13,288" class="edge" stroke-width="2.21" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>metrics → configures: 6 dependencies</title></path>
+  <path d="M584.92,228 C584.92,269 559.63,269 559.63,310 C559.63,351 588.43,351 588.43,392" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>metrics → core: 1 dependency</title></path>
+  <path d="M572.92,228 C572.92,269 322.6,269 322.6,310 C322.6,362 518.47,362 518.47,414 C518.47,455 584.32,455 584.32,496" class="edge" stroke-width="1.8" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>metrics → internal: 2 dependencies</title></path>
+  <path d="M719.02,228 C719.02,258 660.13,258 660.13,288" class="edge" stroke-width="2.86" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>quarkus → configures: 17 dependencies</title></path>
+  <path d="M731.02,228 C731.02,269 724.63,269 724.63,310 C724.63,351 600.81,351 600.81,392" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>quarkus → core: 5 dependencies</title></path>
+  <path d="M743.02,228 C743.02,269 756.63,269 756.63,310 C756.63,362 664.57,362 664.57,414 C664.57,455 598.72,455 598.72,496" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>quarkus → internal: 1 dependency</title></path>
+  <path d="M840.23,228 C840.23,258 672.13,258 672.13,288" class="edge" stroke-width="3.5" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>spring → configures: 33 dependencies</title></path>
+  <path d="M852.23,228 C852.23,269 732.63,269 732.63,310 C732.63,351 607,351 607,392" class="edge" stroke-width="2.66" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>spring → core: 13 dependencies</title></path>
+  <path d="M864.23,228 C864.23,269 764.63,269 764.63,310 C764.63,362 672.57,362 672.57,414 C672.57,455 605.92,455 605.92,496" class="edge" stroke-width="2.36" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>spring → internal: 8 dependencies</title></path>
+  <path d="M961.45,228 C961.45,258 684.13,258 684.13,288" class="edge" stroke-width="2.43" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>test → configures: 9 dependencies</title></path>
+  <path d="M973.45,228 C973.45,269 740.63,269 740.63,310 C740.63,351 613.19,351 613.19,392" class="edge" stroke-width="1.8" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>test → core: 2 dependencies</title></path>
+  <path d="M985.45,228 C985.45,269 772.63,269 772.63,310 C772.63,362 680.57,362 680.57,414 C680.57,455 613.12,455 613.12,496" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>test → internal: 5 dependencies</title></path>
+  <path d="M642.13,332 C642.13,362 594.62,362 594.62,392" class="unstable" stroke-width="1.8" stroke-linecap="round" marker-end="url(#unstable-arrow)"><title>configures → core: 2 dependencies, on a less stable package</title></path>
+  <g class="package" data-zone="balanced">
+    <title>com.enofex.taikai: 2 classes, Ca 0, Ce 2</title>
+    <rect x="622.78" y="80" width="167.5" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="637.78" cy="95" r="4.5" class="balanced"/>
+    <text x="648.78" y="99" class="ink" font-size="12.5" font-weight="600">com.enofex.taikai</text>
+    <text x="648.78" y="114" class="muted" font-size="11">2 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>checks: 12 classes, Ca 1, Ce 10</title>
+    <rect x="797.63" y="288" width="102.33" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="812.63" cy="303" r="4.5" class="balanced"/>
+    <text x="823.63" y="307" class="ink" font-size="12.5" font-weight="600">checks</text>
+    <text x="823.63" y="322" class="muted" font-size="11">12 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>checks.spi: 3 classes, Ca 11, Ce 0</title>
+    <rect x="1064.65" y="496" width="115" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="1079.65" cy="511" r="4.5" class="balanced"/>
+    <text x="1090.65" y="515" class="ink" font-size="12.5" font-weight="600">checks.spi</text>
+    <text x="1090.65" y="530" class="muted" font-size="11">3 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>configures: 6 classes, Ca 22, Ce 2</title>
+    <rect x="584.63" y="288" width="115" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="599.63" cy="303" r="4.5" class="balanced"/>
+    <text x="610.63" y="307" class="ink" font-size="12.5" font-weight="600">configures</text>
+    <text x="610.63" y="322" class="muted" font-size="11">6 classes</text>
+  </g>
+  <g class="package" data-zone="pain">
+    <title>core: 6 classes, Ca 30, Ce 4</title>
+    <rect x="543.47" y="392" width="96.1" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="558.47" cy="407" r="4.5" class="pain"/>
+    <text x="569.47" y="411" class="ink" font-size="12.5" font-weight="600">core</text>
+    <text x="569.47" y="426" class="muted" font-size="11">6 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>exports: 16 classes, Ca 1, Ce 8</title>
+    <rect x="24" y="184" width="102.33" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="39" cy="199" r="4.5" class="balanced"/>
+    <text x="50" y="203" class="ink" font-size="12.5" font-weight="600">exports</text>
+    <text x="50" y="218" class="muted" font-size="11">16 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>exports.spi: 2 classes, Ca 7, Ce 1</title>
+    <rect x="404.13" y="288" width="122.5" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="419.13" cy="303" r="4.5" class="balanced"/>
+    <text x="430.13" y="307" class="ink" font-size="12.5" font-weight="600">exports.spi</text>
+    <text x="430.13" y="322" class="muted" font-size="11">2 classes</text>
+  </g>
+  <g class="package" data-zone="pain">
+    <title>internal: 7 classes, Ca 38, Ce 0</title>
+    <rect x="541.52" y="496" width="100" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="556.52" cy="511" r="4.5" class="pain"/>
+    <text x="567.52" y="515" class="ink" font-size="12.5" font-weight="600">internal</text>
+    <text x="567.52" y="530" class="muted" font-size="11">7 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>java: 17 classes, Ca 1, Ce 10</title>
+    <rect x="148.33" y="184" width="102.33" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="163.33" cy="199" r="4.5" class="balanced"/>
+    <text x="174.33" y="203" class="ink" font-size="12.5" font-weight="600">java</text>
+    <text x="174.33" y="218" class="muted" font-size="11">17 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>jpa: 3 classes, Ca 1, Ce 3</title>
+    <rect x="272.67" y="184" width="96.1" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="287.67" cy="199" r="4.5" class="balanced"/>
+    <text x="298.67" y="203" class="ink" font-size="12.5" font-weight="600">jpa</text>
+    <text x="298.67" y="218" class="muted" font-size="11">3 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>logging: 2 classes, Ca 1, Ce 2</title>
+    <rect x="390.77" y="184" width="96.1" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="405.77" cy="199" r="4.5" class="balanced"/>
+    <text x="416.77" y="203" class="ink" font-size="12.5" font-weight="600">logging</text>
+    <text x="416.77" y="218" class="muted" font-size="11">2 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>metrics: 3 classes, Ca 1, Ce 3</title>
+    <rect x="536.87" y="184" width="96.1" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="551.87" cy="199" r="4.5" class="balanced"/>
+    <text x="562.87" y="203" class="ink" font-size="12.5" font-weight="600">metrics</text>
+    <text x="562.87" y="218" class="muted" font-size="11">3 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>quarkus: 6 classes, Ca 1, Ce 5</title>
+    <rect x="682.97" y="184" width="96.1" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="697.97" cy="199" r="4.5" class="balanced"/>
+    <text x="708.97" y="203" class="ink" font-size="12.5" font-weight="600">quarkus</text>
+    <text x="708.97" y="218" class="muted" font-size="11">6 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>spring: 15 classes, Ca 1, Ce 13</title>
+    <rect x="801.07" y="184" width="102.33" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="816.07" cy="199" r="4.5" class="balanced"/>
+    <text x="827.07" y="203" class="ink" font-size="12.5" font-weight="600">spring</text>
+    <text x="827.07" y="218" class="muted" font-size="11">15 classes</text>
+  </g>
+  <g class="package" data-zone="balanced">
+    <title>test: 6 classes, Ca 1, Ce 6</title>
+    <rect x="925.4" y="184" width="96.1" height="44" rx="8" class="node" filter="url(#shadow)"/>
+    <circle cx="940.4" cy="199" r="4.5" class="balanced"/>
+    <text x="951.4" y="203" class="ink" font-size="12.5" font-weight="600">test</text>
+    <text x="951.4" y="218" class="muted" font-size="11">6 classes</text>
+  </g>
+</svg>
