@@ -1,4 +1,4 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
 /**
  * Thrown when Taikai is configured incorrectly, for example when a rule needs a namespace and none

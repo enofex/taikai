@@ -1,6 +1,6 @@
 package com.enofex.taikai.metrics;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.metrics.ClassMetrics.checkedClasses;
 import static com.enofex.taikai.metrics.ClassMetrics.checkedTopLevelClasses;
 import static com.enofex.taikai.metrics.ClassMetrics.notExceedMaxDependencies;
@@ -15,13 +15,13 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static java.util.Objects.requireNonNull;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.Configurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -94,8 +94,8 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #classesShouldNotExceedMaxInheritanceDepth(int)}, but only for classes matching the
    * given criteria; superclasses that do not match still count.
    *
-   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
-   *     an ArchUnit predicate
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.core.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param maxInheritanceDepth the maximum number of superclasses
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxInheritanceDepth} is negative
@@ -163,8 +163,8 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #classesShouldNotExceedMaxSubclasses(int)}, but only for classes matching the given
    * criteria; subclasses that do not match still count.
    *
-   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
-   *     an ArchUnit predicate
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.core.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param maxSubclasses the maximum number of direct subclasses
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxSubclasses} is negative
@@ -232,7 +232,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * criteria.
    *
    * @param methods the methods to check, selected with
-   *     {@link com.enofex.taikai.MethodCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.MethodCriteria} or an ArchUnit predicate
    * @param maxMethodParameters the maximum number of allowed parameters
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
@@ -271,7 +271,7 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * matching the given criteria.
    *
    * @param classes the classes whose declared methods are checked, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param maxMethodParameters the maximum number of allowed parameters
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxMethodParameters} is negative
@@ -372,8 +372,8 @@ public final class MetricsConfigurer extends AbstractConfigurer implements Disab
    * See {@link #classesShouldNotExceedMaxDependencies(int)}, but only for top-level classes
    * matching the given criteria; dependencies on classes that do not match still count.
    *
-   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
-   *     an ArchUnit predicate
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.core.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param maxDependencies the maximum number of classes a class depends on
    * @return this configurer for fluent chaining
    * @throws IllegalArgumentException if {@code maxDependencies} is negative

@@ -17,12 +17,12 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
-import com.enofex.taikai.Namespace.IMPORT;
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.Namespace.Import;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -52,7 +52,7 @@ import com.tngtech.archunit.core.domain.JavaModifier;
  */
 public final class JUnitConfigurer extends AbstractConfigurer implements DisableableConfigurer {
 
-  private static final Configuration CONFIGURATION = Configuration.of(IMPORT.ONLY_TESTS);
+  private static final Configuration CONFIGURATION = Configuration.of(Import.ONLY_TESTS);
 
   private static final String DEFAULT_TEST_CLASS_NAME_MATCHING = ".+Test";
 
@@ -249,7 +249,7 @@ public final class JUnitConfigurer extends AbstractConfigurer implements Disable
    * Adds a rule that classes matching the given criteria must be package-private. Interfaces are
    * excluded.
    *
-   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria}
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.core.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */

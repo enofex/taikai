@@ -6,14 +6,16 @@ import java.util.List;
  * A check of the project that is not expressed as an ArchUnit rule, for example of files in the
  * project directory, of resources or of the classpath.
  *
- * <p>Checks run together with the rules of a {@link com.enofex.taikai.Taikai} configuration: they
+ * <p>Checks run together with the rules of a {@code Taikai} configuration: they
  * are part of the report of {@code check()} and {@code checkAll()}, and each check becomes a test
  * of its own in {@code dynamicTests()}.</p>
  *
  * <p>Checks are discovered with {@code discoverChecks()} through the
  * {@link java.util.ServiceLoader} mechanism. To register a check, list its fully qualified class
  * name in the file {@code META-INF/services/com.enofex.taikai.checks.spi.TaikaiCheck}. A check
- * must be a public class with a public constructor without parameters.</p>
+ * must be a public class with a public constructor without parameters. {@code ChecksConfigurer}
+ * excludes and configures the discovered checks, and {@code RequiredFilesCheck} is one of the
+ * predefined checks.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -32,10 +34,6 @@ import java.util.List;
  *   }
  * }
  * }</pre>
- *
- * @see com.enofex.taikai.Taikai.Builder#discoverChecks(java.util.function.Consumer)
- * @see com.enofex.taikai.ChecksConfigurer
- * @see com.enofex.taikai.checks.RequiredFilesCheck
  */
 public interface TaikaiCheck {
 
@@ -52,8 +50,8 @@ public interface TaikaiCheck {
    *
    * <p>If this method throws an exception, fails an assertion or misses a class, this is reported
    * as a violation of this check, like any other violation:
-   * {@link com.enofex.taikai.Taikai#checkAll()} and {@link com.enofex.taikai.Taikai#dynamicTests()}
-   * still run the other rules and checks, while {@link com.enofex.taikai.Taikai#check()} stops at
+   * {@code Taikai.checkAll()} and {@code Taikai.dynamicTests()}
+   * still run the other rules and checks, while {@code Taikai.check()} stops at
    * it.</p>
    *
    * @param context the project that is checked

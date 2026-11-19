@@ -2,7 +2,7 @@ package com.enofex.taikai.configures;
 
 import static java.util.Objects.requireNonNull;
 
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Supplier;

@@ -161,7 +161,7 @@ Taikai.builder()
 
 ### 5.3 Namespace Import Modes
 
-`Namespace.IMPORT` controls whether test classes take part in a check.
+`Namespace.Import` controls whether test classes take part in a check.
 
 | Mode             | Imports                              |
 |------------------|--------------------------------------|
@@ -180,7 +180,7 @@ Override it per rule through [`Configuration`](#58-per-rule-configuration):
 
 ```java
 .java(java -> java
-    .fieldsShouldNotBePublic(Configuration.of(Namespace.IMPORT.WITH_TESTS)))
+    .fieldsShouldNotBePublic(Configuration.of(Namespace.Import.WITH_TESTS)))
 ```
 
 ### 5.4 Excluding Classes Globally
@@ -358,17 +358,17 @@ additional excluded classes.
 |------------------------------------------------------------------------|----------------------------------------------|
 | `Configuration.defaultConfiguration()`                                 | Global namespace, `WITHOUT_TESTS`            |
 | `Configuration.of(String namespace)`                                   | Different namespace                          |
-| `Configuration.of(Namespace.IMPORT namespaceImport)`                   | Different import mode                        |
-| `Configuration.of(String namespace, Namespace.IMPORT namespaceImport)` | Both                                         |
+| `Configuration.of(Namespace.Import namespaceImport)`                   | Different import mode                        |
+| `Configuration.of(String namespace, Namespace.Import namespaceImport)` | Both                                         |
 | `Configuration.of(JavaClasses javaClasses)`                            | An explicit class set                        |
 | `Configuration.of(Collection<T> excludedClasses)`                      | Exclusions (`String` patterns or `Class<?>`) |
 | `Configuration.of(String, Collection<T>)`                              | Namespace plus exclusions                    |
-| `Configuration.of(Namespace.IMPORT, Collection<String>)`               | Import mode plus exclusions                  |
-| `Configuration.of(String, Namespace.IMPORT, Collection<T>)`            | Namespace, import mode and exclusions        |
+| `Configuration.of(Namespace.Import, Collection<String>)`               | Import mode plus exclusions                  |
+| `Configuration.of(String, Namespace.Import, Collection<T>)`            | Namespace, import mode and exclusions        |
 | `Configuration.of(JavaClasses, Collection<T>)`                         | Class set plus exclusions                    |
 
 `Collection<T>` accepts either `String` patterns or `Class<?>` literals, but not both in the same
-collection — the type is decided from the first element. The `Namespace.IMPORT` plus exclusions
+collection — the type is decided from the first element. The `Namespace.Import` plus exclusions
 overload is the one exception: it takes `Collection<String>` only, so pass class *names* there
 rather than class literals.
 
@@ -393,7 +393,7 @@ rather than class literals.
     .test(test -> test
         .junit(junit -> junit
             .methodsShouldMatch("should.*",
-                Configuration.of(Namespace.IMPORT.ONLY_TESTS, List.of("com.company.project.Legacy")))))
+                Configuration.of(Namespace.Import.ONLY_TESTS, List.of("com.company.project.Legacy")))))
     ```
 
     Pairing this with [`failOnEmpty(true)`](#55-failing-on-empty-rule-results) turns such a silent
@@ -403,9 +403,9 @@ rather than class literals.
 .java(java -> java
     .imports(imports -> imports
         .shouldNotImport(ClassCriteria.inPackage("com.company.project.legacy.."),
-            Configuration.of("com.company.project.different", Namespace.IMPORT.WITHOUT_TESTS))
+            Configuration.of("com.company.project.different", Namespace.Import.WITHOUT_TESTS))
         .shouldNotImport(lombok(),
-            Configuration.of(Namespace.IMPORT.ONLY_TESTS))))
+            Configuration.of(Namespace.Import.ONLY_TESTS))))
 ```
 
 ```java
@@ -518,7 +518,7 @@ ArchRule rule = classes()
 Taikai.builder()
     .namespace("com.company.project")
     .addRule(TaikaiRule.of(rule))
-    .addRule(TaikaiRule.of(rule, Configuration.of(Namespace.IMPORT.WITH_TESTS)))
+    .addRule(TaikaiRule.of(rule, Configuration.of(Namespace.Import.WITH_TESTS)))
     .addRules(List.of(TaikaiRule.of(rule), TaikaiRule.of(anotherRule)))
     .build()
     .checkAll();
@@ -532,9 +532,9 @@ factory builds it:
 
 | Parameter type | Factory | Listed as |
 |----------------|---------|-----------|
-| `DescribedPredicate<? super JavaClass>` | `com.enofex.taikai.ClassCriteria` | `classes`, and types such as `forbiddenTypes` |
-| `DescribedPredicate<? super JavaField>` | `com.enofex.taikai.FieldCriteria` | `fields` |
-| `DescribedPredicate<? super JavaMethod>` | `com.enofex.taikai.MethodCriteria` | `methods` |
+| `DescribedPredicate<? super JavaClass>` | `com.enofex.taikai.core.ClassCriteria` | `classes`, and types such as `forbiddenTypes` |
+| `DescribedPredicate<? super JavaField>` | `com.enofex.taikai.core.FieldCriteria` | `fields` |
+| `DescribedPredicate<? super JavaMethod>` | `com.enofex.taikai.core.MethodCriteria` | `methods` |
 
 Passing criteria of the wrong kind does not compile, so a `FieldCriteria` can never end up in a rule
 that selects methods.

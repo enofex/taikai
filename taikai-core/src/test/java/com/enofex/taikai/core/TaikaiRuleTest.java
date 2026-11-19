@@ -1,4 +1,4 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.Taikai;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
@@ -59,9 +60,9 @@ class TaikaiRuleTest {
 
   @Test
   void shouldReturnConfigurationNamespaceImport() {
-    Configuration configuration = Configuration.of(Namespace.IMPORT.ONLY_TESTS);
+    Configuration configuration = Configuration.of(Namespace.Import.ONLY_TESTS);
 
-    assertEquals(Namespace.IMPORT.ONLY_TESTS, configuration.namespaceImport());
+    assertEquals(Namespace.Import.ONLY_TESTS, configuration.namespaceImport());
   }
 
   @Test
@@ -84,10 +85,10 @@ class TaikaiRuleTest {
   @Test
   void shouldCheckUsingNamespaceFromConfiguration() {
     ArchRule archRule = mock(ArchRule.class);
-    TaikaiRule.of(archRule, Configuration.of("com.example", Namespace.IMPORT.WITH_TESTS))
+    TaikaiRule.of(archRule, Configuration.of("com.example", Namespace.Import.WITH_TESTS))
         .check(null);
 
-    verify(archRule).check(Namespace.from("com.example", Namespace.IMPORT.WITH_TESTS));
+    verify(archRule).check(Namespace.from("com.example", Namespace.Import.WITH_TESTS));
   }
 
   @Test
@@ -95,7 +96,7 @@ class TaikaiRuleTest {
     ArchRule archRule = mock(ArchRule.class);
     TaikaiRule.of(archRule).check("com.example");
 
-    verify(archRule).check(Namespace.from("com.example", Namespace.IMPORT.WITHOUT_TESTS));
+    verify(archRule).check(Namespace.from("com.example", Namespace.Import.WITHOUT_TESTS));
   }
 
   @Test
@@ -117,28 +118,28 @@ class TaikaiRuleTest {
 
   @Test
   void shouldCreateConfigurationWithNamespaceImportAndExcludedClasses() {
-    Configuration configuration = Configuration.of(Namespace.IMPORT.WITH_TESTS,
+    Configuration configuration = Configuration.of(Namespace.Import.WITH_TESTS,
         List.of("com.example.Excluded"));
 
-    assertEquals(Namespace.IMPORT.WITH_TESTS, configuration.namespaceImport());
+    assertEquals(Namespace.Import.WITH_TESTS, configuration.namespaceImport());
     assertEquals(1, configuration.excludedClasses().size());
   }
 
   @Test
   void shouldCreateConfigurationWithNamespaceAndImport() {
-    Configuration configuration = Configuration.of("com.example", Namespace.IMPORT.WITH_TESTS);
+    Configuration configuration = Configuration.of("com.example", Namespace.Import.WITH_TESTS);
 
     assertEquals("com.example", configuration.namespace());
-    assertEquals(Namespace.IMPORT.WITH_TESTS, configuration.namespaceImport());
+    assertEquals(Namespace.Import.WITH_TESTS, configuration.namespaceImport());
   }
 
   @Test
   void shouldCreateConfigurationWithNamespaceImportAndExcludedClassesCollection() {
     Configuration configuration = Configuration.of("com.example",
-        Namespace.IMPORT.WITH_TESTS, List.of("com.example.Excluded"));
+        Namespace.Import.WITH_TESTS, List.of("com.example.Excluded"));
 
     assertEquals("com.example", configuration.namespace());
-    assertEquals(Namespace.IMPORT.WITH_TESTS, configuration.namespaceImport());
+    assertEquals(Namespace.Import.WITH_TESTS, configuration.namespaceImport());
     assertEquals(1, configuration.excludedClasses().size());
   }
 
@@ -228,11 +229,11 @@ class TaikaiRuleTest {
   void shouldFilterClassesMatchingExcludedCriteriaInJavaClasses() {
     ArchRule archRule = mock(ArchRule.class);
     TaikaiRule rule = TaikaiRule.of(archRule);
-    long rawCount = Namespace.from("com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS)
+    long rawCount = Namespace.from("com.enofex.taikai", Namespace.Import.WITHOUT_TESTS)
         .stream().count();
 
     JavaClasses result = rule.javaClasses("com.enofex.taikai", null,
-        List.of("com.enofex.taikai.TaikaiRule"),
+        List.of("com.enofex.taikai.core.TaikaiRule"),
         List.of(ClassCriteria.simpleNameMatching("TaikaiException"),
                 ClassCriteria.simpleNameMatching("ClassCriteria")));
 
@@ -244,12 +245,12 @@ class TaikaiRuleTest {
   @Test
   void shouldFilterExcludedClassesFromConfigurationInJavaClasses() {
     ArchRule archRule = mock(ArchRule.class);
-    JavaClasses rawClasses = Namespace.from("com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS);
+    JavaClasses rawClasses = Namespace.from("com.enofex.taikai", Namespace.Import.WITHOUT_TESTS);
     long rawCount = rawClasses.stream().count();
 
     Configuration config = Configuration.of("com.enofex.taikai",
-        Namespace.IMPORT.WITHOUT_TESTS,
-        List.of("com.enofex.taikai.TaikaiException"));
+        Namespace.Import.WITHOUT_TESTS,
+        List.of("com.enofex.taikai.core.TaikaiException"));
     TaikaiRule rule = TaikaiRule.of(archRule, config);
 
     JavaClasses result = rule.javaClasses(null, null, null);

@@ -1,6 +1,6 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.java.JavaChecks.assertReportsViolations;
 import static com.enofex.taikai.java.JavaChecks.namingOverload;
 import static com.enofex.taikai.java.JavaFixtures.MARKED;
@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.FieldCriteria;
-import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.FieldCriteria;
+import com.enofex.taikai.core.MethodCriteria;
 import com.enofex.taikai.java.JavaFixtures.DateUser;
 import com.enofex.taikai.java.JavaFixtures.MarkedClass;
 import com.enofex.taikai.java.JavaFixtures.Marker;

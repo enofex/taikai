@@ -1,16 +1,18 @@
 package com.enofex.taikai.exports.spi;
 
 /**
- * An export of a {@link com.enofex.taikai.Taikai} configuration, for example of its rules into a
+ * An export of a {@code Taikai} configuration, for example of its rules into a
  * file that coding agents read.
  *
- * <p>Exports run when {@link com.enofex.taikai.Taikai#export()} is called, independently of the
+ * <p>Exports run when {@code Taikai.export()} is called, independently of the
  * rules and checks.</p>
  *
  * <p>Exports are discovered with {@code discoverExports()} through the
  * {@link java.util.ServiceLoader} mechanism. To register an export, list its fully qualified class
  * name in the file {@code META-INF/services/com.enofex.taikai.exports.spi.TaikaiExport}. An export
- * must be a public class with a public constructor without parameters.</p>
+ * must be a public class with a public constructor without parameters. {@code ExportsConfigurer}
+ * excludes and configures the discovered exports, and {@code AgentsMarkdownExport} is one of the
+ * predefined exports.</p>
  *
  * <h2>Example Usage</h2>
  * <pre>{@code
@@ -32,10 +34,6 @@ package com.enofex.taikai.exports.spi;
  *   }
  * }
  * }</pre>
- *
- * @see com.enofex.taikai.Taikai.Builder#discoverExports(java.util.function.Consumer)
- * @see com.enofex.taikai.ExportsConfigurer
- * @see com.enofex.taikai.exports.AgentsMarkdownExport
  */
 public interface TaikaiExport {
 
@@ -51,7 +49,7 @@ public interface TaikaiExport {
    * Runs this export, usually by writing a file.
    *
    * <p>If this method throws an exception, fails an assertion or misses a class,
-   * {@link com.enofex.taikai.Taikai#export()} stops and throws a {@code TaikaiException} that
+   * {@code Taikai.export()} stops and throws a {@code TaikaiException} that
    * names this export.</p>
    *
    * @param context the project that is exported

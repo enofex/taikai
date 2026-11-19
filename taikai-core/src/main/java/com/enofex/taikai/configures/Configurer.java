@@ -1,6 +1,6 @@
 package com.enofex.taikai.configures;
 
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import java.util.Collection;
 
 /**

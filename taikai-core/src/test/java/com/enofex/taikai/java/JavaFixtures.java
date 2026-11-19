@@ -1,6 +1,6 @@
 package com.enofex.taikai.java;
 
-import com.enofex.taikai.ClassCriteria;
+import com.enofex.taikai.core.ClassCriteria;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import java.lang.annotation.Retention;

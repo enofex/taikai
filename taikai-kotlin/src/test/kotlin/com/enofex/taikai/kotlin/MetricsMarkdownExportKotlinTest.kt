@@ -1,6 +1,6 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.TaikaiRule
+import com.enofex.taikai.core.TaikaiRule
 import com.enofex.taikai.exports.MetricsMarkdownExport
 import com.enofex.taikai.exports.spi.ExportContext
 import com.enofex.taikai.exports.spi.TaikaiExport

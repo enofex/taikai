@@ -1,8 +1,8 @@
 package com.enofex.taikai.metrics;
 
-import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.Namespace;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import org.junit.jupiter.api.function.Executable;

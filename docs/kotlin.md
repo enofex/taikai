@@ -164,13 +164,13 @@ Each rule accepts an optional final `TaikaiRule.Configuration`, following core's
 namespace, import-mode, explicit-class and exclusion behavior:
 
 ```kotlin
-import com.enofex.taikai.Namespace
-import com.enofex.taikai.TaikaiRule.Configuration
+import com.enofex.taikai.core.Namespace
+import com.enofex.taikai.core.TaikaiRule.Configuration
 
 // Include test classes in this individual rule.
 functionsShouldMatch(
     "[a-z][a-zA-Z0-9]*",
-    Configuration.of("com.company.project", Namespace.IMPORT.WITH_TESTS),
+    Configuration.of("com.company.project", Namespace.Import.WITH_TESTS),
 )
 ```
 

@@ -1,11 +1,11 @@
 package com.enofex.taikai.demo
 
-import com.enofex.taikai.ClassCriteria
-import com.enofex.taikai.TaikaiRule
-import com.enofex.taikai.TaikaiRule.Configuration
 import com.enofex.taikai.checks.ClassFileVersionCheck
 import com.enofex.taikai.checks.ForbiddenFilesCheck
 import com.enofex.taikai.checks.RequiredFilesCheck
+import com.enofex.taikai.core.ClassCriteria
+import com.enofex.taikai.core.TaikaiRule
+import com.enofex.taikai.core.TaikaiRule.Configuration
 import com.enofex.taikai.demo.task.TaskRepository
 import com.enofex.taikai.demo.task.TaskService
 import com.enofex.taikai.java.ImportPatterns

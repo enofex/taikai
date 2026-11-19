@@ -3,6 +3,8 @@ package com.enofex.taikai;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.FieldCriteria;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;

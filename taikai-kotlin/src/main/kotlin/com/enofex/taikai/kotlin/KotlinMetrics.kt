@@ -2,9 +2,9 @@
 
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.TaikaiRule.Configuration
 import com.enofex.taikai.configures.AbstractConfigurer
 import com.enofex.taikai.configures.ConfigurerContext
+import com.enofex.taikai.core.TaikaiRule.Configuration
 import com.enofex.taikai.metrics.MetricsConfigurer
 import kotlin.metadata.jvm.signature
 

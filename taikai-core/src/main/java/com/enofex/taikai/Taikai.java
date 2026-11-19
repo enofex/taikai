@@ -1,13 +1,20 @@
 package com.enofex.taikai;
 
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static java.util.Objects.requireNonNull;
 
+import com.enofex.taikai.checks.ChecksConfigurer;
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.Configurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.Namespace;
+import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.exports.ExportsConfigurer;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.enofex.taikai.java.JavaConfigurer;
@@ -22,17 +29,14 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.lang.EvaluationResult;
 import com.tngtech.archunit.lang.FailureReport;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DynamicTest;
@@ -113,24 +117,31 @@ public final class Taikai {
   }
 
   private List<ConfiguredCheck> configuredChecks(ChecksConfigurer configurer) {
-    Path projectDirectory = Path.of("").toAbsolutePath();
-
-    return discovered(TaikaiCheck.class, "checks", configurer.excludedChecks(),
-        configurer::validate, TaikaiCheck::description).stream()
-        .map(check -> new ConfiguredCheck(check, configurer.decorate(new PerCheckContext(this,
-            projectDirectory, check.getClass(),
-            configurer.configuration(check.getClass())))))
+    return configurer.discover(Path.of("").toAbsolutePath(), this.namespace, this::defaultClasses)
+        .stream()
+        .map(check -> new ConfiguredCheck(check.getKey(), check.getValue()))
         .toList();
   }
 
   private List<ConfiguredExport> configuredExports(ExportsConfigurer configurer) {
-    Path projectDirectory = Path.of("").toAbsolutePath();
-
-    return discovered(TaikaiExport.class, "exports", configurer.excludedExports(),
-        configurer::validate, TaikaiExport::description).stream()
-        .map(export -> new ConfiguredExport(export, new PerExportContext(this, projectDirectory,
-            export.getClass(), configurer.configuration(export.getClass()))))
+    return configurer.discover(Path.of("").toAbsolutePath(), this.namespace, this::defaultClasses,
+            this.rules, this::evaluate)
+        .stream()
+        .map(export -> new ConfiguredExport(export.getKey(), export.getValue()))
         .toList();
+  }
+
+  /**
+   * Returns the classes of a rule with the default configuration, which checks and exports get.
+   */
+  private JavaClasses defaultClasses() {
+    return TaikaiRule.javaClasses(defaultConfiguration(), this.namespace, this.classes,
+        this.excludedClasses, this.excludedCriteria);
+  }
+
+  private EvaluationResult evaluate(TaikaiRule rule) {
+    return rule.archRule().evaluate(rule.javaClasses(this.namespace, this.classes,
+        this.excludedClasses, this.excludedCriteria));
   }
 
   /**
@@ -249,11 +260,7 @@ public final class Taikai {
     int checksViolated = 0;
 
     for (TaikaiRule rule : this.rules) {
-      FailureReport ruleReport = rule
-          .archRule()
-          .evaluate(rule.javaClasses(this.namespace, this.classes, this.excludedClasses,
-              this.excludedCriteria))
-          .getFailureReport();
+      FailureReport ruleReport = evaluate(rule).getFailureReport();
 
       if (!ruleReport.isEmpty()) {
         rulesViolated++;
@@ -323,28 +330,6 @@ public final class Taikai {
     }
   }
 
-  private static <T> List<T> discovered(Class<T> service, String kind,
-      Collection<Class<?>> excluded, Consumer<Collection<? extends Class<?>>> validate,
-      Function<T, String> description) {
-    try {
-      List<ServiceLoader.Provider<T>> providers =
-          ServiceLoader.load(service, classLoader()).stream().toList();
-
-      validate.accept(providers.stream()
-          .map(ServiceLoader.Provider::type)
-          .collect(Collectors.toSet()));
-
-      return providers.stream()
-          .filter(provider -> !excluded.contains(provider.type()))
-          .map(ServiceLoader.Provider::get)
-          .sorted(Comparator.comparing(description))
-          .toList();
-    } catch (ServiceConfigurationError | LinkageError e) {
-      throw new TaikaiException("Could not discover the %s registered in META-INF/services/%s"
-          .formatted(kind, service.getName()), e);
-    }
-  }
-
   private void logWarnings() {
     List<String> warnings = ConfigurationWarnings.of(this);
 
@@ -352,11 +337,6 @@ public final class Taikai {
       System.Logger logger = System.getLogger(Taikai.class.getName());
       warnings.forEach(warning -> logger.log(System.Logger.Level.WARNING, warning));
     }
-  }
-
-  static ClassLoader classLoader() {
-    ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-    return classLoader != null ? classLoader : Taikai.class.getClassLoader();
   }
 
   /**

@@ -1,11 +1,11 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.ClassCriteria
-import com.enofex.taikai.Namespace
-import com.enofex.taikai.TaikaiException
-import com.enofex.taikai.TaikaiRule
-import com.enofex.taikai.TaikaiRule.Configuration
 import com.enofex.taikai.checks.GradleWrapperCheck
+import com.enofex.taikai.core.ClassCriteria
+import com.enofex.taikai.core.Namespace
+import com.enofex.taikai.core.TaikaiException
+import com.enofex.taikai.core.TaikaiRule
+import com.enofex.taikai.core.TaikaiRule.Configuration
 import com.enofex.taikai.exports.AgentsMarkdownExport
 import com.enofex.taikai.kotlin.fixtures.GoodDto
 import com.enofex.taikai.kotlin.fixtures.MutableDto
@@ -33,7 +33,7 @@ class TaikaiDslTest {
 
     @Test
     fun `receiver DSL excludes classes by literal and by criteria`() {
-        val withTests = Configuration.of(Namespace.IMPORT.WITH_TESTS)
+        val withTests = Configuration.of(Namespace.Import.WITH_TESTS)
         val fixtures = "com.enofex.taikai.kotlin.fixtures"
         assertViolates(taikai {
             namespace(fixtures)

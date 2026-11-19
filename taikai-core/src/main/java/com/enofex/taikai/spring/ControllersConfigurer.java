@@ -1,10 +1,8 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.notReturnTypesMatching;
 import static com.enofex.taikai.internal.ArchConditions.returnTypesMatching;
-import static com.enofex.taikai.spring.ValidatedController.beAnnotatedWithValidated;
-import static com.enofex.taikai.spring.ValidatedRequestBodies.validateConstrainedRequestBodies;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REST_CONTROLLER;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
@@ -12,6 +10,8 @@ import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithCo
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRepository;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRestController;
+import static com.enofex.taikai.spring.ValidatedController.beAnnotatedWithValidated;
+import static com.enofex.taikai.spring.ValidatedRequestBodies.validateConstrainedRequestBodies;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.dependOnClassesThat;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
@@ -20,12 +20,12 @@ import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -65,7 +65,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * annotations.
    *
    * @param forbiddenTypes the forbidden return types, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public ControllersConfigurer methodsShouldNotReturn(
@@ -98,7 +98,7 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * {@code @RestController}, including composed annotations.
    *
    * @param requiredTypes the required return types, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public ControllersConfigurer methodsShouldReturn(
@@ -234,8 +234,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * See {@link #shouldBeAnnotatedWithRestController()}, but for the classes matching the given
    * criteria instead.
    *
-   * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
-   *     or an ArchUnit predicate
+   * @param classes the controller classes, selected with
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public ControllersConfigurer shouldBeAnnotatedWithRestController(
@@ -289,8 +289,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * See {@link #shouldBeAnnotatedWithController()}, but for the classes matching the given
    * criteria instead.
    *
-   * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
-   *     or an ArchUnit predicate
+   * @param classes the controller classes, selected with
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public ControllersConfigurer shouldBeAnnotatedWithController(
@@ -391,8 +391,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * See {@link #shouldBeAnnotatedWithValidated()}, but for the classes matching the given criteria
    * instead of all controllers.
    *
-   * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
-   *     or an ArchUnit predicate
+   * @param classes the controller classes, selected with
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public ControllersConfigurer shouldBeAnnotatedWithValidated(
@@ -452,8 +452,8 @@ public final class ControllersConfigurer extends AbstractConfigurer implements
    * See {@link #shouldNotBeAnnotatedWithValidated()}, but for the classes matching the given
    * criteria instead of all controllers.
    *
-   * @param classes the controller classes, selected with {@link com.enofex.taikai.ClassCriteria}
-   *     or an ArchUnit predicate
+   * @param classes the controller classes, selected with
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public ControllersConfigurer shouldNotBeAnnotatedWithValidated(

@@ -1,11 +1,11 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.ClassCriteria
 import com.enofex.taikai.checks.ClassFileVersionCheck
 import com.enofex.taikai.checks.ForbiddenFilesCheck
 import com.enofex.taikai.checks.MavenWrapperCheck
 import com.enofex.taikai.checks.RequiredFilesCheck
 import com.enofex.taikai.configures.AbstractConfigurer
+import com.enofex.taikai.core.ClassCriteria
 import com.enofex.taikai.java.ImportPatterns.lombok
 import com.enofex.taikai.java.ImportPatterns.shaded
 import org.junit.jupiter.api.DynamicTest

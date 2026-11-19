@@ -1,6 +1,6 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.java.BooleanMethodNaming.haveBooleanReturnType;
 import static com.enofex.taikai.java.BooleanMethodNaming.startWithOneOf;
 import static com.enofex.taikai.java.ConstantNaming.followConstantNamingConventions;
@@ -14,11 +14,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
@@ -163,8 +163,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   /**
    * See {@link #classesShouldMatch(String)}, but only for classes matching the given criteria.
    *
-   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
-   *     an ArchUnit predicate
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.core.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param regex the regex that fully qualified class names must match
    * @return this configurer for fluent chaining
    */
@@ -195,8 +195,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   /**
    * See {@link #classesShouldNotMatch(String)}, but only for classes matching the given criteria.
    *
-   * @param classes the classes to check, selected with {@link com.enofex.taikai.ClassCriteria} or
-   *     an ArchUnit predicate
+   * @param classes the classes to check, selected with {@link com.enofex.taikai.core.ClassCriteria}
+   *     or an ArchUnit predicate
    * @param regex the regex that fully qualified class names must not match
    * @return this configurer for fluent chaining
    */
@@ -251,8 +251,9 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   /**
    * See {@link #methodsShouldMatch(String)}, but only for methods matching the given criteria.
    *
-   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria},
-   *     for example {@code MethodCriteria.annotatedWith(Test.class)}, or an ArchUnit predicate
+   * @param methods the methods to check, selected with
+   *     {@link com.enofex.taikai.core.MethodCriteria}, for example
+   *     {@code MethodCriteria.annotatedWith(Test.class)}, or an ArchUnit predicate
    * @param regex the regex that method names must match
    * @return this configurer for fluent chaining
    */
@@ -308,9 +309,9 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   /**
    * See {@link #methodsShouldNotMatch(String)}, but only for methods matching the given criteria.
    *
-   * @param methods the methods to check, selected with {@link com.enofex.taikai.MethodCriteria},
-   *     for example {@code MethodCriteria.annotatedWith(Deprecated.class)}, or an ArchUnit
-   *     predicate
+   * @param methods the methods to check, selected with
+   *     {@link com.enofex.taikai.core.MethodCriteria}, for example
+   *     {@code MethodCriteria.annotatedWith(Deprecated.class)}, or an ArchUnit predicate
    * @param regex the regex that method names must not match
    * @return this configurer for fluent chaining
    */
@@ -344,7 +345,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
    * matching the given regex.
    *
    * @param classes the classes whose declared methods are checked, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param regex the regex that method names must match
    * @return this configurer for fluent chaining
    */
@@ -378,7 +379,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
    * matching the given regex.
    *
    * @param classes the classes whose declared methods are checked, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param regex the regex that method names must not match
    * @return this configurer for fluent chaining
    */
@@ -434,8 +435,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   /**
    * See {@link #fieldsShouldMatch(String)}, but only for fields matching the given criteria.
    *
-   * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
-   *     example {@code FieldCriteria.annotatedWith(Inject.class)}, or an ArchUnit predicate
+   * @param fields the fields to check, selected with {@link com.enofex.taikai.core.FieldCriteria},
+   *     for example {@code FieldCriteria.annotatedWith(Inject.class)}, or an ArchUnit predicate
    * @param regex the regex that field names must match
    * @return this configurer for fluent chaining
    */
@@ -491,8 +492,8 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
   /**
    * See {@link #fieldsShouldNotMatch(String)}, but only for fields matching the given criteria.
    *
-   * @param fields the fields to check, selected with {@link com.enofex.taikai.FieldCriteria}, for
-   *     example {@code FieldCriteria.ofType(String.class)}, or an ArchUnit predicate
+   * @param fields the fields to check, selected with {@link com.enofex.taikai.core.FieldCriteria},
+   *     for example {@code FieldCriteria.ofType(String.class)}, or an ArchUnit predicate
    * @param regex the regex that field names must not match
    * @return this configurer for fluent chaining
    */
@@ -526,7 +527,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
    * matching the given regex.
    *
    * @param classes the classes whose declared fields are checked, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param regex the regex that field names must match
    * @return this configurer for fluent chaining
    */
@@ -559,7 +560,7 @@ public final class NamingConfigurer extends AbstractConfigurer implements Disabl
    * matching the given regex.
    *
    * @param classes the classes whose declared fields are checked, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param regex the regex that field names must not match
    * @return this configurer for fluent chaining
    */

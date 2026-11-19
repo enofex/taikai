@@ -2,7 +2,7 @@ package com.enofex.taikai.exports;
 
 import static java.util.Objects.requireNonNull;
 
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.tngtech.archunit.core.domain.JavaClasses;

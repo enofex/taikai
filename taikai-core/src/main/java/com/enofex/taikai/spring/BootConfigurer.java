@@ -1,18 +1,18 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SPRING_BOOT_APPLICATION;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithSpringBootApplication;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static java.util.Objects.requireNonNull;
 
-import com.enofex.taikai.TaikaiException;
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.enofex.taikai.internal.Namespaces;
 
 /**
@@ -37,7 +37,7 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
 
   /**
    * See {@link #applicationClassShouldResideInPackage(String)}, but for the namespace configured
-   * with {@link com.enofex.taikai.Taikai.Builder#namespace(String)} as the package. The namespace
+   * with {@code Taikai.Builder.namespace(String)} as the package. The namespace
    * is read when the rule is configured, so it must be set on the builder before
    * {@code spring(...)} is first configured.
    *
@@ -52,15 +52,18 @@ public final class BootConfigurer extends AbstractConfigurer implements Disablea
    * See {@link #applicationClassShouldResideInPackage()}, but with {@link Configuration} for
    * customization. The namespace of the configuration is used as the root package if it is set,
    * otherwise the namespace configured via
-   * {@link com.enofex.taikai.Taikai.Builder#namespace(String)}.
+   * {@code Taikai.Builder.namespace(String)}.
    *
    * @param configuration the rule configuration
    * @return this configurer for fluent chaining
    * @throws TaikaiException if no namespace is configured
    */
   public BootConfigurer applicationClassShouldResideInPackage(Configuration configuration) {
-    String namespace = Namespaces.require(configuration.namespace(),
-        configurerContext().namespace());
+    String namespace = Namespaces.of(configuration.namespace(), configurerContext().namespace());
+
+    if (namespace == null) {
+      throw new TaikaiException("Namespace is not provided");
+    }
 
     return applicationClassShouldResideInPackage(namespace, configuration);
   }

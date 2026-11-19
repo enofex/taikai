@@ -1,9 +1,9 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.TaikaiRule
-import com.enofex.taikai.TaikaiRule.Configuration
 import com.enofex.taikai.configures.AbstractConfigurer
 import com.enofex.taikai.configures.ConfigurerContext
+import com.enofex.taikai.core.TaikaiRule
+import com.enofex.taikai.core.TaikaiRule.Configuration
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.lang.ArchCondition
 import com.tngtech.archunit.lang.ConditionEvents

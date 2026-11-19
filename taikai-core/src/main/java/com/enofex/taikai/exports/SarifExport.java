@@ -1,6 +1,6 @@
 package com.enofex.taikai.exports;
 
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import com.tngtech.archunit.core.Convertible;

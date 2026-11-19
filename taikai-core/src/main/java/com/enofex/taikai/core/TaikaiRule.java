@@ -1,10 +1,11 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNullElse;
 
+import com.enofex.taikai.internal.ExcludedClasses;
 import com.enofex.taikai.internal.Namespaces;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -12,7 +13,6 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchRule;
 import java.util.Collection;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
@@ -27,7 +27,6 @@ import org.jspecify.annotations.Nullable;
  *
  * @see ArchRule
  * @see Namespace
- * @see Taikai
  */
 public final class TaikaiRule {
 
@@ -99,7 +98,17 @@ public final class TaikaiRule {
     check(globalNamespace, classes, excludedClasses, emptySet());
   }
 
-  void check(@Nullable String globalNamespace, @Nullable JavaClasses classes,
+  /**
+   * Executes this rule for the given namespace or set of classes, excluding specific class names
+   * and the classes that match any of the given criteria.
+   *
+   * @param globalNamespace the global namespace (used if no explicit namespace is configured)
+   * @param classes optional pre-imported Java classes to analyze
+   * @param excludedClasses the class names or package patterns to exclude
+   * @param excludedCriteria the criteria of the classes to exclude
+   * @throws TaikaiException if the classes are imported from a namespace and none is set
+   */
+  public void check(@Nullable String globalNamespace, @Nullable JavaClasses classes,
       Collection<String> excludedClasses,
       Collection<DescribedPredicate<? super JavaClass>> excludedCriteria) {
     this.archRule.check(javaClasses(globalNamespace, classes, excludedClasses, excludedCriteria));
@@ -110,14 +119,40 @@ public final class TaikaiRule {
     return javaClasses(globalNamespace, classes, excludedClasses, emptySet());
   }
 
-  JavaClasses javaClasses(@Nullable String globalNamespace, @Nullable JavaClasses classes,
+  /**
+   * Returns the classes this rule checks: the explicit classes of its configuration without the
+   * classes the configuration excludes, else the given classes as they are, else the classes of
+   * the configured or the global namespace without the excluded classes and those that match any
+   * of the excluded criteria.
+   *
+   * @param globalNamespace the global namespace (used if no explicit namespace is configured)
+   * @param classes optional pre-imported Java classes to analyze
+   * @param excludedClasses the class names or package patterns to exclude, or {@code null}
+   * @param excludedCriteria the criteria of the classes to exclude
+   * @return the classes to check
+   * @throws TaikaiException if the classes are imported from a namespace and none is set
+   */
+  public JavaClasses javaClasses(@Nullable String globalNamespace, @Nullable JavaClasses classes,
       @Nullable Collection<String> excludedClasses,
       Collection<DescribedPredicate<? super JavaClass>> excludedCriteria) {
     return javaClasses(this.configuration, globalNamespace, classes, excludedClasses,
         excludedCriteria);
   }
 
-  static JavaClasses javaClasses(Configuration configuration, @Nullable String globalNamespace,
+  /**
+   * Returns the classes that a rule with the given configuration checks, see
+   * {@link #javaClasses(String, JavaClasses, Collection, Collection)}.
+   *
+   * @param configuration the configuration of the rule
+   * @param globalNamespace the global namespace (used if no explicit namespace is configured)
+   * @param classes optional pre-imported Java classes to analyze
+   * @param excludedClasses the class names or package patterns to exclude, or {@code null}
+   * @param excludedCriteria the criteria of the classes to exclude
+   * @return the classes to check
+   * @throws TaikaiException if the classes are imported from a namespace and none is set
+   */
+  public static JavaClasses javaClasses(Configuration configuration,
+      @Nullable String globalNamespace,
       @Nullable JavaClasses classes, @Nullable Collection<String> excludedClasses,
       Collection<DescribedPredicate<? super JavaClass>> excludedCriteria) {
     JavaClasses configuredClasses = configuration.javaClasses();
@@ -126,19 +161,24 @@ public final class TaikaiRule {
       return configuration.excludedClasses.isEmpty()
           ? configuredClasses
           : configuredClasses.that(
-              new ExcludeJavaClassDescribedPredicate(configuration.excludedClasses));
+              ExcludedClasses.predicate(configuration.excludedClasses));
     }
 
     if (classes != null) {
       return classes;
     }
 
-    String namespace = Namespaces.require(configuration.namespace(), globalNamespace);
+    String namespace = Namespaces.of(configuration.namespace(), globalNamespace);
+
+    if (namespace == null) {
+      throw new TaikaiException("Namespace is not provided");
+    }
+
     Collection<String> allExcludedClasses = allExcludedClasses(configuration, excludedClasses);
     JavaClasses javaClasses = Namespace.from(namespace, configuration.namespaceImport);
 
     if (!allExcludedClasses.isEmpty()) {
-      javaClasses = javaClasses.that(new ExcludeJavaClassDescribedPredicate(allExcludedClasses));
+      javaClasses = javaClasses.that(ExcludedClasses.predicate(allExcludedClasses));
     }
 
     for (DescribedPredicate<? super JavaClass> criteria : excludedCriteria) {
@@ -146,13 +186,6 @@ public final class TaikaiRule {
     }
 
     return javaClasses;
-  }
-
-  static boolean excludesAny(String excludedClass, JavaClasses classes) {
-    Pattern pattern = Pattern.compile(ExcludeJavaClassDescribedPredicate.toRegex(excludedClass));
-
-    return classes.stream()
-        .anyMatch(javaClass -> pattern.matcher(javaClass.getFullName()).matches());
   }
 
   private static Collection<String> allExcludedClasses(Configuration configuration,
@@ -165,28 +198,29 @@ public final class TaikaiRule {
   }
 
   /**
-   * Per-rule settings that override the global ones of {@link Taikai} for a single rule: the
-   * namespace, the {@link Namespace.IMPORT import mode}, an explicit set of classes and classes
-   * to exclude.
+   * Per-rule settings that override the global ones of {@code Taikai} for a
+   * single rule: the namespace, the {@link Namespace.Import import mode}, an explicit set of
+   * classes and classes to exclude.
    *
    * <p>A configuration that does not name an import mode uses
-   * {@link Namespace.IMPORT#WITHOUT_TESTS}. Excluded classes are given either as {@code String}
-   * patterns, see {@link Taikai.Builder#excludeClasses(Collection)}, or as {@code Class<?>}
-   * literals, not both in the same collection. The excluded classes of a configuration also apply
-   * to its own explicit set of classes, but the global exclusions of {@link Taikai} only apply when
-   * the classes are imported from a namespace.</p>
+   * {@link Namespace.Import#WITHOUT_TESTS}. Excluded classes are given either as {@code String}
+   * patterns, see {@code Taikai.Builder.excludeClasses(Collection)}, or as
+   * {@code Class<?>} literals, not both in the same collection. The excluded classes of a
+   * configuration also apply to its own explicit set of classes, but the global exclusions of
+   * {@code Taikai} only apply when the classes are imported from a
+   * namespace.</p>
    */
   public static final class Configuration {
 
     private final @Nullable String namespace;
-    private final Namespace.IMPORT namespaceImport;
+    private final Namespace.Import namespaceImport;
     private final @Nullable JavaClasses javaClasses;
     private final Collection<String> excludedClasses;
 
-    private Configuration(@Nullable String namespace, Namespace.@Nullable IMPORT namespaceImport,
+    private Configuration(@Nullable String namespace, Namespace.@Nullable Import namespaceImport,
         @Nullable JavaClasses javaClasses, @Nullable Collection<?> excludedClasses) {
       this.namespace = namespace;
-      this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.IMPORT.WITHOUT_TESTS);
+      this.namespaceImport = requireNonNullElse(namespaceImport, Namespace.Import.WITHOUT_TESTS);
       this.javaClasses = javaClasses;
       this.excludedClasses = toClassNames(excludedClasses);
     }
@@ -224,7 +258,7 @@ public final class TaikaiRule {
      *
      * @return the import mode
      */
-    public Namespace.IMPORT namespaceImport() {
+    public Namespace.Import namespaceImport() {
       return this.namespaceImport;
     }
 
@@ -248,12 +282,12 @@ public final class TaikaiRule {
 
     /**
      * Creates a configuration that uses the global namespace and
-     * {@link Namespace.IMPORT#WITHOUT_TESTS}.
+     * {@link Namespace.Import#WITHOUT_TESTS}.
      *
      * @return the default configuration
      */
     public static Configuration defaultConfiguration() {
-      return new Configuration(null, Namespace.IMPORT.WITHOUT_TESTS, null, null);
+      return new Configuration(null, Namespace.Import.WITHOUT_TESTS, null, null);
     }
 
     /**
@@ -263,7 +297,7 @@ public final class TaikaiRule {
      * @return the configuration
      */
     public static Configuration of(String namespace) {
-      return new Configuration(namespace, Namespace.IMPORT.WITHOUT_TESTS, null, null);
+      return new Configuration(namespace, Namespace.Import.WITHOUT_TESTS, null, null);
     }
 
     /**
@@ -276,7 +310,7 @@ public final class TaikaiRule {
      * @return the configuration
      */
     public static <T> Configuration of(String namespace, Collection<T> excludedClasses) {
-      return new Configuration(namespace, Namespace.IMPORT.WITHOUT_TESTS, null, excludedClasses);
+      return new Configuration(namespace, Namespace.Import.WITHOUT_TESTS, null, excludedClasses);
     }
 
     /**
@@ -285,7 +319,7 @@ public final class TaikaiRule {
      * @param namespaceImport the import mode
      * @return the configuration
      */
-    public static Configuration of(Namespace.IMPORT namespaceImport) {
+    public static Configuration of(Namespace.Import namespaceImport) {
       return new Configuration(null, namespaceImport, null, null);
     }
 
@@ -297,7 +331,7 @@ public final class TaikaiRule {
      * @param excludedClasses the class names or package patterns to exclude
      * @return the configuration
      */
-    public static Configuration of(Namespace.IMPORT namespaceImport,
+    public static Configuration of(Namespace.Import namespaceImport,
         Collection<String> excludedClasses) {
       return new Configuration(null, namespaceImport, null, excludedClasses);
     }
@@ -309,7 +343,7 @@ public final class TaikaiRule {
      * @param namespaceImport the import mode
      * @return the configuration
      */
-    public static Configuration of(String namespace, Namespace.IMPORT namespaceImport) {
+    public static Configuration of(String namespace, Namespace.Import namespaceImport) {
       return new Configuration(namespace, namespaceImport, null, null);
     }
 
@@ -324,7 +358,7 @@ public final class TaikaiRule {
      * @param <T> {@code String} or {@code Class<?>}
      * @return the configuration
      */
-    public static <T> Configuration of(String namespace, Namespace.IMPORT namespaceImport,
+    public static <T> Configuration of(String namespace, Namespace.Import namespaceImport,
         Collection<T> excludedClasses) {
       return new Configuration(namespace, namespaceImport, null, excludedClasses);
     }
@@ -363,58 +397,6 @@ public final class TaikaiRule {
      */
     public static <T> Configuration of(Collection<T> excludedClasses) {
       return new Configuration(null, null, null, excludedClasses);
-    }
-  }
-
-  private static final class ExcludeJavaClassDescribedPredicate extends
-      DescribedPredicate<JavaClass> {
-
-    private final Collection<Pattern> allExcludedClassPatterns;
-
-    ExcludeJavaClassDescribedPredicate(Collection<String> allExcludedClasses) {
-      super("exclude classes");
-      this.allExcludedClassPatterns = allExcludedClasses.stream()
-          .map(ExcludeJavaClassDescribedPredicate::toRegex)
-          .map(Pattern::compile)
-          .toList();
-    }
-
-    @Override
-    public boolean test(JavaClass javaClass) {
-      return this.allExcludedClassPatterns.stream()
-          .noneMatch(pattern -> pattern.matcher(javaClass.getFullName()).matches());
-    }
-
-    private static String toRegex(String value) {
-      if (isArchUnitRecursivePackage(value)) {
-        return "^" + Pattern.quote(stripArchUnitSuffix(value)) + "(\\..+)?$";
-      }
-
-      if (isArchUnitSinglePackage(value)) {
-        return "^" + Pattern.quote(stripArchUnitSuffix(value)) + "\\.[^.]+$";
-      }
-
-      if (isFullyQualifiedClass(value)) {
-        return "^" + Pattern.quote(value) + "$";
-      }
-
-      return value;
-    }
-
-    private static boolean isArchUnitRecursivePackage(String value) {
-      return value.endsWith("..");
-    }
-
-    private static boolean isArchUnitSinglePackage(String value) {
-      return value.endsWith(".*");
-    }
-
-    private static boolean isFullyQualifiedClass(String value) {
-      return !value.contains("*") && !value.contains("..");
-    }
-
-    private static String stripArchUnitSuffix(String value) {
-      return value.substring(0, value.length() - 2);
     }
   }
 }

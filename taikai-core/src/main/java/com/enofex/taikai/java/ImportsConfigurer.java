@@ -1,16 +1,16 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
-import com.enofex.taikai.TaikaiException;
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.enofex.taikai.internal.Namespaces;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -51,7 +51,7 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * import each other.
    *
    * @param forbiddenImports the forbidden imports, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    * @see #shouldNotImport(DescribedPredicate, Configuration)
    */
@@ -83,7 +83,7 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * criteria.
    *
    * @param classes the classes to check, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param forbiddenImports the forbidden imports
    * @return this configurer for fluent chaining
    * @see #shouldNotImport(DescribedPredicate, DescribedPredicate, Configuration)
@@ -119,7 +119,7 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * criteria.
    *
    * @param classes the classes to check, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param requiredImports the required imports
    * @return this configurer for fluent chaining
    * @see #shouldImport(DescribedPredicate, DescribedPredicate, Configuration)
@@ -176,8 +176,11 @@ public final class ImportsConfigurer extends AbstractConfigurer implements Disab
    * @see #shouldHaveNoCycles()
    */
   public ImportsConfigurer shouldHaveNoCycles(Configuration configuration) {
-    String namespace = Namespaces.require(configuration.namespace(),
-        configurerContext().namespace());
+    String namespace = Namespaces.of(configuration.namespace(), configurerContext().namespace());
+
+    if (namespace == null) {
+      throw new TaikaiException("Namespace is not provided");
+    }
 
     return addRule(TaikaiRule.of(slices()
         .matching(namespace + ".(*)..")

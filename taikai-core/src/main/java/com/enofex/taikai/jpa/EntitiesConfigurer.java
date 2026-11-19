@@ -1,6 +1,6 @@
 package com.enofex.taikai.jpa;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.haveFieldMatching;
 import static com.enofex.taikai.internal.ArchConditions.notHaveFieldTypesMatching;
 import static com.enofex.taikai.jpa.JpaDescribedPredicates.ANNOTATION_VERSION;
@@ -12,11 +12,11 @@ import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -77,7 +77,7 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
    * checked as well.
    *
    * @param forbiddenTypes the forbidden identifier types, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public EntitiesConfigurer idsShouldNotBeOfType(
@@ -136,7 +136,7 @@ public final class EntitiesConfigurer extends AbstractConfigurer implements Disa
    * the compiler are ignored.
    *
    * @param forbiddenTypes the forbidden field types, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */
   public EntitiesConfigurer fieldsShouldNotBeOfType(
