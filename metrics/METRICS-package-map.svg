@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="644" height="496" viewBox="0 0 644 496" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12">
+  <title>Map of the packages</title>
+  <style>
+  .card { fill: #ffffff; stroke: #e1e0d9; }
+  .plane { fill: #f7f7f5; }
+  .ink { fill: #0b0b0b; }
+  .ink-2 { fill: #52514e; }
+  .muted { fill: #898781; }
+  .grid { stroke: #e6e5df; }
+  .sequence { stroke: #52514e; }
+  .leader { stroke: #b4b3ac; }
+  .halo { paint-order: stroke; stroke: #f7f7f5; stroke-width: 3px; stroke-linejoin: round; }
+  .ring { stroke: #f7f7f5; }
+  .node { fill: #ffffff; stroke: #d9d8d1; }
+  .edge { fill: none; stroke: #898781; stroke-opacity: 0.75; }
+  .cycle { fill: none; stroke: #d03b3b; }
+  .unstable { fill: none; stroke: #c98500; }
+  .edge-head { fill: #898781; }
+  .cycle-head { fill: #d03b3b; }
+  .unstable-head { fill: #c98500; }
+  .balanced { fill: #2a78d6; }
+  .pain { fill: #d03b3b; }
+  .uselessness { fill: #c98500; }
+  .isolated { fill: #898781; }
+  .on-fill { fill: #ffffff; }
+  .cell { fill: #f7f7f5; }
+  .self { fill: #e6e5df; }
+  .dependency { fill: #2a78d6; }
+  .closing { fill: #f7d4d4; stroke: #d03b3b; }
+  .unstable-target { fill: #f4e7cc; stroke: #c98500; }
+  .group { fill: none; stroke: #d03b3b; }
+  </style>
+  <rect x="0.5" y="0.5" width="643" height="495" rx="12" class="card"/>
+  <text x="24" y="40" class="ink" font-size="15" font-weight="600">Package map</text>
+  <circle cx="168.2" cy="36" r="5" class="balanced"/>
+  <text x="177.2" y="40" text-anchor="start" class="ink-2">Balanced</text>
+  <circle cx="254.6" cy="36" r="5" class="pain"/>
+  <text x="263.6" y="40" text-anchor="start" class="ink-2">Zone of pain</text>
+  <circle cx="368.2" cy="36" r="5" class="uselessness"/>
+  <text x="377.2" y="40" text-anchor="start" class="ink-2">Zone of uselessness</text>
+  <circle cx="529.4" cy="36" r="5" class="isolated"/>
+  <text x="538.4" y="40" text-anchor="start" class="ink-2">No couplings</text>
+  <g class="tile" data-zone="balanced">
+    <title>com.enofex.taikai: 2 classes, I 1.00, A 0.00, D 0.00</title>
+    <rect x="473.7" y="382.2" width="46.27" height="88.3" rx="6" class="balanced" fill-opacity="0.14"/>
+    <text x="481.7" y="400.2" class="ink" font-size="12" font-weight="600">com…</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>checks: 12 classes, I 0.91, A 0.00, D 0.09</title>
+    <rect x="211.05" y="295.72" width="148.81" height="174.78" rx="6" class="balanced" fill-opacity="0.19"/>
+    <text x="219.05" y="313.72" class="ink" font-size="12" font-weight="600">checks</text>
+    <text x="219.05" y="328.72" class="ink-2" font-size="11">12 classes · D 0.09</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>checks.spi: 3 classes, I 0.00, A 1.00, D 0.00</title>
+    <rect x="362.86" y="412.63" width="107.85" height="57.87" rx="6" class="balanced" fill-opacity="0.14"/>
+    <text x="370.86" y="430.63" class="ink" font-size="12" font-weight="600">checks.spi</text>
+    <text x="370.86" y="445.63" class="ink-2" font-size="11">D 0.00</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>configures: 6 classes, I 0.08, A 0.67, D 0.25</title>
+    <rect x="502.13" y="73.5" width="116.37" height="110.04" rx="6" class="balanced" fill-opacity="0.27"/>
+    <text x="510.13" y="91.5" class="ink" font-size="12" font-weight="600">configures</text>
+    <text x="510.13" y="106.5" class="ink-2" font-size="11">D 0.25</text>
+  </g>
+  <g class="tile" data-zone="pain">
+    <title>core: 6 classes, I 0.12, A 0.00, D 0.88</title>
+    <rect x="362.86" y="186.54" width="126.32" height="101.35" rx="6" class="pain" fill-opacity="0.58"/>
+    <text x="370.86" y="204.54" class="ink" font-size="12" font-weight="600">core</text>
+    <text x="370.86" y="219.54" class="ink-2" font-size="11">D 0.88</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>exports: 16 classes, I 0.89, A 0.00, D 0.11</title>
+    <rect x="25.5" y="279.56" width="182.55" height="190.94" rx="6" class="balanced" fill-opacity="0.2"/>
+    <text x="33.5" y="297.56" class="ink" font-size="12" font-weight="600">exports</text>
+    <text x="33.5" y="312.56" class="ink-2" font-size="11">16 classes · D 0.11</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>exports.spi: 2 classes, I 0.13, A 1.00, D 0.13</title>
+    <rect x="522.97" y="382.2" width="46.27" height="88.3" rx="6" class="balanced" fill-opacity="0.2"/>
+    <text x="530.97" y="400.2" class="ink" font-size="12" font-weight="600">exp…</text>
+  </g>
+  <g class="tile" data-zone="pain">
+    <title>internal: 7 classes, I 0.00, A 0.00, D 1.00</title>
+    <rect x="362.86" y="73.5" width="136.27" height="110.04" rx="6" class="pain" fill-opacity="0.64"/>
+    <text x="370.86" y="91.5" class="ink" font-size="12" font-weight="600">internal</text>
+    <text x="370.86" y="106.5" class="ink-2" font-size="11">7 classes · D 1.00</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>java: 17 classes, I 0.91, A 0.00, D 0.09</title>
+    <rect x="25.5" y="73.5" width="182.55" height="203.06" rx="6" class="balanced" fill-opacity="0.19"/>
+    <text x="33.5" y="91.5" class="ink" font-size="12" font-weight="600">java</text>
+    <text x="33.5" y="106.5" class="ink-2" font-size="11">17 classes · D 0.09</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>jpa: 3 classes, I 0.75, A 0.00, D 0.25</title>
+    <rect x="473.7" y="290.89" width="70.9" height="88.3" rx="6" class="balanced" fill-opacity="0.27"/>
+    <text x="481.7" y="308.89" class="ink" font-size="12" font-weight="600">jpa</text>
+    <text x="481.7" y="323.89" class="ink-2" font-size="11">D 0.25</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>logging: 2 classes, I 0.67, A 0.00, D 0.33</title>
+    <rect x="572.23" y="382.2" width="46.27" height="88.3" rx="6" class="balanced" fill-opacity="0.31"/>
+    <text x="580.23" y="400.2" class="ink" font-size="12" font-weight="600">log…</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>metrics: 3 classes, I 0.75, A 0.00, D 0.25</title>
+    <rect x="547.6" y="290.89" width="70.9" height="88.3" rx="6" class="balanced" fill-opacity="0.27"/>
+    <text x="555.6" y="308.89" class="ink" font-size="12" font-weight="600">metrics</text>
+    <text x="555.6" y="323.89" class="ink-2" font-size="11">D 0.25</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>quarkus: 6 classes, I 0.83, A 0.00, D 0.17</title>
+    <rect x="492.18" y="186.54" width="126.32" height="101.35" rx="6" class="balanced" fill-opacity="0.22"/>
+    <text x="500.18" y="204.54" class="ink" font-size="12" font-weight="600">quarkus</text>
+    <text x="500.18" y="219.54" class="ink-2" font-size="11">D 0.17</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>spring: 15 classes, I 0.93, A 0.00, D 0.07</title>
+    <rect x="211.05" y="73.5" width="148.81" height="219.22" rx="6" class="balanced" fill-opacity="0.18"/>
+    <text x="219.05" y="91.5" class="ink" font-size="12" font-weight="600">spring</text>
+    <text x="219.05" y="106.5" class="ink-2" font-size="11">15 classes · D 0.07</text>
+  </g>
+  <g class="tile" data-zone="balanced">
+    <title>test: 6 classes, I 0.86, A 0.00, D 0.14</title>
+    <rect x="362.86" y="290.89" width="107.85" height="118.74" rx="6" class="balanced" fill-opacity="0.21"/>
+    <text x="370.86" y="308.89" class="ink" font-size="12" font-weight="600">test</text>
+    <text x="370.86" y="323.89" class="ink-2" font-size="11">D 0.14</text>
+  </g>
+</svg>
