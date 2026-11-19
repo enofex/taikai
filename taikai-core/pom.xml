@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.enofex</groupId>
     <artifactId>taikai-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>taikai</artifactId>
   <name>Taikai Core</name>
