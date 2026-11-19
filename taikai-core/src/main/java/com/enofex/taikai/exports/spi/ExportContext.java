@@ -1,6 +1,6 @@
 package com.enofex.taikai.exports.spi;
 
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.EvaluationResult;
 import java.nio.file.Path;

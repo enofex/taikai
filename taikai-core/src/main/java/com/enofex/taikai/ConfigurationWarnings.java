@@ -1,6 +1,9 @@
 package com.enofex.taikai;
 
-import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.core.Namespace;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
+import com.enofex.taikai.internal.ExcludedClasses;
 import com.enofex.taikai.internal.Namespaces;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -20,8 +23,8 @@ final class ConfigurationWarnings {
   }
 
   static List<String> of(Taikai taikai) {
-    Set<Import> emptyImports = new LinkedHashSet<>();
-    Set<Import> imports = new LinkedHashSet<>();
+    Set<NamespaceImport> emptyImports = new LinkedHashSet<>();
+    Set<NamespaceImport> imports = new LinkedHashSet<>();
     List<String> ruleWarnings = new ArrayList<>();
 
     for (TaikaiRule rule : taikai.rules()) {
@@ -34,7 +37,8 @@ final class ConfigurationWarnings {
         String namespace = Namespaces.of(configuration.namespace(), taikai.namespace());
 
         if (namespace != null) {
-          Import namespaceImport = new Import(namespace, configuration.namespaceImport());
+          NamespaceImport namespaceImport =
+              new NamespaceImport(namespace, configuration.namespaceImport());
 
           if (namespaceImport.classes().isEmpty()) {
             emptyImports.add(namespaceImport);
@@ -55,7 +59,7 @@ final class ConfigurationWarnings {
     if (!imports.isEmpty()) {
       taikai.excludedClasses().stream()
           .filter(excludedClass -> imports.stream()
-              .noneMatch(used -> TaikaiRule.excludesAny(excludedClass, used.classes())))
+              .noneMatch(used -> ExcludedClasses.excludesAny(excludedClass, used.classes())))
           .forEach(excludedClass -> warnings.add(unusedExclusion(excludedClass)));
 
       taikai.excludedCriteria().stream()
@@ -71,7 +75,7 @@ final class ConfigurationWarnings {
 
   private static List<String> unusedExclusions(TaikaiRule rule, JavaClasses classes) {
     return rule.configuration().excludedClasses().stream()
-        .filter(excludedClass -> !TaikaiRule.excludesAny(excludedClass, classes))
+        .filter(excludedClass -> !ExcludedClasses.excludesAny(excludedClass, classes))
         .map(excludedClass -> "Exclusion '%s' of rule '%s' matches no class, so it can be removed"
             .formatted(excludedClass, rule.archRule().getDescription()))
         .toList();
@@ -86,7 +90,7 @@ final class ConfigurationWarnings {
     return "Exclusion '%s' matches no class, so it can be removed".formatted(exclusion);
   }
 
-  private record Import(String namespace, Namespace.IMPORT mode) {
+  private record NamespaceImport(String namespace, Namespace.Import mode) {
 
     JavaClasses classes() {
       return Namespace.from(this.namespace, this.mode);

@@ -1,4 +1,4 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
 import static java.util.Objects.requireNonNull;
 

@@ -3,7 +3,8 @@ package com.enofex.taikai;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.test.JUnitConfigurer;
 import com.tngtech.archunit.base.DescribedPredicate;

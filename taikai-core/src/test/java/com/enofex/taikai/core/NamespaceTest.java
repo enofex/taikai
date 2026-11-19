@@ -1,11 +1,12 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
-import static com.enofex.taikai.Namespace.IMPORT.ONLY_TESTS;
-import static com.enofex.taikai.Namespace.IMPORT.WITHOUT_TESTS;
+import static com.enofex.taikai.core.Namespace.Import.ONLY_TESTS;
+import static com.enofex.taikai.core.Namespace.Import.WITHOUT_TESTS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.enofex.taikai.Taikai;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,8 +17,8 @@ class NamespaceTest {
   private static final String VALID_NAMESPACE = "com.enofex.taikai";
 
   @ParameterizedTest(name = "{0}")
-  @EnumSource(Namespace.IMPORT.class)
-  void shouldImportClassesOfImportModeOnce(Namespace.IMPORT importOption) {
+  @EnumSource(Namespace.Import.class)
+  void shouldImportClassesOfImportModeOnce(Namespace.Import importOption) {
     JavaClasses result = Namespace.from(VALID_NAMESPACE, importOption);
 
     assertEquals(importOption != ONLY_TESTS, result.contain(Taikai.class), "production class");

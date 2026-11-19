@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.FieldCriteria;
+import com.enofex.taikai.core.MethodCriteria;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;

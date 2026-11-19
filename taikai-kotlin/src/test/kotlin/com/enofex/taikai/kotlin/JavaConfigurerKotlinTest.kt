@@ -1,9 +1,9 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.Namespace
 import com.enofex.taikai.Taikai
-import com.enofex.taikai.TaikaiRule
-import com.enofex.taikai.TaikaiRule.Configuration
+import com.enofex.taikai.core.Namespace
+import com.enofex.taikai.core.TaikaiRule
+import com.enofex.taikai.core.TaikaiRule.Configuration
 import com.enofex.taikai.java.ImportPatterns
 import com.enofex.taikai.kotlin.fixtures.DefaultDependency
 import com.enofex.taikai.kotlin.fixtures.JavaDependency
@@ -79,7 +79,7 @@ class JavaConfigurerKotlinTest {
             val failure = assertViolates(Taikai.builder().namespace(namespace)
                 .java { it.imports { imports ->
                     imports.shouldHaveNoCycles(
-                        Configuration.of(namespace, Namespace.IMPORT.ONLY_TESTS))
+                        Configuration.of(namespace, Namespace.Import.ONLY_TESTS))
                 } }.build())
             assertTrue(failure.message!!.contains("Cycle detected"))
             assertTrue(failure.message!!.contains("first"))

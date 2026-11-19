@@ -1,14 +1,14 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.MethodCriteria;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import java.lang.annotation.ElementType;

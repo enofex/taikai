@@ -1,6 +1,6 @@
 package com.enofex.taikai.quarkus;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

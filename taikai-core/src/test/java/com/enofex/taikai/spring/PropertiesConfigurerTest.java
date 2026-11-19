@@ -1,12 +1,12 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.ClassCriteria;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Nested;

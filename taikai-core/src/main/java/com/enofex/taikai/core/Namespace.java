@@ -1,4 +1,4 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
 import static java.util.Objects.requireNonNull;
 
@@ -19,7 +19,7 @@ public final class Namespace {
   /**
    * Defines which classes of a namespace are imported.
    */
-  public enum IMPORT {
+  public enum Import {
 
     /**
      * Imports production classes only.
@@ -47,7 +47,7 @@ public final class Namespace {
    * @param importOption the import mode defining which classes to include
    * @return the imported {@link JavaClasses}
    */
-  public static JavaClasses from(String namespace, IMPORT importOption) {
+  public static JavaClasses from(String namespace, Import importOption) {
     requireNonNull(namespace);
     requireNonNull(importOption);
 
@@ -69,7 +69,7 @@ public final class Namespace {
     requireNonNull(namespace);
 
     return JAVA_CLASSES.computeIfAbsent(
-        new Key(namespace, IMPORT.WITHOUT_TESTS),
+        new Key(namespace, Import.WITHOUT_TESTS),
         key -> new ClassFileImporter()
             .withImportOption(new ImportOption.DoNotIncludeTests())
             .withImportOption(new ImportOption.DoNotIncludeJars())
@@ -88,7 +88,7 @@ public final class Namespace {
     requireNonNull(namespace);
 
     return JAVA_CLASSES.computeIfAbsent(
-        new Key(namespace, IMPORT.WITH_TESTS),
+        new Key(namespace, Import.WITH_TESTS),
         key -> new ClassFileImporter()
             .withImportOption(new ImportOption.DoNotIncludeJars())
             .importPackages(namespace));
@@ -105,13 +105,13 @@ public final class Namespace {
     requireNonNull(namespace);
 
     return JAVA_CLASSES.computeIfAbsent(
-        new Key(namespace, IMPORT.ONLY_TESTS),
+        new Key(namespace, Import.ONLY_TESTS),
         key -> new ClassFileImporter()
             .withImportOption(new ImportOption.OnlyIncludeTests())
             .withImportOption(new ImportOption.DoNotIncludeJars())
             .importPackages(namespace));
   }
 
-  private record Key(String namespace, IMPORT importOption) {
+  private record Key(String namespace, Import importOption) {
   }
 }

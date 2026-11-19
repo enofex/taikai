@@ -10,10 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.enofex.taikai.checks.ChecksConfigurer;
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.ForwardingCheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.checks.spi.TestChecks;
+import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
@@ -245,7 +248,7 @@ class TaikaiCheckTest {
   void shouldProvideContextToChecks() {
     build(Taikai.builder()
             .namespace(NAMESPACE)
-            .excludeClasses(PerCheckContext.class)
+            .excludeClasses(ConfigurationWarnings.class)
             .discoverChecks(),
         TestChecks.ContextCapturing.class)
         .check();
@@ -255,7 +258,7 @@ class TaikaiCheckTest {
     assertEquals(NAMESPACE, context.namespace());
     assertSame(Thread.currentThread().getContextClassLoader(), context.classLoader());
     assertTrue(context.classes().contain(Taikai.class));
-    assertFalse(context.classes().contain(PerCheckContext.class));
+    assertFalse(context.classes().contain(ConfigurationWarnings.class));
     assertFalse(context.classes().contain(TaikaiCheckTest.class));
   }
 

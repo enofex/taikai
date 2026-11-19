@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiException;
+import com.enofex.taikai.core.TaikaiException;
 import com.enofex.taikai.exports.ArchitectureMetrics.CohesionMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.PackageMetric;
 import com.enofex.taikai.exports.spi.ExportContext;

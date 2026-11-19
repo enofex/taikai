@@ -1,5 +1,65 @@
 # Migration Guide
 
+## Migrating from 2.x to 3.0.0
+
+Taikai 3.0.0 removes the package cycles of Taikai itself: the rules and criteria that every package uses moved below the builder, and the configurers of checks and exports moved to the packages of the checks and exports. The builder keeps all its methods.
+
+**Upgrading from 2.x requires changing imports and recompiling.** See [Moved classes](#moved-classes) and [Renamed classes](#renamed-classes) below.
+
+### Moved classes
+
+| 2.x | 3.0.0 |
+|-----|-------|
+| `com.enofex.taikai.TaikaiRule` | `com.enofex.taikai.core.TaikaiRule` |
+| `com.enofex.taikai.TaikaiRule.Configuration` | `com.enofex.taikai.core.TaikaiRule.Configuration` |
+| `com.enofex.taikai.TaikaiException` | `com.enofex.taikai.core.TaikaiException` |
+| `com.enofex.taikai.ClassCriteria` | `com.enofex.taikai.core.ClassCriteria` |
+| `com.enofex.taikai.FieldCriteria` | `com.enofex.taikai.core.FieldCriteria` |
+| `com.enofex.taikai.MethodCriteria` | `com.enofex.taikai.core.MethodCriteria` |
+| `com.enofex.taikai.Namespace` | `com.enofex.taikai.core.Namespace` |
+| `com.enofex.taikai.ChecksConfigurer` | `com.enofex.taikai.checks.ChecksConfigurer` |
+| `com.enofex.taikai.ExportsConfigurer` | `com.enofex.taikai.exports.ExportsConfigurer` |
+
+`com.enofex.taikai.Taikai` stays where it is, and so does every method of `Taikai.Builder`, such as `java(...)`, `spring(...)`, `discoverChecks(...)` and `discoverExports(...)`. Only the imports change, static imports included. Code compiled against 2.x, such as a library with its own configurers or checks, must be recompiled, because methods such as `addRule(TaikaiRule)` and `discoverChecks(Consumer<ChecksConfigurer>)` now refer to the moved classes:
+
+```java
+// 2.x
+import static com.enofex.taikai.Namespace.IMPORT.WITH_TESTS;
+
+import com.enofex.taikai.ClassCriteria;
+import com.enofex.taikai.TaikaiRule.Configuration;
+
+// 3.0.0
+import static com.enofex.taikai.core.Namespace.Import.WITH_TESTS;
+
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
+```
+
+### Renamed classes
+
+| 2.x | 3.0.0 |
+|-----|-------|
+| `com.enofex.taikai.Namespace.IMPORT` | `com.enofex.taikai.core.Namespace.Import` |
+
+The enum follows the Java naming conventions for types now. Its constants `WITHOUT_TESTS`, `WITH_TESTS` and `ONLY_TESTS` keep their names:
+
+```java
+// 2.x
+Configuration.of(Namespace.IMPORT.ONLY_TESTS)
+
+// 3.0.0
+Configuration.of(Namespace.Import.ONLY_TESTS)
+```
+
+### New public methods
+
+| Class | Method |
+|-------|--------|
+| `TaikaiRule` | `check(String, JavaClasses, Collection<String>, Collection<DescribedPredicate<? super JavaClass>>)` checks a rule with excluded criteria, as the builder does. |
+| `TaikaiRule` | `javaClasses(String, JavaClasses, Collection<String>, Collection<DescribedPredicate<? super JavaClass>>)` and the static `javaClasses(Configuration, ...)` return the classes a rule checks. |
+| `ChecksConfigurer`, `ExportsConfigurer` | Public constructors and `discover(...)`, which `Taikai.Builder#build()` calls to discover the checks and exports, each with its context. |
+
 ## Migrating from 1.x to 2.0.0
 
 Taikai 2.0.0 is a major release built around **criteria**: rules that used to select classes by a name regex now take an ArchUnit `DescribedPredicate<JavaClass>` instead. You can target classes by annotation, package, simple name or any predicate of your own. This release also removes deprecated APIs, makes naming and parameter order consistent, and tightens several rules.

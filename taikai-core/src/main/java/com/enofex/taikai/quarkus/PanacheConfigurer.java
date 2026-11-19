@@ -1,17 +1,17 @@
 package com.enofex.taikai.quarkus;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.ANNOTATION_ENTITY;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.PANACHE_ENTITY;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithEntity;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 
 /**
  * Rules for Quarkus Panache entities, the classes extending {@code PanacheEntity}, and

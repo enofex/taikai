@@ -1,4 +1,4 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

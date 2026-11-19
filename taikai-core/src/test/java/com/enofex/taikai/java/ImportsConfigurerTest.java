@@ -1,18 +1,18 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.java.JavaChecks.assertReportsViolations;
 import static com.enofex.taikai.java.JavaChecks.importsOverload;
 import static com.enofex.taikai.java.JavaFixtures.MARKED;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiException;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.Namespace;
+import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.enofex.taikai.java.JavaFixtures.DateUser;
 import com.enofex.taikai.java.JavaFixtures.PlainClass;
 import java.util.stream.Stream;
@@ -164,7 +164,7 @@ class ImportsConfigurerTest {
           .classes(ClassUsingAllowedImport.class)
           .java(java -> java.imports(
               imports -> imports.shouldHaveNoCycles(Configuration.of(
-                  "com.enofex.taikai", Namespace.IMPORT.WITHOUT_TESTS))))
+                  "com.enofex.taikai", Namespace.Import.WITHOUT_TESTS))))
           .build();
 
       assertDoesNotThrow(taikai::check);

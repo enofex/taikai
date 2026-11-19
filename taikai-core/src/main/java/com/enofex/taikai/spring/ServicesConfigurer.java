@@ -1,6 +1,6 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SERVICE;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;
@@ -10,12 +10,12 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.not;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -114,7 +114,7 @@ public final class ServicesConfigurer extends AbstractConfigurer implements Disa
    * See {@link #shouldBeAnnotatedWithService()}, but for the classes matching the given criteria
    * instead.
    *
-   * @param classes the service classes, selected with {@link com.enofex.taikai.ClassCriteria}
+   * @param classes the service classes, selected with {@link com.enofex.taikai.core.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */

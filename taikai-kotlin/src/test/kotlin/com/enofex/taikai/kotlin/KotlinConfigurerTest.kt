@@ -1,8 +1,8 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.Namespace
 import com.enofex.taikai.Taikai
-import com.enofex.taikai.TaikaiRule.Configuration
+import com.enofex.taikai.core.Namespace
+import com.enofex.taikai.core.TaikaiRule.Configuration
 import com.enofex.taikai.kotlin.fixtures.*
 import com.enofex.taikai.kotlin.fixtures.compatibility.*
 import com.tngtech.archunit.core.domain.JavaClass
@@ -35,7 +35,7 @@ class KotlinConfigurerTest {
     fun `per rule namespace exclusion and imports work`() {
         assertPasses(Taikai.builder().namespace("com.enofex.taikai.kotlin.fixtures")
             .kotlin {
-                classesShouldMatch("GoodDto", Configuration.of(Namespace.IMPORT.WITH_TESTS,
+                classesShouldMatch("GoodDto", Configuration.of(Namespace.Import.WITH_TESTS,
                     listOf("com.enofex.taikai.kotlin.fixtures..")))
             }.build())
         val imported = ClassFileImporter().importClasses(GoodDto::class.java)
@@ -58,10 +58,10 @@ class KotlinConfigurerTest {
         assertPasses(Taikai.builder().namespace("com.enofex.taikai.kotlin.fixtures.compatibility")
             .excludeClasses("com.enofex.taikai.kotlin.fixtures.compatibility..")
             .kotlin {
-                classesShouldNotMatch(".*", Configuration.of(Namespace.IMPORT.WITH_TESTS))
-                noUsageOfDeprecatedAPIs(Configuration.of(Namespace.IMPORT.WITH_TESTS))
+                classesShouldNotMatch(".*", Configuration.of(Namespace.Import.WITH_TESTS))
+                noUsageOfDeprecatedAPIs(Configuration.of(Namespace.Import.WITH_TESTS))
                 propertiesShouldMatch(Matcher::class, "none",
-                    Configuration.of(Namespace.IMPORT.WITH_TESTS))
+                    Configuration.of(Namespace.Import.WITH_TESTS))
             }.build())
     }
 

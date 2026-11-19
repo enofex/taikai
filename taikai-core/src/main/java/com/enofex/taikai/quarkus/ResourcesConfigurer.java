@@ -1,6 +1,6 @@
 package com.enofex.taikai.quarkus;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.ANNOTATION_PATH;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithPath;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
@@ -9,12 +9,12 @@ import static com.tngtech.archunit.lang.conditions.ArchConditions.onlyHaveDepend
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -134,7 +134,7 @@ public final class ResourcesConfigurer extends AbstractConfigurer implements Dis
    * See {@link #shouldBeAnnotatedWithPath()}, but for the classes matching the given criteria
    * instead.
    *
-   * @param classes the resource classes, selected with {@link com.enofex.taikai.ClassCriteria}
+   * @param classes the resource classes, selected with {@link com.enofex.taikai.core.ClassCriteria}
    *     or an ArchUnit predicate
    * @return this configurer for fluent chaining
    */

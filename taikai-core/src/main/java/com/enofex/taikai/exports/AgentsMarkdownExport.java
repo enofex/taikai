@@ -2,7 +2,7 @@ package com.enofex.taikai.exports;
 
 import static java.util.stream.Collectors.joining;
 
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import java.util.Collection;
@@ -25,7 +25,8 @@ import org.jspecify.annotations.Nullable;
  * <pre>{@code
  * # Architecture Rules
  *
- * The architecture test enforces these rules for `com.company.project`, so code that breaks one of them fails the build.
+ * The architecture test enforces these rules for `com.company.project`, so code that breaks one of
+ * them fails the build.
  *
  * - Classes should not use System.out or System.err
  * - Fields should not be public unless they are static

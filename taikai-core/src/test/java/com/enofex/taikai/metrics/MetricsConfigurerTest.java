@@ -6,13 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.MethodCriteria;
+import com.enofex.taikai.core.TaikaiRule;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import java.util.List;

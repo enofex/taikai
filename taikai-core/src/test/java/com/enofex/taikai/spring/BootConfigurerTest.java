@@ -3,10 +3,10 @@ package com.enofex.taikai.spring;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiException;
-import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.core.Namespace;
+import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -80,7 +80,7 @@ class BootConfigurerTest {
       Taikai taikai = Taikai.builder()
           .namespace("com.enofex.taikai")
           .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
-              Configuration.of("com.enofex.taikai.spring", Namespace.IMPORT.WITH_TESTS))))
+              Configuration.of("com.enofex.taikai.spring", Namespace.Import.WITH_TESTS))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -91,7 +91,7 @@ class BootConfigurerTest {
       Taikai taikai = Taikai.builder()
           .namespace("com.enofex.taikai.spring")
           .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
-              Configuration.of(Namespace.IMPORT.WITH_TESTS))))
+              Configuration.of(Namespace.Import.WITH_TESTS))))
           .build();
 
       assertDoesNotThrow(taikai::check);
@@ -102,7 +102,7 @@ class BootConfigurerTest {
       Taikai taikai = Taikai.builder()
           .namespace("com.enofex.taikai")
           .spring(spring -> spring.boot(boot -> boot.applicationClassShouldResideInPackage(
-              Configuration.of(Namespace.IMPORT.WITH_TESTS))))
+              Configuration.of(Namespace.Import.WITH_TESTS))))
           .build();
 
       assertThrows(AssertionError.class, taikai::check);

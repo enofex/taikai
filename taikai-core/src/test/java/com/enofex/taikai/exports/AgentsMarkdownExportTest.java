@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiException;
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import java.io.IOException;

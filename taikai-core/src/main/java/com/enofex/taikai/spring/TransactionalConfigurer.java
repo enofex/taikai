@@ -1,6 +1,6 @@
 package com.enofex.taikai.spring;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.spring.ReadOnlyTransactionalMethods.beReadOnly;
 import static com.enofex.taikai.spring.SelfInvokedProxiedMethods.notSelfInvokeMethodsAnnotatedWith;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATIONS_TRANSACTIONAL;
@@ -13,11 +13,11 @@ import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -97,7 +97,7 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
    * dependencies.</p>
    *
    * @param methods the methods to check, selected with
-   *     {@link com.enofex.taikai.MethodCriteria}, for example
+   *     {@link com.enofex.taikai.core.MethodCriteria}, for example
    *     {@code MethodCriteria.nameMatching("(find|get|count).*")}, or an ArchUnit predicate
    * @return this configurer for fluent chaining
    * @throws IllegalStateException if spring-tx or spring-context is not on the classpath

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
+import com.enofex.taikai.core.TaikaiRule;
 import org.junit.jupiter.api.Test;
 
 class TaikaiExtensionsTest {

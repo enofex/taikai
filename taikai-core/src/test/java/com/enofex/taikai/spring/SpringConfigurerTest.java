@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import jakarta.inject.Inject;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

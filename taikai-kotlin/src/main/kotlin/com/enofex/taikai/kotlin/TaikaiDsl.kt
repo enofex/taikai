@@ -1,9 +1,9 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.ChecksConfigurer
-import com.enofex.taikai.ExportsConfigurer
 import com.enofex.taikai.Taikai
-import com.enofex.taikai.TaikaiRule
+import com.enofex.taikai.checks.ChecksConfigurer
+import com.enofex.taikai.core.TaikaiRule
+import com.enofex.taikai.exports.ExportsConfigurer
 import com.enofex.taikai.java.JavaConfigurer
 import com.enofex.taikai.jpa.JpaConfigurer
 import com.enofex.taikai.logging.LoggingConfigurer

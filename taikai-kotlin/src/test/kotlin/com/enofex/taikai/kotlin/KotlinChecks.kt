@@ -1,7 +1,7 @@
 package com.enofex.taikai.kotlin
 
-import com.enofex.taikai.Namespace
 import com.enofex.taikai.Taikai
+import com.enofex.taikai.core.Namespace
 import com.enofex.taikai.metrics.MetricsConfigurer
 import com.tngtech.archunit.core.domain.JavaClasses
 import org.junit.jupiter.api.assertDoesNotThrow

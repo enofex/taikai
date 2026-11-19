@@ -1,6 +1,5 @@
 package com.enofex.taikai.exports;
 
-import com.enofex.taikai.ExportsConfigurer;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.exports.spi.TaikaiExport;
 import java.util.ServiceLoader;

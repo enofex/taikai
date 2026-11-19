@@ -1,4 +1,4 @@
-package com.enofex.taikai;
+package com.enofex.taikai.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -61,9 +61,9 @@ class ClassCriteriaTest {
 
   @Test
   void shouldMatchPackagesUsingArchUnitSyntax() {
-    assertTrue(ClassCriteria.inPackage("com.enofex.taikai").test(USER_DTO));
+    assertTrue(ClassCriteria.inPackage("com.enofex.taikai.core").test(USER_DTO));
     assertTrue(ClassCriteria.inPackage("com.enofex..").test(USER_DTO));
-    assertTrue(ClassCriteria.inPackage("com.*.taikai").test(USER_DTO));
+    assertTrue(ClassCriteria.inPackage("com.*.taikai.core").test(USER_DTO));
     assertFalse(ClassCriteria.inPackage("com.company.internal..").test(USER_DTO));
   }
 
@@ -71,7 +71,7 @@ class ClassCriteriaTest {
   void shouldComposeCriteriaWithAndAndOr() {
     JavaClass imported = new ClassFileImporter().importClass(UserEntity.class);
     assertTrue(ClassCriteria.annotatedWith(Entity.class)
-        .and(ClassCriteria.inPackage("com.enofex.taikai")).test(imported));
+        .and(ClassCriteria.inPackage("com.enofex.taikai.core")).test(imported));
     assertTrue(ClassCriteria.nameMatching(".*DTO").or(ClassCriteria.annotatedWith(Entity.class))
         .test(imported));
     assertFalse(ClassCriteria.nameMatching(".*DTO").and(ClassCriteria.annotatedWith(Entity.class))

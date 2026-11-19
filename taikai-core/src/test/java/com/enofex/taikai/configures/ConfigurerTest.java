@@ -3,7 +3,7 @@ package com.enofex.taikai.configures;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import com.tngtech.archunit.lang.ArchRule;
 import java.util.ArrayList;
 import java.util.Collection;

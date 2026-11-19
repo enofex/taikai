@@ -1,30 +1,40 @@
-package com.enofex.taikai;
+package com.enofex.taikai.exports;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
 import static java.util.Objects.requireNonNull;
 
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
+import com.enofex.taikai.internal.Services;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.EvaluationResult;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 
 final class PerExportContext implements ExportContext {
 
-  private final Taikai taikai;
   private final Path projectDirectory;
   private final Class<? extends TaikaiExport> export;
   private final @Nullable Object configuration;
+  private final @Nullable String namespace;
+  private final Supplier<JavaClasses> classes;
+  private final Collection<TaikaiRule> rules;
+  private final Function<TaikaiRule, EvaluationResult> evaluate;
 
-  PerExportContext(Taikai taikai, Path projectDirectory, Class<? extends TaikaiExport> export,
-      @Nullable Object configuration) {
-    this.taikai = requireNonNull(taikai);
+  PerExportContext(Path projectDirectory, Class<? extends TaikaiExport> export,
+      @Nullable Object configuration, @Nullable String namespace, Supplier<JavaClasses> classes,
+      Collection<TaikaiRule> rules, Function<TaikaiRule, EvaluationResult> evaluate) {
     this.projectDirectory = requireNonNull(projectDirectory);
     this.export = requireNonNull(export);
     this.configuration = configuration;
+    this.namespace = namespace;
+    this.classes = requireNonNull(classes);
+    this.rules = requireNonNull(rules);
+    this.evaluate = requireNonNull(evaluate);
   }
 
   @Override
@@ -39,44 +49,31 @@ final class PerExportContext implements ExportContext {
 
   @Override
   public @Nullable String namespace() {
-    return this.taikai.namespace();
+    return this.namespace;
   }
 
   @Override
   public JavaClasses classes() {
-    return TaikaiRule.javaClasses(defaultConfiguration(), this.taikai.namespace(),
-        this.taikai.classes(), this.taikai.excludedClasses(), this.taikai.excludedCriteria());
+    return this.classes.get();
   }
 
   @Override
   public Collection<TaikaiRule> rules() {
-    return this.taikai.rules();
+    return this.rules;
   }
 
   @Override
   public EvaluationResult evaluate(TaikaiRule rule) {
-    return rule.archRule().evaluate(rule.javaClasses(this.taikai.namespace(),
-        this.taikai.classes(), this.taikai.excludedClasses(), this.taikai.excludedCriteria()));
+    return this.evaluate.apply(rule);
   }
 
   @Override
   public ClassLoader classLoader() {
-    return Taikai.classLoader();
+    return Services.classLoader();
   }
 
   @Override
   public <T> Optional<T> configuration(Class<T> type) {
-    requireNonNull(type);
-
-    if (this.configuration == null) {
-      return Optional.empty();
-    }
-
-    if (!type.isInstance(this.configuration)) {
-      throw new IllegalStateException("Export %s is configured with %s, not with %s".formatted(
-          this.export.getName(), this.configuration.getClass().getName(), type.getName()));
-    }
-
-    return Optional.of(type.cast(this.configuration));
+    return Services.configuration("export", this.export, this.configuration, type);
   }
 }

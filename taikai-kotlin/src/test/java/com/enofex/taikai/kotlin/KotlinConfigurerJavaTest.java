@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.kotlin.fixtures.GoodDto;
 import com.enofex.taikai.kotlin.fixtures.Plain;
 import com.tngtech.archunit.core.importer.ClassFileImporter;

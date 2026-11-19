@@ -1,6 +1,6 @@
 package com.enofex.taikai;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 
 import com.enofex.taikai.checks.ClassFileVersionCheck;
 import com.enofex.taikai.checks.FileContentCheck;
@@ -11,6 +11,9 @@ import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.ForwardingCheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.FieldCriteria;
+import com.enofex.taikai.core.MethodCriteria;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.java.NullMarking;
 import com.enofex.taikai.test.TestConfigurer;
@@ -211,13 +214,13 @@ class Usage {
                 .shouldHaveNoCycles()
                 .shouldHaveNoCycles(defaultConfiguration())
 
-                .shouldImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"))
-                .shouldImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"), defaultConfiguration())
+                .shouldImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.core.TaikaiException"))
+                .shouldImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.core.TaikaiException"), defaultConfiguration())
 
-                .shouldNotImport(ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"))
-                .shouldNotImport(ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"), defaultConfiguration())
-                .shouldNotImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"))
-                .shouldNotImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.TaikaiException"), defaultConfiguration()))
+                .shouldNotImport(ClassCriteria.nameMatching("com.enofex.taikai.core.TaikaiException"))
+                .shouldNotImport(ClassCriteria.nameMatching("com.enofex.taikai.core.TaikaiException"), defaultConfiguration())
+                .shouldNotImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.core.TaikaiException"))
+                .shouldNotImport(ClassCriteria.nameMatching(".*ImportsConfigurer"), ClassCriteria.nameMatching("com.enofex.taikai.core.TaikaiException"), defaultConfiguration()))
 
             .naming(naming -> naming
                 .booleanMethodsShouldStartWith()

@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiRule.Configuration;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.MethodCriteria;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.enofex.taikai.metrics.fixtures.nesting.CustomerService;
 import com.enofex.taikai.metrics.fixtures.shop.app.OrderService;
 import com.tngtech.archunit.core.domain.JavaClasses;

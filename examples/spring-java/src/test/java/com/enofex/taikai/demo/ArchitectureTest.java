@@ -3,14 +3,14 @@ package com.enofex.taikai.demo;
 import static com.tngtech.archunit.core.domain.JavaModifier.PUBLIC;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
-import com.enofex.taikai.ClassCriteria;
-import com.enofex.taikai.FieldCriteria;
-import com.enofex.taikai.MethodCriteria;
 import com.enofex.taikai.Taikai;
-import com.enofex.taikai.TaikaiRule;
 import com.enofex.taikai.checks.ClassFileVersionCheck;
 import com.enofex.taikai.checks.ForbiddenFilesCheck;
 import com.enofex.taikai.checks.RequiredFilesCheck;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.FieldCriteria;
+import com.enofex.taikai.core.MethodCriteria;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.java.ImportPatterns;
 import com.enofex.taikai.spring.TransactionalConfigurer;
 import java.text.SimpleDateFormat;

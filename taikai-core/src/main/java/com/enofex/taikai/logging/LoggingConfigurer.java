@@ -1,15 +1,15 @@
 package com.enofex.taikai.logging;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.haveFieldOfType;
 import static com.enofex.taikai.logging.LoggerConventions.followLoggerConventions;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
-import com.enofex.taikai.TaikaiRule;
-import com.enofex.taikai.TaikaiRule.Configuration;
 import com.enofex.taikai.configures.AbstractConfigurer;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
+import com.enofex.taikai.core.TaikaiRule;
+import com.enofex.taikai.core.TaikaiRule.Configuration;
 import com.enofex.taikai.internal.Modifiers;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -45,7 +45,7 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * given as a class.
    *
    * @param classes the classes expected to use the logger, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param clazz the logger type, for example {@code org.slf4j.Logger.class}
    * @return this configurer for fluent chaining
    */
@@ -74,7 +74,7 @@ public final class LoggingConfigurer extends AbstractConfigurer implements Disab
    * type does not.
    *
    * @param classes the classes expected to use the logger, selected with
-   *     {@link com.enofex.taikai.ClassCriteria} or an ArchUnit predicate
+   *     {@link com.enofex.taikai.core.ClassCriteria} or an ArchUnit predicate
    * @param typeName the fully qualified logger type, for example {@code org.slf4j.Logger}
    * @return this configurer for fluent chaining
    */

@@ -14,6 +14,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.enofex.taikai.configures.Configurer;
+import com.enofex.taikai.core.ClassCriteria;
+import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.java.JavaConfigurer;
 import com.enofex.taikai.jpa.JpaConfigurer;
 import com.enofex.taikai.logging.LoggingConfigurer;

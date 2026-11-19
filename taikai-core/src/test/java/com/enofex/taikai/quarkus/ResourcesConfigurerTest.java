@@ -1,16 +1,16 @@
 package com.enofex.taikai.quarkus;
 
-import static com.enofex.taikai.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.Configurers;
 import com.enofex.taikai.configures.Customizer;
+import com.enofex.taikai.core.ClassCriteria;
 import jakarta.ws.rs.Path;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Named;
