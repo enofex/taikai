@@ -1,6 +1,7 @@
 package com.enofex.taikai.quarkus;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_INJECT;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithInject;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
@@ -66,7 +67,7 @@ public final class QuarkusConfigurer extends AbstractConfigurer implements Disab
     return addRule(TaikaiRule.of(noFields()
         .should(be(annotatedWithInject(true)))
         .as("No fields should be annotated with %s, use constructor injection".formatted(
-            QuarkusDescribedPredicates.ANNOTATION_INJECT)), configuration));
+            ANNOTATION_INJECT)), configuration));
   }
 
   /**

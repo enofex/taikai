@@ -10,9 +10,6 @@ import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CONFIGURAT
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CONFIGURATION_PROPERTIES;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CONTROLLER;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_DATA_REPOSITORY;
-import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAKARTA_INJECT;
-import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAKARTA_TRANSACTIONAL;
-import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAVAX_INJECT;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_POST_AUTHORIZE;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_PRE_AUTHORIZE;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REPOSITORY;
@@ -23,6 +20,7 @@ import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_SPRING_BOO
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_TRANSACTIONAL;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_VALUE;
 
+import com.enofex.taikai.internal.JakartaAnnotations;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.properties.HasName;
@@ -38,7 +36,7 @@ final class SpringDescribedPredicates {
    */
   static final Collection<String> ANNOTATIONS_APPLIED_BY_PROXY = List.of(
       ANNOTATION_TRANSACTIONAL,
-      ANNOTATION_JAKARTA_TRANSACTIONAL,
+      JakartaAnnotations.ANNOTATION_TRANSACTIONAL,
       ANNOTATION_ASYNC,
       ANNOTATION_CACHEABLE,
       ANNOTATION_CACHE_EVICT,
@@ -49,7 +47,7 @@ final class SpringDescribedPredicates {
 
   static final Collection<String> ANNOTATIONS_TRANSACTIONAL = List.of(
       ANNOTATION_TRANSACTIONAL,
-      ANNOTATION_JAKARTA_TRANSACTIONAL);
+      JakartaAnnotations.ANNOTATION_TRANSACTIONAL);
 
   /**
    * Annotations whose injection Spring silently skips on static fields and methods.
@@ -57,8 +55,8 @@ final class SpringDescribedPredicates {
   static final Collection<String> ANNOTATIONS_INJECTION = List.of(
       ANNOTATION_AUTOWIRED,
       ANNOTATION_VALUE,
-      ANNOTATION_JAKARTA_INJECT,
-      ANNOTATION_JAVAX_INJECT);
+      JakartaAnnotations.ANNOTATION_INJECT,
+      JakartaAnnotations.ANNOTATION_JAVAX_INJECT);
 
   private SpringDescribedPredicates() {
   }
@@ -113,6 +111,6 @@ final class SpringDescribedPredicates {
 
   static DescribedPredicate<CanBeAnnotated> annotatedWithTransactional(boolean isMetaAnnotated) {
     return annotatedWith(ANNOTATION_TRANSACTIONAL, isMetaAnnotated)
-        .or(annotatedWith(ANNOTATION_JAKARTA_TRANSACTIONAL, isMetaAnnotated));
+        .or(annotatedWith(JakartaAnnotations.ANNOTATION_TRANSACTIONAL, isMetaAnnotated));
   }
 }

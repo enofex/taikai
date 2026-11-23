@@ -3,7 +3,7 @@ package com.enofex.taikai.jpa;
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
 import static com.enofex.taikai.internal.ArchConditions.haveFieldMatching;
 import static com.enofex.taikai.internal.ArchConditions.notHaveFieldTypesMatching;
-import static com.enofex.taikai.jpa.JpaDescribedPredicates.ANNOTATION_VERSION;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_VERSION;
 import static com.enofex.taikai.jpa.JpaDescribedPredicates.annotatedWithEntity;
 import static com.enofex.taikai.jpa.JpaDescribedPredicates.annotatedWithEntityOrMappedSuperclass;
 import static com.enofex.taikai.jpa.JpaDescribedPredicates.annotatedWithIdOrEmbeddedId;

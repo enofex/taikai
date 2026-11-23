@@ -1,6 +1,7 @@
 package com.enofex.taikai.kotlin
 
 import com.enofex.taikai.core.TaikaiRule
+import com.enofex.taikai.exports.EntryPoints
 import com.enofex.taikai.exports.MetricsMarkdownExport
 import com.enofex.taikai.exports.spi.ExportContext
 import com.enofex.taikai.exports.spi.TaikaiExport
@@ -38,6 +39,20 @@ class MetricsMarkdownExportKotlinTest {
         assertTrue(markdown.contains("| Libraries | 0 |"), markdown)
     }
 
+    @Test
+    fun `entry points with default arguments and in companion objects count once`() {
+        val file = directory.resolve("METRICS.md")
+        val classes = ClassFileImporter().importClasses(Jobs::class.java, Jobs.Companion::class.java)
+
+        MetricsMarkdownExport().export(context(classes, MetricsMarkdownExport.file(file.toString())
+            .withEntryPoints(EntryPoints.annotatedWith(Job::class.java))))
+
+        val markdown = Files.readString(file)
+
+        assertTrue(markdown.contains("| `MetricsMarkdownExportKotlinTest\$Jobs` | 2 | Job 2 | 0 |"),
+            markdown)
+    }
+
     /** The context of the export, which Taikai provides when it discovers and runs the export. */
     private fun context(classes: JavaClasses, settings: MetricsMarkdownExport.Settings) =
         object : ExportContext {
@@ -56,6 +71,23 @@ class MetricsMarkdownExportKotlinTest {
                     Optional.empty()
                 }
         }
+
+    annotation class Job
+
+    /**
+     * The compiler adds the static `refresh${'$'}default` for the default argument, and a static
+     * `cleanup` to this class that calls the one of the companion object.
+     */
+    class Jobs {
+        @Job
+        fun refresh(force: Boolean = false) = force
+
+        companion object {
+            @Job
+            @JvmStatic
+            fun cleanup() = Unit
+        }
+    }
 
     /** Calls [add] with its default argument through a function that the compiler generates. */
     class DefaultArguments {

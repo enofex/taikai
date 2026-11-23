@@ -1,9 +1,9 @@
 package com.enofex.taikai.internal;
 
 /**
- * The names of the annotations of Spring, and of those of Jakarta and {@code javax} that Spring
- * supports, which the rules look for. They are names rather than classes, so that
- * Spring need not be on the classpath.
+ * The names of the annotations of Spring, which the rules and exports look for. They are names
+ * rather than classes, so that Spring need not be on the classpath. Those of Jakarta EE that Spring
+ * supports are in {@link JakartaAnnotations}.
  */
 public final class SpringAnnotations {
 
@@ -24,10 +24,10 @@ public final class SpringAnnotations {
       "org.springframework.beans.factory.annotation.Autowired";
   public static final String ANNOTATION_VALUE =
       "org.springframework.beans.factory.annotation.Value";
-  public static final String ANNOTATION_JAKARTA_INJECT = "jakarta.inject.Inject";
-  public static final String ANNOTATION_JAVAX_INJECT = "javax.inject.Inject";
   public static final String ANNOTATION_VALIDATED =
       "org.springframework.validation.annotation.Validated";
+  public static final String ANNOTATION_REQUEST_MAPPING =
+      "org.springframework.web.bind.annotation.RequestMapping";
   public static final String ANNOTATION_REQUEST_BODY =
       "org.springframework.web.bind.annotation.RequestBody";
   public static final String ANNOTATION_REQUEST_PART =
@@ -40,8 +40,6 @@ public final class SpringAnnotations {
       "org.springframework.web.bind.annotation.ModelAttribute";
   public static final String ANNOTATION_TRANSACTIONAL =
       "org.springframework.transaction.annotation.Transactional";
-  public static final String ANNOTATION_JAKARTA_TRANSACTIONAL =
-      "jakarta.transaction.Transactional";
   public static final String ANNOTATION_ASYNC = "org.springframework.scheduling.annotation.Async";
   public static final String ANNOTATION_CACHEABLE =
       "org.springframework.cache.annotation.Cacheable";

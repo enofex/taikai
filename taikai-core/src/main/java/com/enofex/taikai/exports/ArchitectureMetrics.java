@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
@@ -32,18 +33,20 @@ import java.util.TreeMap;
  * @param prefix the package that all packages share, or empty
  * @param layeredOrder the packages from top to bottom, each above the packages it depends on,
  *     except where a dependency closes a cycle
+ * @param entryPoints the classes with entry points, none if no {@link EntryPoints} are given
  */
 record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<ClassMetric> classes,
     List<InheritanceMetric> inheritance, List<CohesionMetric> cohesion,
     List<PackageDependency> packageDependencies, List<PackageCycle> packageCycles,
-    List<String> layeredOrder, List<LibraryUsage> libraryUsages) {
+    List<String> layeredOrder, List<LibraryUsage> libraryUsages,
+    List<EntryPointMetric> entryPoints) {
 
   /**
    * Packages farther from the main sequence are in a zone.
    */
   static final double ZONE_DISTANCE = 0.5;
 
-  static ArchitectureMetrics of(JavaClasses javaClasses) {
+  static ArchitectureMetrics of(JavaClasses javaClasses, List<EntryPoints> entryPoints) {
     Map<String, JavaClass> measured = new TreeMap<>();
     javaClasses.stream()
         .filter(javaClass -> !isSynthetic(javaClass))
@@ -77,17 +80,19 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     Packages packages = new Packages(topLevelClasses, graph);
     List<PackageDependency> packageDependencies = packages.dependencies();
     String prefix = commonPrefix(packages.names());
+    List<ClassMetric> classMetrics = classMetrics(topLevelClasses, graph);
 
     return new ArchitectureMetrics(
         prefix,
         packages.metrics(),
-        classMetrics(topLevelClasses, graph),
+        classMetrics,
         inheritanceMetrics(measured),
         Cohesion.of(measured.values()),
         packageDependencies,
         packages.cycles(packageDependencies),
         packages.layeredOrder(),
-        Libraries.usages(measured.values(), topLevelClassOf, prefix, packages.names()));
+        Libraries.usages(measured.values(), topLevelClassOf, prefix, packages.names()),
+        EntryPointMethods.metrics(measured, topLevelClassOf, classMetrics, entryPoints));
   }
 
   /**
@@ -118,6 +123,10 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
 
   int abstractClasses() {
     return this.packages.stream().mapToInt(PackageMetric::abstractClasses).sum();
+  }
+
+  int entryPointMethods() {
+    return this.entryPoints.stream().mapToInt(EntryPointMetric::methods).sum();
   }
 
   /**
@@ -309,6 +318,18 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
    * Fan-in and fan-out of a top-level class together with its nested classes.
    */
   record ClassMetric(String name, int fanIn, int fanOut) {
+
+  }
+
+  /**
+   * The methods of a top-level class and its nested classes that a framework calls.
+   *
+   * @param fanIn the fan-in of the class, as its {@link ClassMetric} counts it
+   * @param methods the number of methods
+   * @param kinds the number of methods of every kind, such as {@code GET}, by kind
+   */
+  record EntryPointMetric(String name, String packageName, int fanIn, int methods,
+      SortedMap<String, Integer> kinds) {
 
   }
 

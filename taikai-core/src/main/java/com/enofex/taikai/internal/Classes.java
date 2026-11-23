@@ -1,11 +1,15 @@
 package com.enofex.taikai.internal;
 
+import static java.util.stream.Collectors.joining;
+
 import com.tngtech.archunit.core.domain.AccessTarget.MethodCallTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
+import com.tngtech.archunit.core.domain.properties.HasName;
+import com.tngtech.archunit.core.domain.properties.HasParameterTypes;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -80,14 +84,29 @@ public final class Classes {
    * method {@code save(Object)} that the compiler generates for it.
    *
    * @param bridge the bridge method
-   * @return the method of the same name and class that the bridge method calls, or empty if there
-   *     is none
+   * @return the method of the same name that the bridge method calls on the class or one of its
+   *     supertypes, which declares the method when the class inherits it, or empty if there is
+   *     none
    */
   public static Optional<MethodCallTarget> bridgeTarget(JavaMethod bridge) {
     return bridge.getMethodCallsFromSelf().stream()
         .map(JavaMethodCall::getTarget)
-        .filter(target -> target.getOwner().equals(bridge.getOwner())
-            && target.getName().equals(bridge.getName()))
+        .filter(target -> target.getName().equals(bridge.getName())
+            && bridge.getOwner().isAssignableTo(target.getOwner().getName()))
         .findFirst();
+  }
+
+  /**
+   * Returns the signature of a method after erasure, by which it overrides a method of the same
+   * signature, together with {@link #bridgeTarget(JavaMethod)} for a method of a generic type.
+   *
+   * @param method the method, or the target of a call to it
+   * @param <T> the type of the method
+   * @return the name and the raw parameter types, such as {@code save(java.lang.String)}
+   */
+  public static <T extends HasName & HasParameterTypes> String signature(T method) {
+    return method.getName() + method.getRawParameterTypes().stream()
+        .map(JavaClass::getName)
+        .collect(joining(",", "(", ")"));
   }
 }

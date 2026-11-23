@@ -123,18 +123,21 @@ core.TaikaiRule</title>
     <text x="205.6" y="291.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">5</text>
   </g>
   <g class="library-cell" data-package="exports" data-library="com.tngtech">
-    <title>exports uses com.tngtech: 9 classes
+    <title>exports uses com.tngtech: 12 classes
 exports.AgentsMarkdownExport
 exports.ArchitectureMetrics
 exports.Cohesion
+exports.EntryPointMethods
+exports.EntryPoints
 exports.ExportsConfigurer
 exports.Libraries
 exports.MetricsMarkdownExport
 exports.PerExportContext
 exports.SarifExport
-exports.SourceFiles</title>
-    <rect x="192.6" y="386.2" width="26" height="26" rx="3" fill="#1c5cab"/>
-    <text x="205.6" y="403.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">9</text>
+exports.SourceFiles
+exports.SpringMvcEntryPoints</title>
+    <rect x="192.6" y="386.2" width="26" height="26" rx="3" fill="#104281"/>
+    <text x="205.6" y="403.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">12</text>
   </g>
   <g class="library-cell" data-package="exports.spi" data-library="com.tngtech">
     <title>exports.spi uses com.tngtech: 1 class
@@ -163,7 +166,13 @@ java.ImportPatterns
 java.ImportsConfigurer
 java.InterfaceNaming
 java.JavaConfigurer
-java.NamingConfigurer</title>
+java.NamingConfigurer
+java.NoSystemOutOrErr
+java.NullMarkedScopes
+java.PackageNaming
+java.ProtectedMembers
+java.SerialVersionUID
+java.UtilityClasses</title>
     <rect x="192.6" y="414.2" width="26" height="26" rx="3" fill="#104281"/>
     <text x="205.6" y="431.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">16</text>
   </g>
@@ -211,7 +220,12 @@ spring.ReadOnlyTransactionalMethods
 spring.RepositoriesConfigurer
 spring.SelfInvokedProxiedMethods
 spring.ServicesConfigurer
-spring.SpringConfigurer</title>
+spring.SpringConfigurer
+spring.SpringDescribedPredicates
+spring.TransactionalConfigurer
+spring.TransactionalControllers
+spring.ValidatedController
+spring.ValidatedRequestBodies</title>
     <rect x="192.6" y="554.2" width="26" height="26" rx="3" fill="#104281"/>
     <text x="205.6" y="571.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">15</text>
   </g>
