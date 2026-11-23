@@ -2,6 +2,7 @@ package com.enofex.taikai.checks;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
+import com.enofex.taikai.internal.Arguments;
 import java.util.List;
 
 /**
@@ -70,7 +71,7 @@ public final class GradleWrapperCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no directory is given
      */
     public Settings {
-      directories = CheckSettings.requireNotEmpty(directories,
+      directories = Arguments.requireNotEmpty(directories,
           "At least one directory must be given");
     }
   }

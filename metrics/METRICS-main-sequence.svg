@@ -75,79 +75,84 @@
   <text x="34" y="332" text-anchor="middle" class="ink-2" transform="rotate(-90 34 332)">Abstractness (A)</text>
   <text x="34" y="72" text-anchor="end" class="muted" transform="rotate(-90 34 72)">abstract →</text>
   <g class="dot" data-zone="balanced">
-    <title>checks: I = 0.91, A = 0.00, D = 0.09, 12 classes
-java: I = 0.91, A = 0.00, D = 0.09, 17 classes</title>
-    <circle cx="565.2" cy="592" r="14" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="565.2" y="572" text-anchor="middle" class="ink halo" font-weight="500">checks, java</text>
+    <title>java: I = 0.92, A = 0.00, D = 0.08, 17 classes</title>
+    <circle cx="570.4" cy="592" r="14" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="570.4" y="572" text-anchor="middle" class="ink halo" font-weight="500">java</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>exports: I = 0.89, A = 0.00, D = 0.11, 16 classes</title>
-    <line x1="554.8" y1="592" x2="554.8" y2="546.31" class="leader"/>
-    <circle cx="554.8" cy="592" r="11.69" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="554.8" y="542.31" text-anchor="middle" class="ink halo" font-weight="500">exports</text>
+    <line x1="554.8" y1="592" x2="554.8" y2="560.27" class="leader"/>
+    <circle cx="554.8" cy="592" r="13.73" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="554.8" y="556.27" text-anchor="middle" class="ink halo" font-weight="500">exports</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>spring: I = 0.93, A = 0.00, D = 0.07, 15 classes</title>
-    <line x1="575.6" y1="592" x2="575.6" y2="530.53" class="leader"/>
-    <circle cx="575.6" cy="592" r="11.47" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="575.6" y="526.53" text-anchor="middle" class="ink halo" font-weight="500">spring</text>
+    <line x1="575.6" y1="592" x2="575.6" y2="544.55" class="leader"/>
+    <circle cx="575.6" cy="592" r="13.45" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="575.6" y="540.55" text-anchor="middle" class="ink halo" font-weight="500">spring</text>
+  </g>
+  <g class="dot" data-zone="balanced">
+    <title>checks: I = 0.91, A = 0.00, D = 0.09, 11 classes</title>
+    <line x1="565.2" y1="592" x2="565.2" y2="513.76" class="leader"/>
+    <circle cx="565.2" cy="592" r="12.24" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="565.2" y="509.76" text-anchor="middle" class="ink halo" font-weight="500">checks</text>
   </g>
   <g class="dot" data-zone="pain">
-    <title>internal: I = 0.00, A = 0.00, D = 1.00, 7 classes</title>
-    <line x1="92" y1="592" x2="96" y2="548.58" class="leader"/>
-    <circle cx="92" cy="592" r="9.42" class="pain ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="96" y="544.58" text-anchor="start" class="ink halo" font-weight="500">internal</text>
+    <title>internal: I = 0.00, A = 0.00, D = 1.00, 10 classes</title>
+    <line x1="92" y1="592" x2="96" y2="546.1" class="leader"/>
+    <circle cx="92" cy="592" r="11.9" class="pain ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="96" y="542.1" text-anchor="start" class="ink halo" font-weight="500">internal</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>configures: I = 0.08, A = 0.67, D = 0.25, 6 classes</title>
-    <circle cx="133.6" cy="243.6" r="9.09" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="146.69" y="247.6" text-anchor="start" class="ink halo" font-weight="500">configures</text>
+    <circle cx="133.6" cy="243.6" r="10.35" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="147.95" y="247.6" text-anchor="start" class="ink halo" font-weight="500">configures</text>
   </g>
   <g class="dot" data-zone="pain">
     <title>core: I = 0.12, A = 0.00, D = 0.88, 6 classes</title>
-    <line x1="154.4" y1="592" x2="158.4" y2="548.91" class="leader"/>
-    <circle cx="154.4" cy="592" r="9.09" class="pain ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="158.4" y="544.91" text-anchor="start" class="ink halo" font-weight="500">core</text>
+    <line x1="154.4" y1="592" x2="158.4" y2="547.65" class="leader"/>
+    <circle cx="154.4" cy="592" r="10.35" class="pain ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="158.4" y="543.65" text-anchor="start" class="ink halo" font-weight="500">core</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>jpa: I = 0.75, A = 0.00, D = 0.25, 3 classes
 metrics: I = 0.75, A = 0.00, D = 0.25, 3 classes</title>
-    <circle cx="482" cy="592" r="9.09" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="482" y="576.91" text-anchor="middle" class="ink halo" font-weight="500">jpa, metrics</text>
+    <circle cx="482" cy="592" r="10.35" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="482" y="575.65" text-anchor="middle" class="ink halo" font-weight="500">jpa, metrics</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>quarkus: I = 0.83, A = 0.00, D = 0.17, 6 classes</title>
-    <line x1="523.6" y1="592" x2="519.6" y2="564.91" class="leader"/>
-    <circle cx="523.6" cy="592" r="9.09" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="519.6" y="560.91" text-anchor="end" class="ink halo" font-weight="500">quarkus</text>
+    <line x1="523.6" y1="592" x2="519.6" y2="563.65" class="leader"/>
+    <circle cx="523.6" cy="592" r="10.35" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="519.6" y="559.65" text-anchor="end" class="ink halo" font-weight="500">quarkus</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>test: I = 0.86, A = 0.00, D = 0.14, 6 classes</title>
-    <line x1="539.2" y1="592" x2="539.2" y2="516.91" class="leader"/>
-    <circle cx="539.2" cy="592" r="9.09" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="539.2" y="512.91" text-anchor="middle" class="ink halo" font-weight="500">test</text>
+    <line x1="539.2" y1="592" x2="539.2" y2="531.65" class="leader"/>
+    <circle cx="539.2" cy="592" r="10.35" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="539.2" y="527.65" text-anchor="middle" class="ink halo" font-weight="500">test</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>checks.spi: I = 0.00, A = 1.00, D = 0.00, 3 classes</title>
-    <line x1="92" y1="72" x2="96" y2="98.89" class="leader"/>
-    <circle cx="92" cy="72" r="7.89" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="96" y="110.89" text-anchor="start" class="ink halo" font-weight="500">checks.spi</text>
+    <line x1="92" y1="72" x2="96" y2="99.78" class="leader"/>
+    <circle cx="92" cy="72" r="8.78" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="96" y="111.78" text-anchor="start" class="ink halo" font-weight="500">checks.spi</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>com.enofex.taikai: I = 1.00, A = 0.00, D = 0.00, 2 classes</title>
-    <line x1="612" y1="592" x2="608" y2="486.64" class="leader"/>
-    <circle cx="612" cy="592" r="7.36" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="608" y="482.64" text-anchor="end" class="ink halo" font-weight="500">com.enofex.taikai</text>
+    <line x1="612" y1="592" x2="608" y2="485.91" class="leader"/>
+    <circle cx="612" cy="592" r="8.09" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="608" y="481.91" text-anchor="end" class="ink halo" font-weight="500">com.enofex.taikai</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>exports.spi: I = 0.13, A = 1.00, D = 0.13, 2 classes</title>
-    <circle cx="159.6" cy="72" r="7.36" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="159.6" y="94.36" text-anchor="middle" class="ink halo" font-weight="500">exports.spi</text>
+    <circle cx="159.6" cy="72" r="8.09" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="159.6" y="95.09" text-anchor="middle" class="ink halo" font-weight="500">exports.spi</text>
   </g>
   <g class="dot" data-zone="balanced">
     <title>logging: I = 0.67, A = 0.00, D = 0.33, 2 classes</title>
-    <line x1="440.4" y1="592" x2="436.4" y2="566.64" class="leader"/>
-    <circle cx="440.4" cy="592" r="7.36" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
-    <text x="436.4" y="562.64" text-anchor="end" class="ink halo" font-weight="500">logging</text>
+    <line x1="440.4" y1="592" x2="436.4" y2="565.91" class="leader"/>
+    <circle cx="440.4" cy="592" r="8.09" class="balanced ring" fill-opacity="0.9" stroke-width="2"/>
+    <text x="436.4" y="561.91" text-anchor="end" class="ink halo" font-weight="500">logging</text>
   </g>
 </svg>

@@ -49,7 +49,7 @@ final class UtilityClasses {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         javaClass.getConstructors().stream()
-            .filter(constructor -> !Modifiers.isConstructorPrivate(constructor))
+            .filter(constructor -> !Modifiers.isPrivate(constructor))
             .forEach(constructor -> events.add(SimpleConditionEvent.violated(constructor,
                 "Constructor %s is not private".formatted(constructor.getFullName()))));
       }

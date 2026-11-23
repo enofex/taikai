@@ -29,11 +29,15 @@ class ModifiersTest {
 
   static Stream<Named<ModifierCheck<?>>> modifierChecks() {
     return Stream.of(
-        check("isClassFinal", JavaClass.class, JavaModifier.FINAL, Modifiers::isClassFinal),
-        check("isConstructorPrivate", JavaConstructor.class, JavaModifier.PRIVATE,
-            Modifiers::isConstructorPrivate),
-        check("isMethodProtected", JavaMethod.class, JavaModifier.PROTECTED,
-            Modifiers::isMethodProtected),
+        check("isFinal of a class", JavaClass.class, JavaModifier.FINAL, Modifiers::isFinal),
+        check("isFinal of a field", JavaField.class, JavaModifier.FINAL, Modifiers::isFinal),
+        check("isFinal of a method", JavaMethod.class, JavaModifier.FINAL, Modifiers::isFinal),
+        check("isPrivate of a constructor", JavaConstructor.class, JavaModifier.PRIVATE,
+            Modifiers::isPrivate),
+        check("isProtected of a method", JavaMethod.class, JavaModifier.PROTECTED,
+            Modifiers::isProtected),
+        check("isProtected of a field", JavaField.class, JavaModifier.PROTECTED,
+            Modifiers::isProtected),
         check("isStatic of a method", JavaMethod.class, JavaModifier.STATIC, Modifiers::isStatic),
         check("isStatic of a field", JavaField.class, JavaModifier.STATIC, Modifiers::isStatic),
         check("isPublic of a field", JavaField.class, JavaModifier.PUBLIC, Modifiers::isPublic),
@@ -45,10 +49,8 @@ class ModifiersTest {
             Modifiers::isAbstract),
         check("isAbstract of a method", JavaMethod.class, JavaModifier.ABSTRACT,
             Modifiers::isAbstract),
-        check("isFieldProtected", JavaField.class, JavaModifier.PROTECTED,
-            Modifiers::isFieldProtected),
-        check("isFieldFinal", JavaField.class, JavaModifier.FINAL, Modifiers::isFieldFinal),
         check("isSynthetic", HasModifiers.class, JavaModifier.SYNTHETIC, Modifiers::isSynthetic),
+        check("isBridge", HasModifiers.class, JavaModifier.BRIDGE, Modifiers::isBridge),
         check("isStatic", HasModifiers.class, JavaModifier.STATIC, Modifiers::isStatic));
   }
 

@@ -9,7 +9,7 @@ The metrics of `com.enofex.taikai`, measured by Taikai. Every package counts on 
 | Metric | Value |
 | --- | ---: |
 | Packages | 15 |
-| Classes | 106 |
+| Classes | 108 |
 | Abstract classes and interfaces | 9 |
 | Average distance from the main sequence | 0.25 |
 | Packages in the zone of pain | 2 |
@@ -47,14 +47,14 @@ Each tile is a package: its area is its number of classes and its color its zone
 | Package | Classes | Abstract | Ca | Ce | I | A | D | Visibility | Libraries | Zone |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
 | [`com.enofex.taikai`](taikai-core/src/main/java/com/enofex/taikai) | 2 | 0 | 0 | 2 | 1.00 | 0.00 | 0.00 | 0.50 | 2 |  |
-| [`checks`](taikai-core/src/main/java/com/enofex/taikai/checks) | 12 | 0 | 1 | 10 | 0.91 | 0.00 | 0.09 | 0.67 | 1 |  |
+| [`checks`](taikai-core/src/main/java/com/enofex/taikai/checks) | 11 | 0 | 1 | 10 | 0.91 | 0.00 | 0.09 | 0.73 | 1 |  |
 | [`checks.spi`](taikai-core/src/main/java/com/enofex/taikai/checks/spi) | 3 | 3 | 11 | 0 | 0.00 | 1.00 | 0.00 | 1.00 | 1 |  |
 | [`configures`](taikai-core/src/main/java/com/enofex/taikai/configures) | 6 | 4 | 22 | 2 | 0.08 | 0.67 | 0.25 | 1.00 | 0 |  |
 | [`core`](taikai-core/src/main/java/com/enofex/taikai/core) | 6 | 0 | 30 | 4 | 0.12 | 0.00 | 0.88 | 1.00 | 1 | pain |
 | [`exports`](taikai-core/src/main/java/com/enofex/taikai/exports) | 16 | 0 | 1 | 8 | 0.89 | 0.00 | 0.11 | 0.25 | 1 |  |
 | [`exports.spi`](taikai-core/src/main/java/com/enofex/taikai/exports/spi) | 2 | 2 | 7 | 1 | 0.13 | 1.00 | 0.13 | 1.00 | 1 |  |
-| [`internal`](taikai-core/src/main/java/com/enofex/taikai/internal) | 7 | 0 | 38 | 0 | 0.00 | 0.00 | 1.00 | 1.00 | 1 | pain |
-| [`java`](taikai-core/src/main/java/com/enofex/taikai/java) | 17 | 0 | 1 | 10 | 0.91 | 0.00 | 0.09 | 0.29 | 1 |  |
+| [`internal`](taikai-core/src/main/java/com/enofex/taikai/internal) | 10 | 0 | 46 | 0 | 0.00 | 0.00 | 1.00 | 1.00 | 1 | pain |
+| [`java`](taikai-core/src/main/java/com/enofex/taikai/java) | 17 | 0 | 1 | 11 | 0.92 | 0.00 | 0.08 | 0.29 | 1 |  |
 | [`jpa`](taikai-core/src/main/java/com/enofex/taikai/jpa) | 3 | 0 | 1 | 3 | 0.75 | 0.00 | 0.25 | 0.67 | 1 |  |
 | [`logging`](taikai-core/src/main/java/com/enofex/taikai/logging) | 2 | 0 | 1 | 2 | 0.67 | 0.00 | 0.33 | 0.50 | 1 |  |
 | [`metrics`](taikai-core/src/main/java/com/enofex/taikai/metrics) | 3 | 0 | 1 | 3 | 0.75 | 0.00 | 0.25 | 0.33 | 1 |  |
@@ -142,7 +142,7 @@ The fan-in of a class counts the classes that depend on it, its fan-out the clas
 | [`configures.ConfigurerContext`](taikai-core/src/main/java/com/enofex/taikai/configures/ConfigurerContext.java) | 23 |
 | [`configures.AbstractConfigurer`](taikai-core/src/main/java/com/enofex/taikai/configures/AbstractConfigurer.java) | 21 |
 | [`configures.DisableableConfigurer`](taikai-core/src/main/java/com/enofex/taikai/configures/DisableableConfigurer.java) | 21 |
-| [`internal.Modifiers`](taikai-core/src/main/java/com/enofex/taikai/internal/Modifiers.java) | 17 |
+| [`internal.Modifiers`](taikai-core/src/main/java/com/enofex/taikai/internal/Modifiers.java) | 18 |
 | [`checks.spi.CheckContext`](taikai-core/src/main/java/com/enofex/taikai/checks/spi/CheckContext.java) | 13 |
 | [`checks.spi.TaikaiCheck`](taikai-core/src/main/java/com/enofex/taikai/checks/spi/TaikaiCheck.java) | 12 |
 | [`spring.SpringDescribedPredicates`](taikai-core/src/main/java/com/enofex/taikai/spring/SpringDescribedPredicates.java) | 9 |

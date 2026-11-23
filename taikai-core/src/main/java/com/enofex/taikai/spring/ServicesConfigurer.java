@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_SERVICE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_SERVICE;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;

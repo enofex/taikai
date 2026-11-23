@@ -2,6 +2,7 @@ package com.enofex.taikai.checks;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
+import com.enofex.taikai.internal.Arguments;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -199,7 +200,7 @@ public final class FileContentCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no rule is given
      */
     public Settings {
-      rules = CheckSettings.requireNotEmpty(rules, "At least one rule must be given");
+      rules = Arguments.requireNotEmpty(rules, "At least one rule must be given");
     }
   }
 }

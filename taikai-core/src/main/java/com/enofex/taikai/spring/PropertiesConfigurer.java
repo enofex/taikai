@@ -1,8 +1,8 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_CONFIGURATION_PROPERTIES;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CONFIGURATION_PROPERTIES;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_VALIDATED;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithConfigurationProperties;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;

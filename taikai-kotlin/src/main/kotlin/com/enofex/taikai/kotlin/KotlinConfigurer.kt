@@ -4,6 +4,7 @@ import com.enofex.taikai.configures.AbstractConfigurer
 import com.enofex.taikai.configures.ConfigurerContext
 import com.enofex.taikai.core.TaikaiRule
 import com.enofex.taikai.core.TaikaiRule.Configuration
+import com.enofex.taikai.internal.KotlinAnnotations.ANNOTATION_METADATA
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.lang.ArchCondition
 import com.tngtech.archunit.lang.ConditionEvents
@@ -467,6 +468,6 @@ internal fun kotlinRule(
             check(item, declarations).forEach { events.add(SimpleConditionEvent.violated(item, it)) }
         }
     }
-    return TaikaiRule.of(classes().that().areAnnotatedWith("kotlin.Metadata")
+    return TaikaiRule.of(classes().that().areAnnotatedWith(ANNOTATION_METADATA)
         .should(condition).`as`(description), configuration)
 }

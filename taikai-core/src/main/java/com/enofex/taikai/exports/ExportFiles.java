@@ -3,6 +3,7 @@ package com.enofex.taikai.exports;
 import static java.util.Objects.requireNonNull;
 
 import com.enofex.taikai.exports.spi.ExportContext;
+import com.enofex.taikai.internal.Arguments;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -33,13 +34,7 @@ final class ExportFiles {
   }
 
   static List<String> requireDirectories(List<String> directories) {
-    List<String> required = List.copyOf(directories);
-
-    if (required.isEmpty()) {
-      throw new IllegalArgumentException("At least one source directory must be given");
-    }
-
-    return required;
+    return Arguments.requireNotEmpty(directories, "At least one source directory must be given");
   }
 
   /**

@@ -1,6 +1,27 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_ASYNC;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_AUTOWIRED;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CACHEABLE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CACHE_EVICT;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CACHE_PUT;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CONFIGURATION;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CONFIGURATION_PROPERTIES;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_CONTROLLER;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_DATA_REPOSITORY;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAKARTA_INJECT;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAKARTA_TRANSACTIONAL;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAVAX_INJECT;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_POST_AUTHORIZE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_PRE_AUTHORIZE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REPOSITORY;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REST_CONTROLLER;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_RETRYABLE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_SERVICE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_SPRING_BOOT_APPLICATION;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_TRANSACTIONAL;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_VALUE;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -10,43 +31,6 @@ import java.util.Collection;
 import java.util.List;
 
 final class SpringDescribedPredicates {
-
-  static final String ANNOTATION_CONFIGURATION =
-      "org.springframework.context.annotation.Configuration";
-  static final String ANNOTATION_CONFIGURATION_PROPERTIES =
-      "org.springframework.boot.context.properties.ConfigurationProperties";
-  static final String ANNOTATION_CONTROLLER = "org.springframework.stereotype.Controller";
-  static final String ANNOTATION_REST_CONTROLLER =
-      "org.springframework.web.bind.annotation.RestController";
-  static final String ANNOTATION_SERVICE = "org.springframework.stereotype.Service";
-  static final String ANNOTATION_REPOSITORY = "org.springframework.stereotype.Repository";
-  static final String ANNOTATION_DATA_REPOSITORY = "org.springframework.data.repository.Repository";
-  static final String ANNOTATION_SPRING_BOOT_APPLICATION =
-      "org.springframework.boot.autoconfigure.SpringBootApplication";
-  static final String ANNOTATION_AUTOWIRED =
-      "org.springframework.beans.factory.annotation.Autowired";
-  static final String ANNOTATION_VALUE = "org.springframework.beans.factory.annotation.Value";
-  static final String ANNOTATION_JAKARTA_INJECT = "jakarta.inject.Inject";
-  static final String ANNOTATION_JAVAX_INJECT = "javax.inject.Inject";
-  static final String ANNOTATION_VALIDATED = "org.springframework.validation.annotation.Validated";
-  static final String ANNOTATION_REQUEST_BODY =
-      "org.springframework.web.bind.annotation.RequestBody";
-  static final String ANNOTATION_REQUEST_PART =
-      "org.springframework.web.bind.annotation.RequestPart";
-  static final String ANNOTATION_MODEL_ATTRIBUTE =
-      "org.springframework.web.bind.annotation.ModelAttribute";
-  static final String ANNOTATION_TRANSACTIONAL =
-      "org.springframework.transaction.annotation.Transactional";
-  static final String ANNOTATION_JAKARTA_TRANSACTIONAL = "jakarta.transaction.Transactional";
-  static final String ANNOTATION_ASYNC = "org.springframework.scheduling.annotation.Async";
-  static final String ANNOTATION_CACHEABLE = "org.springframework.cache.annotation.Cacheable";
-  static final String ANNOTATION_CACHE_EVICT = "org.springframework.cache.annotation.CacheEvict";
-  static final String ANNOTATION_CACHE_PUT = "org.springframework.cache.annotation.CachePut";
-  static final String ANNOTATION_PRE_AUTHORIZE =
-      "org.springframework.security.access.prepost.PreAuthorize";
-  static final String ANNOTATION_POST_AUTHORIZE =
-      "org.springframework.security.access.prepost.PostAuthorize";
-  static final String ANNOTATION_RETRYABLE = "org.springframework.retry.annotation.Retryable";
 
   /**
    * Annotations whose behavior is applied by a Spring proxy and is therefore lost when the

@@ -1,5 +1,6 @@
 package com.enofex.taikai.kotlin
 
+import com.enofex.taikai.internal.KotlinAnnotations.ANNOTATION_METADATA
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaMember
 import com.tngtech.archunit.core.domain.JavaMethod
@@ -14,7 +15,7 @@ internal data class KotlinDeclarations(
 ) {
     companion object {
         fun read(owner: JavaClass): KotlinDeclarations {
-            val annotation = owner.getAnnotationOfType("kotlin.Metadata").`as`(Metadata::class.java)
+            val annotation = owner.getAnnotationOfType(ANNOTATION_METADATA).`as`(Metadata::class.java)
             return when (val metadata = KotlinClassMetadata.readStrict(annotation)) {
                 is KotlinClassMetadata.Class -> declarations(metadata.kmClass, metadata.kmClass)
                 is KotlinClassMetadata.FileFacade -> declarations(null, metadata.kmPackage)

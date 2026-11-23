@@ -1,9 +1,13 @@
 package com.enofex.taikai.internal;
 
+import com.tngtech.archunit.core.domain.AccessTarget.MethodCallTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
+import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -68,5 +72,22 @@ public final class Classes {
     return Stream.concat(codeUnit.getMethodCallsFromSelf().stream(),
             codeUnit.getMethodReferencesFromSelf().stream())
         .toList();
+  }
+
+  /**
+   * Returns the method that a bridge method calls: the method that overrides a method of a generic
+   * type with other parameter types after erasure, such as {@code save(String)} for the bridge
+   * method {@code save(Object)} that the compiler generates for it.
+   *
+   * @param bridge the bridge method
+   * @return the method of the same name and class that the bridge method calls, or empty if there
+   *     is none
+   */
+  public static Optional<MethodCallTarget> bridgeTarget(JavaMethod bridge) {
+    return bridge.getMethodCallsFromSelf().stream()
+        .map(JavaMethodCall::getTarget)
+        .filter(target -> target.getOwner().equals(bridge.getOwner())
+            && target.getName().equals(bridge.getName()))
+        .findFirst();
   }
 }

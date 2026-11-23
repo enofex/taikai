@@ -1,10 +1,10 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.internal.Modifiers.isStatic;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_MODEL_ATTRIBUTE;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REQUEST_BODY;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REQUEST_PART;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_MODEL_ATTRIBUTE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REQUEST_BODY;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REQUEST_PART;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_VALIDATED;
 
 import com.tngtech.archunit.core.domain.JavaAnnotation;
 import com.tngtech.archunit.core.domain.JavaClass;

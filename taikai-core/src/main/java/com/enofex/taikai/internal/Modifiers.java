@@ -1,9 +1,5 @@
 package com.enofex.taikai.internal;
 
-import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaConstructor;
-import com.tngtech.archunit.core.domain.JavaField;
-import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.domain.properties.HasModifiers;
 import java.util.Collection;
@@ -18,56 +14,6 @@ public final class Modifiers {
   }
 
   /**
-   * Returns whether a class is final.
-   *
-   * @param javaClass the class
-   * @return whether the class is final
-   */
-  public static boolean isClassFinal(JavaClass javaClass) {
-    return javaClass.getModifiers().contains(JavaModifier.FINAL);
-  }
-
-  /**
-   * Returns whether a constructor is private.
-   *
-   * @param constructor the constructor
-   * @return whether the constructor is private
-   */
-  public static boolean isConstructorPrivate(JavaConstructor constructor) {
-    return constructor.getModifiers().contains(JavaModifier.PRIVATE);
-  }
-
-  /**
-   * Returns whether a method is protected.
-   *
-   * @param method the method
-   * @return whether the method is protected
-   */
-  public static boolean isMethodProtected(JavaMethod method) {
-    return method.getModifiers().contains(JavaModifier.PROTECTED);
-  }
-
-  /**
-   * Returns whether a field is protected.
-   *
-   * @param field the field
-   * @return whether the field is protected
-   */
-  public static boolean isFieldProtected(JavaField field) {
-    return field.getModifiers().contains(JavaModifier.PROTECTED);
-  }
-
-  /**
-   * Returns whether a field is final.
-   *
-   * @param field the field
-   * @return whether the field is final
-   */
-  public static boolean isFieldFinal(JavaField field) {
-    return field.getModifiers().contains(JavaModifier.FINAL);
-  }
-
-  /**
    * Returns whether a class or member is public.
    *
    * @param element the class or member
@@ -78,6 +24,16 @@ public final class Modifiers {
   }
 
   /**
+   * Returns whether a class or member is protected.
+   *
+   * @param element the class or member
+   * @return whether the element is protected
+   */
+  public static boolean isProtected(HasModifiers element) {
+    return element.getModifiers().contains(JavaModifier.PROTECTED);
+  }
+
+  /**
    * Returns whether a class or member is private.
    *
    * @param element the class or member
@@ -85,6 +41,16 @@ public final class Modifiers {
    */
   public static boolean isPrivate(HasModifiers element) {
     return element.getModifiers().contains(JavaModifier.PRIVATE);
+  }
+
+  /**
+   * Returns whether a class or member is final.
+   *
+   * @param element the class or member
+   * @return whether the element is final
+   */
+  public static boolean isFinal(HasModifiers element) {
+    return element.getModifiers().contains(JavaModifier.FINAL);
   }
 
   /**
@@ -115,6 +81,17 @@ public final class Modifiers {
    */
   public static boolean isSynthetic(HasModifiers element) {
     return element.getModifiers().contains(JavaModifier.SYNTHETIC);
+  }
+
+  /**
+   * Returns whether a method is a bridge method, which the compiler generates when a method
+   * overrides a method of a generic type with other parameter types after erasure.
+   *
+   * @param method the method
+   * @return whether the method is a bridge method
+   */
+  public static boolean isBridge(HasModifiers method) {
+    return method.getModifiers().contains(JavaModifier.BRIDGE);
   }
 
   /**

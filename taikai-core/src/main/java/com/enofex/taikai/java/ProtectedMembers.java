@@ -1,20 +1,21 @@
 package com.enofex.taikai.java;
 
-import static com.enofex.taikai.internal.Modifiers.isFieldProtected;
-import static com.enofex.taikai.internal.Modifiers.isMethodProtected;
 import static com.enofex.taikai.internal.Modifiers.isPrivate;
+import static com.enofex.taikai.internal.Modifiers.isProtected;
 import static com.enofex.taikai.internal.Modifiers.isPublic;
 import static com.enofex.taikai.internal.Modifiers.isStatic;
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 
+import com.enofex.taikai.internal.Classes;
+import com.enofex.taikai.internal.Modifiers;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.List;
+import java.util.Optional;
 
 final class ProtectedMembers {
 
@@ -26,7 +27,7 @@ final class ProtectedMembers {
       @Override
       public void check(JavaClass javaClass, ConditionEvents events) {
         for (JavaField field : javaClass.getFields()) {
-          if (isFieldProtected(field) && !isSynthetic(field)) {
+          if (isProtected(field) && !isSynthetic(field)) {
             events.add(SimpleConditionEvent.violated(field,
                 "Field %s in final class %s is protected".formatted(
                     field.getName(),
@@ -35,7 +36,7 @@ final class ProtectedMembers {
         }
 
         for (JavaMethod method : javaClass.getMethods()) {
-          if (isMethodProtected(method) && !isSynthetic(method) && !overrides(method)) {
+          if (isProtected(method) && !isSynthetic(method) && !overrides(method)) {
             events.add(SimpleConditionEvent.violated(method,
                 "Method %s in final class %s is protected".formatted(
                     method.getName(),
@@ -63,11 +64,11 @@ final class ProtectedMembers {
             && canBeOverriddenFrom(superMethod, owner));
 
     return overridesSuperclassMethod || owner.getMethods().stream()
-        .filter(bridge -> bridge.getModifiers().contains(JavaModifier.BRIDGE))
-        .flatMap(bridge -> bridge.getMethodCallsFromSelf().stream())
-        .anyMatch(call -> call.getTargetOwner().equals(owner)
-            && call.getName().equals(method.getName())
-            && names(call.getTarget().getRawParameterTypes()).equals(parameterTypes));
+        .filter(Modifiers::isBridge)
+        .map(Classes::bridgeTarget)
+        .flatMap(Optional::stream)
+        .anyMatch(target -> target.getName().equals(method.getName())
+            && names(target.getRawParameterTypes()).equals(parameterTypes));
   }
 
   private static boolean canBeOverriddenFrom(JavaMethod superMethod, JavaClass owner) {
@@ -75,7 +76,7 @@ final class ProtectedMembers {
       return false;
     }
 
-    return isPublic(superMethod) || isMethodProtected(superMethod)
+    return isPublic(superMethod) || isProtected(superMethod)
         || superMethod.getOwner().getPackageName().equals(owner.getPackageName());
   }
 

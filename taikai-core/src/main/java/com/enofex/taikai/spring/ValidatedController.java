@@ -1,7 +1,9 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_VALIDATED;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_PATH_VARIABLE;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REQUEST_PARAM;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_VALIDATED;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -13,11 +15,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 final class ValidatedController {
-
-  private static final String REQUEST_PARAM =
-      "org.springframework.web.bind.annotation.RequestParam";
-  private static final String PATH_VARIABLE =
-      "org.springframework.web.bind.annotation.PathVariable";
 
   /**
    * The constraints of Bean Validation, in the packages of both {@code javax} and {@code jakarta}.
@@ -46,8 +43,8 @@ final class ValidatedController {
           }
 
           for (JavaParameter parameter : method.getParameters()) {
-            if ((parameter.isMetaAnnotatedWith(REQUEST_PARAM)
-                || parameter.isMetaAnnotatedWith(PATH_VARIABLE))
+            if ((parameter.isMetaAnnotatedWith(ANNOTATION_REQUEST_PARAM)
+                || parameter.isMetaAnnotatedWith(ANNOTATION_PATH_VARIABLE))
                 && VALIDATION_ANNOTATIONS.stream().anyMatch(parameter::isMetaAnnotatedWith)) {
               events.add(SimpleConditionEvent.violated(controllerClass,
                   ("Controller %s is missing @Validated but has a method parameter in %s "

@@ -1,7 +1,7 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_REPOSITORY;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REPOSITORY;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithRepository;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithService;

@@ -2,6 +2,7 @@ package com.enofex.taikai.checks;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
+import com.enofex.taikai.internal.Arguments;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,7 @@ public final class ForbiddenFilesCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no pattern is given
      */
     public Settings {
-      files = CheckSettings.requireNotEmpty(files, "At least one forbidden file must be given");
+      files = Arguments.requireNotEmpty(files, "At least one forbidden file must be given");
     }
   }
 }

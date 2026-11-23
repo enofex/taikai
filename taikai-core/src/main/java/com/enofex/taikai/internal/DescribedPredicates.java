@@ -1,6 +1,6 @@
 package com.enofex.taikai.internal;
 
-import static com.enofex.taikai.internal.Modifiers.isClassFinal;
+import static com.enofex.taikai.internal.Modifiers.isFinal;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -63,7 +63,7 @@ public final class DescribedPredicates {
     return new DescribedPredicate<>("are final") {
       @Override
       public boolean test(JavaClass javaClass) {
-        return isClassFinal(javaClass);
+        return isFinal(javaClass);
       }
     };
   }

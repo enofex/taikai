@@ -1,11 +1,11 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAKARTA_TRANSACTIONAL;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_TRANSACTIONAL;
 import static com.enofex.taikai.spring.ReadOnlyTransactionalMethods.beReadOnly;
 import static com.enofex.taikai.spring.SelfInvokedProxiedMethods.notSelfInvokeMethodsAnnotatedWith;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATIONS_TRANSACTIONAL;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_JAKARTA_TRANSACTIONAL;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_TRANSACTIONAL;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithControllerOrRestController;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithTransactional;
 import static com.enofex.taikai.spring.TransactionalControllers.notBeTransactional;

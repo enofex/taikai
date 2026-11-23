@@ -1,5 +1,6 @@
 package com.enofex.taikai.exports;
 
+import static com.enofex.taikai.internal.KotlinAnnotations.ANNOTATION_METADATA;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 
 import com.enofex.taikai.exports.ArchitectureMetrics.LibraryUsage;
@@ -86,7 +87,7 @@ final class Libraries {
   private static List<String> languagePackages(JavaClass javaClass) {
     String sourceFile = javaClass.getSourceCodeLocation().getSourceFileName();
 
-    return LANGUAGE_PACKAGES.getOrDefault(javaClass.isAnnotatedWith("kotlin.Metadata")
+    return LANGUAGE_PACKAGES.getOrDefault(javaClass.isAnnotatedWith(ANNOTATION_METADATA)
         ? "kt"
         : sourceFile.substring(sourceFile.lastIndexOf('.') + 1), List.of());
   }

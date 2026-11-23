@@ -2,6 +2,7 @@ package com.enofex.taikai.checks;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
+import com.enofex.taikai.internal.Arguments;
 import java.util.List;
 
 /**
@@ -61,7 +62,7 @@ public final class RequiredFilesCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no file is given
      */
     public Settings {
-      files = CheckSettings.requireNotEmpty(files, "At least one required file must be given");
+      files = Arguments.requireNotEmpty(files, "At least one required file must be given");
     }
   }
 }

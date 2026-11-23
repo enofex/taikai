@@ -1,8 +1,9 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.internal.Modifiers.isFinal;
+
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -53,7 +54,7 @@ final class HashCodeAndEquals {
        */
       private static boolean isGeneratedForRecord(JavaClass javaClass, JavaMethod method) {
         return javaClass.isRecord()
-            && method.getModifiers().contains(JavaModifier.FINAL)
+            && isFinal(method)
             && method.getAccessesFromSelf().isEmpty();
       }
     };

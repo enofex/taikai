@@ -1,11 +1,11 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_AUTOWIRED;
 import static com.enofex.taikai.spring.InjectedStaticMembers.notBeAnnotatedWithAnyOf;
 import static com.enofex.taikai.spring.SelfInvokedProxiedMethods.notSelfInvokeMethodsAnnotatedWith;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATIONS_APPLIED_BY_PROXY;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATIONS_INJECTION;
-import static com.enofex.taikai.spring.SpringDescribedPredicates.ANNOTATION_AUTOWIRED;
 import static com.enofex.taikai.spring.SpringDescribedPredicates.annotatedWithAutowired;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;

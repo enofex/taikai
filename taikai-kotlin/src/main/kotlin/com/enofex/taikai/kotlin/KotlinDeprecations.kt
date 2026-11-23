@@ -1,5 +1,6 @@
 package com.enofex.taikai.kotlin
 
+import com.enofex.taikai.internal.KotlinAnnotations.ANNOTATION_METADATA
 import com.enofex.taikai.internal.Modifiers
 import com.tngtech.archunit.core.domain.JavaClass
 import com.tngtech.archunit.core.domain.JavaCodeUnit
@@ -87,7 +88,7 @@ internal class KotlinDeprecations {
         val propertyOwners = mutableListOf(owner to metadata)
         metadata.type?.companionObject?.let { name ->
             owner.tryGetField(name).orElse(null)?.rawType?.let { companion ->
-                val imported = if (companion.isAnnotatedWith("kotlin.Metadata")) companion else complete(companion)
+                val imported = if (companion.isAnnotatedWith(ANNOTATION_METADATA)) companion else complete(companion)
                 read(imported)?.let { propertyOwners += imported to it }
             }
         }
@@ -179,7 +180,7 @@ internal class KotlinDeprecations {
     }
 
     private fun read(owner: JavaClass): KotlinDeclarations? = declarations.getOrPut(owner) {
-        if (!owner.isAnnotatedWith("kotlin.Metadata")) return@getOrPut null
+        if (!owner.isAnnotatedWith(ANNOTATION_METADATA)) return@getOrPut null
         try {
             KotlinDeclarations.read(owner)
         } catch (exception: Exception) {

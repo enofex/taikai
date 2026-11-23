@@ -2,6 +2,7 @@ package com.enofex.taikai.checks;
 
 import com.enofex.taikai.checks.spi.CheckContext;
 import com.enofex.taikai.checks.spi.TaikaiCheck;
+import com.enofex.taikai.internal.Arguments;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.Modifier;
@@ -193,7 +194,7 @@ public final class ServiceRegistrationsCheck implements TaikaiCheck {
      * @throws IllegalArgumentException if no directory is given
      */
     public Settings {
-      directories = CheckSettings.requireNotEmpty(directories,
+      directories = Arguments.requireNotEmpty(directories,
           "At least one directory must be given");
     }
   }
