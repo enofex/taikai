@@ -17,10 +17,13 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -37,6 +40,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -47,6 +51,7 @@ import org.w3c.dom.NodeList;
 class MetricsMarkdownExportTest {
 
   private static final String FIXTURES = "com.enofex.taikai.exports.fixtures";
+  private static final String ENTRY_POINTS = "com.enofex.taikai.exports.entrypoints";
   private static final List<String> CHARTS = List.of("METRICS-main-sequence.svg",
       "METRICS-package-map.svg", "METRICS-dependencies.svg", "METRICS-dependency-matrix.svg",
       "METRICS-libraries.svg");
@@ -78,7 +83,7 @@ class MetricsMarkdownExportTest {
             together with the classes nested in it, while inheritance and cohesion count every \
             class on its own. Only dependencies between the measured classes count, except for the \
             libraries the packages use, and never those on the JDK. Packages and classes are named \
-            relative to `com.enofex.taikai.exports.fixtures`. The lists show at most 10 classes \
+            relative to `com.enofex.taikai.exports.fixtures`. The lists show at most 20 classes \
             each.
 
             **Contents:** [Summary](#summary) \u00b7 [Main Sequence](#main-sequence) \u00b7 \
@@ -181,7 +186,7 @@ class MetricsMarkdownExportTest {
             ### Package Cycles
 
             Under each cycle are the dependencies that close it, the red arrows of the chart, each \
-            with up to 10 of the pairs of classes behind it. Without them, the packages would have \
+            with up to 20 of the pairs of classes behind it. Without them, the packages would have \
             no cycles, so they are the dependencies to remove or invert.
 
             - [`billing`](src/com/enofex/taikai/exports/fixtures/billing), \
@@ -295,6 +300,133 @@ class MetricsMarkdownExportTest {
             | [`app.Report`](src/com/enofex/taikai/exports/fixtures/app/Report.java) | 2 | 3 |
             """,
         Files.readString(file, StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shouldListEntryPoints() throws IOException {
+    String markdown = exportEntryPoints(ENTRY_POINTS, EntryPoints.springMvc(),
+        EntryPoints.annotatedWith(Scheduled.class));
+
+    assertTrue(markdown.contains("| Maximum inheritance depth | 1 |\n| Entry points | 13 |\n"),
+        markdown);
+    assertTrue(markdown.contains("""
+            | Package | Classes | Abstract | Ca | Ce | I | A | D | Visibility | Libraries | Entry \
+            points | Zone |
+            | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+            | `api` | 2 | 2 | 4 | 0 | 0.00 | 1.00 | 0.00 | 1.00 | 1 |  |  |
+            | `app` | 1 | 0 | 1 | 0 | 0.00 | 0.00 | 1.00 | 1.00 | 1 | 1 | pain |
+            | `web` | 11 | 5 | 0 | 4 | 1.00 | 0.45 | 0.45 | 0.00 | 1 | 12 |  |
+
+            Visibility is the relative visibility of Herbert Dowalil, the share of public classes, \
+            and Libraries the number of libraries that the package uses. Entry points counts the \
+            methods of the package that a framework calls, see [Entry Points](#entry-points).
+            """), markdown);
+    assertTrue(markdown.contains("""
+            ### Entry Points
+
+            Entry points are the methods that a framework calls rather than the measured \
+            classes, such as the handler methods of Spring MVC controllers, and a class counts \
+            those it inherits as well. They do not count as couplings, as their callers depend on \
+            a contract, such as the path and the parameters of a request, and not on the class, \
+            which can be renamed, split or moved without changing them. So a class with entry \
+            points is used even with a fan-in of 0, and the classes with the lowest fan-in come \
+            first, then those with the most entry points. Kinds counts the entry points by their \
+            kind, such as their HTTP method, and an entry point with several kinds, such as GET \
+            and POST, counts for each of them.
+
+            | Class | Entry points | Kinds | Fan-in |
+            | --- | ---: | --- | ---: |
+            | `web.ItemController` | 7 | ANY 1, DELETE 1, GET 4, POST 2 | 0 |
+            | `web.TagController` | 3 | GET 1, POST 2, PUT 1 | 0 |
+            | `web.NoteController` | 1 | PUT 1 | 0 |
+            | `web.ReportController` | 1 | GET 1 | 0 |
+            | `app.ItemService` | 1 | Scheduled 1 | 1 |
+
+            ## Cohesion
+            """), markdown);
+  }
+
+  @Test
+  void shouldListAtMost20ClassesWithEntryPoints() throws IOException {
+    String markdown = exportEntryPoints("com.enofex.taikai.exports",
+        (javaClass, method) -> Set.of("Call"));
+    String entryPoints = markdown.substring(markdown.indexOf("### Entry Points"),
+        markdown.indexOf("## Cohesion"));
+
+    assertEquals(MetricsMarkdownExport.LISTED_CLASSES,
+        entryPoints.lines().filter(line -> line.startsWith("| `")).count(), entryPoints);
+  }
+
+  @Test
+  void shouldListNoEntryPointsIfNoneAreFound() throws IOException {
+    String markdown = exportEntryPoints(FIXTURES, EntryPoints.springMvc());
+
+    assertTrue(markdown.contains("| Entry points | 0 |\n"), markdown);
+    assertTrue(markdown.contains(
+        "| `domain` | 2 | 0 | 4 | 0 | 0.00 | 0.00 | 1.00 | 0.50 | 0 |  | pain |\n"), markdown);
+    assertTrue(markdown.contains("counts for each of them.\n\nNone.\n\n## Cohesion"),
+        markdown);
+  }
+
+  @Test
+  void shouldNotListEntryPointsUnlessConfigured() throws IOException {
+    String markdown = Files.readString(exportFixtures(ENTRY_POINTS), StandardCharsets.UTF_8);
+
+    assertFalse(markdown.contains("Entry"), markdown);
+    assertTrue(markdown.contains("| Visibility | Libraries | Zone |\n"), markdown);
+  }
+
+  @Test
+  void shouldEscapeKindsOfEntryPoints() throws IOException {
+    String markdown = exportEntryPoints(ENTRY_POINTS, (javaClass, method) ->
+        method.getName().equals("clear") ? Set.of("rate|cron\nevery minute") : Set.of());
+
+    assertTrue(markdown.contains("| `app.ItemService` | 1 | rate\\|cron every minute 1 | 1 |\n"),
+        markdown);
+  }
+
+  @Test
+  void shouldNameMethodWithNullKinds() {
+    TaikaiException exception = assertThrows(TaikaiException.class,
+        () -> exportEntryPoints(ENTRY_POINTS, (javaClass, method) ->
+            method.getName().equals("clear") ? Collections.singleton(null) : Set.of()));
+
+    assertInstanceOf(NullPointerException.class, exception.getCause());
+    assertEquals("The kinds of the entry points of "
+            + "com.enofex.taikai.exports.entrypoints.app.ItemService.clear() must not be null",
+        exception.getCause().getMessage());
+  }
+
+  @Test
+  void shouldKeepKindsOfEntryPointsUnmodifiable() {
+    Map<String, Integer> kinds = ArchitectureMetrics.of(classes(ENTRY_POINTS),
+        List.of(EntryPoints.springMvc())).entryPoints().get(0).kinds();
+
+    assertThrows(UnsupportedOperationException.class, () -> kinds.put("GET", 0));
+  }
+
+  @Test
+  void shouldRejectAnnotationsThatNoClassFileHas() {
+    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        () -> EntryPoints.annotatedWith(SourceOnly.class));
+
+    assertTrue(exception.getMessage().contains("has the retention SOURCE"),
+        exception.getMessage());
+  }
+
+  @Test
+  void shouldListNoEntryPointsUnlessGivenAndKeepThem() {
+    EntryPoints entryPoints = EntryPoints.springMvc();
+    MetricsMarkdownExport.Settings settings = MetricsMarkdownExport.file("METRICS.md");
+
+    assertEquals(List.of(), settings.entryPoints());
+    assertEquals(List.of(), new MetricsMarkdownExport.Settings("METRICS.md", "images",
+        List.of("src")).entryPoints());
+    assertEquals(List.of(entryPoints), settings.withEntryPoints(entryPoints)
+        .withImageDirectory("images")
+        .withSourceDirectories("src")
+        .entryPoints());
+    assertThrows(NullPointerException.class, () -> settings.withEntryPoints(entryPoints, null));
   }
 
   @Test
@@ -571,6 +703,7 @@ class MetricsMarkdownExportTest {
     assertThrows(IllegalArgumentException.class, () -> MetricsMarkdownExport.file(" "));
     assertThrows(IllegalArgumentException.class, () -> settings.withImageDirectory(" "));
     assertThrows(IllegalArgumentException.class, settings::withSourceDirectories);
+    assertThrows(IllegalArgumentException.class, settings::withEntryPoints);
   }
 
   /**
@@ -632,7 +765,7 @@ class MetricsMarkdownExportTest {
 
       return new ArchitectureMetrics("",
           names.stream().map(name -> new PackageMetric(name, 1, 0, 1, 0, 0)).toList(),
-          List.of(), List.of(), List.of(), List.of(), List.of(), names, List.of());
+          List.of(), List.of(), List.of(), List.of(), List.of(), names, List.of(), List.of());
     }
 
     /**
@@ -646,7 +779,7 @@ class MetricsMarkdownExportTest {
           .toList();
 
       return new ArchitectureMetrics("", metrics, List.of(), List.of(), List.of(), List.of(),
-          List.of(), metrics.stream().map(PackageMetric::name).toList(), List.of());
+          List.of(), metrics.stream().map(PackageMetric::name).toList(), List.of(), List.of());
     }
   }
 
@@ -737,6 +870,17 @@ class MetricsMarkdownExportTest {
    */
   private Path exportFixtures() {
     return exportFixtures(FIXTURES);
+  }
+
+  /**
+   * Exports the classes of the package with the given entry points and returns the Markdown.
+   */
+  private String exportEntryPoints(String packageName, EntryPoints... entryPoints)
+      throws IOException {
+    Path file = this.directory.resolve("METRICS.md");
+    export(classes(packageName), settings(file).withEntryPoints(entryPoints));
+
+    return Files.readString(file, StandardCharsets.UTF_8);
   }
 
   private Path exportFixtures(String packageName) {
@@ -830,6 +974,11 @@ class MetricsMarkdownExportTest {
     }
 
     return elements;
+  }
+
+  @Retention(RetentionPolicy.SOURCE)
+  @interface SourceOnly {
+
   }
 
   /**

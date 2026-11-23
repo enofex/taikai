@@ -1,17 +1,16 @@
 package com.enofex.taikai.jpa;
 
 import static com.enofex.taikai.internal.DescribedPredicates.annotatedWith;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_EMBEDDED_ID;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_ENTITY;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_ID;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_MAPPED_SUPERCLASS;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_VERSION;
 
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 
 final class JpaDescribedPredicates {
-
-  static final String ANNOTATION_ENTITY = "jakarta.persistence.Entity";
-  static final String ANNOTATION_MAPPED_SUPERCLASS = "jakarta.persistence.MappedSuperclass";
-  static final String ANNOTATION_ID = "jakarta.persistence.Id";
-  static final String ANNOTATION_EMBEDDED_ID = "jakarta.persistence.EmbeddedId";
-  static final String ANNOTATION_VERSION = "jakarta.persistence.Version";
 
   private JpaDescribedPredicates() {
   }

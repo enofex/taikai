@@ -1,7 +1,6 @@
 package com.enofex.taikai.spring;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
-import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_JAKARTA_TRANSACTIONAL;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_TRANSACTIONAL;
 import static com.enofex.taikai.spring.ReadOnlyTransactionalMethods.beReadOnly;
 import static com.enofex.taikai.spring.SelfInvokedProxiedMethods.notSelfInvokeMethodsAnnotatedWith;
@@ -18,6 +17,7 @@ import com.enofex.taikai.configures.ConfigurerContext;
 import com.enofex.taikai.configures.DisableableConfigurer;
 import com.enofex.taikai.core.TaikaiRule;
 import com.enofex.taikai.core.TaikaiRule.Configuration;
+import com.enofex.taikai.internal.JakartaAnnotations;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaModifier;
@@ -71,7 +71,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
         .should().bePublic()
         .as(("Methods annotated with %s or %s should be public, Spring's proxy-based transaction "
             + "management ignores non-public methods").formatted(
-            ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
+            ANNOTATION_TRANSACTIONAL, JakartaAnnotations.ANNOTATION_TRANSACTIONAL)),
+        configuration));
   }
 
   /**
@@ -159,7 +160,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
         .should(notSelfInvokeMethodsAnnotatedWith(ANNOTATIONS_TRANSACTIONAL))
         .as(("Methods annotated with %s or %s should not be self-invoked, the call bypasses "
             + "Spring's proxy and no transaction is created").formatted(
-            ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
+            ANNOTATION_TRANSACTIONAL, JakartaAnnotations.ANNOTATION_TRANSACTIONAL)),
+        configuration));
   }
 
   /**
@@ -185,7 +187,8 @@ public final class TransactionalConfigurer extends AbstractConfigurer implements
         .should(notBeTransactional())
         .as(("Controllers should not use %s or %s, transaction boundaries should be defined in "
             + "the service layer").formatted(
-            ANNOTATION_TRANSACTIONAL, ANNOTATION_JAKARTA_TRANSACTIONAL)), configuration));
+            ANNOTATION_TRANSACTIONAL, JakartaAnnotations.ANNOTATION_TRANSACTIONAL)),
+        configuration));
   }
 
   @Override

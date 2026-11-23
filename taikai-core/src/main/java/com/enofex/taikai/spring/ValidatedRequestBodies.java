@@ -1,5 +1,9 @@
 package com.enofex.taikai.spring;
 
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_CONSTRAINT;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_JAVAX_CONSTRAINT;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_JAVAX_VALID;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_VALID;
 import static com.enofex.taikai.internal.Modifiers.isStatic;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_MODEL_ATTRIBUTE;
 import static com.enofex.taikai.internal.SpringAnnotations.ANNOTATION_REQUEST_BODY;
@@ -32,9 +36,9 @@ final class ValidatedRequestBodies {
   private static final List<String> BINDINGS = List.of(
       ANNOTATION_REQUEST_BODY, ANNOTATION_REQUEST_PART, ANNOTATION_MODEL_ATTRIBUTE);
   private static final List<String> CONSTRAINTS = List.of(
-      "jakarta.validation.Constraint", "javax.validation.Constraint");
+      ANNOTATION_CONSTRAINT, ANNOTATION_JAVAX_CONSTRAINT);
   private static final List<String> CASCADES = List.of(
-      "jakarta.validation.Valid", "javax.validation.Valid");
+      ANNOTATION_VALID, ANNOTATION_JAVAX_VALID);
 
   private ValidatedRequestBodies() {
   }

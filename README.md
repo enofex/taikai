@@ -192,7 +192,8 @@ report, for example with `SarifExport.file("target/taikai.sarif")`, with the fil
 violation. The predefined `com.enofex.taikai.exports.MetricsMarkdownExport` writes architecture
 metrics as Markdown with SVG charts, for example with
 `MetricsMarkdownExport.file("docs/METRICS.md")`: the main sequence, the package dependencies and
-their cycles, the libraries of the packages, and the inheritance, coupling and cohesion of classes.
+their cycles, the libraries of the packages, and the inheritance, coupling and cohesion of classes,
+optionally with the entry points that a framework calls, such as the handler methods of Spring MVC.
 
 ## User Guide
 

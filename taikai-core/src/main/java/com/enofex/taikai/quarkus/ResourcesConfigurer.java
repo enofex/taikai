@@ -1,7 +1,7 @@
 package com.enofex.taikai.quarkus;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
-import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.ANNOTATION_PATH;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_PATH;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithPath;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.not;

@@ -1,6 +1,6 @@
 # Architecture Metrics
 
-The metrics of `com.enofex.taikai`, measured by Taikai. Every package counts on its own, without its subpackages. Packages and coupling count top-level classes, each together with the classes nested in it, while inheritance and cohesion count every class on its own. Only dependencies between the measured classes count, except for the libraries the packages use, and never those on the JDK. Packages and classes are named relative to `com.enofex.taikai`. The lists show at most 10 classes each.
+The metrics of `com.enofex.taikai`, measured by Taikai. Every package counts on its own, without its subpackages. Packages and coupling count top-level classes, each together with the classes nested in it, while inheritance and cohesion count every class on its own. Only dependencies between the measured classes count, except for the libraries the packages use, and never those on the JDK. Packages and classes are named relative to `com.enofex.taikai`. The lists show at most 20 classes each.
 
 **Contents:** [Summary](#summary) · [Main Sequence](#main-sequence) · [Package Map](#package-map) · [Packages](#packages) · [Package Dependencies](#package-dependencies) · [Libraries](#libraries) · [Inheritance](#inheritance) · [Coupling](#coupling) · [Cohesion](#cohesion)
 
@@ -9,8 +9,8 @@ The metrics of `com.enofex.taikai`, measured by Taikai. Every package counts on 
 | Metric | Value |
 | --- | ---: |
 | Packages | 15 |
-| Classes | 108 |
-| Abstract classes and interfaces | 9 |
+| Classes | 112 |
+| Abstract classes and interfaces | 10 |
 | Average distance from the main sequence | 0.25 |
 | Packages in the zone of pain | 2 |
 | Packages in the zone of uselessness | 0 |
@@ -51,9 +51,9 @@ Each tile is a package: its area is its number of classes and its color its zone
 | [`checks.spi`](taikai-core/src/main/java/com/enofex/taikai/checks/spi) | 3 | 3 | 11 | 0 | 0.00 | 1.00 | 0.00 | 1.00 | 1 |  |
 | [`configures`](taikai-core/src/main/java/com/enofex/taikai/configures) | 6 | 4 | 22 | 2 | 0.08 | 0.67 | 0.25 | 1.00 | 0 |  |
 | [`core`](taikai-core/src/main/java/com/enofex/taikai/core) | 6 | 0 | 30 | 4 | 0.12 | 0.00 | 0.88 | 1.00 | 1 | pain |
-| [`exports`](taikai-core/src/main/java/com/enofex/taikai/exports) | 16 | 0 | 1 | 8 | 0.89 | 0.00 | 0.11 | 0.25 | 1 |  |
+| [`exports`](taikai-core/src/main/java/com/enofex/taikai/exports) | 19 | 1 | 1 | 9 | 0.90 | 0.05 | 0.05 | 0.26 | 1 |  |
 | [`exports.spi`](taikai-core/src/main/java/com/enofex/taikai/exports/spi) | 2 | 2 | 7 | 1 | 0.13 | 1.00 | 0.13 | 1.00 | 1 |  |
-| [`internal`](taikai-core/src/main/java/com/enofex/taikai/internal) | 10 | 0 | 46 | 0 | 0.00 | 0.00 | 1.00 | 1.00 | 1 | pain |
+| [`internal`](taikai-core/src/main/java/com/enofex/taikai/internal) | 11 | 0 | 48 | 0 | 0.00 | 0.00 | 1.00 | 1.00 | 1 | pain |
 | [`java`](taikai-core/src/main/java/com/enofex/taikai/java) | 17 | 0 | 1 | 11 | 0.92 | 0.00 | 0.08 | 0.29 | 1 |  |
 | [`jpa`](taikai-core/src/main/java/com/enofex/taikai/jpa) | 3 | 0 | 1 | 3 | 0.75 | 0.00 | 0.25 | 0.67 | 1 |  |
 | [`logging`](taikai-core/src/main/java/com/enofex/taikai/logging) | 2 | 0 | 1 | 2 | 0.67 | 0.00 | 0.33 | 0.50 | 1 |  |
@@ -96,7 +96,7 @@ A row is a package, numbered as in the dependency matrix, and a column a library
 
 | Library | Packages | Classes |
 | --- | ---: | ---: |
-| `com.tngtech` | 14 | 76 |
+| `com.tngtech` | 14 | 79 |
 | `org.junit` | 1 | 1 |
 | `org.springframework` | 1 | 1 |
 
@@ -122,6 +122,16 @@ The inheritance depth of a class counts its superclasses, its subclasses only th
 | [`quarkus.AiConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/AiConfigurer.java) | 1 |
 | [`quarkus.PanacheConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/PanacheConfigurer.java) | 1 |
 | [`quarkus.QuarkusConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/QuarkusConfigurer.java) | 1 |
+| [`quarkus.ResourcesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/ResourcesConfigurer.java) | 1 |
+| [`spring.BootConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/BootConfigurer.java) | 1 |
+| [`spring.ConfigurationsConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/ConfigurationsConfigurer.java) | 1 |
+| [`spring.ControllersConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/ControllersConfigurer.java) | 1 |
+| [`spring.PropertiesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/PropertiesConfigurer.java) | 1 |
+| [`spring.RepositoriesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/RepositoriesConfigurer.java) | 1 |
+| [`spring.ServicesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/ServicesConfigurer.java) | 1 |
+| [`spring.SpringConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/SpringConfigurer.java) | 1 |
+| [`spring.TransactionalConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/TransactionalConfigurer.java) | 1 |
+| [`test.JUnitConfigurer`](taikai-core/src/main/java/com/enofex/taikai/test/JUnitConfigurer.java) | 1 |
 
 ### Most Extended Classes
 
@@ -142,11 +152,21 @@ The fan-in of a class counts the classes that depend on it, its fan-out the clas
 | [`configures.ConfigurerContext`](taikai-core/src/main/java/com/enofex/taikai/configures/ConfigurerContext.java) | 23 |
 | [`configures.AbstractConfigurer`](taikai-core/src/main/java/com/enofex/taikai/configures/AbstractConfigurer.java) | 21 |
 | [`configures.DisableableConfigurer`](taikai-core/src/main/java/com/enofex/taikai/configures/DisableableConfigurer.java) | 21 |
-| [`internal.Modifiers`](taikai-core/src/main/java/com/enofex/taikai/internal/Modifiers.java) | 18 |
+| [`internal.Modifiers`](taikai-core/src/main/java/com/enofex/taikai/internal/Modifiers.java) | 19 |
 | [`checks.spi.CheckContext`](taikai-core/src/main/java/com/enofex/taikai/checks/spi/CheckContext.java) | 13 |
 | [`checks.spi.TaikaiCheck`](taikai-core/src/main/java/com/enofex/taikai/checks/spi/TaikaiCheck.java) | 12 |
+| [`exports.ArchitectureMetrics`](taikai-core/src/main/java/com/enofex/taikai/exports/ArchitectureMetrics.java) | 9 |
 | [`spring.SpringDescribedPredicates`](taikai-core/src/main/java/com/enofex/taikai/spring/SpringDescribedPredicates.java) | 9 |
 | [`configures.Customizer`](taikai-core/src/main/java/com/enofex/taikai/configures/Customizer.java) | 8 |
+| [`exports.spi.ExportContext`](taikai-core/src/main/java/com/enofex/taikai/exports/spi/ExportContext.java) | 8 |
+| [`internal.Arguments`](taikai-core/src/main/java/com/enofex/taikai/internal/Arguments.java) | 8 |
+| [`internal.Classes`](taikai-core/src/main/java/com/enofex/taikai/internal/Classes.java) | 8 |
+| [`internal.DescribedPredicates`](taikai-core/src/main/java/com/enofex/taikai/internal/DescribedPredicates.java) | 8 |
+| [`exports.spi.TaikaiExport`](taikai-core/src/main/java/com/enofex/taikai/exports/spi/TaikaiExport.java) | 7 |
+| [`core.ClassCriteria`](taikai-core/src/main/java/com/enofex/taikai/core/ClassCriteria.java) | 6 |
+| [`core.TaikaiException`](taikai-core/src/main/java/com/enofex/taikai/core/TaikaiException.java) | 6 |
+| [`internal.ArchConditions`](taikai-core/src/main/java/com/enofex/taikai/internal/ArchConditions.java) | 6 |
+| [`exports.Svg`](taikai-core/src/main/java/com/enofex/taikai/exports/Svg.java) | 5 |
 
 ### Classes with the Most Dependencies
 
@@ -155,13 +175,23 @@ The fan-in of a class counts the classes that depend on it, its fan-out the clas
 | [`Taikai`](taikai-core/src/main/java/com/enofex/taikai/Taikai.java) | 20 |
 | [`java.JavaConfigurer`](taikai-core/src/main/java/com/enofex/taikai/java/JavaConfigurer.java) | 19 |
 | [`spring.SpringConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/SpringConfigurer.java) | 16 |
+| [`exports.MetricsMarkdownExport`](taikai-core/src/main/java/com/enofex/taikai/exports/MetricsMarkdownExport.java) | 12 |
 | [`test.JUnitConfigurer`](taikai-core/src/main/java/com/enofex/taikai/test/JUnitConfigurer.java) | 11 |
-| [`exports.MetricsMarkdownExport`](taikai-core/src/main/java/com/enofex/taikai/exports/MetricsMarkdownExport.java) | 10 |
 | [`java.NamingConfigurer`](taikai-core/src/main/java/com/enofex/taikai/java/NamingConfigurer.java) | 10 |
 | [`quarkus.QuarkusConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/QuarkusConfigurer.java) | 10 |
 | [`spring.ControllersConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/ControllersConfigurer.java) | 10 |
 | [`metrics.MetricsConfigurer`](taikai-core/src/main/java/com/enofex/taikai/metrics/MetricsConfigurer.java) | 9 |
 | [`spring.TransactionalConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/TransactionalConfigurer.java) | 9 |
+| [`logging.LoggingConfigurer`](taikai-core/src/main/java/com/enofex/taikai/logging/LoggingConfigurer.java) | 8 |
+| [`spring.BootConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/BootConfigurer.java) | 8 |
+| [`java.ImportsConfigurer`](taikai-core/src/main/java/com/enofex/taikai/java/ImportsConfigurer.java) | 7 |
+| [`jpa.EntitiesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/jpa/EntitiesConfigurer.java) | 7 |
+| [`quarkus.AiConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/AiConfigurer.java) | 7 |
+| [`quarkus.ResourcesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/ResourcesConfigurer.java) | 7 |
+| [`spring.PropertiesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/PropertiesConfigurer.java) | 7 |
+| [`spring.RepositoriesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/RepositoriesConfigurer.java) | 7 |
+| [`spring.ServicesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/ServicesConfigurer.java) | 7 |
+| [`exports.ArchitectureMetrics`](taikai-core/src/main/java/com/enofex/taikai/exports/ArchitectureMetrics.java) | 6 |
 
 ## Cohesion
 

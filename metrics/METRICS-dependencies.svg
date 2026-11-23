@@ -70,7 +70,7 @@
   <path d="M591.52,436 C591.52,466 591.52,466 591.52,496" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>core → internal: 5 dependencies</title></path>
   <path d="M75.17,228 C75.17,269 363.13,269 363.13,310 C363.13,351 557.47,351 557.47,392" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports → core: 5 dependencies</title></path>
   <path d="M87.17,228 C87.17,258 459.38,258 459.38,288" class="edge" stroke-width="2.55" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports → exports.spi: 11 dependencies</title></path>
-  <path d="M63.17,228 C63.17,269 290.6,269 290.6,310 C290.6,362 486.47,362 486.47,414 C486.47,455 554.35,455 554.35,496" class="edge" stroke-width="2.21" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports → internal: 6 dependencies</title></path>
+  <path d="M63.17,228 C63.17,269 290.6,269 290.6,310 C290.6,362 486.47,362 486.47,414 C486.47,455 554.35,455 554.35,496" class="edge" stroke-width="2.43" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports → internal: 9 dependencies</title></path>
   <path d="M465.38,332 C465.38,362 576.04,362 576.04,392" class="edge" stroke-width="1.64" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>exports.spi → core: 1 dependency</title></path>
   <path d="M211.5,228 C211.5,258 600.13,258 600.13,288" class="edge" stroke-width="2.66" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>java → configures: 13 dependencies</title></path>
   <path d="M199.5,228 C199.5,269 371.13,269 371.13,310 C371.13,351 563.66,351 563.66,392" class="edge" stroke-width="2.13" stroke-linecap="round" marker-end="url(#edge-arrow)"><title>java → core: 5 dependencies</title></path>
@@ -130,11 +130,11 @@
     <text x="569.47" y="426" class="muted" font-size="11">6 classes</text>
   </g>
   <g class="package" data-zone="balanced">
-    <title>exports: 16 classes, Ca 1, Ce 8</title>
+    <title>exports: 19 classes, Ca 1, Ce 9</title>
     <rect x="24" y="184" width="102.33" height="44" rx="8" class="node" filter="url(#shadow)"/>
     <circle cx="39" cy="199" r="4.5" class="balanced"/>
     <text x="50" y="203" class="ink" font-size="12.5" font-weight="600">exports</text>
-    <text x="50" y="218" class="muted" font-size="11">16 classes</text>
+    <text x="50" y="218" class="muted" font-size="11">19 classes</text>
   </g>
   <g class="package" data-zone="balanced">
     <title>exports.spi: 2 classes, Ca 7, Ce 1</title>
@@ -144,11 +144,11 @@
     <text x="430.13" y="322" class="muted" font-size="11">2 classes</text>
   </g>
   <g class="package" data-zone="pain">
-    <title>internal: 10 classes, Ca 46, Ce 0</title>
+    <title>internal: 11 classes, Ca 48, Ce 0</title>
     <rect x="540.35" y="496" width="102.33" height="44" rx="8" class="node" filter="url(#shadow)"/>
     <circle cx="555.35" cy="511" r="4.5" class="pain"/>
     <text x="566.35" y="515" class="ink" font-size="12.5" font-weight="600">internal</text>
-    <text x="566.35" y="530" class="muted" font-size="11">10 classes</text>
+    <text x="566.35" y="530" class="muted" font-size="11">11 classes</text>
   </g>
   <g class="package" data-zone="balanced">
     <title>java: 17 classes, Ca 1, Ce 11</title>

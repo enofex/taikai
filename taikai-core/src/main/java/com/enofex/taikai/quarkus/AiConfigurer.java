@@ -1,8 +1,8 @@
 package com.enofex.taikai.quarkus;
 
 import static com.enofex.taikai.core.TaikaiRule.Configuration.defaultConfiguration;
+import static com.enofex.taikai.internal.JakartaAnnotations.ANNOTATION_APPLICATION_SCOPED;
 import static com.enofex.taikai.quarkus.AiServiceTools.notUseToolsAttribute;
-import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.ANNOTATION_APPLICATION_SCOPED;
 import static com.enofex.taikai.quarkus.QuarkusDescribedPredicates.annotatedWithRegisterAiService;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.be;
 import static com.tngtech.archunit.lang.conditions.ArchPredicates.are;

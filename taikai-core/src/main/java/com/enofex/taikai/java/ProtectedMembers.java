@@ -1,5 +1,6 @@
 package com.enofex.taikai.java;
 
+import static com.enofex.taikai.internal.Classes.signature;
 import static com.enofex.taikai.internal.Modifiers.isPrivate;
 import static com.enofex.taikai.internal.Modifiers.isProtected;
 import static com.enofex.taikai.internal.Modifiers.isPublic;
@@ -14,7 +15,6 @@ import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
-import java.util.List;
 import java.util.Optional;
 
 final class ProtectedMembers {
@@ -55,20 +55,18 @@ final class ProtectedMembers {
    */
   private static boolean overrides(JavaMethod method) {
     JavaClass owner = method.getOwner();
-    List<String> parameterTypes = names(method.getRawParameterTypes());
+    String signature = signature(method);
 
     boolean overridesSuperclassMethod = owner.getAllRawSuperclasses().stream()
         .flatMap(superclass -> superclass.getMethods().stream())
-        .anyMatch(superMethod -> superMethod.getName().equals(method.getName())
-            && names(superMethod.getRawParameterTypes()).equals(parameterTypes)
+        .anyMatch(superMethod -> signature(superMethod).equals(signature)
             && canBeOverriddenFrom(superMethod, owner));
 
     return overridesSuperclassMethod || owner.getMethods().stream()
         .filter(Modifiers::isBridge)
         .map(Classes::bridgeTarget)
         .flatMap(Optional::stream)
-        .anyMatch(target -> target.getName().equals(method.getName())
-            && names(target.getRawParameterTypes()).equals(parameterTypes));
+        .anyMatch(target -> signature(target).equals(signature));
   }
 
   private static boolean canBeOverriddenFrom(JavaMethod superMethod, JavaClass owner) {
@@ -78,11 +76,5 @@ final class ProtectedMembers {
 
     return isPublic(superMethod) || isProtected(superMethod)
         || superMethod.getOwner().getPackageName().equals(owner.getPackageName());
-  }
-
-  private static List<String> names(List<JavaClass> types) {
-    return types.stream()
-        .map(JavaClass::getName)
-        .toList();
   }
 }

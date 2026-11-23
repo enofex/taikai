@@ -6,9 +6,11 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.summingInt;
 
 import com.enofex.taikai.exports.ArchitectureMetrics.ClassMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.CohesionMetric;
+import com.enofex.taikai.exports.ArchitectureMetrics.EntryPointMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.InheritanceMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.LibraryUsage;
 import com.enofex.taikai.exports.ArchitectureMetrics.PackageCycle;
@@ -17,9 +19,11 @@ import com.enofex.taikai.exports.ArchitectureMetrics.PackageMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.Zone;
 import com.enofex.taikai.exports.spi.ExportContext;
 import com.enofex.taikai.exports.spi.TaikaiExport;
+import com.enofex.taikai.internal.Arguments;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import java.io.File;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,6 +50,9 @@ import org.jspecify.annotations.Nullable;
  * after the Markdown file, such as {@code docs/METRICS-dependencies.svg}. The files only change
  * when the architecture does, so that they can be committed.</p>
  *
+ * <p>Classes that only a framework calls, such as Spring MVC controllers, have no fan-in; see
+ * {@link EntryPoints} to list the methods that a framework calls.</p>
+ *
  * <p>Taikai does not register its predefined exports itself, so that a new Taikai version never
  * writes files on its own. To run this export, list its class name in the file
  * {@code src/test/resources/META-INF/services/com.enofex.taikai.exports.spi.TaikaiExport} of the
@@ -56,8 +63,9 @@ public final class MetricsMarkdownExport implements TaikaiExport {
   /**
    * The most classes that a list or a tooltip shows.
    */
-  static final int LISTED_CLASSES = 10;
+  static final int LISTED_CLASSES = 20;
   private static final Pattern UNSAFE_IN_LINK = Pattern.compile("[\\s()]");
+  private static final Pattern LINE_BREAK = Pattern.compile("\\R");
 
   /**
    * Returns the settings that export to the given Markdown file, with the charts next to it and the
@@ -74,7 +82,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
     int directory = name == 0 || name > 0 && file.charAt(name - 1) == ':' ? name + 1 : name;
 
     return new Settings(file, name < 0 ? "." : file.substring(0, directory),
-        SourceFiles.DEFAULT_DIRECTORIES);
+        SourceFiles.DEFAULT_DIRECTORIES, List.of());
   }
 
   @Override
@@ -88,7 +96,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
     Path file = ExportFiles.resolve(context, settings.file());
     Path imageDirectory = ExportFiles.resolve(context, settings.imageDirectory());
     JavaClasses classes = context.classes();
-    ArchitectureMetrics metrics = ArchitectureMetrics.of(classes);
+    ArchitectureMetrics metrics = ArchitectureMetrics.of(classes, settings.entryPoints());
     Map<Path, String> files = new LinkedHashMap<>();
     Charts charts = new Charts(
         chart(files, file, imageDirectory, "-main-sequence.svg", MainSequenceChart.svg(metrics)),
@@ -100,7 +108,8 @@ public final class MetricsMarkdownExport implements TaikaiExport {
     Links links = new Links(file, classes,
         SourceFiles.in(context.projectDirectory(), settings.sourceDirectories()), metrics);
 
-    files.put(file, new Markdown(metrics, context.namespace(), charts, links).toString());
+    files.put(file, new Markdown(metrics, context.namespace(), charts, links,
+        !settings.entryPoints().isEmpty()).toString());
     files.forEach(ExportFiles::write);
   }
 
@@ -159,8 +168,10 @@ public final class MetricsMarkdownExport implements TaikaiExport {
    * @param file the Markdown file
    * @param imageDirectory the directory of the charts
    * @param sourceDirectories the directories of the sources that names link to
+   * @param entryPoints the entry points to list, none to list no entry points
    */
-  public record Settings(String file, String imageDirectory, List<String> sourceDirectories) {
+  public record Settings(String file, String imageDirectory, List<String> sourceDirectories,
+      List<EntryPoints> entryPoints) {
 
     /**
      * Creates the settings.
@@ -168,6 +179,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
      * @param file the Markdown file
      * @param imageDirectory the directory of the charts
      * @param sourceDirectories the directories of the sources that names link to
+     * @param entryPoints the entry points to list, none to list no entry points
      * @throws IllegalArgumentException if the file or the directory is blank, or no source
      *     directory is given
      */
@@ -176,6 +188,20 @@ public final class MetricsMarkdownExport implements TaikaiExport {
       imageDirectory = ExportFiles.requireNotBlank(imageDirectory,
           "The directory of the charts must be given");
       sourceDirectories = ExportFiles.requireDirectories(sourceDirectories);
+      entryPoints = List.copyOf(entryPoints);
+    }
+
+    /**
+     * Creates the settings without entry points.
+     *
+     * @param file the Markdown file
+     * @param imageDirectory the directory of the charts
+     * @param sourceDirectories the directories of the sources that names link to
+     * @throws IllegalArgumentException if the file or the directory is blank, or no source
+     *     directory is given
+     */
+    public Settings(String file, String imageDirectory, List<String> sourceDirectories) {
+      this(file, imageDirectory, sourceDirectories, List.of());
     }
 
     /**
@@ -186,7 +212,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
      * @throws IllegalArgumentException if the directory is blank
      */
     public Settings withImageDirectory(String imageDirectory) {
-      return new Settings(this.file, imageDirectory, this.sourceDirectories);
+      return new Settings(this.file, imageDirectory, this.sourceDirectories, this.entryPoints);
     }
 
     /**
@@ -203,7 +229,28 @@ public final class MetricsMarkdownExport implements TaikaiExport {
      * @throws IllegalArgumentException if no source directory is given
      */
     public Settings withSourceDirectories(String... sourceDirectories) {
-      return new Settings(this.file, this.imageDirectory, List.of(sourceDirectories));
+      return new Settings(this.file, this.imageDirectory, List.of(sourceDirectories),
+          this.entryPoints);
+    }
+
+    /**
+     * Returns these settings with {@link EntryPoints}, which the report lists with the fan-in of
+     * their classes and counts per package.
+     *
+     * <pre>{@code
+     * MetricsMarkdownExport.file("docs/METRICS.md")
+     *     .withEntryPoints(EntryPoints.springMvc(),
+     *         EntryPoints.annotatedWith("org.springframework.scheduling.annotation.Scheduled"))
+     * }</pre>
+     *
+     * @param entryPoints the entry points, which replace those of these settings
+     * @return the settings with the given entry points
+     * @throws IllegalArgumentException if no entry points are given
+     */
+    public Settings withEntryPoints(EntryPoints... entryPoints) {
+      return new Settings(this.file, this.imageDirectory, this.sourceDirectories,
+          Arguments.requireNotEmpty(List.of(entryPoints),
+              "At least one kind of entry points must be given"));
     }
   }
 
@@ -244,15 +291,21 @@ public final class MetricsMarkdownExport implements TaikaiExport {
 
     private final ArchitectureMetrics metrics;
     private final Links links;
+    private final boolean withEntryPoints;
     private final Map<String, Long> librariesOf;
+    private final Map<String, Integer> entryPointsOf;
     private final StringBuilder markdown = new StringBuilder();
 
     Markdown(ArchitectureMetrics metrics, @Nullable String namespace, Charts charts,
-        Links links) {
+        Links links, boolean withEntryPoints) {
       this.metrics = metrics;
       this.links = links;
+      this.withEntryPoints = withEntryPoints;
       this.librariesOf = metrics.libraryUsages().stream()
           .collect(groupingBy(LibraryUsage::packageName, counting()));
+      this.entryPointsOf = metrics.entryPoints().stream()
+          .collect(groupingBy(EntryPointMetric::packageName,
+              summingInt(EntryPointMetric::methods)));
 
       introduction(namespace);
       contents();
@@ -307,9 +360,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
 
     private void summary() {
       List<PackageMetric> packages = this.metrics.packages();
-
-      heading("Summary");
-      table(List.of("Metric", "Value"), List.of("---", "---:"), List.of(
+      List<List<String>> rows = new ArrayList<>(List.of(
           List.of("Packages", String.valueOf(packages.size())),
           List.of("Classes", String.valueOf(this.metrics.classes().size())),
           List.of("Abstract classes and interfaces",
@@ -327,6 +378,13 @@ public final class MetricsMarkdownExport implements TaikaiExport {
               .mapToInt(InheritanceMetric::depth)
               .max()
               .orElse(0)))));
+
+      if (this.withEntryPoints) {
+        rows.add(List.of("Entry points", String.valueOf(this.metrics.entryPointMethods())));
+      }
+
+      heading("Summary");
+      table(List.of("Metric", "Value"), List.of("---", "---:"), rows);
     }
 
     private void mainSequence(String chart) {
@@ -375,12 +433,12 @@ public final class MetricsMarkdownExport implements TaikaiExport {
 
     private void packages() {
       heading("Packages");
-      table(List.of("Package", "Classes", "Abstract", "Ca", "Ce", "I", "A", "D", "Visibility",
-              "Libraries", "Zone"),
-          List.of("---", "---:", "---:", "---:", "---:", "---:", "---:", "---:", "---:", "---:",
-              "---"),
+      table(packageColumns(List.of("Package", "Classes", "Abstract", "Ca", "Ce", "I", "A", "D",
+              "Visibility", "Libraries", "Zone"), "Entry points"),
+          packageColumns(List.of("---", "---:", "---:", "---:", "---:", "---:", "---:", "---:",
+              "---:", "---:", "---"), "---:"),
           this.metrics.packages().stream()
-              .map(metric -> List.of(
+              .map(metric -> packageColumns(List.of(
                   this.links.packageName(metric.name()),
                   String.valueOf(metric.classes()),
                   String.valueOf(metric.abstractClasses()),
@@ -391,14 +449,34 @@ public final class MetricsMarkdownExport implements TaikaiExport {
                   ArchitectureMetrics.formatted(metric.distance()),
                   ArchitectureMetrics.formatted(metric.relativeVisibility()),
                   String.valueOf(this.librariesOf.getOrDefault(metric.name(), 0L)),
-                  metric.zone().map(Zone::label).orElse("")))
+                  metric.zone().map(Zone::label).orElse("")),
+                  Objects.toString(this.entryPointsOf.get(metric.name()), "")))
               .toList());
 
       this.markdown.append("""
           Visibility is the relative visibility of Herbert Dowalil, the share of public classes, \
-          and Libraries the number of libraries that the package uses.
+          and Libraries the number of libraries that the package uses.""");
 
-          """);
+      if (this.withEntryPoints) {
+        this.markdown.append(" Entry points counts the methods of the package that a framework "
+            + "calls, see [Entry Points](#entry-points).");
+      }
+
+      this.markdown.append("\n\n");
+    }
+
+    /**
+     * Inserts the column of the entry points before the zone, if entry points are listed.
+     */
+    private List<String> packageColumns(List<String> columns, String entryPoints) {
+      if (!this.withEntryPoints) {
+        return columns;
+      }
+
+      List<String> withEntryPoints = new ArrayList<>(columns);
+      withEntryPoints.add(columns.size() - 1, entryPoints);
+
+      return withEntryPoints;
     }
 
     private void packageDependencies(String chart, String matrix) {
@@ -555,6 +633,40 @@ public final class MetricsMarkdownExport implements TaikaiExport {
           ClassMetric::fanIn);
       classes("Classes with the Most Dependencies", "Fan-out", this.metrics.classes(),
           ClassMetric::name, ClassMetric::fanOut);
+
+      if (this.withEntryPoints) {
+        entryPoints();
+      }
+    }
+
+    private void entryPoints() {
+      subheading("Entry Points");
+      this.markdown.append("""
+          Entry points are the methods that a framework calls rather than the measured classes, \
+          such as the handler methods of Spring MVC controllers, and a class counts those it \
+          inherits as well. They do not count as couplings, as their callers depend on a \
+          contract, such as the path and the parameters of a request, and not on the class, \
+          which can be renamed, split or moved without changing them. So a class with entry \
+          points is used even with a fan-in of 0, and the classes with the lowest fan-in come \
+          first, then those with the most entry points. Kinds counts the entry points by their \
+          kind, such as their HTTP method, and an entry point with several kinds, such as GET \
+          and POST, counts for each of them.
+
+          """);
+      table(List.of("Class", "Entry points", "Kinds", "Fan-in"),
+          List.of("---", "---:", "---", "---:"),
+          this.metrics.entryPoints().stream()
+              .sorted(comparingInt(EntryPointMetric::fanIn)
+                  .thenComparing(comparingInt(EntryPointMetric::methods).reversed())
+                  .thenComparing(EntryPointMetric::name))
+              .limit(LISTED_CLASSES)
+              .map(metric -> List.of(this.links.className(metric.name()),
+                  String.valueOf(metric.methods()),
+                  metric.kinds().entrySet().stream()
+                      .map(kind -> kind.getKey() + " " + kind.getValue())
+                      .collect(joining(", ")),
+                  String.valueOf(metric.fanIn())))
+              .toList());
     }
 
     private void cohesion() {
@@ -627,8 +739,14 @@ public final class MetricsMarkdownExport implements TaikaiExport {
       this.markdown.append('\n');
     }
 
+    /**
+     * Returns a row of a table, with the pipes in the cells escaped and their line breaks replaced
+     * by spaces, so that neither ends a cell or the row.
+     */
     private static String row(List<String> cells) {
-      return cells.stream().collect(joining(" | ", "| ", " |\n"));
+      return cells.stream()
+          .map(cell -> LINE_BREAK.matcher(cell.replace("|", "\\|")).replaceAll(" "))
+          .collect(joining(" | ", "| ", " |\n"));
     }
   }
 }

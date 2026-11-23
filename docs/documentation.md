@@ -875,7 +875,7 @@ The package `com.enofex.taikai.exports` contains the exports Taikai provides.
 | Export | Settings | Content |
 |--------|----------|---------|
 | `AgentsMarkdownExport` | `AgentsMarkdownExport.file(String)`, required | The rules as Markdown instructions for coding agents. |
-| `MetricsMarkdownExport` | `MetricsMarkdownExport.file(String)`, required, optionally `.withImageDirectory(String)` and `.withSourceDirectories(String...)` | The architecture metrics as Markdown, with SVG charts. |
+| `MetricsMarkdownExport` | `MetricsMarkdownExport.file(String)`, required, optionally `.withImageDirectory(String)`, `.withSourceDirectories(String...)` and `.withEntryPoints(EntryPoints...)` | The architecture metrics as Markdown, with SVG charts. |
 | `SarifExport` | `SarifExport.file(String)`, required, optionally `.withSourceDirectories(String...)` | The rule violations as a SARIF 2.1.0 report. |
 
 #### Configuring the exports
@@ -992,16 +992,60 @@ The file explains every metric next to its values:
 |---------|---------|
 | Main Sequence | The abstractness and instability of every package, with the zones of pain and uselessness. |
 | Package Map | The packages as a treemap, sized by their classes and colored by their zone. |
-| Packages | The classes, couplings, instability, abstractness, distance, visibility, libraries and zone of every package. |
+| Packages | The classes, couplings, instability, abstractness, distance, visibility, libraries, optionally entry points, and zone of every package. |
 | Package Dependencies | The dependencies as a graph and as a matrix: red ones close a cycle, orange ones depend on a less stable package. |
 | Libraries | The libraries that every package uses, such as `org.springframework`. |
 | Inheritance | The deepest and most extended classes. |
-| Coupling | The classes with the highest fan-in and fan-out. |
+| Coupling | The classes with the highest fan-in and fan-out, and optionally their entry points. |
 | Cohesion | The least cohesive classes by LCOM4. Members used through `super` connect no methods. |
 
 Names link to their sources, which are looked up as for the SARIF export. The charts are named after
 the file, such as `docs/METRICS-dependencies.svg`, and `.withImageDirectory("docs/images")` writes
 them elsewhere. The files only change when the architecture does, so they can be committed.
+
+The coupling only counts dependencies between the measured classes, so a class that only a
+framework calls, such as a Spring MVC controller, has a fan-in of 0, and its package an afferent
+coupling Ca of 0. Entry points list the methods that a framework calls, so that such a class is not
+taken for unused:
+
+```java
+.configure(MetricsMarkdownExport.class, MetricsMarkdownExport.file("docs/METRICS.md")
+    .withEntryPoints(EntryPoints.springMvc(),
+        EntryPoints.annotatedWith("org.springframework.scheduling.annotation.Scheduled")))
+```
+
+```markdown
+### Entry Points
+
+| Class | Entry points | Kinds | Fan-in |
+| --- | ---: | --- | ---: |
+| `item.web.ItemController` | 6 | GET 3, POST 3 | 0 |
+```
+
+The table lists the classes with the lowest fan-in first, as they would look unused without their
+entry points, then those with the most entry points. The summary then counts all entry points and
+the Packages table those of every package. An entry point with several kinds, such as GET and POST,
+counts once, but for each of its kinds. Entry points do not count as couplings, so they change no
+other metric: their callers depend on a contract, such as the path of a request, and not on the
+class.
+
+| Entry points | Methods | Kinds |
+|--------------|---------|-------|
+| `EntryPoints.springMvc()` | The methods of classes annotated with `@Controller` or `@RestController` themselves, as the component scan finds them, annotated with `@RequestMapping` or a composed annotation, such as `@GetMapping` or one of the project | The HTTP methods, together with those of the `@RequestMapping` of the class, also through a superclass or an interface, `ANY` if neither restricts them |
+| `EntryPoints.annotatedWith(...)` | The methods annotated with the annotation, such as `@Scheduled`, `@EventListener` or `@KafkaListener`, directly or through a composed annotation | The simple name of the annotation, such as `Scheduled` |
+
+Only concrete classes have entry points, and they also count those they inherit, as the framework
+calls them on their objects. A method that overrides an entry point is one as well, so a controller
+that implements an interface generated from an OpenAPI specification has the entry points of the
+interface. `EntryPoints` is a functional interface, so other frameworks plug in with a lambda that
+returns the kinds of a method:
+
+```java
+EntryPoints jaxRs = (javaClass, method) -> method.getAnnotations().stream()
+    .filter(annotation -> annotation.getRawType().isAnnotatedWith("jakarta.ws.rs.HttpMethod"))
+    .map(annotation -> annotation.getRawType().getSimpleName())
+    .collect(Collectors.toSet());
+```
 
 ## 6. How to Read the Rule Reference
 
