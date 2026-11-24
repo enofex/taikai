@@ -1,7 +1,5 @@
 package com.enofex.taikai.exports;
 
-import static java.util.stream.Collectors.joining;
-
 import com.enofex.taikai.exports.ArchitectureMetrics.Library;
 import com.enofex.taikai.exports.ArchitectureMetrics.LibraryUsage;
 import com.enofex.taikai.exports.ArchitectureMetrics.PackageCycle;
@@ -14,7 +12,6 @@ import java.util.IntSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -127,13 +124,9 @@ final class DependencyMatrix {
 
   private static String tooltip(ArchitectureMetrics metrics, String packageLabel,
       LibraryUsage usage) {
-    return Stream.concat(
-            Stream.of("%s uses %s: %s".formatted(packageLabel, usage.library(),
-                Svg.classes(usage.classes().size()))),
-            usage.classes().stream()
-                .limit(MetricsMarkdownExport.LISTED_CLASSES)
-                .map(metrics::classLabel))
-        .collect(joining("\n"));
+    return Svg.tooltip("%s uses %s: %s".formatted(packageLabel, usage.library(),
+            Svg.classes(usage.classes().size())),
+        usage.classes().stream().map(metrics::classLabel));
   }
 
   /**
@@ -159,17 +152,9 @@ final class DependencyMatrix {
     private static final int MAX_NUMBERED = 40;
     private static final double CELL = 28;
     private static final double SMALL_CELL = 16;
-    private static final double GAP = 2;
     private static final double NUMBER_WIDTH = 26;
     private static final double NUMBER_HEADER_HEIGHT = 22;
     private static final double HEADER_GAP = 8;
-
-    /**
-     * The steps 150 to 650 of the blue ramp. Numbers are white from the step 450 on.
-     */
-    private static final List<String> RAMP = List.of(
-        "#b7d3f6", "#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#104281");
-    private static final int FIRST_WHITE_STEP = 3;
 
     private final ArchitectureMetrics metrics;
     private final Map<String, Integer> rowOf = new HashMap<>();
@@ -257,24 +242,20 @@ final class DependencyMatrix {
      */
     String cell(int row, int column, int count, int maxCount, String attributes, String tooltip,
         @Nullable String squareClass) {
-      int step = (int) Math.ceil(Math.sqrt((double) count / maxCount) * RAMP.size()) - 1;
-      step = Math.max(0, Math.min(RAMP.size() - 1, step));
-      String text = squareClass != null || step < FIRST_WHITE_STEP ? "ink" : "on-fill";
+      Svg.Shade shade = Svg.Shade.of(count, maxCount);
+      String text = squareClass != null ? "ink" : shade.text();
 
       return Svg.group(attributes, tooltip,
           square(row, column, squareClass != null
               ? "class=\"%s\"".formatted(squareClass)
-              : "fill=\"%s\"".formatted(RAMP.get(step))),
+              : "fill=\"%s\"".formatted(shade.fill())),
           this.numbered
-              ? Svg.text(x(column) + this.cell / 2, y(row) + this.cell / 2 + 4,
-                  "text-anchor=\"middle\" class=\"%s\" font-size=\"11\" font-weight=\"600\""
-                      .formatted(text), String.valueOf(count))
+              ? Svg.count(x(column) + this.cell / 2, y(row) + this.cell / 2 + 4, text, count)
               : "");
     }
 
     String square(int row, int column, String attributes) {
-      return Svg.rect(x(column) + GAP / 2, y(row) + GAP / 2, this.cell - GAP, this.cell - GAP,
-          "rx=\"3\" " + attributes);
+      return Svg.cell(x(column), y(row), this.cell, this.cell, attributes);
     }
 
     private void rowHeaders(StringBuilder svg) {
@@ -311,7 +292,7 @@ final class DependencyMatrix {
               + "height=\"%3$s\" patternUnits=\"userSpaceOnUse\"><rect x=\"%4$s\" y=\"%4$s\" "
               + "width=\"%5$s\" height=\"%5$s\" rx=\"3\" class=\"cell\"/></pattern></defs>\n")
               .formatted(Svg.number(this.left), Svg.number(this.top), Svg.number(this.cell),
-                  Svg.number(GAP / 2), Svg.number(this.cell - GAP)))
+                  Svg.number(Svg.CELL_GAP / 2), Svg.number(this.cell - Svg.CELL_GAP)))
           .append(Svg.rect(this.left, this.top, this.columns.size() * this.cell,
               this.rowOf.size() * this.cell, "fill=\"url(#cells)\""));
     }

@@ -9,7 +9,7 @@ The metrics of `com.enofex.taikai`, measured by Taikai. Every package counts on 
 | Metric | Value |
 | --- | ---: |
 | Packages | 15 |
-| Classes | 112 |
+| Classes | 113 |
 | Abstract classes and interfaces | 10 |
 | Average distance from the main sequence | 0.25 |
 | Packages in the zone of pain | 2 |
@@ -51,7 +51,7 @@ Each tile is a package: its area is its number of classes and its color its zone
 | [`checks.spi`](taikai-core/src/main/java/com/enofex/taikai/checks/spi) | 3 | 3 | 11 | 0 | 0.00 | 1.00 | 0.00 | 1.00 | 1 |  |
 | [`configures`](taikai-core/src/main/java/com/enofex/taikai/configures) | 6 | 4 | 22 | 2 | 0.08 | 0.67 | 0.25 | 1.00 | 0 |  |
 | [`core`](taikai-core/src/main/java/com/enofex/taikai/core) | 6 | 0 | 30 | 4 | 0.12 | 0.00 | 0.88 | 1.00 | 1 | pain |
-| [`exports`](taikai-core/src/main/java/com/enofex/taikai/exports) | 19 | 1 | 1 | 9 | 0.90 | 0.05 | 0.05 | 0.26 | 1 |  |
+| [`exports`](taikai-core/src/main/java/com/enofex/taikai/exports) | 20 | 1 | 1 | 9 | 0.90 | 0.05 | 0.05 | 0.25 | 1 |  |
 | [`exports.spi`](taikai-core/src/main/java/com/enofex/taikai/exports/spi) | 2 | 2 | 7 | 1 | 0.13 | 1.00 | 0.13 | 1.00 | 1 |  |
 | [`internal`](taikai-core/src/main/java/com/enofex/taikai/internal) | 11 | 0 | 48 | 0 | 0.00 | 0.00 | 1.00 | 1.00 | 1 | pain |
 | [`java`](taikai-core/src/main/java/com/enofex/taikai/java) | 17 | 0 | 1 | 11 | 0.92 | 0.00 | 0.08 | 0.29 | 1 |  |
@@ -96,7 +96,7 @@ A row is a package, numbered as in the dependency matrix, and a column a library
 
 | Library | Packages | Classes |
 | --- | ---: | ---: |
-| `com.tngtech` | 14 | 79 |
+| `com.tngtech` | 14 | 80 |
 | `org.junit` | 1 | 1 |
 | `org.springframework` | 1 | 1 |
 
@@ -143,6 +143,10 @@ The inheritance depth of a class counts its superclasses, its subclasses only th
 
 The fan-in of a class counts the classes that depend on it, its fan-out the classes it depends on.
 
+![Fan-in and fan-out of the classes](metrics/METRICS-coupling.svg)
+
+Each cell counts the classes with a fan-in and a fan-out from its ticks up to just below the next ones, such as 2 to 4, on logarithmic scales, and the darker it is, the more classes it has. A class on the right is used by many classes, so it should be stable, and a class at the top depends on many, as a class that puts others together does. A class in the upper right, a hub, does both: a change of a class it depends on can reach the many classes that depend on it. The dots are the hubs listed below, and the dashed lines connect the points with the same fan-in × fan-out. A hub without room for its name has none.
+
 ### Most Used Classes
 
 | Class | Fan-in |
@@ -155,7 +159,7 @@ The fan-in of a class counts the classes that depend on it, its fan-out the clas
 | [`internal.Modifiers`](taikai-core/src/main/java/com/enofex/taikai/internal/Modifiers.java) | 19 |
 | [`checks.spi.CheckContext`](taikai-core/src/main/java/com/enofex/taikai/checks/spi/CheckContext.java) | 13 |
 | [`checks.spi.TaikaiCheck`](taikai-core/src/main/java/com/enofex/taikai/checks/spi/TaikaiCheck.java) | 12 |
-| [`exports.ArchitectureMetrics`](taikai-core/src/main/java/com/enofex/taikai/exports/ArchitectureMetrics.java) | 9 |
+| [`exports.ArchitectureMetrics`](taikai-core/src/main/java/com/enofex/taikai/exports/ArchitectureMetrics.java) | 10 |
 | [`spring.SpringDescribedPredicates`](taikai-core/src/main/java/com/enofex/taikai/spring/SpringDescribedPredicates.java) | 9 |
 | [`configures.Customizer`](taikai-core/src/main/java/com/enofex/taikai/configures/Customizer.java) | 8 |
 | [`exports.spi.ExportContext`](taikai-core/src/main/java/com/enofex/taikai/exports/spi/ExportContext.java) | 8 |
@@ -165,8 +169,8 @@ The fan-in of a class counts the classes that depend on it, its fan-out the clas
 | [`exports.spi.TaikaiExport`](taikai-core/src/main/java/com/enofex/taikai/exports/spi/TaikaiExport.java) | 7 |
 | [`core.ClassCriteria`](taikai-core/src/main/java/com/enofex/taikai/core/ClassCriteria.java) | 6 |
 | [`core.TaikaiException`](taikai-core/src/main/java/com/enofex/taikai/core/TaikaiException.java) | 6 |
+| [`exports.Svg`](taikai-core/src/main/java/com/enofex/taikai/exports/Svg.java) | 6 |
 | [`internal.ArchConditions`](taikai-core/src/main/java/com/enofex/taikai/internal/ArchConditions.java) | 6 |
-| [`exports.Svg`](taikai-core/src/main/java/com/enofex/taikai/exports/Svg.java) | 5 |
 
 ### Classes with the Most Dependencies
 
@@ -175,7 +179,7 @@ The fan-in of a class counts the classes that depend on it, its fan-out the clas
 | [`Taikai`](taikai-core/src/main/java/com/enofex/taikai/Taikai.java) | 20 |
 | [`java.JavaConfigurer`](taikai-core/src/main/java/com/enofex/taikai/java/JavaConfigurer.java) | 19 |
 | [`spring.SpringConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/SpringConfigurer.java) | 16 |
-| [`exports.MetricsMarkdownExport`](taikai-core/src/main/java/com/enofex/taikai/exports/MetricsMarkdownExport.java) | 12 |
+| [`exports.MetricsMarkdownExport`](taikai-core/src/main/java/com/enofex/taikai/exports/MetricsMarkdownExport.java) | 13 |
 | [`test.JUnitConfigurer`](taikai-core/src/main/java/com/enofex/taikai/test/JUnitConfigurer.java) | 11 |
 | [`java.NamingConfigurer`](taikai-core/src/main/java/com/enofex/taikai/java/NamingConfigurer.java) | 10 |
 | [`quarkus.QuarkusConfigurer`](taikai-core/src/main/java/com/enofex/taikai/quarkus/QuarkusConfigurer.java) | 10 |
@@ -192,6 +196,19 @@ The fan-in of a class counts the classes that depend on it, its fan-out the clas
 | [`spring.RepositoriesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/RepositoriesConfigurer.java) | 7 |
 | [`spring.ServicesConfigurer`](taikai-core/src/main/java/com/enofex/taikai/spring/ServicesConfigurer.java) | 7 |
 | [`exports.ArchitectureMetrics`](taikai-core/src/main/java/com/enofex/taikai/exports/ArchitectureMetrics.java) | 6 |
+
+### Hubs
+
+The classes that at least 2 classes depend on and that depend on at least 2 classes, the highest fan-in × fan-out first, which grows with the information that flows through a class, after Sallie Henry and Dennis Kafura.
+
+| Class | Fan-in | Fan-out | Fan-in × fan-out |
+| --- | ---: | ---: | ---: |
+| [`core.TaikaiRule`](taikai-core/src/main/java/com/enofex/taikai/core/TaikaiRule.java) | 28 | 4 | 112 |
+| [`configures.AbstractConfigurer`](taikai-core/src/main/java/com/enofex/taikai/configures/AbstractConfigurer.java) | 21 | 5 | 105 |
+| [`exports.ArchitectureMetrics`](taikai-core/src/main/java/com/enofex/taikai/exports/ArchitectureMetrics.java) | 10 | 6 | 60 |
+| [`exports.spi.ExportContext`](taikai-core/src/main/java/com/enofex/taikai/exports/spi/ExportContext.java) | 8 | 2 | 16 |
+| [`exports.ExportFiles`](taikai-core/src/main/java/com/enofex/taikai/exports/ExportFiles.java) | 3 | 2 | 6 |
+| [`spring.SelfInvokedProxiedMethods`](taikai-core/src/main/java/com/enofex/taikai/spring/SelfInvokedProxiedMethods.java) | 2 | 2 | 4 |
 
 ## Cohesion
 

@@ -5,6 +5,7 @@ import static com.enofex.taikai.internal.Modifiers.isPublic;
 import static com.enofex.taikai.internal.Modifiers.isSynthetic;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.comparingInt;
+import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
@@ -45,6 +46,11 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
    * Packages farther from the main sequence are in a zone.
    */
   static final double ZONE_DISTANCE = 0.5;
+
+  /**
+   * The least fan-in and fan-out of a hub, so that a change through it reaches several classes.
+   */
+  static final int MIN_HUB_COUPLING = 2;
 
   static ArchitectureMetrics of(JavaClasses javaClasses, List<EntryPoints> entryPoints) {
     Map<String, JavaClass> measured = new TreeMap<>();
@@ -119,6 +125,18 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
     return this.prefix.isEmpty() || !className.startsWith(this.prefix + ".")
         ? className
         : className.substring(this.prefix.length() + 1);
+  }
+
+  /**
+   * Returns the hubs, the classes with a fan-in and a fan-out of at least
+   * {@link #MIN_HUB_COUPLING}, the highest fan-in × fan-out first.
+   */
+  List<ClassMetric> hubs() {
+    return this.classes.stream()
+        .filter(metric -> metric.fanIn() >= MIN_HUB_COUPLING
+            && metric.fanOut() >= MIN_HUB_COUPLING)
+        .sorted(comparingLong(ClassMetric::flow).reversed().thenComparing(ClassMetric::name))
+        .toList();
   }
 
   int abstractClasses() {
@@ -319,6 +337,13 @@ record ArchitectureMetrics(String prefix, List<PackageMetric> packages, List<Cla
    */
   record ClassMetric(String name, int fanIn, int fanOut) {
 
+    /**
+     * Returns fan-in × fan-out, which grows with the information that flows through the class,
+     * after Sallie Henry and Dennis Kafura.
+     */
+    long flow() {
+      return (long) this.fanIn * this.fanOut;
+    }
   }
 
   /**

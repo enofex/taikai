@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.core.TaikaiException;
+import com.enofex.taikai.exports.ArchitectureMetrics.ClassMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.CohesionMetric;
 import com.enofex.taikai.exports.ArchitectureMetrics.PackageMetric;
 import com.enofex.taikai.exports.spi.ExportContext;
@@ -17,6 +18,7 @@ import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.StandardCharsets;
@@ -44,6 +46,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * The fixtures are described in their {@code package-info}.
@@ -52,9 +55,10 @@ class MetricsMarkdownExportTest {
 
   private static final String FIXTURES = "com.enofex.taikai.exports.fixtures";
   private static final String ENTRY_POINTS = "com.enofex.taikai.exports.entrypoints";
+  private static final String HUBS = "com.enofex.taikai.exports.hubs";
   private static final List<String> CHARTS = List.of("METRICS-main-sequence.svg",
       "METRICS-package-map.svg", "METRICS-dependencies.svg", "METRICS-dependency-matrix.svg",
-      "METRICS-libraries.svg");
+      "METRICS-libraries.svg", "METRICS-coupling.svg");
 
   /**
    * The zone of every package of the fixtures.
@@ -256,6 +260,17 @@ class MetricsMarkdownExportTest {
             The fan-in of a class counts the classes that depend on it, its fan-out the classes it \
             depends on.
 
+            ![Fan-in and fan-out of the classes](METRICS-coupling.svg)
+
+            Each cell counts the classes with a fan-in and a fan-out from its ticks up to just \
+            below the next ones, such as 2 to 4, on logarithmic scales, and the darker it is, the \
+            more classes it has. A class on the right is used by many classes, so it should be \
+            stable, and a class at the top depends on many, as a class that puts others together \
+            does. A class in the upper right, a hub, does both: a change of a class it depends on \
+            can reach the many classes that depend on it. The dots are the hubs listed below, and \
+            the dashed lines connect the points with the same fan-in \u00d7 fan-out. A hub without \
+            room for its name has none.
+
             ### Most Used Classes
 
             | Class | Fan-in |
@@ -282,6 +297,14 @@ class MetricsMarkdownExportTest {
             | [`billing.Invoice`](src/com/enofex/taikai/exports/fixtures/billing/Invoice.java) | 1 |
             | [`domain.Order`](src/com/enofex/taikai/exports/fixtures/domain/Order.java) | 1 |
             | [`spi.Plugin`](src/com/enofex/taikai/exports/fixtures/spi/Plugin.java) | 1 |
+
+            ### Hubs
+
+            The classes that at least 2 classes depend on and that depend on at least 2 classes, \
+            the highest fan-in \u00d7 fan-out first, which grows with the information that flows \
+            through a class, after Sallie Henry and Dennis Kafura.
+
+            None.
 
             ## Cohesion
 
@@ -427,6 +450,39 @@ class MetricsMarkdownExportTest {
         .withSourceDirectories("src")
         .entryPoints());
     assertThrows(NullPointerException.class, () -> settings.withEntryPoints(entryPoints, null));
+  }
+
+  @Test
+  void shouldListHubs() throws IOException {
+    String markdown = Files.readString(exportFixtures(HUBS), StandardCharsets.UTF_8);
+
+    assertTrue(markdown.contains("""
+        | Class | Fan-in | Fan-out | Fan-in \u00d7 fan-out |
+        | --- | ---: | ---: | ---: |
+        | `Hub` | 3 | 2 | 6 |
+        | `Router` | 2 | 2 | 4 |
+
+        ## Cohesion
+        """), markdown);
+  }
+
+  @Test
+  void shouldCountClassesInCellsAndDrawHubsOnTop() {
+    exportFixtures(HUBS);
+
+    Document svg = svg(this.directory.resolve("METRICS-coupling.svg"));
+
+    assertEquals(List.of("Fan-in 0, fan-out 1: 1 class\nThird",
+            "Fan-in 0, fan-out 2\u20134: 2 classes\nFirst\nSecond",
+            "Fan-in 2\u20134, fan-out 0: 2 classes\nLeft\nRight",
+            "Fan-in 2\u20134, fan-out 2\u20134: 2 classes\nHub\nRouter"),
+        titles(svg, "g", "density-cell"));
+    assertEquals(List.of("1", "2", "2", "2"), counts(svg));
+    assertEquals(List.of("Hub", "Router"),
+        elements(svg, "g", "hub").stream().map(MetricsMarkdownExportTest::label).toList());
+    assertEquals(List.of("Hub: fan-in 3, fan-out 2", "Router: fan-in 2, fan-out 2"),
+        titles(svg, "g", "hub"));
+    assertEquals(1, elements(svg, "polyline", "isoline").size());
   }
 
   @Test
@@ -732,6 +788,77 @@ class MetricsMarkdownExportTest {
     }
 
     @Test
+    void shouldStepTicksOfCouplingMapByOneTwoAndFiveUpToTheFirstAboveTheMaximum() {
+      assertEquals(List.of(0, 1), CouplingChart.ticks(0));
+      assertEquals(List.of(0, 1, 2), CouplingChart.ticks(1));
+      assertEquals(List.of(0, 1, 2, 5, 10, 20, 50), CouplingChart.ticks(28));
+      assertEquals(List.of(0, 1, 2, 5, 10, 20, 50), CouplingChart.ticks(49));
+      assertEquals(List.of(0, 1, 2, 5, 10, 20, 50, 100), CouplingChart.ticks(50));
+    }
+
+    @Test
+    void shouldDrawLineForEveryPowerOfTenOfFanInTimesFanOutBelowTheCorner() {
+      assertEquals(0, count(CouplingChart.svg(couplings(2)), "<polyline"));
+      assertEquals(1, count(CouplingChart.svg(couplings(9)), "<polyline"));
+      assertEquals(3, count(CouplingChart.svg(couplings(600)), "<polyline"));
+    }
+
+    @Test
+    void shouldCountClassesPerCellAndDrawAtMost20Hubs() {
+      String svg = CouplingChart.svg(couplings(600));
+
+      // fan-in 0, 1, 2 to 4, 5 to 9, 10 to 19 and 20 to 29 times fan-out 0 to 19 in 5 ranges
+      assertEquals(30, count(svg, "<g class=\"density-cell\""));
+      assertEquals(20, count(svg, "<g class=\"hub\""));
+    }
+
+    @Test
+    void shouldMoveCountsAwayFromHubs() {
+      // the hub at 3 and 3 covers the middle of the cell of fan-in and fan-out 2 to 4
+      List<ClassMetric> classes = new ArrayList<>(IntStream.range(0, 11)
+          .mapToObj(index -> new ClassMetric("c" + index, 2, 2))
+          .toList());
+      classes.add(new ClassMetric("hub", 3, 3));
+      classes.add(new ClassMetric("wide", 99, 0));
+
+      Document svg = document(CouplingChart.svg(couplings(classes)));
+      Element count = texts(svg, "11").stream()
+          .filter(text -> text.getTextContent().equals("12"))
+          .findFirst()
+          .orElseThrow();
+      Svg.Box box = Svg.countBox(Double.parseDouble(count.getAttribute("x")),
+          Double.parseDouble(count.getAttribute("y")), 12);
+
+      assertEquals(2, hubCircles(svg).size());
+      assertTrue(hubCircles(svg).stream().noneMatch(circle -> circle.box().overlaps(box)));
+    }
+
+    @Test
+    void shouldDrawLinesBelowCounts() {
+      String svg = CouplingChart.svg(couplings(600));
+
+      assertTrue(svg.lastIndexOf("<polyline") < svg.indexOf("font-size=\"11\""));
+    }
+
+    @Test
+    void shouldKeepHubsInsideThePlot() {
+      Document svg = document(CouplingChart.svg(couplings(List.of(
+          new ClassMetric("hub", 49, 49), new ClassMetric("leaf", 0, 0)))));
+      Svg.Box hub = hubCircles(svg).get(0).box();
+
+      assertTrue(hub.x2() + 1 <= Svg.SquarePlot.LEFT + Svg.SquarePlot.SIZE, hub.toString());
+      assertTrue(hub.y1() - 1 >= Svg.SquarePlot.TOP, hub.toString());
+    }
+
+    @Test
+    void shouldDrawNoteWithoutClasses() {
+      String svg = CouplingChart.svg(couplings(0));
+
+      assertTrue(svg.contains(">No classes</text>"), svg);
+      assertFalse(svg.contains("density-cell"), svg);
+    }
+
+    @Test
     void shouldDrawGraphThatIsNotTooWide() {
       String svg = DependencyChart.svg(packages(25));
 
@@ -766,6 +893,30 @@ class MetricsMarkdownExportTest {
       return new ArchitectureMetrics("",
           names.stream().map(name -> new PackageMetric(name, 1, 0, 1, 0, 0)).toList(),
           List.of(), List.of(), List.of(), List.of(), List.of(), names, List.of(), List.of());
+    }
+
+    /**
+     * Returns classes that differ in fan-in and fan-out: a fan-in of up to 29, then a higher
+     * fan-out.
+     */
+    private static ArchitectureMetrics couplings(int classes) {
+      return couplings(IntStream.range(0, classes)
+          .mapToObj(index -> new ClassMetric("c" + index, index % 30, index / 30))
+          .toList());
+    }
+
+    private static ArchitectureMetrics couplings(List<ClassMetric> classes) {
+      return new ArchitectureMetrics("", List.of(), classes, List.of(), List.of(), List.of(),
+          List.of(), List.of(), List.of(), List.of());
+    }
+
+    private static List<Svg.Circle> hubCircles(Document svg) {
+      return elements(svg, "g", "hub").stream()
+          .map(hub -> (Element) hub.getElementsByTagName("circle").item(0))
+          .map(circle -> new Svg.Circle(Double.parseDouble(circle.getAttribute("cx")),
+              Double.parseDouble(circle.getAttribute("cy")),
+              Double.parseDouble(circle.getAttribute("r"))))
+          .toList();
     }
 
     /**
@@ -951,6 +1102,31 @@ class MetricsMarkdownExportTest {
 
   private static String label(Element group) {
     return group.getElementsByTagName("text").item(0).getTextContent();
+  }
+
+  /**
+   * Returns the counts of the cells, the texts in their font size of 11.
+   */
+  private static List<String> counts(Document svg) {
+    return texts(svg, "11").stream().map(Element::getTextContent).toList();
+  }
+
+  private static List<Element> texts(Document svg, String fontSize) {
+    NodeList nodes = svg.getElementsByTagName("text");
+
+    return IntStream.range(0, nodes.getLength())
+        .mapToObj(index -> (Element) nodes.item(index))
+        .filter(text -> text.getAttribute("font-size").equals(fontSize))
+        .toList();
+  }
+
+  private static Document document(String svg) {
+    try {
+      return DocumentBuilderFactory.newInstance().newDocumentBuilder()
+          .parse(new InputSource(new StringReader(svg)));
+    } catch (Exception e) {
+      throw new AssertionError("The chart is no valid XML", e);
+    }
   }
 
   private static Document svg(Path chart) {

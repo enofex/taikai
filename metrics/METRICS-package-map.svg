@@ -9,6 +9,7 @@
   .grid { stroke: #e6e5df; }
   .sequence { stroke: #52514e; }
   .leader { stroke: #b4b3ac; }
+  .isoline { fill: none; stroke: #b4b3ac; stroke-dasharray: 4 3; }
   .halo { paint-order: stroke; stroke: #f7f7f5; stroke-width: 3px; stroke-linejoin: round; }
   .ring { stroke: #f7f7f5; }
   .node { fill: #ffffff; stroke: #d9d8d1; }
@@ -42,91 +43,91 @@
   <text x="538.4" y="40" text-anchor="start" class="ink-2">No couplings</text>
   <g class="tile" data-zone="balanced">
     <title>com.enofex.taikai: 2 classes, I 1.00, A 0.00, D 0.00</title>
-    <rect x="571.69" y="319.65" width="46.81" height="82.47" rx="6" class="balanced" fill-opacity="0.14"/>
-    <text x="579.69" y="337.65" class="ink" font-size="12" font-weight="600">com…</text>
+    <rect x="572.13" y="319.65" width="46.37" height="82.47" rx="6" class="balanced" fill-opacity="0.14"/>
+    <text x="580.13" y="337.65" class="ink" font-size="12" font-weight="600">com…</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>checks: 11 classes, I 0.91, A 0.00, D 0.09</title>
-    <rect x="217.07" y="235.66" width="193.89" height="115.92" rx="6" class="balanced" fill-opacity="0.19"/>
-    <text x="225.07" y="253.66" class="ink" font-size="12" font-weight="600">checks</text>
-    <text x="225.07" y="268.66" class="ink-2" font-size="11">11 classes · D 0.09</text>
+    <rect x="220.65" y="235.66" width="192.15" height="115.92" rx="6" class="balanced" fill-opacity="0.19"/>
+    <text x="228.65" y="253.66" class="ink" font-size="12" font-weight="600">checks</text>
+    <text x="228.65" y="268.66" class="ink-2" font-size="11">11 classes · D 0.09</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>checks.spi: 3 classes, I 0.00, A 1.00, D 0.00</title>
-    <rect x="413.96" y="319.65" width="80.01" height="73.92" rx="6" class="balanced" fill-opacity="0.14"/>
-    <text x="421.96" y="337.65" class="ink" font-size="12" font-weight="600">checks.…</text>
-    <text x="421.96" y="352.65" class="ink-2" font-size="11">D 0.00</text>
+    <rect x="415.8" y="319.65" width="79.28" height="73.92" rx="6" class="balanced" fill-opacity="0.14"/>
+    <text x="423.8" y="337.65" class="ink" font-size="12" font-weight="600">checks.…</text>
+    <text x="423.8" y="352.65" class="ink-2" font-size="11">D 0.00</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>configures: 6 classes, I 0.08, A 0.67, D 0.25</title>
-    <rect x="413.96" y="73.5" width="100.77" height="120.08" rx="6" class="balanced" fill-opacity="0.27"/>
-    <text x="421.96" y="91.5" class="ink" font-size="12" font-weight="600">configures</text>
-    <text x="421.96" y="106.5" class="ink-2" font-size="11">D 0.25</text>
+    <rect x="415.8" y="73.5" width="99.85" height="120.08" rx="6" class="balanced" fill-opacity="0.27"/>
+    <text x="423.8" y="91.5" class="ink" font-size="12" font-weight="600">configures</text>
+    <text x="423.8" y="106.5" class="ink-2" font-size="11">D 0.25</text>
   </g>
   <g class="tile" data-zone="pain">
     <title>core: 6 classes, I 0.12, A 0.00, D 0.88</title>
-    <rect x="517.73" y="73.5" width="100.77" height="120.08" rx="6" class="pain" fill-opacity="0.58"/>
-    <text x="525.73" y="91.5" class="ink" font-size="12" font-weight="600">core</text>
-    <text x="525.73" y="106.5" class="ink-2" font-size="11">D 0.88</text>
+    <rect x="518.65" y="73.5" width="99.85" height="120.08" rx="6" class="pain" fill-opacity="0.58"/>
+    <text x="526.65" y="91.5" class="ink" font-size="12" font-weight="600">core</text>
+    <text x="526.65" y="106.5" class="ink-2" font-size="11">D 0.88</text>
   </g>
   <g class="tile" data-zone="balanced">
-    <title>exports: 19 classes, I 0.90, A 0.05, D 0.05</title>
-    <rect x="25.5" y="73.5" width="188.57" height="208.11" rx="6" class="balanced" fill-opacity="0.16"/>
+    <title>exports: 20 classes, I 0.90, A 0.05, D 0.05</title>
+    <rect x="25.5" y="73.5" width="192.15" height="213.22" rx="6" class="balanced" fill-opacity="0.16"/>
     <text x="33.5" y="91.5" class="ink" font-size="12" font-weight="600">exports</text>
-    <text x="33.5" y="106.5" class="ink-2" font-size="11">19 classes · D 0.05</text>
+    <text x="33.5" y="106.5" class="ink-2" font-size="11">20 classes · D 0.05</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>exports.spi: 2 classes, I 0.13, A 1.00, D 0.13</title>
-    <rect x="496.98" y="405.12" width="59.26" height="65.38" rx="6" class="balanced" fill-opacity="0.2"/>
-    <text x="504.98" y="423.12" class="ink" font-size="12" font-weight="600">expor…</text>
-    <text x="504.98" y="438.12" class="ink-2" font-size="11">D 0.13</text>
+    <rect x="498.08" y="405.12" width="58.71" height="65.38" rx="6" class="balanced" fill-opacity="0.2"/>
+    <text x="506.08" y="423.12" class="ink" font-size="12" font-weight="600">expo…</text>
+    <text x="506.08" y="438.12" class="ink-2" font-size="11">D 0.13</text>
   </g>
   <g class="tile" data-zone="pain">
     <title>internal: 11 classes, I 0.00, A 0.00, D 1.00</title>
-    <rect x="217.07" y="354.58" width="193.89" height="115.92" rx="6" class="pain" fill-opacity="0.64"/>
-    <text x="225.07" y="372.58" class="ink" font-size="12" font-weight="600">internal</text>
-    <text x="225.07" y="387.58" class="ink-2" font-size="11">11 classes · D 1.00</text>
+    <rect x="220.65" y="354.58" width="192.15" height="115.92" rx="6" class="pain" fill-opacity="0.64"/>
+    <text x="228.65" y="372.58" class="ink" font-size="12" font-weight="600">internal</text>
+    <text x="228.65" y="387.58" class="ink-2" font-size="11">11 classes · D 1.00</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>java: 17 classes, I 0.92, A 0.00, D 0.08</title>
-    <rect x="25.5" y="284.61" width="188.57" height="185.89" rx="6" class="balanced" fill-opacity="0.18"/>
-    <text x="33.5" y="302.61" class="ink" font-size="12" font-weight="600">java</text>
-    <text x="33.5" y="317.61" class="ink-2" font-size="11">17 classes · D 0.08</text>
+    <rect x="25.5" y="289.72" width="192.15" height="180.78" rx="6" class="balanced" fill-opacity="0.18"/>
+    <text x="33.5" y="307.72" class="ink" font-size="12" font-weight="600">java</text>
+    <text x="33.5" y="322.72" class="ink-2" font-size="11">17 classes · D 0.08</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>jpa: 3 classes, I 0.75, A 0.00, D 0.25</title>
-    <rect x="413.96" y="396.58" width="80.01" height="73.92" rx="6" class="balanced" fill-opacity="0.27"/>
-    <text x="421.96" y="414.58" class="ink" font-size="12" font-weight="600">jpa</text>
-    <text x="421.96" y="429.58" class="ink-2" font-size="11">D 0.25</text>
+    <rect x="415.8" y="396.58" width="79.28" height="73.92" rx="6" class="balanced" fill-opacity="0.27"/>
+    <text x="423.8" y="414.58" class="ink" font-size="12" font-weight="600">jpa</text>
+    <text x="423.8" y="429.58" class="ink-2" font-size="11">D 0.25</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>logging: 2 classes, I 0.67, A 0.00, D 0.33</title>
-    <rect x="559.24" y="405.12" width="59.26" height="65.38" rx="6" class="balanced" fill-opacity="0.31"/>
-    <text x="567.24" y="423.12" class="ink" font-size="12" font-weight="600">loggi…</text>
-    <text x="567.24" y="438.12" class="ink-2" font-size="11">D 0.33</text>
+    <rect x="559.79" y="405.12" width="58.71" height="65.38" rx="6" class="balanced" fill-opacity="0.31"/>
+    <text x="567.79" y="423.12" class="ink" font-size="12" font-weight="600">logg…</text>
+    <text x="567.79" y="438.12" class="ink-2" font-size="11">D 0.33</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>metrics: 3 classes, I 0.75, A 0.00, D 0.25</title>
-    <rect x="496.98" y="319.65" width="71.71" height="82.47" rx="6" class="balanced" fill-opacity="0.27"/>
-    <text x="504.98" y="337.65" class="ink" font-size="12" font-weight="600">metrics</text>
-    <text x="504.98" y="352.65" class="ink-2" font-size="11">D 0.25</text>
+    <rect x="498.08" y="319.65" width="71.05" height="82.47" rx="6" class="balanced" fill-opacity="0.27"/>
+    <text x="506.08" y="337.65" class="ink" font-size="12" font-weight="600">metrics</text>
+    <text x="506.08" y="352.65" class="ink-2" font-size="11">D 0.25</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>quarkus: 6 classes, I 0.83, A 0.00, D 0.17</title>
-    <rect x="413.96" y="196.58" width="100.77" height="120.08" rx="6" class="balanced" fill-opacity="0.22"/>
-    <text x="421.96" y="214.58" class="ink" font-size="12" font-weight="600">quarkus</text>
-    <text x="421.96" y="229.58" class="ink-2" font-size="11">D 0.17</text>
+    <rect x="415.8" y="196.58" width="99.85" height="120.08" rx="6" class="balanced" fill-opacity="0.22"/>
+    <text x="423.8" y="214.58" class="ink" font-size="12" font-weight="600">quarkus</text>
+    <text x="423.8" y="229.58" class="ink-2" font-size="11">D 0.17</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>spring: 15 classes, I 0.93, A 0.00, D 0.07</title>
-    <rect x="217.07" y="73.5" width="193.89" height="159.16" rx="6" class="balanced" fill-opacity="0.18"/>
-    <text x="225.07" y="91.5" class="ink" font-size="12" font-weight="600">spring</text>
-    <text x="225.07" y="106.5" class="ink-2" font-size="11">15 classes · D 0.07</text>
+    <rect x="220.65" y="73.5" width="192.15" height="159.16" rx="6" class="balanced" fill-opacity="0.18"/>
+    <text x="228.65" y="91.5" class="ink" font-size="12" font-weight="600">spring</text>
+    <text x="228.65" y="106.5" class="ink-2" font-size="11">15 classes · D 0.07</text>
   </g>
   <g class="tile" data-zone="balanced">
     <title>test: 6 classes, I 0.86, A 0.00, D 0.14</title>
-    <rect x="517.73" y="196.58" width="100.77" height="120.08" rx="6" class="balanced" fill-opacity="0.21"/>
-    <text x="525.73" y="214.58" class="ink" font-size="12" font-weight="600">test</text>
-    <text x="525.73" y="229.58" class="ink-2" font-size="11">D 0.14</text>
+    <rect x="518.65" y="196.58" width="99.85" height="120.08" rx="6" class="balanced" fill-opacity="0.21"/>
+    <text x="526.65" y="214.58" class="ink" font-size="12" font-weight="600">test</text>
+    <text x="526.65" y="229.58" class="ink-2" font-size="11">D 0.14</text>
   </g>
 </svg>

@@ -38,7 +38,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Exports metrics of the architecture as Markdown, with SVG charts of the main sequence, the
- * packages, their dependencies and the libraries they use. The export needs a configuration:
+ * packages, their dependencies, the libraries they use and the coupling of the classes. The export
+ * needs a configuration:
  *
  * <pre>{@code
  * .discoverExports(exports -> exports
@@ -104,7 +105,8 @@ public final class MetricsMarkdownExport implements TaikaiExport {
         chart(files, file, imageDirectory, "-dependencies.svg", DependencyChart.svg(metrics)),
         chart(files, file, imageDirectory, "-dependency-matrix.svg",
             DependencyMatrix.packages(metrics)),
-        chart(files, file, imageDirectory, "-libraries.svg", DependencyMatrix.libraries(metrics)));
+        chart(files, file, imageDirectory, "-libraries.svg", DependencyMatrix.libraries(metrics)),
+        chart(files, file, imageDirectory, "-coupling.svg", CouplingChart.svg(metrics)));
     Links links = new Links(file, classes,
         SourceFiles.in(context.projectDirectory(), settings.sourceDirectories()), metrics);
 
@@ -255,7 +257,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
   }
 
   private record Charts(String mainSequence, String treemap, String dependencies,
-      String dependencyMatrix, String libraries) {
+      String dependencyMatrix, String libraries, String coupling) {
 
   }
 
@@ -316,7 +318,7 @@ public final class MetricsMarkdownExport implements TaikaiExport {
       packageDependencies(charts.dependencies(), charts.dependencyMatrix());
       libraries(charts.libraries());
       inheritance();
-      coupling();
+      coupling(charts.coupling());
       cohesion();
     }
 
@@ -621,11 +623,23 @@ public final class MetricsMarkdownExport implements TaikaiExport {
           InheritanceMetric::subclasses);
     }
 
-    private void coupling() {
+    private void coupling(String chart) {
       heading("Coupling");
       this.markdown.append("""
           The fan-in of a class counts the classes that depend on it, its fan-out the classes it \
           depends on.
+
+          """);
+      image(CouplingChart.DESCRIPTION, chart);
+      this.markdown.append("""
+          Each cell counts the classes with a fan-in and a fan-out from its ticks up to just \
+          below the next ones, such as 2 to 4, on logarithmic scales, and the darker it is, the \
+          more classes it has. A class on the right is used by many classes, so it should be \
+          stable, and a class at the top depends on many, as a class that puts others together \
+          does. A class in the upper right, a hub, does both: a change of a class it depends on \
+          can reach the many classes that depend on it. The dots are the hubs listed below, and \
+          the dashed lines connect the points with the same fan-in \u00d7 fan-out. A hub without \
+          room for its name has none.
 
           """);
 
@@ -633,10 +647,29 @@ public final class MetricsMarkdownExport implements TaikaiExport {
           ClassMetric::fanIn);
       classes("Classes with the Most Dependencies", "Fan-out", this.metrics.classes(),
           ClassMetric::name, ClassMetric::fanOut);
+      hubs();
 
       if (this.withEntryPoints) {
         entryPoints();
       }
+    }
+
+    private void hubs() {
+      subheading("Hubs");
+      this.markdown.append("""
+          The classes that at least %1$s classes depend on and that depend on at least %1$s \
+          classes, the highest fan-in \u00d7 fan-out first, which grows with the information that \
+          flows through a class, after Sallie Henry and Dennis Kafura.
+
+          """.formatted(ArchitectureMetrics.MIN_HUB_COUPLING));
+      table(List.of("Class", "Fan-in", "Fan-out", "Fan-in \u00d7 fan-out"),
+          List.of("---", "---:", "---:", "---:"),
+          this.metrics.hubs().stream()
+              .limit(LISTED_CLASSES)
+              .map(metric -> List.of(this.links.className(metric.name()),
+                  String.valueOf(metric.fanIn()), String.valueOf(metric.fanOut()),
+                  String.valueOf(metric.flow())))
+              .toList());
     }
 
     private void entryPoints() {
