@@ -9,6 +9,7 @@
   .grid { stroke: #e6e5df; }
   .sequence { stroke: #52514e; }
   .leader { stroke: #b4b3ac; }
+  .isoline { fill: none; stroke: #b4b3ac; stroke-dasharray: 4 3; }
   .halo { paint-order: stroke; stroke: #f7f7f5; stroke-width: 3px; stroke-linejoin: round; }
   .ring { stroke: #f7f7f5; }
   .node { fill: #ffffff; stroke: #d9d8d1; }
@@ -123,10 +124,11 @@ core.TaikaiRule</title>
     <text x="205.6" y="291.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">5</text>
   </g>
   <g class="library-cell" data-package="exports" data-library="com.tngtech">
-    <title>exports uses com.tngtech: 12 classes
+    <title>exports uses com.tngtech: 13 classes
 exports.AgentsMarkdownExport
 exports.ArchitectureMetrics
 exports.Cohesion
+exports.CouplingChart
 exports.EntryPointMethods
 exports.EntryPoints
 exports.ExportsConfigurer
@@ -137,7 +139,7 @@ exports.SarifExport
 exports.SourceFiles
 exports.SpringMvcEntryPoints</title>
     <rect x="192.6" y="386.2" width="26" height="26" rx="3" fill="#104281"/>
-    <text x="205.6" y="403.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">12</text>
+    <text x="205.6" y="403.2" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">13</text>
   </g>
   <g class="library-cell" data-package="exports.spi" data-library="com.tngtech">
     <title>exports.spi uses com.tngtech: 1 class

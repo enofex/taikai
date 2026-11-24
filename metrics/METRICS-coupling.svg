@@ -1,0 +1,337 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="644" height="670" viewBox="0 0 644 670" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12">
+  <title>Fan-in and fan-out of the classes</title>
+  <style>
+  .card { fill: #ffffff; stroke: #e1e0d9; }
+  .plane { fill: #f7f7f5; }
+  .ink { fill: #0b0b0b; }
+  .ink-2 { fill: #52514e; }
+  .muted { fill: #898781; }
+  .grid { stroke: #e6e5df; }
+  .sequence { stroke: #52514e; }
+  .leader { stroke: #b4b3ac; }
+  .isoline { fill: none; stroke: #b4b3ac; stroke-dasharray: 4 3; }
+  .halo { paint-order: stroke; stroke: #f7f7f5; stroke-width: 3px; stroke-linejoin: round; }
+  .ring { stroke: #f7f7f5; }
+  .node { fill: #ffffff; stroke: #d9d8d1; }
+  .edge { fill: none; stroke: #898781; stroke-opacity: 0.75; }
+  .cycle { fill: none; stroke: #d03b3b; }
+  .unstable { fill: none; stroke: #c98500; }
+  .edge-head { fill: #898781; }
+  .cycle-head { fill: #d03b3b; }
+  .unstable-head { fill: #c98500; }
+  .balanced { fill: #2a78d6; }
+  .pain { fill: #d03b3b; }
+  .uselessness { fill: #c98500; }
+  .isolated { fill: #898781; }
+  .on-fill { fill: #ffffff; }
+  .cell { fill: #f7f7f5; }
+  .self { fill: #e6e5df; }
+  .dependency { fill: #2a78d6; }
+  .closing { fill: #f7d4d4; stroke: #d03b3b; }
+  .unstable-target { fill: #f4e7cc; stroke: #c98500; }
+  .group { fill: none; stroke: #d03b3b; }
+  </style>
+  <rect x="0.5" y="0.5" width="643" height="669" rx="12" class="card"/>
+  <text x="24" y="40" class="ink" font-size="15" font-weight="600">Coupling map</text>
+  <rect x="331.2" y="31" width="10" height="10" rx="2" class="balanced" stroke-width="1.5"/>
+  <text x="345.2" y="40" text-anchor="start" class="ink-2">Classes</text>
+  <circle cx="415.8" cy="36" r="5" class="balanced"/>
+  <text x="424.8" y="40" text-anchor="start" class="ink-2">Hub</text>
+  <line x1="463.2" y1="36" x2="473.2" y2="36" class="isoline" stroke-width="2"/>
+  <text x="477.2" y="40" text-anchor="start" class="ink-2">Same fan-in × fan-out</text>
+  <rect x="92" y="72" width="520" height="520" rx="8" class="plane"/>
+  <line x1="183.67" y1="72" x2="183.67" y2="592" class="grid"/>
+  <line x1="92" y1="500.33" x2="612" y2="500.33" class="grid"/>
+  <line x1="237.3" y1="72" x2="237.3" y2="592" class="grid"/>
+  <line x1="92" y1="446.7" x2="612" y2="446.7" class="grid"/>
+  <line x1="328.97" y1="72" x2="328.97" y2="592" class="grid"/>
+  <line x1="92" y1="355.03" x2="612" y2="355.03" class="grid"/>
+  <line x1="409.13" y1="72" x2="409.13" y2="592" class="grid"/>
+  <line x1="92" y1="274.87" x2="612" y2="274.87" class="grid"/>
+  <line x1="494.65" y1="72" x2="494.65" y2="592" class="grid"/>
+  <line x1="92" y1="189.35" x2="612" y2="189.35" class="grid"/>
+  <g class="density-cell">
+    <title>Fan-in 0, fan-out 0: 3 classes
+internal.JakartaAnnotations
+internal.KotlinAnnotations
+internal.SpringAnnotations</title>
+    <rect x="93" y="501.33" width="89.67" height="89.67" rx="3" fill="#5598e7"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 0, fan-out 1: 3 classes
+core.FieldCriteria
+core.MethodCriteria
+java.ImportPatterns</title>
+    <rect x="93" y="447.7" width="89.67" height="51.62" rx="3" fill="#5598e7"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 0, fan-out 2–4: 9 classes
+checks.ClassFileVersionCheck
+checks.FileContentCheck
+checks.ForbiddenFilesCheck
+checks.GradleWrapperCheck
+checks.MavenWrapperCheck
+checks.RequiredFilesCheck
+checks.ServiceRegistrationsCheck
+checks.spi.ForwardingCheckContext
+exports.AgentsMarkdownExport</title>
+    <rect x="93" y="356.03" width="89.67" height="89.67" rx="3" fill="#1c5cab"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 0, fan-out 5–9: 1 class
+exports.SarifExport</title>
+    <rect x="93" y="275.87" width="89.67" height="78.16" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 0, fan-out 10–19: 1 class
+exports.MetricsMarkdownExport</title>
+    <rect x="93" y="190.35" width="89.67" height="83.52" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 1, fan-out 0: 7 classes
+exports.SpringMvcEntryPoints
+java.InterfaceNaming
+java.NoSystemOutOrErr
+java.PackageNaming
+quarkus.AiServiceTools
+spring.InjectedStaticMembers
+spring.ReadOnlyTransactionalMethods</title>
+    <rect x="184.67" y="501.33" width="51.62" height="89.67" rx="3" fill="#2a78d6"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 1, fan-out 1: 18 classes
+exports.Libraries
+java.BooleanMethodNaming
+java.Deprecations
+java.EnumConstantNaming
+java.HashCodeAndEquals
+java.NullMarkedScopes
+java.SerialVersionUID
+java.UtilityClasses
+jpa.JpaDescribedPredicates
+logging.LoggerConventions
+metrics.ClassMetrics
+metrics.PackageMetrics
+spring.ValidatedController
+spring.ValidatedRequestBodies
+test.ContainAssertionsOrVerifications
+test.ExecutableTests
+test.JUnitDescribedPredicates
+test.TestClassNaming</title>
+    <rect x="184.67" y="447.7" width="51.62" height="51.62" rx="3" fill="#104281"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 1, fan-out 2–4: 11 classes
+checks.PerCheckContext
+exports.Cohesion
+exports.CouplingChart
+exports.DependencyChart
+exports.DependencyMatrix
+exports.EntryPointMethods
+exports.MainSequenceChart
+exports.PackageMap
+exports.PerExportContext
+java.ProtectedMembers
+spring.TransactionalControllers</title>
+    <rect x="184.67" y="356.03" width="51.62" height="89.67" rx="3" fill="#1c5cab"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 1, fan-out 5–9: 18 classes
+ConfigurationWarnings
+checks.ChecksConfigurer
+exports.ExportsConfigurer
+java.ImportsConfigurer
+jpa.EntitiesConfigurer
+jpa.JpaConfigurer
+logging.LoggingConfigurer
+metrics.MetricsConfigurer
+quarkus.AiConfigurer
+quarkus.PanacheConfigurer
+quarkus.ResourcesConfigurer
+spring.BootConfigurer
+spring.ConfigurationsConfigurer
+spring.PropertiesConfigurer
+spring.RepositoriesConfigurer
+spring.ServicesConfigurer
+spring.TransactionalConfigurer
+test.TestConfigurer</title>
+    <rect x="184.67" y="275.87" width="51.62" height="78.16" rx="3" fill="#104281"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 1, fan-out 10–19: 6 classes
+java.JavaConfigurer
+java.NamingConfigurer
+quarkus.QuarkusConfigurer
+spring.ControllersConfigurer
+spring.SpringConfigurer
+test.JUnitConfigurer</title>
+    <rect x="184.67" y="190.35" width="51.62" height="83.52" rx="3" fill="#2a78d6"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 1, fan-out 20–49: 1 class
+Taikai</title>
+    <rect x="184.67" y="73" width="51.62" height="115.35" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 2–4, fan-out 0: 8 classes
+checks.ProjectFileSearch
+core.Namespace
+exports.DependencyGraph
+exports.SourceFiles
+internal.ExcludedClasses
+internal.Namespaces
+internal.Services
+java.NullMarking</title>
+    <rect x="238.3" y="501.33" width="89.67" height="89.67" rx="3" fill="#2a78d6"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 2–4, fan-out 1: 5 classes
+checks.ProjectFiles
+configures.Configurers
+exports.EntryPoints
+java.ConstantNaming
+quarkus.QuarkusDescribedPredicates</title>
+    <rect x="238.3" y="447.7" width="89.67" height="51.62" rx="3" fill="#2a78d6"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 2–4, fan-out 2–4: 2 classes
+exports.ExportFiles
+spring.SelfInvokedProxiedMethods</title>
+    <rect x="238.3" y="356.03" width="89.67" height="89.67" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 5–9, fan-out 0: 3 classes
+core.TaikaiException
+internal.Arguments
+internal.Classes</title>
+    <rect x="329.97" y="501.33" width="78.16" height="89.67" rx="3" fill="#5598e7"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 5–9, fan-out 1: 7 classes
+configures.Customizer
+core.ClassCriteria
+exports.Svg
+exports.spi.TaikaiExport
+internal.ArchConditions
+internal.DescribedPredicates
+spring.SpringDescribedPredicates</title>
+    <rect x="329.97" y="447.7" width="78.16" height="51.62" rx="3" fill="#2a78d6"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 5–9, fan-out 2–4: 1 class
+exports.spi.ExportContext</title>
+    <rect x="329.97" y="356.03" width="78.16" height="89.67" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 10–19, fan-out 0: 1 class
+internal.Modifiers</title>
+    <rect x="410.13" y="501.33" width="83.52" height="89.67" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 10–19, fan-out 1: 2 classes
+checks.spi.CheckContext
+checks.spi.TaikaiCheck</title>
+    <rect x="410.13" y="447.7" width="83.52" height="51.62" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 10–19, fan-out 5–9: 1 class
+exports.ArchitectureMetrics</title>
+    <rect x="410.13" y="275.87" width="83.52" height="78.16" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 20–49, fan-out 1: 3 classes
+configures.Configurer
+configures.ConfigurerContext
+configures.DisableableConfigurer</title>
+    <rect x="495.65" y="447.7" width="115.35" height="51.62" rx="3" fill="#5598e7"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 20–49, fan-out 2–4: 1 class
+core.TaikaiRule</title>
+    <rect x="495.65" y="356.03" width="115.35" height="89.67" rx="3" fill="#86b6ef"/>
+  </g>
+  <g class="density-cell">
+    <title>Fan-in 20–49, fan-out 5–9: 1 class
+configures.AbstractConfigurer</title>
+    <rect x="495.65" y="275.87" width="115.35" height="78.16" rx="3" fill="#86b6ef"/>
+  </g>
+  <polyline points="162.33,72 164.23,86.69 166.32,101.32 168.62,115.89 171.16,130.39 173.95,144.81 177.02,159.15 180.37,173.4 184.03,187.55 188.01,201.58 192.34,215.48 197.04,229.25 202.11,242.87 207.58,256.32 213.46,269.58 219.75,282.65 226.47,295.51 233.62,308.13 241.2,320.5 249.21,332.6 257.66,344.42 266.53,355.92 275.82,367.1 285.52,377.93 295.61,388.39 306.07,398.48 316.9,408.18 328.08,417.47 339.58,426.34 351.4,434.79 363.5,442.8 375.87,450.38 388.49,457.53 401.35,464.25 414.42,470.54 427.68,476.42 441.13,481.89 454.75,486.96 468.52,491.66 482.42,495.99 496.45,499.97 510.6,503.63 524.85,506.98 539.19,510.05 553.61,512.84 568.11,515.38 582.68,517.68 597.31,519.77 612,521.67" class="isoline" stroke-width="1.5"/>
+  <polyline points="258.44,72 263.57,80.55 268.85,89.07 274.26,97.58 279.81,106.07 285.49,114.54 291.31,122.98 297.26,131.4 303.34,139.8 309.54,148.16 315.86,156.5 322.3,164.81 328.85,173.08 335.51,181.32 342.28,189.52 349.15,197.69 356.12,205.81 363.19,213.89 370.35,221.92 377.59,229.9 384.92,237.83 392.33,245.71 399.82,253.53 407.38,261.29 415.01,268.99 422.71,276.62 430.47,284.18 438.29,291.67 446.17,299.08 454.1,306.41 462.08,313.65 470.11,320.81 478.19,327.88 486.31,334.85 494.48,341.72 502.68,348.49 510.92,355.15 519.19,361.7 527.5,368.14 535.84,374.46 544.2,380.66 552.6,386.74 561.02,392.69 569.46,398.51 577.93,404.19 586.42,409.74 594.93,415.15 603.45,420.43 612,425.56" class="isoline" stroke-width="1.5"/>
+  <polyline points="499,72 501.3,74.4 503.6,76.79 505.91,79.18 508.22,81.58 510.53,83.97 512.84,86.36 515.16,88.74 517.48,91.13 519.8,93.51 522.13,95.9 524.45,98.28 526.78,100.66 529.12,103.04 531.45,105.41 533.79,107.79 536.13,110.16 538.47,112.53 540.81,114.9 543.16,117.27 545.51,119.64 547.86,122 550.21,124.36 552.56,126.72 554.92,129.08 557.28,131.44 559.64,133.79 562,136.14 564.36,138.49 566.73,140.84 569.1,143.19 571.47,145.53 573.84,147.87 576.21,150.21 578.59,152.55 580.96,154.88 583.34,157.22 585.72,159.55 588.1,161.87 590.49,164.2 592.87,166.52 595.26,168.84 597.64,171.16 600.03,173.47 602.42,175.78 604.82,178.09 607.21,180.4 609.6,182.7 612,185" class="isoline" stroke-width="1.5"/>
+  <text x="137.84" y="550.16" text-anchor="middle" class="ink" font-size="11" font-weight="600">3</text>
+  <text x="137.84" y="477.52" text-anchor="middle" class="ink" font-size="11" font-weight="600">3</text>
+  <text x="137.84" y="404.87" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">9</text>
+  <text x="137.84" y="318.95" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <text x="137.84" y="236.11" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <text x="210.48" y="550.16" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">7</text>
+  <text x="210.48" y="477.52" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">18</text>
+  <text x="210.48" y="404.87" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">11</text>
+  <text x="210.48" y="318.95" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">18</text>
+  <text x="210.48" y="236.11" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">6</text>
+  <text x="210.48" y="134.67" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <text x="283.13" y="550.16" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">8</text>
+  <text x="283.13" y="477.52" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">5</text>
+  <text x="283.13" y="404.87" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  <text x="369.05" y="550.16" text-anchor="middle" class="ink" font-size="11" font-weight="600">3</text>
+  <text x="369.05" y="477.52" text-anchor="middle" class="on-fill" font-size="11" font-weight="600">7</text>
+  <text x="369.05" y="404.87" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <text x="451.89" y="550.16" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <text x="451.89" y="477.52" text-anchor="middle" class="ink" font-size="11" font-weight="600">2</text>
+  <text x="451.89" y="318.95" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <text x="553.33" y="477.52" text-anchor="middle" class="ink" font-size="11" font-weight="600">3</text>
+  <text x="553.33" y="404.87" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <text x="553.33" y="318.95" text-anchor="middle" class="ink" font-size="11" font-weight="600">1</text>
+  <g class="hub">
+    <title>core.TaikaiRule: fan-in 28, fan-out 4</title>
+    <circle cx="539.6" cy="366.54" r="5" class="balanced ring" stroke-width="2"/>
+    <text x="530.6" y="370.54" text-anchor="end" class="ink halo" font-weight="500">TaikaiRule</text>
+  </g>
+  <g class="hub">
+    <title>configures.AbstractConfigurer: fan-in 21, fan-out 5</title>
+    <circle cx="503.78" cy="344.45" r="5" class="balanced ring" stroke-width="2"/>
+    <text x="494.78" y="348.45" text-anchor="end" class="ink halo" font-weight="500">AbstractConfigurer</text>
+  </g>
+  <g class="hub">
+    <title>exports.ArchitectureMetrics: fan-in 10, fan-out 6</title>
+    <circle cx="415.01" cy="325.52" r="5" class="balanced ring" stroke-width="2"/>
+    <text x="406.01" y="329.52" text-anchor="end" class="ink halo" font-weight="500">ArchitectureMetrics</text>
+  </g>
+  <g class="hub">
+    <title>exports.spi.ExportContext: fan-in 8, fan-out 2</title>
+    <circle cx="389.74" cy="426.32" r="5" class="balanced ring" stroke-width="2"/>
+    <text x="398.74" y="430.32" text-anchor="start" class="ink halo" font-weight="500">ExportContext</text>
+  </g>
+  <g class="hub">
+    <title>exports.ExportFiles: fan-in 3, fan-out 2</title>
+    <circle cx="290.92" cy="426.32" r="5" class="balanced ring" stroke-width="2"/>
+    <text x="299.92" y="430.32" text-anchor="start" class="ink halo" font-weight="500">ExportFiles</text>
+  </g>
+  <g class="hub">
+    <title>spring.SelfInvokedProxiedMethods: fan-in 2, fan-out 2</title>
+    <circle cx="257.68" cy="426.32" r="5" class="balanced ring" stroke-width="2"/>
+    <text x="257.68" y="446.32" text-anchor="middle" class="ink halo" font-weight="500">SelfInvokedProxiedMethods</text>
+  </g>
+  <text x="295.61" y="392.39" text-anchor="middle" class="muted halo">10</text>
+  <text x="415.01" y="272.99" text-anchor="middle" class="muted halo">100</text>
+  <text x="554.92" y="133.08" text-anchor="middle" class="muted halo">1000</text>
+  <text x="92" y="622" text-anchor="middle" class="muted">0</text>
+  <text x="72" y="596" text-anchor="end" class="muted">0</text>
+  <text x="183.67" y="622" text-anchor="middle" class="muted">1</text>
+  <text x="72" y="504.33" text-anchor="end" class="muted">1</text>
+  <text x="237.3" y="622" text-anchor="middle" class="muted">2</text>
+  <text x="72" y="450.7" text-anchor="end" class="muted">2</text>
+  <text x="328.97" y="622" text-anchor="middle" class="muted">5</text>
+  <text x="72" y="359.03" text-anchor="end" class="muted">5</text>
+  <text x="409.13" y="622" text-anchor="middle" class="muted">10</text>
+  <text x="72" y="278.87" text-anchor="end" class="muted">10</text>
+  <text x="494.65" y="622" text-anchor="middle" class="muted">20</text>
+  <text x="72" y="193.35" text-anchor="end" class="muted">20</text>
+  <text x="612" y="622" text-anchor="middle" class="muted">50</text>
+  <text x="72" y="76" text-anchor="end" class="muted">50</text>
+  <text x="92" y="646" text-anchor="start" class="muted">← used by few</text>
+  <text x="352" y="646" text-anchor="middle" class="ink-2">Fan-in</text>
+  <text x="612" y="646" text-anchor="end" class="muted">used by many →</text>
+  <text x="34" y="592" text-anchor="start" class="muted" transform="rotate(-90 34 592)">← depends on few</text>
+  <text x="34" y="332" text-anchor="middle" class="ink-2" transform="rotate(-90 34 332)">Fan-out</text>
+  <text x="34" y="72" text-anchor="end" class="muted" transform="rotate(-90 34 72)">depends on many →</text>
+</svg>

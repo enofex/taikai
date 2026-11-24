@@ -9,6 +9,7 @@
   .grid { stroke: #e6e5df; }
   .sequence { stroke: #52514e; }
   .leader { stroke: #b4b3ac; }
+  .isoline { fill: none; stroke: #b4b3ac; stroke-dasharray: 4 3; }
   .halo { paint-order: stroke; stroke: #f7f7f5; stroke-width: 3px; stroke-linejoin: round; }
   .ring { stroke: #f7f7f5; }
   .node { fill: #ffffff; stroke: #d9d8d1; }

@@ -996,7 +996,7 @@ The file explains every metric next to its values:
 | Package Dependencies | The dependencies as a graph and as a matrix: red ones close a cycle, orange ones depend on a less stable package. |
 | Libraries | The libraries that every package uses, such as `org.springframework`. |
 | Inheritance | The deepest and most extended classes. |
-| Coupling | The classes with the highest fan-in and fan-out, and optionally their entry points. |
+| Coupling | The fan-in and fan-out of the classes as a density map with the hubs, the classes with the highest fan-in and fan-out, the hubs with the highest fan-in × fan-out, and optionally the entry points. |
 | Cohesion | The least cohesive classes by LCOM4. Members used through `super` connect no methods. |
 
 Names link to their sources, which are looked up as for the SARIF export. The charts are named after
