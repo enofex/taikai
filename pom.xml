@@ -41,7 +41,7 @@
     <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
     <sonar-maven-plugin.version>5.9.0.7382</sonar-maven-plugin.version>
     <spring.version>7.1.0</spring.version>
-    <spring-boot.version>4.1.2</spring-boot.version>
+    <spring-boot.version>4.2.0</spring-boot.version>
     <quarkus.version>4.0.0</quarkus.version>
     <langchain4j.version>1.15.1</langchain4j.version>
 
