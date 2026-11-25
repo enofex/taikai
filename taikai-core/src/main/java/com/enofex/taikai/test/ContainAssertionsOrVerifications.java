@@ -61,6 +61,7 @@ final class ContainAssertionsOrVerifications {
             hamcrest(call) ||
             assertJ(call) ||
             truth(call) ||
+            playwright(call) ||
             cucumber(call) ||
             springMockMvc(call) ||
             archRule(call) ||
@@ -88,6 +89,14 @@ final class ContainAssertionsOrVerifications {
 
       private boolean truth(JavaCodeUnitAccess<?> call) {
         return declaredBy(call, "com.google.common.truth.Truth");
+      }
+
+      private boolean playwright(JavaCodeUnitAccess<?> call) {
+        return
+            declaredBy(call, "com.microsoft.playwright.assertions.APIResponseAssertions")
+                || declaredBy(call, "com.microsoft.playwright.assertions.LocatorAssertions")
+                || declaredBy(call, "com.microsoft.playwright.assertions.PageAssertions")
+                || declaredBy(call, "com.microsoft.playwright.assertions.PlaywrightAssertions");
       }
 
       private boolean cucumber(JavaCodeUnitAccess<?> call) {
