@@ -92,11 +92,7 @@ final class ContainAssertionsOrVerifications {
       }
 
       private boolean playwright(JavaCodeUnitAccess<?> call) {
-        return
-            declaredBy(call, "com.microsoft.playwright.assertions.APIResponseAssertions")
-                || declaredBy(call, "com.microsoft.playwright.assertions.LocatorAssertions")
-                || declaredBy(call, "com.microsoft.playwright.assertions.PageAssertions")
-                || declaredBy(call, "com.microsoft.playwright.assertions.PlaywrightAssertions");
+        return declaredBy(call, "com.microsoft.playwright.assertions.PlaywrightAssertions");
       }
 
       private boolean cucumber(JavaCodeUnitAccess<?> call) {
