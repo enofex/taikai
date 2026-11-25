@@ -2470,6 +2470,7 @@ following counts:
 | AssertJ        | any method on `org.assertj.core.api.Assertions`                              |
 | Hamcrest       | any method on `org.hamcrest.MatcherAssert`                                   |
 | Truth          | any method on `com.google.common.truth.Truth`                                |
+| Playwright     | any method on `com.microsoft.playwright.assertions.PlaywrightAssertions`     |
 | Mockito        | `org.mockito.Mockito.verify*`, `inOrder`, `capture`                          |
 | Cucumber       | any method on `io.cucumber.java.en.Then` or `io.cucumber.java.en.Given`      |
 | Spring MockMvc | `org.springframework.test.web.servlet.ResultActions.andExpect` / `andExpectAll` |
